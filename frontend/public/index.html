@@ -54,12 +54,14 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
         <title>Military Disability Nexus - Medical Documentation Services</title>
-        <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
-        <!--
-        These two scripts have been added for the testing, only load in development
+        <!-- 
+        NOTE: emergent-main.js and rrweb scripts have been temporarily disabled
+        because they intercept fetch requests and cause "Response body already used" errors.
+        Re-enable them only in production or when not using admin features.
         -->
+        <!--
+        <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
         <script>
-            // Only load rrweb in development or when explicitly enabled
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || '%REACT_APP_ENABLE_RRWEB%' === 'true') {
                 var rrwebScript1 = document.createElement('script');
                 rrwebScript1.src = 'https://unpkg.com/rrweb@latest/dist/rrweb.min.js';
@@ -70,6 +72,7 @@
                 document.head.appendChild(rrwebScript2);
             }
         </script>
+        -->
         <!--
         These two scripts have been added for the Visual Edits, please do not edit or remove them
         -->

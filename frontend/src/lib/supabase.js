@@ -12,12 +12,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    // Reduce retry attempts to avoid flooding console with errors
-    retryAttempts: 3,
-  },
-  global: {
-    // Use native fetch to avoid conflicts with monitoring tools
-    fetch: (...args) => fetch(...args),
   },
 });
 
