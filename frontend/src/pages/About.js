@@ -67,7 +67,7 @@ const About = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
             <div className="flex items-center gap-3 mb-6">
-              <Target className="w-8 h-8 text-blue-600" />
+              <Target className="w-8 h-8 text-navy-700" />
               <h2 className="text-3xl font-bold text-slate-900">⚖ Our Mission</h2>
             </div>
             <p className="text-lg text-slate-700 leading-relaxed mb-6">
@@ -85,7 +85,7 @@ const About = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
             <div className="flex items-center gap-3 mb-6">
-              <Award className="w-8 h-8 text-blue-600" />
+              <Award className="w-8 h-8 text-navy-700" />
               <h2 className="text-3xl font-bold text-slate-900">Why "Clinician-Led" Matters</h2>
             </div>
             <p className="text-lg text-slate-700 leading-relaxed mb-6">
@@ -108,28 +108,28 @@ const About = () => {
             <h2 className="text-3xl font-bold text-slate-900 mb-6">What We Offer</h2>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-1">Nexus Letters</h3>
                   <p className="text-slate-700">Expert medical opinions linking your condition to service</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-1">DBQ Evaluations</h3>
                   <p className="text-slate-700">Comprehensive disability benefits questionnaires</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-1">Aid & Attendance</h3>
                   <p className="text-slate-700">Medical evaluations for pension benefits</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-1">C&P Exam Coaching</h3>
                   <p className="text-slate-700">Preparation guidance for compensation exams</p>
@@ -139,7 +139,7 @@ const About = () => {
             <div className="mt-8">
               <Link
                 to="/services"
-                className="inline-flex items-center space-x-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                className="inline-flex items-center space-x-2 text-navy-700 font-semibold hover:text-navy-800 transition-colors"
               >
                 <span>View All Services</span>
                 <ArrowRight className="w-5 h-5" />
@@ -152,7 +152,7 @@ const About = () => {
       {/* CTA Section */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-12 text-center shadow-2xl relative overflow-hidden">
+          <div className="bg-gradient-to-br from-navy-700 via-navy-800 to-navy-900 rounded-3xl p-12 text-center shadow-2xl relative overflow-hidden">
             <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <h2 className="text-4xl font-bold text-white mb-6">
@@ -163,7 +163,7 @@ const About = () => {
               </p>
               <Link
                 to="/contact"
-                className="inline-flex items-center space-x-2 bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-slate-50 transition-all hover:scale-105 shadow-xl"
+                className="inline-flex items-center space-x-2 bg-white text-navy-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-slate-50 transition-all hover:scale-105 shadow-xl"
               >
                 <span>Contact Us</span>
                 <ArrowRight className="w-5 h-5" />

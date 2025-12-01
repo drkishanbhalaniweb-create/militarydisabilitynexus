@@ -108,11 +108,11 @@ const Disclaimer = () => {
                   <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">8. Acknowledgement and Agreement</h2>
                   <p className="text-black leading-relaxed mb-6">
                     By continuing to access and use this Site, you hereby acknowledge that you have read, understood, and agree to be bound by the terms of this Disclaimer, as well as our{' '}
-                    <Link to="/terms" className="text-blue-600 hover:text-blue-700 underline font-semibold">
+                    <Link to="/terms" className="text-navy-600 hover:text-navy-700 underline font-semibold">
                       Website Terms and Conditions
                     </Link>
                     ,{' '}
-                    <Link to="/privacy" className="text-blue-600 hover:text-blue-700 underline font-semibold">
+                    <Link to="/privacy" className="text-navy-600 hover:text-navy-700 underline font-semibold">
                       Privacy Policy
                     </Link>
                     , and Cookie Policy, which are incorporated herein by reference.
@@ -126,7 +126,7 @@ const Disclaimer = () => {
                   <div className="bg-slate-50 rounded-lg p-6 mb-6">
                     <p className="text-slate-800 font-semibold mb-2">MAGLINC CONSULTANCY LLC d/b/a Military Disability Nexus</p>
                     <p className="text-black">30 N Gould St Ste R, Sheridan, WY 82801</p>
-                    <p className="text-black">Email: <a href="mailto:admin@maglincconsultancy.com" className="text-blue-600 hover:text-blue-700 underline">admin@maglincconsultancy.com</a></p>
+                    <p className="text-black">Email: <a href="mailto:admin@maglincconsultancy.com" className="text-navy-600 hover:text-navy-700 underline">admin@maglincconsultancy.com</a></p>
                   </div>
 
                   <p className="text-black text-center font-semibold mt-8">

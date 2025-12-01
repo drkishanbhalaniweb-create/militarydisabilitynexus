@@ -230,7 +230,7 @@ const IntakeForm = () => {
             </div>
 
             {/* Rush Service Checkbox */}
-            <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
+            <div className="flex items-start gap-3 p-4 bg-navy-50/50 rounded-lg border border-navy-100">
               <input
                 type="checkbox"
                 id="rushService"
@@ -249,7 +249,8 @@ const IntakeForm = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-indigo-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                style={{ backgroundColor: '#B91C3C' }}
               >
                 {loading ? (
                   <>
@@ -267,7 +268,7 @@ const IntakeForm = () => {
               <button
                 type="button"
                 onClick={() => navigate('/forms?view=schedule')}
-                className="flex-1 bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-slate-300 hover:border-slate-400 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-white text-navy-600 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-slate-300 hover:border-slate-400 transition-colors flex items-center justify-center gap-2"
               >
                 <span>Free Discovery Call</span>
               </button>

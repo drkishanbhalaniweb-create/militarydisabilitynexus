@@ -110,7 +110,7 @@ const AidAttendanceForm = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-emerald-50 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-navy-50 to-slate-100 py-12">
         <div className="max-w-2xl mx-auto px-4">
           <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -146,7 +146,7 @@ const AidAttendanceForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-emerald-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-navy-50 to-slate-100 py-12">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
@@ -604,7 +604,8 @@ const AidAttendanceForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-indigo-700 transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="w-full text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            style={{ backgroundColor: '#B91C3C' }}
           >
             {loading ? (
               <>

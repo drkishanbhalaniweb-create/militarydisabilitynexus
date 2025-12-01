@@ -33,15 +33,15 @@ const PaymentCanceled = () => {
           </div>
 
           {/* Help Card */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
-            <h3 className="font-semibold text-blue-900 mb-3 flex items-center">
+          <div className="bg-navy-50 border border-navy-200 rounded-xl p-6 mb-6">
+            <h3 className="font-semibold text-navy-900 mb-3 flex items-center">
               <HelpCircle className="w-5 h-5 mr-2" />
               Need Help?
             </h3>
-            <p className="text-sm text-blue-800 mb-3">
+            <p className="text-sm text-navy-800 mb-3">
               If you encountered any issues during checkout or have questions about payment:
             </p>
-            <ul className="text-sm text-blue-800 space-y-2">
+            <ul className="text-sm text-navy-800 space-y-2">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
                 <span>Contact us at contact@militarydisabilitynexus.com</span>
@@ -61,7 +61,8 @@ const PaymentCanceled = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               to="/"
-              className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-center flex items-center justify-center"
+              className="flex-1 text-white px-6 py-3 rounded-lg font-semibold transition-all text-center flex items-center justify-center"
+              style={{ backgroundColor: '#B91C3C' }}
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Return to Home

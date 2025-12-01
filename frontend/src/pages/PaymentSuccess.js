@@ -115,12 +115,12 @@ const PaymentSuccess = () => {
           </div>
 
           {/* Important Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
-            <h3 className="font-semibold text-blue-900 mb-3 flex items-center">
+          <div className="bg-navy-50 border border-navy-200 rounded-xl p-6 mb-6">
+            <h3 className="font-semibold text-navy-900 mb-3 flex items-center">
               <Mail className="w-5 h-5 mr-2" />
               Important Information
             </h3>
-            <ul className="text-sm text-blue-800 space-y-2">
+            <ul className="text-sm text-navy-800 space-y-2">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
                 <span>Check your spam folder if you don't receive the confirmation email</span>
@@ -140,7 +140,8 @@ const PaymentSuccess = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               to="/"
-              className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-center flex items-center justify-center"
+              className="flex-1 text-white px-6 py-3 rounded-lg font-semibold transition-all text-center flex items-center justify-center"
+              style={{ backgroundColor: '#B91C3C' }}
             >
               Return to Home
               <ArrowRight className="w-5 h-5 ml-2" />

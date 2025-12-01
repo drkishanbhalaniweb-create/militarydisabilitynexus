@@ -84,7 +84,7 @@ const BlogPost = () => {
       />
       <div className="bg-slate-50 min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-600 to-indigo-700 py-16">
+      <section className="bg-gradient-to-br from-navy-700 to-navy-800 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             to="/blog"
@@ -150,7 +150,7 @@ const BlogPost = () => {
         )}
 
         {/* CTA */}
-        <div className="mt-12 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl p-8 text-center">
+        <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">
             Need help with your VA claim?
           </h3>

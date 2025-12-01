@@ -156,9 +156,10 @@ const Forms = () => {
                 onClick={() => setShowCalendly(false)}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                   !showCalendly
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'text-white shadow-lg'
                     : 'bg-white/80 text-slate-700 hover:bg-white'
                 }`}
+                style={!showCalendly ? { backgroundColor: '#B91C3C' } : {}}
               >
                 <Send className="w-5 h-5 inline-block mr-2" />
                 Submit Form
@@ -167,9 +168,10 @@ const Forms = () => {
                 onClick={() => setShowCalendly(true)}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                   showCalendly
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'text-white shadow-lg'
                     : 'bg-white/80 text-slate-700 hover:bg-white'
                 }`}
+                style={showCalendly ? { backgroundColor: '#B91C3C' } : {}}
               >
                 <Calendar className="w-5 h-5 inline-block mr-2" />
                 Schedule Call
@@ -212,7 +214,7 @@ const Forms = () => {
                     value={formData.formType}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-slate-900"
+                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900"
                   >
                     {FORM_TYPES.map(type => (
                       <option key={type.value} value={type.value}>
@@ -233,7 +235,7 @@ const Forms = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
                     placeholder="John Doe"
                   />
                 </div>
@@ -249,7 +251,7 @@ const Forms = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
                     placeholder="+1 307 301-2019"
                   />
                 </div>
@@ -265,7 +267,7 @@ const Forms = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -281,7 +283,7 @@ const Forms = () => {
                     onChange={handleChange}
                     rows={6}
                     maxLength={maxWords * 6}
-                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all resize-none text-slate-900 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all resize-none text-slate-900 placeholder:text-slate-600"
                     placeholder="Tell us more about your needs..."
                   />
                   <div className="mt-2 text-sm text-slate-500 text-right">
@@ -335,7 +337,7 @@ const Forms = () => {
                 </div>
 
                 {/* Rush Service Checkbox */}
-                <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
+                <div className="flex items-start gap-3 p-4 bg-navy-50/50 rounded-lg border border-navy-100">
                   <input
                     type="checkbox"
                     id="rushService"
@@ -353,7 +355,8 @@ const Forms = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || wordCount > maxWords}
-                  className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 hover:scale-105"
+                  className="w-full text-white py-4 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 hover:scale-105"
+                  style={{ backgroundColor: '#B91C3C' }}
                 >
                   {isSubmitting ? (
                     <>

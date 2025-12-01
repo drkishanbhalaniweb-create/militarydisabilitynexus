@@ -65,7 +65,7 @@ const Home = () => {
             role="presentation"
             aria-hidden="true"
           ></div>
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600/50 via-indigo-600/45 to-purple-600/50"></div>
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-navy-700/50 via-navy-600/45 to-navy-500/50"></div>
         </div>
 
         {/* Hero Content */}
@@ -88,13 +88,15 @@ const Home = () => {
               <div className="flex flex-col gap-3 sm:gap-4 w-full">
                 <button
                   onClick={() => navigate('/forms?view=schedule')}
-                  className="inline-flex items-center justify-center text-center bg-blue-600 text-white px-4 sm:px-8 py-3 sm:py-3.5 rounded-lg font-semibold text-sm sm:text-base hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center text-center text-white px-4 sm:px-8 py-3 sm:py-3.5 rounded-lg font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  style={{ backgroundColor: '#B91C3C' }}
                 >
-                  <span className="truncate">Free Discovery Call for Nexus Letter</span>
+                  <span className="truncate">Free Discovery Call</span>
                 </button>
                 <Link
                   to="/claim-readiness-review"
-                  className="inline-flex items-center justify-center text-center bg-white text-blue-600 px-4 sm:px-8 py-3 sm:py-3.5 rounded-lg font-semibold text-sm sm:text-base border-2 border-white/30 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-300/50 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center text-center bg-white px-4 sm:px-8 py-3 sm:py-3.5 rounded-lg font-semibold text-sm sm:text-base border-2 border-white/30 hover:shadow-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  style={{ color: '#B91C3C' }}
                 >
                   <span className="truncate">Book Claim Readiness Review</span>
                 </Link>
@@ -143,42 +145,42 @@ const Home = () => {
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 md:gap-16">
               {/* Veterans Served */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-40 h-40 bg-blue-500 rounded-full flex items-center justify-center shadow-2xl mb-6 transform hover:scale-110 transition-transform">
+              <Link to="/contact" className="flex flex-col items-center text-center group">
+                <div className="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl mb-6 transform group-hover:scale-110 transition-transform cursor-pointer" style={{ backgroundColor: '#B91C3C' }}>
                   <Users className="w-16 h-16 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-slate-900 mb-2">1,000+</div>
                 <div className="text-base font-semibold text-slate-700 mb-2">Veterans Served</div>
-                <p className="text-sm text-slate-600">Trusted by thousands nationwide</p>
-              </div>
+                <p className="text-sm text-slate-600 group-hover:underline">Get in touch</p>
+              </Link>
               
               {/* Average Turnaround */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-40 h-40 bg-blue-500 rounded-full flex items-center justify-center shadow-2xl mb-6 transform hover:scale-110 transition-transform">
+              <Link to="/community" className="flex flex-col items-center text-center group">
+                <div className="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl mb-6 transform group-hover:scale-110 transition-transform cursor-pointer" style={{ backgroundColor: '#B91C3C' }}>
                   <Clock className="w-16 h-16 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-slate-900 mb-2">7-10 Days</div>
                 <div className="text-base font-semibold text-slate-700 mb-2">Average Turnaround</div>
-                <p className="text-sm text-slate-600">Fast professional service</p>
-              </div>
+                <p className="text-sm text-slate-600 group-hover:underline">Fast professional service</p>
+              </Link>
               
               {/* Satisfaction Rate */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-40 h-40 bg-blue-500 rounded-full flex items-center justify-center shadow-2xl mb-6 transform hover:scale-110 transition-transform">
+              <Link to="/case-studies" className="flex flex-col items-center text-center group">
+                <div className="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl mb-6 transform group-hover:scale-110 transition-transform cursor-pointer" style={{ backgroundColor: '#B91C3C' }}>
                   <Award className="w-16 h-16 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-slate-900 mb-2">98%</div>
                 <div className="text-base font-semibold text-slate-700 mb-2">Satisfaction Rate</div>
-                <p className="text-sm text-slate-600">Highly rated by veterans</p>
-              </div>
+                <p className="text-sm text-slate-600 group-hover:underline">Read Case Studies</p>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
 
-      {/* Services Section with Blue Background */}
-      <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white py-16 sm:py-24 w-full" style={{ marginTop: '-2px' }}>
+      {/* Services Section with Navy Background */}
+      <section className="relative bg-gradient-to-br from-navy-600 via-navy-700 to-navy-800 text-white py-16 sm:py-24 w-full" style={{ marginTop: '-2px' }}>
         {/* Top Wave Transition */}
         <div className="absolute top-0 left-0 w-full" style={{ marginTop: '-1px', pointerEvents: 'none' }}>
           <svg className="w-full" viewBox="0 0 1440 120" preserveAspectRatio="none" style={{ height: '120px', display: 'block', verticalAlign: 'middle' }}>
@@ -215,7 +217,7 @@ const Home = () => {
                   </div>
                   <Link
                     to={`/services/${service.slug}`}
-                    className="inline-flex items-center text-white font-semibold text-sm hover:text-blue-200 transition-colors"
+                    className="inline-flex items-center text-white font-semibold text-sm hover:text-navy-200 transition-colors"
                   >
                     <span>Learn more</span>
                     <ArrowRight className="w-4 h-4 ml-1" />
@@ -250,7 +252,7 @@ const Home = () => {
               { num: '04', title: 'Receive Documentation', desc: 'Get your completed nexus letter or DBQ' }
             ].map((step) => (
               <div key={step.num} className="text-center">
-                <div className="text-5xl sm:text-6xl font-bold text-blue-500/30 mb-3 sm:mb-4">{step.num}</div>
+                <div className="text-5xl sm:text-6xl font-bold text-navy-500/30 mb-3 sm:mb-4">{step.num}</div>
                 <h3 className="text-lg sm:text-xl font-bold mb-2 text-white">{step.title}</h3>
                 <p className="text-slate-300 text-sm sm:text-base">{step.desc}</p>
               </div>
@@ -299,11 +301,11 @@ const Home = () => {
                   )}
                   <div className="p-6">
                     {post.category && (
-                      <div className="text-xs font-semibold text-indigo-600 uppercase mb-2">
+                      <div className="text-xs font-semibold uppercase mb-2" style={{ color: '#1e3a5f' }}>
                         {post.category}
                       </div>
                     )}
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2 transition-colors" style={{ '--tw-text-opacity': '1' }} onMouseEnter={(e) => e.currentTarget.style.color = '#1e3a5f'} onMouseLeave={(e) => e.currentTarget.style.color = '#111827'}>
                       {post.title}
                     </h3>
                     <div className="text-sm text-slate-600 mb-4 line-clamp-2 whitespace-pre-wrap">
@@ -324,7 +326,7 @@ const Home = () => {
           <div className="text-center mt-12">
             <Link
               to="/blog"
-              className="inline-flex items-center space-x-2 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
+              className="inline-flex items-center space-x-2 text-navy-700 font-semibold hover:text-navy-800 transition-colors"
             >
               <span>View All Resources</span>
               <ArrowRight className="w-5 h-5" />

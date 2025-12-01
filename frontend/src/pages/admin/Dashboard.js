@@ -39,7 +39,7 @@ const Dashboard = () => {
   };
 
   const statCards = [
-    { name: 'Total Contacts', value: stats.contacts, icon: MessageSquare, color: 'bg-blue-500' },
+    { name: 'Total Contacts', value: stats.contacts, icon: MessageSquare, color: 'bg-navy-600' },
     { name: 'Services', value: stats.services, icon: Briefcase, color: 'bg-indigo-500' },
     { name: 'Blog Posts', value: stats.blogPosts, icon: FileText, color: 'bg-purple-500' },
     { name: 'Files Uploaded', value: stats.files, icon: Upload, color: 'bg-orange-500' },

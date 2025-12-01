@@ -53,7 +53,7 @@ const SuccessModal = ({ isOpen, onClose, title, message }) => {
           {/* Action Button */}
           <button
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-navy-700 to-navy-800 text-white px-6 py-3 rounded-lg font-semibold hover:from-navy-800 hover:to-navy-900 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Got it, thanks!
           </button>

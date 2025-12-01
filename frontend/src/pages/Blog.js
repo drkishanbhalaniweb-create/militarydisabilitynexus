@@ -68,7 +68,7 @@ const Blog = () => {
       {/* Header */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg">
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-navy-600 to-navy-800 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg">
             <span>BLOG</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-6 drop-shadow-sm">Guides & Updates</h1>
@@ -89,7 +89,7 @@ const Blog = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 data-testid="blog-search-input"
-                className="w-full px-6 py-4 pl-12 rounded-full bg-white/80 backdrop-blur-xl border border-white/40 shadow-lg focus:border-indigo-500 focus:outline-none text-slate-900"
+                className="w-full px-6 py-4 pl-12 rounded-full bg-white/80 backdrop-blur-xl border border-white/40 shadow-lg focus:border-navy-600 focus:outline-none text-slate-900"
               />
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
             </div>
@@ -103,7 +103,7 @@ const Blog = () => {
                 data-testid={`category-${cat.value || 'all'}`}
                 className={`px-6 py-2 rounded-full font-medium transition-all ${
                   selectedCategory === cat.value
-                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-br from-navy-600 to-navy-800 text-white shadow-lg'
                     : 'bg-white/80 backdrop-blur-xl text-slate-700 hover:bg-white border border-white/40 shadow-lg'
                 }`}
               >
@@ -116,7 +116,7 @@ const Blog = () => {
         {/* Posts Grid */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-navy-700 mx-auto" />
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20">
@@ -138,14 +138,14 @@ const Blog = () => {
                     className="h-48 w-full object-cover"
                   />
                 ) : (
-                  <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600" />
+                  <div className="h-48 bg-gradient-to-br from-navy-600 to-navy-800" />
                 )}
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs text-indigo-600 font-semibold uppercase">{post.category}</span>
+                    <span className="text-xs text-navy-700 font-semibold uppercase">{post.category}</span>
                     <span className="text-xs text-slate-500">{post.published_at}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-navy-700 transition-colors">
                     {post.title}
                   </h3>
                   <div className="text-slate-600 text-sm mb-4 whitespace-pre-wrap">
@@ -158,7 +158,7 @@ const Blog = () => {
                       <Clock className="w-4 h-4" />
                       <span>{post.read_time}</span>
                     </div>
-                    <div className="flex items-center text-indigo-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                    <div className="flex items-center text-navy-700 font-semibold text-sm group-hover:translate-x-1 transition-transform">
                       <span>Read more</span>
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </div>

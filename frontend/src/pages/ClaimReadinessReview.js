@@ -111,11 +111,11 @@ const ClaimReadinessReview = () => {
         keywords="VA claim review, disability claim readiness, claim preparation, veteran services"
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-navy-50 via-navy-100 to-slate-100 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-navy-600 to-navy-800 rounded-full mb-6 shadow-lg">
               <FileText className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-4xl font-bold text-slate-900 mb-4">
@@ -124,7 +124,7 @@ const ClaimReadinessReview = () => {
             <p className="text-xl text-slate-600 mb-2">
               Comprehensive analysis of your VA disability claim
             </p>
-            <div className="inline-flex items-center bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-bold text-2xl">
+            <div className="inline-flex items-center bg-navy-100 text-navy-800 px-6 py-3 rounded-full font-bold text-2xl">
               $225 - Pay Now
             </div>
           </div>
@@ -182,7 +182,7 @@ const ClaimReadinessReview = () => {
                   value={formData.veteranName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   placeholder="John Doe"
                 />
               </div>
@@ -200,7 +200,7 @@ const ClaimReadinessReview = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   placeholder="john.doe@example.com"
                 />
               </div>
@@ -218,7 +218,7 @@ const ClaimReadinessReview = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   placeholder="+1 307 301-2019"
                 />
               </div>
@@ -232,13 +232,13 @@ const ClaimReadinessReview = () => {
                   {SERVICE_TYPES.map((type) => (
                     <label
                       key={type.value}
-                      className="flex items-start cursor-pointer p-3 border border-slate-200 rounded-lg hover:bg-blue-50 transition-colors"
+                      className="flex items-start cursor-pointer p-3 border border-slate-200 rounded-lg hover:bg-navy-50 transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={formData.serviceTypes.includes(type.value)}
                         onChange={() => handleServiceTypeToggle(type.value)}
-                        className="mt-1 w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                        className="mt-1 w-5 h-5 text-navy-600 border-slate-300 rounded focus:ring-navy-500"
                       />
                       <span className="ml-3 text-slate-700">{type.label}</span>
                     </label>
@@ -260,7 +260,7 @@ const ClaimReadinessReview = () => {
                   value={formData.currentStatus}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                 >
                   <option value="">Select status...</option>
                   <option value="preparing">Preparing to File</option>
@@ -283,7 +283,7 @@ const ClaimReadinessReview = () => {
                   value={formData.additionalInfo}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   placeholder="Tell us about your claim, conditions, or any specific concerns..."
                 />
               </div>
@@ -297,15 +297,15 @@ const ClaimReadinessReview = () => {
                     checked={formData.acceptedTerms}
                     onChange={handleChange}
                     required
-                    className="mt-1 w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                    className="mt-1 w-5 h-5 text-navy-600 border-slate-300 rounded focus:ring-navy-500"
                   />
                   <span className="ml-3 text-sm text-slate-700">
                     I agree to the{' '}
-                    <Link to="/terms" target="_blank" className="text-blue-600 hover:text-blue-700 underline font-semibold">
+                    <Link to="/terms" target="_blank" className="text-navy-600 hover:text-navy-700 underline font-semibold">
                       Terms and Conditions
                     </Link>
                     {' '}and{' '}
-                    <Link to="/privacy" target="_blank" className="text-blue-600 hover:text-blue-700 underline font-semibold">
+                    <Link to="/privacy" target="_blank" className="text-navy-600 hover:text-navy-700 underline font-semibold">
                       Privacy Policy
                     </Link>
                     {' '}*
@@ -317,7 +317,8 @@ const ClaimReadinessReview = () => {
               <button
                 type="submit"
                 disabled={loading || formData.serviceTypes.length === 0 || !formData.acceptedTerms}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl"
+                className="w-full text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl"
+                style={{ backgroundColor: '#B91C3C' }}
               >
                 {loading ? (
                   <>

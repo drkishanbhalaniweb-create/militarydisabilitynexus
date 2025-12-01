@@ -120,7 +120,7 @@ const Contact = () => {
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Get in Touch</h2>
               <div className="space-y-4">
                 <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-navy-600 to-navy-800 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
                     <Mail className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -130,7 +130,7 @@ const Contact = () => {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-navy-600 to-navy-800 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
                     <Phone className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -144,7 +144,8 @@ const Contact = () => {
               <div className="mt-6 pt-6 border-t border-slate-200">
                 <button
                   onClick={() => navigate('/forms?view=schedule')}
-                  className="w-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center space-x-2"
+                  className="w-full text-white px-6 py-3 rounded-lg font-semibold hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center space-x-2"
+                  style={{ backgroundColor: '#B91C3C' }}
                 >
                   <Calendar className="w-5 h-5" />
                   <span>Schedule Discovery Call</span>
@@ -214,13 +215,13 @@ const Contact = () => {
                     {SERVICE_TYPES.map((type) => (
                       <label
                         key={type.value}
-                        className="flex items-center cursor-pointer p-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg hover:bg-blue-50/60 transition-colors"
+                        className="flex items-center cursor-pointer p-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg hover:bg-navy-50/60 transition-colors"
                       >
                         <input
                           type="checkbox"
                           checked={formData.serviceTypes.includes(type.value)}
                           onChange={() => handleServiceTypeToggle(type.value)}
-                          className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                          className="w-4 h-4 text-navy-600 border-slate-300 rounded focus:ring-navy-500"
                         />
                         <span className="ml-3 text-slate-700">{type.label}</span>
                       </label>
@@ -250,7 +251,8 @@ const Contact = () => {
                   type="submit"
                   disabled={loading || formData.serviceTypes.length === 0}
                   data-testid="contact-submit-button"
-                  className="w-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="w-full text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  style={{ backgroundColor: '#B91C3C' }}
                 >
                   {loading ? (
                     <>

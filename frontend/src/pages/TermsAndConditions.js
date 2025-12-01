@@ -50,7 +50,7 @@ const TermsAndConditions = () => {
                     These Terms and Conditions of Use (these "Terms") are entered into by and between you and MAGLINC CONSULTANCY LLC, a Wyoming limited liability company doing business as Military Disability Nexus (the "Company," "we," or "us"). The following Terms, together with any documents they expressly incorporate by reference, govern your access to and use of https://www.militarydisabilitynexus.com, including any content, functionality, communication channels, software, and services offered on or through it (the "Website"), whether as a guest or a registered user.
                   </p>
                   <p className="text-slate-700 leading-relaxed mb-4">
-                    Please read the Terms carefully before you start to use the Website. By using the Website, you accept and agree to be bound and abide by these Terms and our <Link to="/privacy" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</Link>, incorporated herein by reference. If you do not want to agree to these Terms or the Privacy Policy, you must not access or use the Website.
+                    Please read the Terms carefully before you start to use the Website. By using the Website, you accept and agree to be bound and abide by these Terms and our <Link to="/privacy" className="text-navy-600 hover:text-navy-700 underline">Privacy Policy</Link>, incorporated herein by reference. If you do not want to agree to these Terms or the Privacy Policy, you must not access or use the Website.
                   </p>
                   <p className="text-slate-700 leading-relaxed mb-6">
                     This Website is offered and available to users who are 18 years of age or older and reside in the United States or any of its territories or possessions. By using this Website, you represent and warrant that you are of legal age to form a binding contract with the Company and meet all of the foregoing eligibility requirements.
@@ -163,7 +163,7 @@ const TermsAndConditions = () => {
                   {/* Section 11 */}
                   <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">11. Privacy and Health Information</h2>
                   <p className="text-slate-700 leading-relaxed mb-6">
-                    All information we collect on this Website is subject to our <Link to="/privacy" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</Link>. By using the Website, you consent to all actions taken by us with respect to your information in compliance with the Privacy Policy. When you engage our services and submit Protected Health Information ("PHI"), such information is protected in accordance with the Health Insurance Portability and Accountability Act of 1996 ("HIPAA") and our Business Associate Agreements with contractors.
+                    All information we collect on this Website is subject to our <Link to="/privacy" className="text-navy-600 hover:text-navy-700 underline">Privacy Policy</Link>. By using the Website, you consent to all actions taken by us with respect to your information in compliance with the Privacy Policy. When you engage our services and submit Protected Health Information ("PHI"), such information is protected in accordance with the Health Insurance Portability and Accountability Act of 1996 ("HIPAA") and our Business Associate Agreements with contractors.
                   </p>
 
                   {/* Section 12 */}
@@ -223,7 +223,7 @@ const TermsAndConditions = () => {
                     This website is operated by MAGLINC CONSULTANCY LLC d/b/a Military Disability Nexus, 30 N Gould St Ste R, Sheridan, WY 82801.
                   </p>
                   <p className="text-slate-700 leading-relaxed">
-                    All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: <a href="mailto:admin@maglincconsultancy.com" className="text-blue-600 hover:text-blue-700 underline">admin@maglincconsultancy.com</a>
+                    All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: <a href="mailto:admin@maglincconsultancy.com" className="text-navy-600 hover:text-navy-700 underline">admin@maglincconsultancy.com</a>
                   </p>
 
                 </div>

@@ -40,7 +40,8 @@ const PaymentButton = ({
     <button
       onClick={handlePayment}
       disabled={loading || disabled}
-      className={`w-full bg-indigo-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 ${className}`}
+      className={`w-full text-white px-8 py-4 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 ${className}`}
+      style={{ backgroundColor: '#B91C3C' }}
     >
       {loading ? (
         <>

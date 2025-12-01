@@ -24,12 +24,12 @@ const TestPayment = () => {
         </div>
 
         {/* Test Card Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
-          <h2 className="text-lg font-semibold text-blue-900 mb-3 flex items-center">
+        <div className="bg-navy-50 border border-navy-200 rounded-xl p-6 mb-8">
+          <h2 className="text-lg font-semibold text-navy-900 mb-3 flex items-center">
             <CreditCard className="w-5 h-5 mr-2" />
             Test Cards
           </h2>
-          <div className="space-y-2 text-sm text-blue-800">
+          <div className="space-y-2 text-sm text-navy-800">
             <div className="flex items-start">
               <CheckCircle className="w-4 h-4 mr-2 mt-0.5 text-green-600" />
               <div>

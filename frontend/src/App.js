@@ -6,10 +6,14 @@ import { Toaster } from 'sonner';
 // Eager load critical components (above the fold)
 import Home from './pages/Home';
 import Layout from './components/Layout';
+import Community from './pages/Community';
+import QuestionDetail from './pages/QuestionDetail';
 
 // Lazy load non-critical routes
 const Services = lazy(() => import('./pages/Services'));
 const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+const CaseStudies = lazy(() => import('./pages/CaseStudies'));
+const CaseStudyDetail = lazy(() => import('./pages/CaseStudyDetail'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const About = lazy(() => import('./pages/About'));
@@ -32,9 +36,12 @@ const AdminContacts = lazy(() => import('./pages/admin/Contacts'));
 const AdminFormSubmissions = lazy(() => import('./pages/admin/FormSubmissions'));
 const AdminServices = lazy(() => import('./pages/admin/Services'));
 const AdminBlog = lazy(() => import('./pages/admin/Blog'));
+const AdminCaseStudies = lazy(() => import('./pages/admin/CaseStudies'));
 const AdminServiceForm = lazy(() => import('./pages/admin/ServiceForm'));
 const AdminBlogForm = lazy(() => import('./pages/admin/BlogForm'));
+const AdminCaseStudyForm = lazy(() => import('./pages/admin/CaseStudyForm'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminCommunity = lazy(() => import('./pages/admin/Community'));
 const ProtectedRoute = lazy(() => import('./components/admin/ProtectedRoute'));
 
 import './App.css';
@@ -61,6 +68,8 @@ function App() {
           <Route index element={<Home />} />
           <Route path="services" element={<Services />} />
           <Route path="services/:slug" element={<ServiceDetail />} />
+          <Route path="case-studies" element={<CaseStudies />} />
+          <Route path="case-studies/:slug" element={<CaseStudyDetail />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="about" element={<About />} />
@@ -75,6 +84,8 @@ function App() {
           <Route path="terms" element={<TermsAndConditions />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="disclaimer" element={<Disclaimer />} />
+          <Route path="community" element={<Community />} />
+          <Route path="community/question/:slug" element={<QuestionDetail />} />
         </Route>
 
         {/* Admin Routes */}
@@ -120,6 +131,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/case-studies"
+          element={
+            <ProtectedRoute>
+              <AdminCaseStudies />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/services/new"
           element={
             <ProtectedRoute>
@@ -144,6 +163,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/community"
+          element={
+            <ProtectedRoute>
+              <AdminCommunity />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/users"
           element={
             <ProtectedRoute>
@@ -156,6 +183,22 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminBlogForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/case-studies/new"
+          element={
+            <ProtectedRoute>
+              <AdminCaseStudyForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/case-studies/edit/:id"
+          element={
+            <ProtectedRoute>
+              <AdminCaseStudyForm />
             </ProtectedRoute>
           }
         />

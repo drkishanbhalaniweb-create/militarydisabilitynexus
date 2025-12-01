@@ -293,7 +293,8 @@ const FileUpload = ({
             <button
               onClick={uploadFiles}
               disabled={uploading}
-              className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full text-white py-3 px-4 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              style={{ backgroundColor: '#B91C3C' }}
             >
               {uploading ? (
                 <span className="flex items-center justify-center space-x-2">

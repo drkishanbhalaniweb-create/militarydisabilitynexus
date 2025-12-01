@@ -20,9 +20,10 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Services', path: '/services' },
+    { name: 'Case Studies', path: '/case-studies' },
     { name: 'Blog', path: '/blog' },
+    { name: 'Community', path: '/community' },
     { name: 'Forms', path: '/forms' },
-    { name: 'About us', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -73,7 +74,8 @@ const Header = () => {
           <Link
             to="/contact"
             data-testid="header-cta-button"
-            className="hidden md:flex items-center space-x-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+            className="hidden md:flex items-center space-x-2 text-white px-6 py-2.5 rounded-lg font-semibold transition-all hover:opacity-90"
+            style={{ backgroundColor: '#B91C3C' }}
           >
             <span>Book a Call</span>
           </Link>
@@ -110,7 +112,8 @@ const Header = () => {
             <Link
               to="/contact"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold w-full"
+              className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold w-full"
+              style={{ backgroundColor: '#B91C3C' }}
             >
               <span>Book a Call</span>
             </Link>

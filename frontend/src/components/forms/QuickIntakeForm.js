@@ -260,7 +260,7 @@ const QuickIntakeForm = ({ onSuccess }) => {
         </div>
 
         {/* Rush Service Checkbox */}
-        <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
+        <div className="flex items-start gap-3 p-4 bg-navy-50/50 rounded-lg border border-navy-100">
           <input
             type="checkbox"
             id="rushService"
@@ -279,7 +279,8 @@ const QuickIntakeForm = ({ onSuccess }) => {
           <button
             type="submit"
             disabled={loading || formData.formTypes.length === 0}
-            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full text-white px-6 py-3 rounded-lg font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={{ backgroundColor: '#B91C3C' }}
           >
             {loading ? (
               <>

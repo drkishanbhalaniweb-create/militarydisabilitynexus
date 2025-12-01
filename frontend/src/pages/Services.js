@@ -79,7 +79,7 @@ const Services = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {loading ? (
                 <div className="text-center py-20">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-navy-700 mx-auto"></div>
                   <p className="mt-4 text-slate-600">Loading services...</p>
                 </div>
               ) : services.length === 0 ? (
@@ -96,7 +96,7 @@ const Services = () => {
                         className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/40 shadow-2xl hover:shadow-3xl transition-all hover:scale-105 group"
                       >
                         {/* Icon */}
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                        <div className="w-16 h-16 bg-gradient-to-br from-navy-600 to-navy-800 rounded-xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
                           <IconComponent className="w-8 h-8 text-white" />
                         </div>
 
@@ -115,7 +115,7 @@ const Services = () => {
                           <div className="space-y-3 mb-6">
                             {service.features.slice(0, 3).map((feature, idx) => (
                               <div key={idx} className="flex items-start space-x-2">
-                                <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <CheckCircle className="w-5 h-5 text-navy-700 mt-0.5 flex-shrink-0" />
                                 <span className="text-sm text-slate-700">{feature}</span>
                               </div>
                             ))}
@@ -124,16 +124,16 @@ const Services = () => {
 
                         {/* Pricing */}
                         {service.pricing && (
-                          <div className="mb-6 p-4 bg-blue-50/80 backdrop-blur-sm rounded-lg border border-blue-100/50">
+                          <div className="mb-6 p-4 bg-navy-50/80 backdrop-blur-sm rounded-lg border border-navy-100/50">
                             <div className="text-sm text-slate-600 mb-1">Starting at</div>
-                            <div className="text-3xl font-bold text-blue-600">${service.pricing.base_price}</div>
+                            <div className="text-3xl font-bold text-navy-700">${service.pricing.base_price}</div>
                           </div>
                         )}
 
                         {/* CTA */}
                         <Link
                           to={`/services/${service.slug}`}
-                          className="inline-flex items-center space-x-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors group-hover:translate-x-1"
+                          className="inline-flex items-center space-x-2 text-navy-700 font-semibold hover:text-navy-800 transition-colors group-hover:translate-x-1"
                         >
                           <span>Learn More</span>
                           <ArrowRight className="w-5 h-5" />
@@ -149,7 +149,7 @@ const Services = () => {
           {/* CTA Section */}
           <section className="pb-24">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-12 text-center shadow-2xl relative overflow-hidden">
+              <div className="bg-gradient-to-br from-navy-600 via-navy-700 to-navy-800 rounded-3xl p-12 text-center shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
                 <div className="relative z-10">
                   <h2 className="text-4xl font-bold text-white mb-6">
@@ -160,7 +160,7 @@ const Services = () => {
                   </p>
                   <Link
                     to="/contact"
-                    className="inline-flex items-center space-x-2 bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-slate-50 transition-all hover:scale-105 shadow-xl"
+                    className="inline-flex items-center space-x-2 bg-white text-navy-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-slate-50 transition-all hover:scale-105 shadow-xl"
                   >
                     <span>Contact Us</span>
                     <ArrowRight className="w-5 h-5" />

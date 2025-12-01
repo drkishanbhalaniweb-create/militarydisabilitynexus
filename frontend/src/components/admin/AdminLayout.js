@@ -9,7 +9,9 @@ import {
   Menu,
   X,
   ClipboardList,
-  Users
+  Users,
+  HelpCircle,
+  BookOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -61,7 +63,9 @@ const AdminLayout = ({ children }) => {
     { name: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
     { name: 'Form Submissions', href: '/admin/form-submissions', icon: ClipboardList },
     { name: 'Services', href: '/admin/services', icon: Briefcase },
+    { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
+    { name: 'Community Q&A', href: '/admin/community', icon: HelpCircle },
     ...(isSuperAdmin ? [{ name: 'Admin Users', href: '/admin/users', icon: Users }] : []),
   ];
 

@@ -16,6 +16,19 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			// Custom navy palette based on the dark navy gradient
+  			navy: {
+  				50: '#e8ecf4',
+  				100: '#c5cfe3',
+  				200: '#9fb0d0',
+  				300: '#7891bd',
+  				400: '#5b7aaf',
+  				500: '#3e63a1',
+  				600: '#2d4a6f',
+  				700: '#1e3a5f',
+  				800: '#1a2744',
+  				900: '#111827',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

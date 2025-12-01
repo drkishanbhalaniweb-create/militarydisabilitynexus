@@ -146,8 +146,8 @@ const Services = () => {
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
+        <div className="bg-navy-50 border border-navy-200 rounded-lg p-4">
+          <p className="text-sm text-navy-800">
             💡 <strong>Tip:</strong> Edit services directly in Supabase Table Editor for now. Full CRUD interface coming soon!
           </p>
         </div>

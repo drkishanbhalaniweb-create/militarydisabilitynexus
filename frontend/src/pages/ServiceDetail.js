@@ -91,17 +91,17 @@ const ServiceDetail = () => {
       />
       <div className="bg-slate-50 min-h-screen">
       {/* Header */}
-      <section className="bg-gradient-to-br from-indigo-600 to-indigo-700 py-16">
+      <section className="bg-gradient-to-br from-navy-700 to-navy-800 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             to="/services"
-            className="inline-flex items-center space-x-2 text-indigo-50 hover:text-white mb-6 transition-colors"
+            className="inline-flex items-center space-x-2 text-navy-100 hover:text-white mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Services</span>
           </Link>
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">{service.title}</h1>
-          <p className="text-xl text-indigo-50">{service.short_description}</p>
+          <p className="text-xl text-navy-100">{service.short_description}</p>
         </div>
       </section>
 
@@ -135,7 +135,7 @@ const ServiceDetail = () => {
               <div className="space-y-4">
                 {service.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start space-x-3">
-                    <CheckCircle className="w-6 h-6 text-indigo-600 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-6 h-6 text-navy-600 mt-0.5 flex-shrink-0" />
                     <span className="text-slate-700">{feature}</span>
                   </div>
                 ))}
@@ -174,7 +174,7 @@ const ServiceDetail = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-white rounded-2xl p-8 border-2 border-indigo-500 shadow-xl">
+            <div className="sticky top-24 bg-white rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #B91C3C' }}>
               <div className="mb-6">
                 <div className="text-sm text-slate-500 mb-2">Starting at</div>
                 <div className="text-4xl font-bold text-slate-900 mb-1">
@@ -184,11 +184,11 @@ const ServiceDetail = () => {
 
               <div className="space-y-4 mb-6">
                 <div className="flex items-center space-x-3 text-slate-700">
-                  <Clock className="w-5 h-5 text-indigo-600" />
+                  <Clock className="w-5 h-5 text-navy-600" />
                   <span>{service.duration}</span>
                 </div>
                 <div className="flex items-center space-x-3 text-slate-700">
-                  <CheckCircle className="w-5 h-5 text-indigo-600" />
+                  <CheckCircle className="w-5 h-5 text-navy-600" />
                   <span>One on One consultation with Expert</span>
                 </div>
               </div>
@@ -197,7 +197,8 @@ const ServiceDetail = () => {
                 <Link
                   to="/claim-readiness-review"
                   data-testid="book-now-button"
-                  className="w-full bg-indigo-600 text-white px-6 py-4 rounded-full font-semibold text-center hover:bg-indigo-700 transition-all hover:shadow-lg block"
+                  className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
+                  style={{ backgroundColor: '#B91C3C' }}
                 >
                   Book Now - $225
                 </Link>
@@ -206,14 +207,15 @@ const ServiceDetail = () => {
                   <Link
                     to="/aid-attendance-form"
                     data-testid="aid-attendance-form-button"
-                    className="w-full bg-indigo-600 text-white px-6 py-4 rounded-full font-semibold text-center hover:bg-indigo-700 transition-all hover:shadow-lg block"
+                    className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
+                    style={{ backgroundColor: '#B91C3C' }}
                   >
                     Complete Aid & Attendance Form
                   </Link>
                   <Link
                     to="/contact"
                     data-testid="book-now-button"
-                    className="w-full bg-white text-indigo-600 px-6 py-4 rounded-full font-semibold text-center hover:bg-slate-50 transition-all border-2 border-indigo-600 block"
+                    className="w-full bg-white text-navy-600 px-6 py-4 rounded-full font-semibold text-center hover:bg-slate-50 transition-all border-2 border-navy-600 block"
                   >
                     General Inquiry
                   </Link>
@@ -222,7 +224,8 @@ const ServiceDetail = () => {
                 <Link
                   to="/contact"
                   data-testid="book-now-button"
-                  className="w-full bg-indigo-600 text-white px-6 py-4 rounded-full font-semibold text-center hover:bg-indigo-700 transition-all hover:shadow-lg block"
+                  className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
+                  style={{ backgroundColor: '#B91C3C' }}
                 >
                   Get a Free Consultation
                 </Link>

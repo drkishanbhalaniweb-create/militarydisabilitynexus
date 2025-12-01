@@ -345,10 +345,188 @@ fileUploadApi.upload = async function(file, contactIdOrFormId, category = 'other
   return dbData;
 };
 
+// ============================================
+// CASE STUDIES
+// ============================================
+
+// Utility function to generate slug from title
+export const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+};
+
+// Check if slug exists and generate unique slug if needed
+const ensureUniqueSlug = async (slug, excludeId = null) => {
+  let uniqueSlug = slug;
+  let counter = 1;
+  
+  while (true) {
+    let query = supabase
+      .from('case_studies')
+      .select('id')
+      .eq('slug', uniqueSlug);
+    
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    
+    if (!data || data.length === 0) {
+      return uniqueSlug;
+    }
+    
+    counter++;
+    uniqueSlug = `${slug}-${counter}`;
+  }
+};
+
+export const caseStudyApi = {
+  async getAll(includeUnpublished = false) {
+    let query = supabase
+      .from('case_studies')
+      .select('*')
+      .order('published_at', { ascending: false });
+
+    if (!includeUnpublished) {
+      query = query.eq('is_published', true);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  },
+
+  async getBySlug(slug) {
+    const { data, error } = await supabase
+      .from('case_studies')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getById(id) {
+    const { data, error } = await supabase
+      .from('case_studies')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(caseStudyData) {
+    // Generate slug from title if not provided
+    let slug = caseStudyData.slug || generateSlug(caseStudyData.title);
+    
+    // Ensure slug is unique
+    slug = await ensureUniqueSlug(slug);
+
+    const { data, error } = await supabase
+      .from('case_studies')
+      .insert([
+        {
+          slug,
+          title: caseStudyData.title,
+          client_name: caseStudyData.client_name || null,
+          excerpt: caseStudyData.excerpt,
+          content_html: caseStudyData.content_html,
+          challenge: caseStudyData.challenge || null,
+          solution: caseStudyData.solution || null,
+          results: caseStudyData.results || null,
+          featured_image: caseStudyData.featured_image || null,
+          is_published: caseStudyData.is_published !== undefined ? caseStudyData.is_published : true,
+          published_at: caseStudyData.published_at || new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id, caseStudyData) {
+    const updateData = {
+      title: caseStudyData.title,
+      client_name: caseStudyData.client_name || null,
+      excerpt: caseStudyData.excerpt,
+      content_html: caseStudyData.content_html,
+      challenge: caseStudyData.challenge || null,
+      solution: caseStudyData.solution || null,
+      results: caseStudyData.results || null,
+      featured_image: caseStudyData.featured_image || null,
+      is_published: caseStudyData.is_published,
+    };
+
+    // If slug is provided and different, ensure it's unique
+    if (caseStudyData.slug) {
+      const slug = generateSlug(caseStudyData.slug);
+      updateData.slug = await ensureUniqueSlug(slug, id);
+    }
+
+    const { data, error } = await supabase
+      .from('case_studies')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('case_studies')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  },
+
+  async togglePublished(id, currentStatus) {
+    const { data, error } = await supabase
+      .from('case_studies')
+      .update({ is_published: !currentStatus })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async incrementViews(slug) {
+    const { error } = await supabase.rpc('increment_case_study_views', {
+      study_slug: slug,
+    });
+
+    if (error) {
+      console.error('Error incrementing views:', error);
+      // Don't throw error for view increment failures
+    }
+  },
+};
+
 export default {
   services: servicesApi,
   blog: blogApi,
   contacts: contactsApi,
   fileUpload: fileUploadApi,
   formSubmissions: formSubmissionsApi,
+  caseStudy: caseStudyApi,
 };

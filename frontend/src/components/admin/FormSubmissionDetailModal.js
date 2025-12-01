@@ -33,7 +33,7 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      'new': 'bg-blue-100 text-blue-800',
+      'new': 'bg-navy-100 text-navy-800',
       'contacted': 'bg-yellow-100 text-yellow-800',
       'in_progress': 'bg-purple-100 text-purple-800',
       'completed': 'bg-green-100 text-green-800',
@@ -154,7 +154,7 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
 
                 {/* Assigned To */}
                 {submission.assigned_to && (
-                  <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="bg-navy-50 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Assigned To</h3>
                     <p className="text-sm text-slate-900">{submission.assigned_to}</p>
                   </div>
@@ -180,7 +180,7 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
                 </div>
                 {submission.updated_at !== submission.created_at && (
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-600 rounded-full" />
+                    <div className="flex-shrink-0 w-2 h-2 mt-2 bg-navy-600 rounded-full" />
                     <div>
                       <p className="text-sm font-medium text-slate-900">Last Updated</p>
                       <p className="text-xs text-slate-500">{formatDate(submission.updated_at)}</p>

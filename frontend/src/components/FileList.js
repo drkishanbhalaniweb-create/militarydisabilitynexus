@@ -39,7 +39,7 @@ const FileList = ({ contactId = null, refreshTrigger = 0 }) => {
   const getCategoryInfo = (category) => {
     const categories = {
       'medical_record': { name: 'Medical Record', color: 'bg-red-100 text-red-800' },
-      'service_record': { name: 'Service Record', color: 'bg-blue-100 text-blue-800' },
+      'service_record': { name: 'Service Record', color: 'bg-navy-100 text-navy-800' },
       'photo': { name: 'Photo', color: 'bg-green-100 text-green-800' },
       'document': { name: 'Document', color: 'bg-purple-100 text-purple-800' },
       'other': { name: 'Other', color: 'bg-gray-100 text-gray-800' }

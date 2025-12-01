@@ -29,7 +29,7 @@ const AdminUserForm = ({ onClose, onSuccess }) => {
       label: 'Admin',
       description: 'Can manage content, view submissions, and handle payments',
       icon: Shield,
-      color: 'text-blue-600',
+      color: 'text-navy-600',
     },
     {
       value: 'editor',
