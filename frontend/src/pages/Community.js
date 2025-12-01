@@ -63,13 +63,26 @@ const Community = () => {
     }
   };
 
+  const getWordCount = (text) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
   const handleAskQuestion = async (e) => {
     e.preventDefault();
-    if (!newQuestion.title.trim() || !newQuestion.content.trim()) { toast.error('Please fill in both title and content'); return; }
+    if (!newQuestion.title.trim()) { toast.error('Please fill in the title'); return; }
     if (!newQuestion.user_email.trim()) { toast.error('Please provide an email for notifications'); return; }
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newQuestion.user_email)) { toast.error('Please provide a valid email address'); return; }
+    
+    // Check word count if content is provided
+    if (newQuestion.content.trim()) {
+      const wordCount = getWordCount(newQuestion.content);
+      if (wordCount > 200) {
+        toast.error('Details must be 200 words or less');
+        return;
+      }
+    }
     
     setSubmitting(true);
     try {
@@ -237,8 +250,23 @@ const Community = () => {
                         <input type="text" value={newQuestion.title} onChange={(e) => setNewQuestion({ ...newQuestion, title: e.target.value })} placeholder="What would you like to know?" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none" required />
                       </div>
                       <div className="mb-4">
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Details</label>
-                        <textarea value={newQuestion.content} onChange={(e) => setNewQuestion({ ...newQuestion, content: e.target.value })} placeholder="Provide more details..." rows={5} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none" required />
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="block text-sm font-medium text-slate-700">
+                            Details <span className="text-slate-500 font-normal">(optional)</span>
+                          </label>
+                          <span className={`text-xs font-medium ${getWordCount(newQuestion.content) > 200 ? 'text-red-600' : 'text-slate-500'}`}>
+                            {getWordCount(newQuestion.content)}/200 words
+                          </span>
+                        </div>
+                        <textarea 
+                          value={newQuestion.content} 
+                          onChange={(e) => setNewQuestion({ ...newQuestion, content: e.target.value })} 
+                          placeholder="Provide more details..." 
+                          rows={5} 
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none ${
+                            getWordCount(newQuestion.content) > 200 ? 'border-red-300' : 'border-slate-200'
+                          }`}
+                        />
                       </div>
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-slate-700 mb-1">Display Name (optional)</label>
