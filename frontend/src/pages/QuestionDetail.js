@@ -29,7 +29,7 @@ const QuestionDetail = () => {
       if (questionError) throw questionError;
       setQuestion(questionData);
       await supabase.from('community_questions').update({ views: (questionData.views || 0) + 1 }).eq('id', questionData.id);
-      const { data: answersData } = await supabase.from('community_answers').select('*').eq('question_id', questionData.id).eq('status', 'published').order('is_expert_answer', { ascending: false }).order('is_best_answer', { ascending: false }).order('upvotes', { ascending: false });
+      const { data: answersData } = await supabase.from('community_answers').select('*').eq('question_id', questionData.id).eq('status', 'published').order('is_expert_answer', { ascending: false, nullsFirst: false }).order('is_best_answer', { ascending: false, nullsFirst: false }).order('upvotes', { ascending: false });
       setAnswers(answersData || []);
     } catch (error) {
       console.error('Error:', error);

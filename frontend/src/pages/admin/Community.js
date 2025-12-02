@@ -116,7 +116,7 @@ const AdminCommunity = () => {
     }
     setSubmittingAnswer(questionId);
     try {
-      const { error } = await supabase.from('community_answers').insert({
+      const insertData = {
         question_id: questionId,
         user_id: currentUser.id,
         content: content,
@@ -124,8 +124,17 @@ const AdminCommunity = () => {
         display_name: 'Expert',
         is_expert_answer: true,
         status: 'published'
-      });
-      if (error) throw error;
+      };
+      console.log('Inserting expert answer:', insertData);
+      
+      const { data, error } = await supabase.from('community_answers').insert(insertData).select();
+      
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+      
+      console.log('Insert successful:', data);
       
       // Update answers count
       const question = questions.find(q => q.id === questionId);
@@ -140,8 +149,8 @@ const AdminCommunity = () => {
       fetchAnswers(questionId);
       fetchQuestions();
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Failed to post answer');
+      console.error('Full error:', error);
+      toast.error(error.message || 'Failed to post answer');
     } finally {
       setSubmittingAnswer(null);
     }
