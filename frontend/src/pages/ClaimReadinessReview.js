@@ -15,34 +15,16 @@ const ClaimReadinessReview = () => {
     veteranName: '',
     email: '',
     phone: '',
-    serviceTypes: [], // Changed to array for multiple selections
     currentStatus: '',
     additionalInfo: '',
     acceptedTerms: false,
   });
-
-  const SERVICE_TYPES = [
-    { value: 'nexus_letter', label: 'Nexus Letter' },
-    { value: 'dbq', label: 'Disability Benefits Questionnaires (DBQs)' },
-    { value: '1151_claim', label: '1151 Claim (VA Medical Malpractice)' },
-    { value: 'aid_attendance', label: 'Aid & Attendance' },
-    { value: 'unsure', label: "I'm not sure what I need" },
-  ];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleServiceTypeToggle = (value) => {
-    setFormData(prev => ({
-      ...prev,
-      serviceTypes: prev.serviceTypes.includes(value)
-        ? prev.serviceTypes.filter(t => t !== value)
-        : [...prev.serviceTypes, value]
     }));
   };
 
@@ -57,7 +39,6 @@ const ClaimReadinessReview = () => {
         .insert({
           form_type: 'claim_readiness_review',
           form_data: {
-            serviceTypes: formData.serviceTypes,
             currentStatus: formData.currentStatus,
             additionalInfo: formData.additionalInfo,
           },
@@ -223,32 +204,6 @@ const ClaimReadinessReview = () => {
                 />
               </div>
 
-              {/* Service Types - Multiple Selection */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">
-                  What services are you interested in? * (Select all that apply)
-                </label>
-                <div className="space-y-3">
-                  {SERVICE_TYPES.map((type) => (
-                    <label
-                      key={type.value}
-                      className="flex items-start cursor-pointer p-3 border border-slate-200 rounded-lg hover:bg-navy-50 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.serviceTypes.includes(type.value)}
-                        onChange={() => handleServiceTypeToggle(type.value)}
-                        className="mt-1 w-5 h-5 text-navy-600 border-slate-300 rounded focus:ring-navy-500"
-                      />
-                      <span className="ml-3 text-slate-700">{type.label}</span>
-                    </label>
-                  ))}
-                </div>
-                {formData.serviceTypes.length === 0 && (
-                  <p className="text-sm text-red-600 mt-2">Please select at least one service type</p>
-                )}
-              </div>
-
               {/* Current Status */}
               <div>
                 <label htmlFor="currentStatus" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -316,7 +271,7 @@ const ClaimReadinessReview = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || formData.serviceTypes.length === 0 || !formData.acceptedTerms}
+                disabled={loading || !formData.acceptedTerms}
                 className="w-full text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl"
                 style={{ backgroundColor: '#B91C3C' }}
               >
