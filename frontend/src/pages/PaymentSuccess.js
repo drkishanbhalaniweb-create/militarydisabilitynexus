@@ -143,7 +143,7 @@ const PaymentSuccess = () => {
               </p>
               <div className="calendly-container">
                 <InlineWidget
-                  url="https://calendly.com/militarydisabilitynexus/30min"
+                  url="https://calendly.com/dr-kishanbhalani-web/military-disability-nexis"
                   styles={{
                     height: '700px',
                     minWidth: '320px',
