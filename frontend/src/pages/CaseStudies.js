@@ -156,9 +156,9 @@ const CaseStudies = () => {
               </div>
             ) : (
               <>
-                {/* Mobile: Horizontal Scroll */}
-                <div className="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-                  <div className="flex gap-4" style={{ width: `${filteredCaseStudies.length * 100}vw` }}>
+                {/* Mobile: Fullscreen Horizontal Scroll */}
+                <div className="md:hidden fixed inset-0 top-[60px] overflow-x-auto snap-x snap-mandatory scrollbar-hide z-20">
+                  <div className="flex h-full" style={{ width: `${filteredCaseStudies.length * 100}vw` }}>
                     {filteredCaseStudies.map((caseStudy) => {
                       // Get tag colors based on tag type
                       const getTagColors = (tag) => {
@@ -184,33 +184,32 @@ const CaseStudies = () => {
                         <div
                           key={caseStudy.id}
                           data-testid={`case-study-${caseStudy.slug}`}
-                          className="snap-start flex-shrink-0 bg-white rounded-lg border border-slate-200 shadow-sm p-6 overflow-y-auto"
-                          style={{ width: 'calc(100vw - 2rem)', maxHeight: 'calc(100vh - 24rem)' }}
+                          className="snap-start flex-shrink-0 w-screen h-full overflow-y-auto bg-white/95 backdrop-blur-sm px-6 py-8"
                         >
                           {/* Tag with colored dot and pill shape */}
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${tagColors.bg} ${tagColors.text} border ${tagColors.border}`}>
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide ${tagColors.bg} ${tagColors.text} border ${tagColors.border}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${tagColors.dot}`}></span>
                               {primaryTag}
                             </span>
                           </div>
                           
                           {/* Title */}
-                          <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight">
+                          <h3 className="text-2xl font-bold text-slate-900 mb-3 leading-tight">
                             {caseStudy.title}
                           </h3>
                           
                           {/* Description/Excerpt */}
-                          <p className="text-sm text-slate-500 mb-4 leading-relaxed">
+                          <p className="text-base text-slate-600 mb-6 leading-relaxed">
                             {caseStudy.excerpt}
                           </p>
 
                           {/* Challenge Section */}
                           {caseStudy.challenge && (
-                            <div className="mb-4">
-                              <h4 className="text-sm font-bold text-slate-900 mb-2">Challenge:</h4>
+                            <div className="mb-6">
+                              <h4 className="text-base font-bold text-slate-900 mb-3">Challenge:</h4>
                               <div 
-                                className="text-sm text-slate-600 leading-relaxed [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:space-y-1 [&_li]:text-slate-600 [&_p]:mb-2"
+                                className="text-base text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_p]:mb-3"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.challenge }}
                               />
                             </div>
@@ -218,10 +217,10 @@ const CaseStudies = () => {
 
                           {/* What existed before Section */}
                           {caseStudy.solution && (
-                            <div className="mb-4">
-                              <h4 className="text-sm font-bold text-slate-900 mb-2">What existed before:</h4>
+                            <div className="mb-6">
+                              <h4 className="text-base font-bold text-slate-900 mb-3">What existed before:</h4>
                               <div 
-                                className="text-sm text-slate-600 leading-relaxed [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:space-y-1 [&_li]:text-slate-600 [&_p]:mb-2"
+                                className="text-base text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_p]:mb-3"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.solution }}
                               />
                             </div>
@@ -229,10 +228,10 @@ const CaseStudies = () => {
 
                           {/* Our contribution Section */}
                           {caseStudy.results && (
-                            <div className="mb-4">
-                              <h4 className="text-sm font-bold text-slate-900 mb-2">Our contribution:</h4>
+                            <div className="mb-6">
+                              <h4 className="text-base font-bold text-slate-900 mb-3">Our contribution:</h4>
                               <div 
-                                className="text-sm text-slate-600 leading-relaxed [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:space-y-1 [&_li]:text-slate-600 [&_p]:mb-2"
+                                className="text-base text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_p]:mb-3"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.results }}
                               />
                             </div>
@@ -240,28 +239,36 @@ const CaseStudies = () => {
 
                           {/* Key Takeaway - Yellow Box */}
                           {caseStudy.key_takeaway && (
-                            <div className="mt-4 bg-amber-50 border-2 border-amber-300 rounded-lg p-4">
+                            <div className="mt-6 bg-amber-50 border-2 border-amber-300 rounded-lg p-5">
                               <div className="flex items-center gap-2 mb-3">
                                 <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-amber-100 text-amber-700 border border-amber-300">
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-amber-100 text-amber-700 border border-amber-300">
                                   Key Takeaway
                                 </span>
                               </div>
                               <div 
-                                className="text-sm text-amber-900 leading-relaxed [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:space-y-1 [&_li]:text-amber-800 [&_p]:mb-2"
+                                className="text-base text-amber-900 leading-relaxed [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:space-y-2 [&_li]:text-amber-800 [&_p]:mb-3"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.key_takeaway }}
                               />
                             </div>
                           )}
+
+                          {/* Scroll indicator at bottom */}
+                          <div className="flex justify-center gap-2 mt-8 pb-4">
+                            {filteredCaseStudies.map((_, index) => (
+                              <div 
+                                key={index} 
+                                className={`w-2 h-2 rounded-full transition-all ${
+                                  filteredCaseStudies.indexOf(caseStudy) === index 
+                                    ? 'bg-slate-700 w-8' 
+                                    : 'bg-slate-300'
+                                }`}
+                              ></div>
+                            ))}
+                          </div>
                         </div>
                       );
                     })}
-                  </div>
-                  {/* Scroll indicator */}
-                  <div className="flex justify-center gap-2 mt-4">
-                    {filteredCaseStudies.map((_, index) => (
-                      <div key={index} className="w-2 h-2 rounded-full bg-slate-300"></div>
-                    ))}
                   </div>
                 </div>
 
