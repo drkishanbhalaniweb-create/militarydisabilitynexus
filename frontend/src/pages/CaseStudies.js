@@ -187,7 +187,7 @@ const CaseStudies = () => {
                             data-testid={`case-study-${caseStudy.slug}`}
                             className="snap-start flex-shrink-0 w-screen px-6 py-6"
                           >
-                            <div className="bg-white/95 backdrop-blur-sm rounded-lg p-6 h-full overflow-y-auto" style={{ maxHeight: '70vh' }}>
+                            <div className="bg-white/95 backdrop-blur-sm rounded-lg p-6 h-full overflow-y-auto" style={{ minHeight: '80vh' }}>
                               {/* Tag with colored dot and pill shape */}
                               <div className="flex items-center gap-2 mb-4">
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide ${tagColors.bg} ${tagColors.text} border ${tagColors.border}`}>
