@@ -10,7 +10,7 @@ export const useCalendly = () => {
   
   const closeCalendly = () => setIsOpen(false);
   
-  const calendlyUrl = process.env.REACT_APP_CALENDLY_URL || 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexis';
+  const calendlyUrl = process.env.REACT_APP_CALENDLY_URL || 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
   
   // Log the URL on mount for debugging
   if (process.env.NODE_ENV === 'development') {
