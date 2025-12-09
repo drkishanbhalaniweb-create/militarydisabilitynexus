@@ -29,9 +29,10 @@
 
 The price you set in the Services admin will automatically update in:
 
-- ✅ `/services/claim-readiness-review` - Service detail page
-- ✅ `/claim-readiness-review` - Booking page header
-- ✅ `/claim-readiness-review` - Payment button
+- ✅ `/services/claim-readiness-review` - Service detail page "Book Now" button
+- ✅ `/claim-readiness-review` - Booking page header and title
+- ✅ `/claim-readiness-review` - "Continue to Payment" button
+- ✅ Payment page - Stripe checkout amount
 - ✅ SEO meta tags
 
 ## Technical Details

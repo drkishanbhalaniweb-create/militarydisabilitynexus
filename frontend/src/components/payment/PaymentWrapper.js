@@ -21,11 +21,13 @@ const PaymentWrapper = ({
   isRushService = false,
   customerEmail,
   onBack,
+  customPrice = null, // Allow passing custom price (in cents)
 }) => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const service = SERVICE_PRICING[serviceType];
-  const totalAmount = calculatePrice(serviceType, isRushService);
+  // Use custom price if provided, otherwise calculate from SERVICE_PRICING
+  const totalAmount = customPrice || calculatePrice(serviceType, isRushService);
 
   if (!service) {
     return (
@@ -54,8 +56,8 @@ const PaymentWrapper = ({
         {/* Pricing Display */}
         <div className="mb-8">
           <PricingDisplay
-            basePrice={service.basePrice}
-            rushFee={service.rushFee}
+            basePrice={customPrice || service.basePrice}
+            rushFee={isRushService ? service.rushFee : 0}
             isRushService={isRushService}
             serviceName={service.name}
           />

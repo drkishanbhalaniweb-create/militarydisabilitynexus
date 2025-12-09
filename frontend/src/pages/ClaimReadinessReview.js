@@ -100,6 +100,7 @@ const ClaimReadinessReview = () => {
         isRushService={false}
         customerEmail={formData.email}
         onBack={() => setStep('form')}
+        customPrice={price * 100} // Convert dollars to cents
       />
     );
   }
