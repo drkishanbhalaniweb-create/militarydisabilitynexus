@@ -67,7 +67,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "payment=(self \"https://calendly.com\" \"https://checkout.stripe.com\")"
+          "value": "payment=*"
         }
       ]
     }
