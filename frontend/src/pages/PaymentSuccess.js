@@ -2,18 +2,29 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Mail, Clock, FileText, ArrowRight, Calendar } from 'lucide-react';
 import SEO from '../components/SEO';
-import { InlineWidget } from 'react-calendly';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [showCalendly, setShowCalendly] = useState(false);
+  const calendlyUrl = 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
 
-  // Don't auto-redirect, let user book meeting first
+  // Load Calendly widget script and show after delay
   useEffect(() => {
-    // Show Calendly after a short delay
     const timer = setTimeout(() => {
       setShowCalendly(true);
+      
+      // Load Calendly script
+      const script = document.createElement('script');
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.async = true;
+      document.body.appendChild(script);
+      
+      return () => {
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -141,15 +152,17 @@ const PaymentSuccess = () => {
               <p className="text-center text-slate-600 mb-6">
                 Book a time to discuss your claim with our team
               </p>
-              <div className="calendly-container">
-                <InlineWidget
-                  url="https://calendly.com/dr-kishanbhalani-web/military-disability-nexus"
-                  styles={{
-                    height: '700px',
-                    minWidth: '320px',
-                  }}
-                />
+              <div className="bg-white rounded-lg overflow-hidden">
+                {/* Native Calendly Widget */}
+                <div 
+                  className="calendly-inline-widget" 
+                  data-url={calendlyUrl}
+                  style={{ minWidth: '320px', height: '700px' }}
+                ></div>
               </div>
+              <p className="text-sm text-slate-500 mt-4 text-center">
+                Having trouble? <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+              </p>
             </div>
           )}
 
