@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Send, Upload, X, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { InlineWidget } from 'react-calendly';
 import SEO from '../components/SEO';
 import SuccessModal from '../components/SuccessModal';
 import { submitGenericForm, fileUploadApi, formSubmissionsApi } from '../lib/api';
@@ -36,7 +35,24 @@ const Forms = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCalendly, setShowCalendly] = useState(initialView);
   
-  const calendlyUrl = process.env.REACT_APP_CALENDLY_URL || 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
+  const calendlyUrl = 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
+  
+  // Load Calendly widget script
+  useEffect(() => {
+    if (showCalendly) {
+      const script = document.createElement('script');
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.async = true;
+      document.body.appendChild(script);
+      
+      return () => {
+        // Cleanup script on unmount
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
+    }
+  }, [showCalendly]);
   
   // Update URL when toggling views
   useEffect(() => {
@@ -186,19 +202,17 @@ const Forms = () => {
               <p className="text-slate-600 mb-6">
                 Book a consultation to discuss your VA claim needs. We'll help you understand which services are right for you.
               </p>
-              <div className="bg-white rounded-lg overflow-hidden" style={{ minHeight: '700px' }}>
-                <InlineWidget
-                  url={calendlyUrl}
-                  styles={{ height: '700px' }}
-                  pageSettings={{
-                    backgroundColor: 'ffffff',
-                    hideEventTypeDetails: false,
-                    hideLandingPageDetails: false,
-                    primaryColor: '3b82f6',
-                    textColor: '1e293b'
-                  }}
-                />
+              <div className="bg-white rounded-lg overflow-hidden">
+                {/* Native Calendly Widget */}
+                <div 
+                  className="calendly-inline-widget" 
+                  data-url={calendlyUrl}
+                  style={{ minWidth: '320px', height: '700px' }}
+                ></div>
               </div>
+              <p className="text-sm text-slate-500 mt-4 text-center">
+                Having trouble? <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+              </p>
             </div>
           ) : (
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/40">
