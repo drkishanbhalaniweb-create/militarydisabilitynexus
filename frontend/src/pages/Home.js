@@ -33,7 +33,7 @@ const Home = () => {
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Medical Consulting for Veterans"
         description="Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, Aid & Attendance evaluations, and medical consultations for veterans seeking disability benefits and compensation."
         keywords="VA nexus letter, DBQ, disability benefits questionnaire, aid and attendance, C&P exam coaching, veteran medical documentation, 1151 claim"
@@ -54,7 +54,7 @@ const Home = () => {
       <section className="relative min-h-screen w-full overflow-hidden">
         {/* Fixed Blurred Background */}
         <div className="fixed inset-0 z-0 w-full h-full overflow-hidden">
-          <div 
+          <div
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: 'url("/Gemini_Generated_Image_7ax9sd7ax9sd7ax9.png")',
@@ -76,15 +76,25 @@ const Home = () => {
               <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border border-white/30 max-w-full">
                 <span className="truncate">Clinician-Led • Expert Medical Opinion • Nationwide</span>
               </div>
-              
+
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg">
                 Clinician-Led Expertise for Your VA Disability Claim
               </h1>
-              
+
               <p className="text-base sm:text-lg text-white/90 leading-relaxed drop-shadow">
-                Our licensed clinicians provide evidence-based medical opinions, expert consultations, and record reviews to help veterans build strong, VA-ready documentation.
+                Our licensed clinicians provide evidence-based{" "}
+                <a
+                  href="https://www.militarydisabilitynexus.com/services/independent-medical-opinion-nexus-letter"
+                  className="underline hover:text-white"
+                >
+                  medical opinions
+                </a>
+                , expert consultations, and record reviews to help veterans build strong,
+                VA-ready documentation.
               </p>
-              
+
+
+
               <div className="flex flex-col gap-3 sm:gap-4 w-full">
                 <button
                   onClick={() => navigate('/forms?view=schedule')}
@@ -101,7 +111,7 @@ const Home = () => {
                   <span className="truncate">Book Claim Readiness Review</span>
                 </Link>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 sm:gap-6 pt-4 w-full">
                 <div className="min-w-0">
                   <div className="text-xs sm:text-sm text-white/70 mb-1">Turnaround</div>
@@ -153,7 +163,7 @@ const Home = () => {
                 <div className="text-base font-semibold text-slate-700 mb-2">Veterans Served</div>
                 <p className="text-sm text-slate-600 group-hover:underline">Get in touch</p>
               </Link>
-              
+
               {/* Average Turnaround */}
               <Link to="/community" className="flex flex-col items-center text-center group">
                 <div className="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl mb-6 transform group-hover:scale-110 transition-transform cursor-pointer" style={{ backgroundColor: '#B91C3C' }}>
@@ -163,7 +173,7 @@ const Home = () => {
                 <div className="text-base font-semibold text-slate-700 mb-2">Average Turnaround</div>
                 <p className="text-sm text-slate-600 group-hover:underline">Fast professional service</p>
               </Link>
-              
+
               {/* Satisfaction Rate */}
               <Link to="/case-studies" className="flex flex-col items-center text-center group">
                 <div className="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl mb-6 transform group-hover:scale-110 transition-transform cursor-pointer" style={{ backgroundColor: '#B91C3C' }}>
