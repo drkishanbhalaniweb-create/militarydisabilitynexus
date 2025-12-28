@@ -151,10 +151,6 @@ const DiagnosticResults = () => {
             <p className="text-slate-600 mb-6">
               {recommendation.ctaSubtext}
             </p>
-            
-            <div className="inline-flex items-center bg-navy-100 text-navy-800 px-6 py-3 rounded-full font-bold text-2xl mb-6">
-              ${price}
-            </div>
 
             <Link
               to="/claim-readiness-review"
