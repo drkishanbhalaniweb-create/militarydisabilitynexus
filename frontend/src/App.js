@@ -86,7 +86,7 @@ function App() {
           <Route path="test-payment" element={<TestPayment />} />
           <Route path="claim-readiness-review" element={<ClaimReadinessReview />} />
           <Route path="diagnostic" element={<Diagnostic />} />
-          <Route path="diagnostic/results/:sessionId" element={<DiagnosticResults />} />
+          <Route path="diagnostic/results" element={<DiagnosticResults />} />
           <Route path="terms" element={<TermsAndConditions />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="disclaimer" element={<Disclaimer />} />
