@@ -169,7 +169,7 @@ const TermsAndConditions = () => {
                   {/* Section 12 */}
                   <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4">12. Third-Party Links and Resources</h2>
                   <p className="text-slate-700 leading-relaxed mb-6">
-                    The Website may contain links to other sites and resources provided by third parties, such as VA.gov, Zoho, Calendly, and payment processors. These links are provided for your convenience only. This includes links contained in advertisements, including banner advertisements and sponsored links. We have no control over the contents of those sites or resources and accept no responsibility for them or for any loss or damage that may arise from your use of them. If you decide to access any of the third-party websites linked to this Website, you do so entirely at your own risk and subject to the terms and conditions of use for such websites.
+                    The Website may contain links to other sites and resources provided by third parties, such as VA.gov, Zoho, Cal.com, and payment processors. These links are provided for your convenience only. This includes links contained in advertisements, including banner advertisements and sponsored links. We have no control over the contents of those sites or resources and accept no responsibility for them or for any loss or damage that may arise from your use of them. If you decide to access any of the third-party websites linked to this Website, you do so entirely at your own risk and subject to the terms and conditions of use for such websites.
                   </p>
 
                   {/* Section 13 */}

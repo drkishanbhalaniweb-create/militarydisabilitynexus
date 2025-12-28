@@ -33,15 +33,15 @@ const Forms = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showCalendly, setShowCalendly] = useState(initialView);
+  const [showCal, setShowCal] = useState(initialView);
   
-  const calendlyUrl = 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
+  const calUrl = process.env.REACT_APP_CAL_URL_DISCOVERY || 'https://cal.com/mdnexus-lkd3ut/discovery-call';
   
-  // Load Calendly widget script
+  // Load Cal.com widget script
   useEffect(() => {
-    if (showCalendly) {
+    if (showCal) {
       const script = document.createElement('script');
-      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.src = 'https://app.cal.com/embed/embed.js';
       script.async = true;
       document.body.appendChild(script);
       
@@ -52,12 +52,12 @@ const Forms = () => {
         }
       };
     }
-  }, [showCalendly]);
+  }, [showCal]);
   
   // Update URL when toggling views
   useEffect(() => {
     const newSearchParams = new URLSearchParams();
-    if (showCalendly) {
+    if (showCal) {
       newSearchParams.set('view', 'schedule');
     }
     const newSearch = newSearchParams.toString();
@@ -65,7 +65,7 @@ const Forms = () => {
     if (location.pathname + location.search !== newPath) {
       navigate(newPath, { replace: true });
     }
-  }, [showCalendly, location.pathname, location.search, navigate]);
+  }, [showCal, location.pathname, location.search, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -169,25 +169,25 @@ const Forms = () => {
             {/* Toggle Buttons */}
             <div className="flex justify-center gap-4 mt-6">
               <button
-                onClick={() => setShowCalendly(false)}
+                onClick={() => setShowCal(false)}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  !showCalendly
+                  !showCal
                     ? 'text-white shadow-lg'
                     : 'bg-white/80 text-slate-700 hover:bg-white'
                 }`}
-                style={!showCalendly ? { backgroundColor: '#B91C3C' } : {}}
+                style={!showCal ? { backgroundColor: '#B91C3C' } : {}}
               >
                 <Send className="w-5 h-5 inline-block mr-2" />
                 Submit Form
               </button>
               <button
-                onClick={() => setShowCalendly(true)}
+                onClick={() => setShowCal(true)}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  showCalendly
+                  showCal
                     ? 'text-white shadow-lg'
                     : 'bg-white/80 text-slate-700 hover:bg-white'
                 }`}
-                style={showCalendly ? { backgroundColor: '#B91C3C' } : {}}
+                style={showCal ? { backgroundColor: '#B91C3C' } : {}}
               >
                 <Calendar className="w-5 h-5 inline-block mr-2" />
                 Schedule Call
@@ -195,23 +195,23 @@ const Forms = () => {
             </div>
           </div>
 
-          {/* Calendly Inline Widget */}
-          {showCalendly ? (
+          {/* Cal.com Inline Widget */}
+          {showCal ? (
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/40">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Schedule Your Free Discovery Call</h2>
               <p className="text-slate-600 mb-6">
                 Book a consultation to discuss your VA claim needs. We'll help you understand which services are right for you.
               </p>
               <div className="bg-white rounded-lg overflow-hidden">
-                {/* Native Calendly Widget */}
+                {/* Cal.com Inline Widget */}
                 <div 
-                  className="calendly-inline-widget" 
-                  data-url={calendlyUrl}
-                  style={{ minWidth: '320px', height: '700px' }}
+                  data-cal-link={calUrl}
+                  data-cal-config='{"layout":"month_view"}'
+                  style={{ minWidth: '320px', height: '700px', overflow: 'scroll' }}
                 ></div>
               </div>
               <p className="text-sm text-slate-500 mt-4 text-center">
-                Having trouble? <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                Having trouble? <a href={calUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
               </p>
             </div>
           ) : (

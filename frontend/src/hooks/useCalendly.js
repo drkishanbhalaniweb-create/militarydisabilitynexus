@@ -1,26 +1,32 @@
 import { useState } from 'react';
 
-export const useCalendly = () => {
+export const useCal = (type = 'discovery') => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const openCalendly = () => {
-    console.log('Opening Calendly with URL:', calendlyUrl);
+  const openCal = () => {
+    console.log('Opening Cal.com with URL:', calUrl);
     setIsOpen(true);
   };
   
-  const closeCalendly = () => setIsOpen(false);
+  const closeCal = () => setIsOpen(false);
   
-  const calendlyUrl = process.env.REACT_APP_CALENDLY_URL || 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
+  // Support both discovery calls and post-payment consultations
+  const calUrl = type === 'consultation' 
+    ? (process.env.REACT_APP_CAL_URL_CONSULTATION || 'https://cal.com/mdnexus-lkd3ut/claim-readiness-review')
+    : (process.env.REACT_APP_CAL_URL_DISCOVERY || 'https://cal.com/mdnexus-lkd3ut/discovery-call');
   
   // Log the URL on mount for debugging
   if (process.env.NODE_ENV === 'development') {
-    console.log('Calendly URL configured:', calendlyUrl);
+    console.log(`Cal.com URL configured (${type}):`, calUrl);
   }
   
   return {
     isOpen,
-    openCalendly,
-    closeCalendly,
-    calendlyUrl
+    openCal,
+    closeCal,
+    calUrl
   };
 };
+
+// Backward compatibility export
+export const useCalendly = useCal;

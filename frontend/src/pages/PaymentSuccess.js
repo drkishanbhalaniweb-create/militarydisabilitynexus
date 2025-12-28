@@ -6,17 +6,17 @@ import SEO from '../components/SEO';
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const [showCalendly, setShowCalendly] = useState(false);
-  const calendlyUrl = 'https://calendly.com/dr-kishanbhalani-web/military-disability-nexus';
+  const [showCal, setShowCal] = useState(false);
+  const calUrl = process.env.REACT_APP_CAL_URL_CONSULTATION || 'https://cal.com/mdnexus-lkd3ut/claim-readiness-review';
 
-  // Load Calendly widget script and show after delay
+  // Load Cal.com widget script and show after delay
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowCalendly(true);
+      setShowCal(true);
       
-      // Load Calendly script
+      // Load Cal.com embed script
       const script = document.createElement('script');
-      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.src = 'https://app.cal.com/embed/embed.js';
       script.async = true;
       document.body.appendChild(script);
       
@@ -142,8 +142,8 @@ const PaymentSuccess = () => {
             </ul>
           </div>
 
-          {/* Calendly Booking Section */}
-          {showCalendly && (
+          {/* Cal.com Booking Section */}
+          {showCal && (
             <div className="bg-white rounded-2xl p-8 shadow-lg mb-6">
               <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center justify-center">
                 <Calendar className="w-6 h-6 mr-2 text-indigo-600" />
@@ -153,15 +153,15 @@ const PaymentSuccess = () => {
                 Book a time to discuss your claim with our team
               </p>
               <div className="bg-white rounded-lg overflow-hidden">
-                {/* Native Calendly Widget */}
+                {/* Cal.com Inline Widget */}
                 <div 
-                  className="calendly-inline-widget" 
-                  data-url={calendlyUrl}
-                  style={{ minWidth: '320px', height: '700px' }}
+                  data-cal-link={calUrl}
+                  data-cal-config='{"layout":"month_view"}'
+                  style={{ minWidth: '320px', height: '700px', overflow: 'scroll' }}
                 ></div>
               </div>
               <p className="text-sm text-slate-500 mt-4 text-center">
-                Having trouble? <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                Having trouble? <a href={calUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
               </p>
             </div>
           )}
