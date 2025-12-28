@@ -83,6 +83,11 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
+      currency_options: {
+        usd: {
+          unit_amount: amount,
+        },
+      },
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: customerEmail,
