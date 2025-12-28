@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, FileText, User, Mail, Phone, MessageSquare, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import PaymentWrapper from '../components/payment/PaymentWrapper';
 import { supabase } from '../lib/supabase';
 import SEO from '../components/SEO';
 
 const ClaimReadinessReview = () => {
+  const location = useLocation();
   const [step, setStep] = useState('form'); // 'form' or 'payment'
   const [formSubmissionId, setFormSubmissionId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [price, setPrice] = useState(225); // Default price
+  
+  // Check if coming from diagnostic
+  const fromDiagnostic = location.state?.fromDiagnostic || false;
+  const diagnosticScore = location.state?.diagnosticScore;
   
   const [formData, setFormData] = useState({
     veteranName: '',
@@ -62,6 +67,8 @@ const ClaimReadinessReview = () => {
           form_data: {
             currentStatus: formData.currentStatus,
             additionalInfo: formData.additionalInfo,
+            fromDiagnostic: fromDiagnostic,
+            diagnosticScore: diagnosticScore,
           },
           full_name: formData.veteranName,
           email: formData.email,
@@ -77,6 +84,20 @@ const ClaimReadinessReview = () => {
 
       if (!data) {
         throw new Error('No data returned from submission');
+      }
+
+      // If from diagnostic, update diagnostic session conversion status
+      if (fromDiagnostic) {
+        const sessionId = localStorage.getItem('diagnostic_session_id');
+        if (sessionId) {
+          await supabase
+            .from('diagnostic_sessions')
+            .update({
+              converted_to_booking: true,
+              booking_form_submission_id: data.id
+            })
+            .eq('session_id', sessionId);
+        }
       }
 
       // Move to payment step

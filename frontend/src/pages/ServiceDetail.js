@@ -173,7 +173,49 @@ const ServiceDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
+            {/* Diagnostic Box - Only show for claim-readiness-review */}
+            {service.slug === 'claim-readiness-review' && (
+              <div className="sticky top-24 bg-gradient-to-br from-navy-50 to-slate-50 rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #163b63' }}>
+                <div className="mb-6">
+                  <div className="text-sm text-navy-600 font-semibold mb-2">Not Sure If You're Ready?</div>
+                  <div className="text-2xl font-bold text-slate-900 mb-2">
+                    Free Claim Readiness Check
+                  </div>
+                  <p className="text-slate-600 text-sm">
+                    Take our 5-question diagnostic to assess your claim readiness before booking
+                  </p>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center space-x-3 text-slate-700 text-sm">
+                    <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                    <span>Takes only 2 minutes</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-slate-700 text-sm">
+                    <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                    <span>Instant personalized results</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-slate-700 text-sm">
+                    <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                    <span>No email required</span>
+                  </div>
+                </div>
+
+                <Link
+                  to="/diagnostic"
+                  className="w-full bg-navy-700 text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg hover:bg-navy-800 block"
+                >
+                  Start Free Diagnostic
+                </Link>
+
+                <p className="text-xs text-slate-500 mt-4 text-center">
+                  Get clarity on your claim readiness before investing
+                </p>
+              </div>
+            )}
+
+            {/* Payment Box */}
             <div className="sticky top-24 bg-white rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #B91C3C' }}>
               <div className="mb-6">
                 <div className="text-sm text-slate-500 mb-2">Starting at</div>

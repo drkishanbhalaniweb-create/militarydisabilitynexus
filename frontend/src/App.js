@@ -29,6 +29,10 @@ const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer'));
 
+// Lazy load diagnostic pages
+const Diagnostic = lazy(() => import('./pages/Diagnostic'));
+const DiagnosticResults = lazy(() => import('./pages/DiagnosticResults'));
+
 // Lazy load admin panel (separate chunk)
 const AdminLogin = lazy(() => import('./pages/admin/Login'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -42,6 +46,7 @@ const AdminBlogForm = lazy(() => import('./pages/admin/BlogForm'));
 const AdminCaseStudyForm = lazy(() => import('./pages/admin/CaseStudyForm'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminCommunity = lazy(() => import('./pages/admin/Community'));
+const AdminDiagnostics = lazy(() => import('./pages/admin/Diagnostics'));
 const ProtectedRoute = lazy(() => import('./components/admin/ProtectedRoute'));
 
 import './App.css';
@@ -86,6 +91,8 @@ function App() {
           <Route path="disclaimer" element={<Disclaimer />} />
           <Route path="community" element={<Community />} />
           <Route path="community/question/:slug" element={<QuestionDetail />} />
+          <Route path="diagnostic" element={<Diagnostic />} />
+          <Route path="diagnostic/results" element={<DiagnosticResults />} />
         </Route>
 
         {/* Admin Routes */}
@@ -175,6 +182,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminUsers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/diagnostics"
+          element={
+            <ProtectedRoute>
+              <AdminDiagnostics />
             </ProtectedRoute>
           }
         />

@@ -11,7 +11,8 @@ import {
   ClipboardList,
   Users,
   HelpCircle,
-  BookOpen
+  BookOpen,
+  Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -62,6 +63,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
     { name: 'Form Submissions', href: '/admin/form-submissions', icon: ClipboardList },
+    { name: 'Diagnostics', href: '/admin/diagnostics', icon: Activity },
     { name: 'Services', href: '/admin/services', icon: Briefcase },
     { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },

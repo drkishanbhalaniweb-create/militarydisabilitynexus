@@ -94,11 +94,11 @@ const Home = () => {
                   <span className="truncate">Free Discovery Call</span>
                 </button>
                 <Link
-                  to="/claim-readiness-review"
+                  to="/diagnostic"
                   className="inline-flex items-center justify-center text-center bg-white px-4 sm:px-8 py-3 sm:py-3.5 rounded-lg font-semibold text-sm sm:text-base border-2 border-white/30 hover:shadow-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                   style={{ color: '#B91C3C' }}
                 >
-                  <span className="truncate">Book Claim Readiness Review</span>
+                  <span className="truncate">Check Claim Readiness Diagnostic</span>
                 </Link>
               </div>
               
