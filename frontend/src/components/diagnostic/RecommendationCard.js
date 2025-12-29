@@ -18,6 +18,22 @@ const RecommendationCard = ({ recommendation }) => {
     red: 'border-red-600 text-red-700 bg-red-50'
   };
 
+  // Custom badge text mapping
+  const getBadgeText = (category) => {
+    switch(category) {
+      case 'FULLY_READY':
+        return 'FULLY READY';
+      case 'OPTIONAL_CONFIRMATION':
+        return 'READY BUT CLAIM READINESS REVIEW SUGGESTED';
+      case 'REVIEW_BENEFICIAL':
+        return 'REVIEW BENEFICIAL';
+      case 'REVIEW_STRONGLY_RECOMMENDED':
+        return 'WEAK, CLAIM READINESS REVIEW STRONGLY RECOMMENDED';
+      default:
+        return category.replace(/_/g, ' ').toLowerCase();
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
       {/* Icon and Badge */}
@@ -29,7 +45,7 @@ const RecommendationCard = ({ recommendation }) => {
           <Icon className="w-8 h-8" style={{ color: recommendation.color }} />
         </div>
         <div className={`px-4 py-2 rounded-full border-2 font-semibold text-sm ${badgeColors[recommendation.badgeColor]}`}>
-          Claim Strength: {recommendation.category.replace(/_/g, ' ').toLowerCase()}
+          Claim Strength: {getBadgeText(recommendation.category)}
         </div>
       </div>
 
