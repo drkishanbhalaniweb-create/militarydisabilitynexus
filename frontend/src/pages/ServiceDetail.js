@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, ArrowLeft, Clock, DollarSign } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Clock } from 'lucide-react';
 import { servicesApi } from '../lib/api';
 import SEO from '../components/SEO';
 import {

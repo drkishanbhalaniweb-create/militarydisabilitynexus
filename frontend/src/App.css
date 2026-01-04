@@ -29,19 +29,22 @@ body {
   position: relative;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Funnel Sans', sans-serif;
   font-weight: 700;
 }
 
-.App {
-  min-height: 100vh;
-  overflow-x: hidden;
-  width: 100%;
-}
+
 
 /* Prevent text overflow */
-p, span, div {
+p,
+span,
+div {
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
@@ -53,54 +56,60 @@ img {
 }
 
 /* Utility classes for overflow prevention */
-.u-no-overflow-x { 
-  overflow-x: clip; 
+.u-no-overflow-x {
+  overflow-x: clip;
 }
 
-.u-w-100p { 
-  width: 100% !important; 
+.u-w-100p {
+  width: 100% !important;
 }
 
-.u-minw-0 { 
-  min-width: 0 !important; 
+.u-minw-0 {
+  min-width: 0 !important;
 }
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
+
   /* Prevent horizontal scroll */
-  html, body {
+  html,
+  body {
     max-width: 100%;
     overflow-x: hidden;
   }
-  
+
   /* Better touch targets */
-  button, a {
+  button,
+  a {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Improve readability on mobile */
   body {
     font-size: 16px;
     line-height: 1.6;
   }
-  
+
   /* Reduce padding on mobile */
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   /* Stack elements vertically on mobile */
   .grid {
     grid-template-columns: 1fr !important;
   }
-  
+
   /* Better form inputs on mobile */
-  input, textarea, select {
-    font-size: 16px; /* Prevents zoom on iOS */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+    /* Prevents zoom on iOS */
   }
-  
+
   /* Optimize modals for mobile */
   .modal {
     margin: 1rem;
@@ -109,14 +118,7 @@ img {
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Funnel Sans', sans-serif;
-  font-weight: 700;
-}
 
-.App {
-  min-height: 100vh;
-}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -138,61 +140,81 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Floating animations */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) translateX(0px);
   }
+
   50% {
     transform: translateY(-20px) translateX(10px);
   }
 }
 
 @keyframes float-slow {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0px, 0px);
   }
+
   50% {
     transform: translate(30px, -30px);
   }
 }
 
 @keyframes float-slower {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0px, 0px);
   }
+
   50% {
     transform: translate(-40px, 40px);
   }
 }
 
 @keyframes drift {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0px, 0px) scale(1);
   }
+
   33% {
     transform: translate(20px, -20px) scale(1.05);
   }
+
   66% {
     transform: translate(-15px, 15px) scale(0.95);
   }
 }
 
 @keyframes drift-reverse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0px, 0px) scale(1);
   }
+
   33% {
     transform: translate(-25px, 25px) scale(1.05);
   }
+
   66% {
     transform: translate(20px, -20px) scale(0.95);
   }
 }
 
 @keyframes pulse-slow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.3;
     transform: scale(1.2);
@@ -200,10 +222,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes pulse-slower {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.2;
     transform: scale(1.3);
@@ -273,19 +298,17 @@ img.loaded {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
 }
 
-/* Optimize font loading */
-@font-face {
-  font-family: 'Funnel Sans';
-  font-display: swap;
-}
+
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -345,10 +368,11 @@ picture img {
 .aspect-ratio-box {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
 }
 
-.aspect-ratio-box > * {
+.aspect-ratio-box>* {
   position: absolute;
   top: 0;
   left: 0;
