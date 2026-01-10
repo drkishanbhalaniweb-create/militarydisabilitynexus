@@ -29,10 +29,7 @@ self.__SERVER_FILES_MANIFEST={
       "path": "/_next/image",
       "loader": "default",
       "loaderFile": "",
-      "domains": [
-        "images.unsplash.com",
-        "source.unsplash.com"
-      ],
+      "domains": [],
       "disableStaticImages": false,
       "minimumCacheTTL": 14400,
       "formats": [
@@ -50,6 +47,14 @@ self.__SERVER_FILES_MANIFEST={
         }
       ],
       "remotePatterns": [
+        {
+          "protocol": "https",
+          "hostname": "images.unsplash.com"
+        },
+        {
+          "protocol": "https",
+          "hostname": "source.unsplash.com"
+        },
         {
           "protocol": "https",
           "hostname": "**"

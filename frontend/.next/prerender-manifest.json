@@ -1,11 +1,11 @@
 {
   "version": 4,
   "routes": {
-    "/case-studies": {
+    "/blog": {
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": null,
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/blog.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -15,11 +15,11 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/blog": {
+    "/case-studies": {
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": null,
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -33,21 +33,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": null,
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community.json",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/": {
-      "initialRevalidateSeconds": 3600,
-      "initialExpireSeconds": 31536000,
-      "srcRoute": null,
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/index.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -61,7 +47,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/community/question/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/i-have-numbness-and-tingling-down-my-arm-how-does-the-va-rate-nerve-issues.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/i-have-numbness-and-tingling-down-my-arm-how-does-the-va-rate-nerve-issues.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -75,7 +61,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/community/question/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/my-migraines-seem-to-be-triggered-by-my-tinnitus-will-va-consider-that.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/my-migraines-seem-to-be-triggered-by-my-tinnitus-will-va-consider-that.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -89,7 +75,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/community/question/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/my-tinnitus-is-constant-and-significantly-affects-my-health-can-i-get-more-than-10-rating.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/my-tinnitus-is-constant-and-significantly-affects-my-health-can-i-get-more-than-10-rating.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -103,7 +89,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/community/question/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/my-migraines-wipe-me-out-for-hours-does-that-count-as-a-prostrating-attack.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/my-migraines-wipe-me-out-for-hours-does-that-count-as-a-prostrating-attack.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -117,7 +103,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/community/question/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/i-have-a-cp-exam-coming-up-how-do-i-make-sure-i-dont-undersell-my-symptoms.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/i-have-a-cp-exam-coming-up-how-do-i-make-sure-i-dont-undersell-my-symptoms.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -131,7 +117,7 @@
       "initialRevalidateSeconds": 60,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/community/question/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/my-ptsd-feels-like-its-getting-worse-so-why-is-the-va-still-keeping-me-at-30.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/my-ptsd-feels-like-its-getting-worse-so-why-is-the-va-still-keeping-me-at-30.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -145,7 +131,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/case-studies/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies/irritable-bowel-syndrome-ibs-as-secondary-to-anxietydepression.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies/irritable-bowel-syndrome-ibs-as-secondary-to-anxietydepression.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -159,7 +145,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/case-studies/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies/vertigo-as-secondary-to-service-connected-tinnitus.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies/vertigo-as-secondary-to-service-connected-tinnitus.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -173,7 +159,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/case-studies/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies/aid-attendance-for-veteran-with-severe-mobility-cognitive-decline.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies/aid-attendance-for-veteran-with-severe-mobility-cognitive-decline.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -187,7 +173,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/case-studies/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies/primary-service-connection-for-gerd.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies/primary-service-connection-for-gerd.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -201,21 +187,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/case-studies/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies/migraines-as-secondary-to-tinnitus.json",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/blog/test": {
-      "initialRevalidateSeconds": 3600,
-      "initialExpireSeconds": 31536000,
-      "srcRoute": "/blog/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog/test.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies/migraines-as-secondary-to-tinnitus.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -229,7 +201,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/blog/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog/understanding-1151-claims-when-va-medical-care-goes-wrong.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/understanding-1151-claims-when-va-medical-care-goes-wrong.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -243,7 +215,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/blog/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog/aid-attendance-quick-guide.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/aid-attendance-quick-guide.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -257,7 +229,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/blog/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog/how-to-prepare-cp-exam.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/how-to-prepare-cp-exam.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -271,7 +243,7 @@
       "initialRevalidateSeconds": 3600,
       "initialExpireSeconds": 31536000,
       "srcRoute": "/blog/[slug]",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog/nexus-and-rebuttal-letters-explained.json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/nexus-and-rebuttal-letters-explained.json",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -285,9 +257,9 @@
   "dynamicRoutes": {
     "/community/question/[slug]": {
       "routeRegex": "^/community/question/([^/]+?)(?:/)?$",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/[slug].json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/[slug].json",
       "fallback": null,
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/([^/]+?)\\.json$",
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/([^/]+?)\\.json$",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -299,9 +271,9 @@
     },
     "/case-studies/[slug]": {
       "routeRegex": "^/case\\-studies/([^/]+?)(?:/)?$",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies/[slug].json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies/[slug].json",
       "fallback": null,
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/case\\-studies/([^/]+?)\\.json$",
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/case\\-studies/([^/]+?)\\.json$",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -313,9 +285,9 @@
     },
     "/blog/[slug]": {
       "routeRegex": "^/blog/([^/]+?)(?:/)?$",
-      "dataRoute": "/_next/data/HkvBwsskNs7JJi26tjsuV/blog/[slug].json",
+      "dataRoute": "/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/[slug].json",
       "fallback": null,
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/blog/([^/]+?)\\.json$",
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/([^/]+?)\\.json$",
       "allowHeader": [
         "host",
         "x-matched-path",

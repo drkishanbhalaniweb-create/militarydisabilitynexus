@@ -280,44 +280,40 @@
   ],
   "dataRoutes": [
     {
-      "page": "/",
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/index\\.json$"
-    },
-    {
       "page": "/blog",
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/blog\\.json$"
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/blog\\.json$"
     },
     {
       "page": "/blog/[slug]",
       "routeKeys": {
         "nxtPslug": "nxtPslug"
       },
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/blog/([^/]+?)\\.json$",
-      "namedDataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/blog/(?<nxtPslug>[^/]+?)\\.json$"
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/blog/(?<nxtPslug>[^/]+?)\\.json$"
     },
     {
       "page": "/case-studies",
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/case-studies\\.json$"
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/case-studies\\.json$"
     },
     {
       "page": "/case-studies/[slug]",
       "routeKeys": {
         "nxtPslug": "nxtPslug"
       },
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/case\\-studies/([^/]+?)\\.json$",
-      "namedDataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/case\\-studies/(?<nxtPslug>[^/]+?)\\.json$"
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/case\\-studies/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/case\\-studies/(?<nxtPslug>[^/]+?)\\.json$"
     },
     {
       "page": "/community",
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/community\\.json$"
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/community\\.json$"
     },
     {
       "page": "/community/question/[slug]",
       "routeKeys": {
         "nxtPslug": "nxtPslug"
       },
-      "dataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/([^/]+?)\\.json$",
-      "namedDataRouteRegex": "^/_next/data/HkvBwsskNs7JJi26tjsuV/community/question/(?<nxtPslug>[^/]+?)\\.json$"
+      "dataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/JN3jyBovOcp4rpHbcUHNg/community/question/(?<nxtPslug>[^/]+?)\\.json$"
     }
   ],
   "rsc": {
