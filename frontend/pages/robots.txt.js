@@ -11,8 +11,10 @@ export const getServerSideProps = async ({ res }) => {
     // Hardening Requirement #2 & #5: Strict Rules & Canonical Sitemap
     const content = `User-agent: *
 Allow: /
+Allow: /_next/static/
+Allow: /_next/image/
+Disallow: /_next/data/
 Disallow: /api/
-Disallow: /_next/
 Disallow: /admin/
 Disallow: /dashboard/
 
