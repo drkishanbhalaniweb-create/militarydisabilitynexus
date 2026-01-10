@@ -83,6 +83,9 @@ export const getServerSideProps = async ({ res }) => {
         // Case Studies
         const caseStudies = await fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true });
 
+        // Community Questions (SEO Goldmine!)
+        const communityQuestions = await fetchAll('community_questions', 'slug, created_at', { status: 'published' });
+
         // 3. Define Static Routes (Hardening Requirement #2 - No garbage)
         const staticRoutes = [
             '', // root
@@ -91,6 +94,12 @@ export const getServerSideProps = async ({ res }) => {
             '/case-studies',
             '/about',
             '/contact',
+            '/claim-readiness-review',
+            '/diagnostic',
+            '/community',
+            '/privacy',
+            '/terms',
+            '/disclaimer',
         ];
 
         // 4. Build URL Maps
@@ -101,7 +110,7 @@ export const getServerSideProps = async ({ res }) => {
             urls.push({
                 loc: `${SITE_URL}${route}`,
                 lastmod: new Date().toISOString(),
-                priority: route === '' ? '1.0' : '0.8',
+                priority: route === '' ? '1.0' : (route.includes('claim') || route.includes('diagnostic')) ? '0.9' : '0.8',
             });
         });
 
@@ -134,6 +143,17 @@ export const getServerSideProps = async ({ res }) => {
                     loc: `${SITE_URL}/case-studies/${escapeXml(study.slug)}`,
                     lastmod: formatDate(study.updated_at || study.published_at),
                     priority: '0.7',
+                });
+            }
+        });
+
+        // Add Community Questions
+        communityQuestions.forEach(question => {
+            if (question.slug) {
+                urls.push({
+                    loc: `${SITE_URL}/community/question/${escapeXml(question.slug)}`, // Matches /community/question/[slug].js
+                    lastmod: formatDate(question.created_at), // Questions might not have updated_at, fallback to created_at
+                    priority: '0.8', // High priority for user generated content
                 });
             }
         });
