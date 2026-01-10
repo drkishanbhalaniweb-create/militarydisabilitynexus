@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/baseskel-main/frontend/pages/index.js"],"sourcesContent":["export default function Home() {\r\n    return <h1>Test Home Page</h1>;\r\n}\r\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACpB,qBAAO,qKAAC;kBAAG;;;;;;AACf"}}]
-}

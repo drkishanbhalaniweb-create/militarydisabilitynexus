@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 40, "column": 0}, "map": {"version":3,"sources":["file:///D:/baseskel-main/frontend/pages/_document.js"],"sourcesContent":["import { Html, Head, Main, NextScript } from 'next/document';\r\n\r\nexport default function Document() {\r\n    return (\r\n        <Html lang=\"en\">\r\n            <Head>\r\n                <link rel=\"icon\" href=\"/favicon.ico\" />\r\n                {/* Add any other global head tags here */}\r\n            </Head>\r\n            <body>\r\n                <Main />\r\n                <NextScript />\r\n            </body>\r\n        </Html>\r\n    );\r\n}\r\n"],"names":[],"mappings":";;;;;AAAA;;;AAEe,SAAS;IACpB,qBACI,qKAAC,6IAAI;QAAC,MAAK;;0BACP,qKAAC,6IAAI;0BACD,cAAA,qKAAC;oBAAK,KAAI;oBAAO,MAAK;;;;;;;;;;;0BAG1B,qKAAC;;kCACG,qKAAC,6IAAI;;;;;kCACL,qKAAC,mJAAU;;;;;;;;;;;;;;;;;AAI3B"}}]
-}

@@ -97,3 +97,8 @@ nixpacks.json
 .nixpacks/
 railway.toml
 .vercel
+.next/
+out/
+**/.next/
+**/out/
+
