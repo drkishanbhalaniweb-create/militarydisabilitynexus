@@ -5,25 +5,7 @@ import { servicesApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 
-const Services = () => {
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                const data = await servicesApi.getAll();
-                setServices(data);
-            } catch (error) {
-                console.error('Error fetching services:', error);
-                setServices([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchServices();
-    }, []);
-
+const Services = ({ services }) => {
     const getIconComponent = (iconName) => {
         const icons = {
             'file-text': FileText,
@@ -43,6 +25,7 @@ const Services = () => {
                 title="VA Medical Documentation Services USA | Military Disability Nexus"
                 description="Veteran-focused medical documentation services from clinicians who review records and provide VA-compliant evidence to support disability claims nationwide."
                 keywords="VA nexus letter, DBQ evaluation, aid and attendance, C&P exam coaching, 1151 claim, veteran medical services"
+                canonical="/services"
                 breadcrumbs={[
                     { name: 'Home', path: '/' },
                     { name: 'Services', path: '/services' }
@@ -71,7 +54,7 @@ const Services = () => {
                     {/* Hero Section */}
                     <section className="py-24">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                            <h1 className="text-5xl font-bold text-slate-900 mb-6">Our Services</h1>
+                            <h1 className="text-5xl font-bold text-slate-900 mb-6">VA Disability Services</h1>
                             <p className="text-xl text-slate-700 max-w-2xl mx-auto">
                                 Professional medical documentation for your VA disability claim
                             </p>
@@ -81,12 +64,7 @@ const Services = () => {
                     {/* Services Grid */}
                     <section className="pb-24">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            {loading ? (
-                                <div className="text-center py-20">
-                                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-navy-700 mx-auto"></div>
-                                    <p className="mt-4 text-slate-600">Loading services...</p>
-                                </div>
-                            ) : services.length === 0 ? (
+                            {!services || services.length === 0 ? (
                                 <div className="text-center py-20">
                                     <p className="text-slate-600 text-lg">No services available at the moment.</p>
                                 </div>
@@ -179,5 +157,25 @@ const Services = () => {
         </Layout>
     );
 };
+
+export async function getStaticProps() {
+    try {
+        const services = await servicesApi.getAll();
+        return {
+            props: {
+                services: services || [],
+            },
+            revalidate: 86400, // Revalidate every 24 hours
+        };
+    } catch (error) {
+        console.error('Error fetching services for static props:', error);
+        return {
+            props: {
+                services: [],
+            },
+            revalidate: 86400,
+        };
+    }
+}
 
 export default Services;
