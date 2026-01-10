@@ -95,30 +95,49 @@ const Diagnostics = () => {
         try {
             setLoading(true);
 
-            // 1. Fetch all IDs first to avoid "delete all" restrictions
-            const { data: records, error: fetchError } = await supabase
-                .from('diagnostic_sessions')
-                .select('id');
+            // Loop to delete in batches (Supabase fetch is limited to 1000, and URL length limits .in() clause)
+            const BATCH_SIZE = 100;
+            let hasMore = true;
+            let totalDeleted = 0;
 
-            if (fetchError) throw fetchError;
+            while (hasMore) {
+                // 1. Fetch a batch of IDs
+                const { data: records, error: fetchError } = await supabase
+                    .from('diagnostic_sessions')
+                    .select('id')
+                    .range(0, BATCH_SIZE - 1);
 
-            if (!records || records.length === 0) {
-                toast.success('No data to reset.');
-                setLoading(false);
-                return;
+                if (fetchError) throw fetchError;
+
+                if (!records || records.length === 0) {
+                    hasMore = false;
+                    break;
+                }
+
+                const idsToDelete = records.map(r => r.id);
+
+                // 2. Delete this batch
+                const { error: deleteError } = await supabase
+                    .from('diagnostic_sessions')
+                    .delete()
+                    .in('id', idsToDelete);
+
+                if (deleteError) throw deleteError;
+
+                totalDeleted += records.length;
+
+                // If we fetched fewer than batch size, we are done
+                if (records.length < BATCH_SIZE) {
+                    hasMore = false;
+                }
             }
 
-            const idsToDelete = records.map(r => r.id);
+            if (totalDeleted > 0) {
+                toast.success(`Successfully deleted ${totalDeleted} diagnostic sessions.`);
+            } else {
+                toast.info('No data found to reset.');
+            }
 
-            // 2. Delete by ID list
-            const { error: deleteError } = await supabase
-                .from('diagnostic_sessions')
-                .delete()
-                .in('id', idsToDelete);
-
-            if (deleteError) throw deleteError;
-
-            toast.success('Diagnostics data has been successfully reset.');
             fetchDiagnostics(); // Refresh to show empty state
         } catch (error) {
             console.error('Error resetting diagnostics:', error);
