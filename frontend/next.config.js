@@ -19,6 +19,21 @@ const nextConfig = {
             },
         ],
     },
+
+    async redirects() {
+        return [
+            {
+                source: '/index',
+                destination: '/',
+                permanent: true, // 301 redirect
+            },
+            {
+                source: '/index/:path*',
+                destination: '/',
+                permanent: true, // 301 redirect
+            },
+        ];
+    },
 }
 
 module.exports = nextConfig
