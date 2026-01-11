@@ -4,9 +4,9 @@ import Head from 'next/head';
 const SITE_URL = 'https://www.militarydisabilitynexus.com';
 
 const SEO = ({
-  title = 'Medical Consulting for Veterans',
-  description = 'Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, and medical consultations for veterans seeking disability benefits and compensation.',
-  keywords = 'VA nexus letter, DBQ, disability benefits questionnaire, aid and attendance, C&P exam, veteran medical documentation',
+  title,
+  description,
+  keywords,
   ogImage = '/android-chrome-512x512.png',
   article = false,
   publishedTime,
@@ -26,22 +26,22 @@ const SEO = ({
   const canonicalUrl = canonical || siteUrl;
 
   // Truncate description to 130 characters to avoid SEO penalties
-  const metaDescription = description.length > 130
+  const metaDescription = description && description.length > 130
     ? `${description.substring(0, 127)}...`
     : description;
 
   return (
     <Head>
-      {/* Basic Meta Tags */}
-      <title>{title} | Military Disability Nexus</title>
-      <meta name="description" content={metaDescription} />
-      <meta name="keywords" content={keywords} />
-      <link rel="canonical" href={canonicalUrl} />
+      {/* Basic Meta Tags - only render if explicitly provided */}
+      {title && <title>{title} | Military Disability Nexus</title>}
+      {metaDescription && <meta name="description" content={metaDescription} />}
+      {keywords && <meta name="keywords" content={keywords} />}
+      {canonical && <link rel="canonical" href={canonicalUrl} />}
 
       {/* Open Graph */}
       <meta property="og:type" content={article ? 'article' : 'website'} />
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={metaDescription} />
+      {title && <meta property="og:title" content={title} />}
+      {metaDescription && <meta property="og:description" content={metaDescription} />}
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={`${siteUrl}${ogImage}`} />
       <meta property="og:site_name" content="Military Disability Nexus" />
@@ -57,8 +57,8 @@ const SEO = ({
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={metaDescription} />
+      {title && <meta name="twitter:title" content={title} />}
+      {metaDescription && <meta name="twitter:description" content={metaDescription} />}
       <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
       {/* Additional SEO */}
