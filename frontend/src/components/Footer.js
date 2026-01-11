@@ -126,7 +126,7 @@ const Footer = () => {
         <div className="border-t border-white/10 pt-8">
           <div className="text-center mb-4">
             <p className="text-white/60 text-sm mb-2">
-              Copyright © {currentYear} Military Disability Nexus. All Rights Reserved.
+              Copyright © <span suppressHydrationWarning>{currentYear}</span> Military Disability Nexus. All Rights Reserved.
             </p>
             <p className="text-white/40 text-xs mb-3">
               Professional medical documentation for VA disability claims | Nexus Letters | DBQs | Aid & Attendance
