@@ -332,7 +332,7 @@ const Home = () => {
                         })}
                       </div>
                       <div className="flex items-center justify-between text-xs text-slate-500 mt-auto">
-                        <span>{new Date(post.published_at).toLocaleDateString()}</span>
+                        <span>{new Date(post.published_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</span>
                         <span>{post.read_time || '5'} min read</span>
                       </div>
                     </div>

@@ -178,7 +178,7 @@ const Blog = ({ initialPosts }) => {
                                             <div className="p-6">
                                                 <div className="flex items-center justify-between mb-3">
                                                     <span className="text-xs text-navy-700 font-semibold uppercase">{post.category}</span>
-                                                    <span className="text-xs text-slate-500">{new Date(post.published_at).toLocaleDateString()}</span>
+                                                    <span className="text-xs text-slate-500">{new Date(post.published_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</span>
                                                 </div>
                                                 <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-navy-700 transition-colors">
                                                     {post.title}

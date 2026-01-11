@@ -305,7 +305,7 @@ const Diagnostics = () => {
                                         {sessions.map((session) => (
                                             <tr key={session.id} className="hover:bg-slate-50">
                                                 <td className="px-6 py-4 text-sm text-slate-900">
-                                                    {new Date(session.created_at).toLocaleDateString()}
+                                                    {new Date(session.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <span className="font-bold text-slate-900">{session.total_score}</span>
