@@ -37,7 +37,7 @@ export async function getStaticProps() {
 const CaseStudies = ({ initialCaseStudies }) => {
     const [caseStudies, setCaseStudies] = useState(initialCaseStudies || []);
     const [filteredCaseStudies, setFilteredCaseStudies] = useState(initialCaseStudies || []);
-    const [loading, setLoading] = useState(false);
+
     const [selectedTag, setSelectedTag] = useState(null);
 
     useEffect(() => {
@@ -144,11 +144,7 @@ const CaseStudies = ({ initialCaseStudies }) => {
                         </div>
 
                         {/* Case Studies Grid */}
-                        {loading ? (
-                            <div className="text-center py-20">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-navy-700 mx-auto" />
-                            </div>
-                        ) : filteredCaseStudies.length === 0 ? (
+                        {filteredCaseStudies.length === 0 ? (
                             <div className="text-center py-20">
                                 <p className="text-xl text-slate-600">
                                     {selectedTag ? `No case studies found for "${selectedTag}"` : 'No case studies available yet'}

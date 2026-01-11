@@ -165,7 +165,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                                 <h2 className="text-2xl font-bold text-slate-900">The Challenge</h2>
                             </div>
                             <div
-                                className="prose prose-slate prose-lg max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
+                                className="prose prose-slate prose-lg max-w-none prose-headings:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.challenge }}
                             />
                         </div>
@@ -181,7 +181,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                                 <h2 className="text-2xl font-bold text-slate-900">What Existed Before</h2>
                             </div>
                             <div
-                                className="prose prose-slate prose-lg max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
+                                className="prose prose-slate prose-lg max-w-none prose-headings:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.solution }}
                             />
                         </div>
@@ -197,7 +197,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                                 <h2 className="text-2xl font-bold text-slate-900">Our Contribution</h2>
                             </div>
                             <div
-                                className="prose prose-slate prose-lg max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
+                                className="prose prose-slate prose-lg max-w-none prose-headings:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.results }}
                             />
                         </div>
@@ -213,7 +213,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                                 <h2 className="text-2xl font-bold text-amber-900">Key Takeaway</h2>
                             </div>
                             <div
-                                className="prose prose-lg max-w-none text-amber-900 [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
+                                className="prose prose-lg max-w-none text-amber-900 prose-headings:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.key_takeaway }}
                             />
                         </div>
@@ -223,7 +223,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                     {!caseStudy.challenge && !caseStudy.solution && !caseStudy.results && (
                         <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg mb-8">
                             <div
-                                className="prose prose-slate prose-lg max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
+                                className="prose prose-slate prose-lg max-w-none prose-headings:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-2"
                                 dangerouslySetInnerHTML={{ __html: caseStudy.content_html }}
                             />
                         </div>
