@@ -1,11 +1,22 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { ArrowRight, Users, Clock, Award } from 'lucide-react';
 import { servicesApi, blogApi } from '../src/lib/api';
 import SEO from '../src/components/SEO';
-import QuickIntakeForm from '../src/components/forms/QuickIntakeForm';
 import Layout from '../src/components/Layout';
+
+// Dynamic import for QuickIntakeForm to prevent SSR (uses document APIs)
+const QuickIntakeForm = dynamic(
+    () => import('../src/components/forms/QuickIntakeForm'),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="h-[520px] w-full rounded-2xl bg-white/60 animate-pulse" />
+        )
+    }
+);
 
 export async function getStaticProps() {
     try {

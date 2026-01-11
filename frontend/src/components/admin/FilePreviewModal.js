@@ -48,6 +48,8 @@ const FilePreviewModal = ({ file, isOpen, onClose }) => {
 
   // Handle ESC key to close modal
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
@@ -60,6 +62,8 @@ const FilePreviewModal = ({ file, isOpen, onClose }) => {
 
   // Prevent body scroll when modal is open
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -80,7 +84,7 @@ const FilePreviewModal = ({ file, isOpen, onClose }) => {
 
   // Handle download
   const handleDownload = useCallback(() => {
-    if (!signedUrl) return;
+    if (!signedUrl || typeof document === 'undefined') return;
 
     const link = document.createElement('a');
     link.href = signedUrl;

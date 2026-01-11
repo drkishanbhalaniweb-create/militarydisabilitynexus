@@ -83,11 +83,11 @@ export const validateAnswer = (questionId, points) => {
   if (!question) {
     throw new Error(`Invalid question ID: ${questionId}`);
   }
-  
+
   if (![0, 1, 2].includes(points)) {
     throw new Error('Points must be 0, 1, or 2');
   }
-  
+
   return true;
 };
 
@@ -109,6 +109,16 @@ export const generateSessionId = () => {
  * @returns {Object} Formatted data for database
  */
 export const formatDiagnosticData = (answers, score, recommendation) => {
+  const browserData = typeof window !== 'undefined' ? {
+    user_agent: navigator.userAgent,
+    viewport_width: window.innerWidth,
+    viewport_height: window.innerHeight
+  } : {
+    user_agent: 'server',
+    viewport_width: 0,
+    viewport_height: 0
+  };
+
   return {
     session_id: generateSessionId(),
     service_connection: answers.service_connection,
@@ -119,9 +129,7 @@ export const formatDiagnosticData = (answers, score, recommendation) => {
     total_score: score,
     recommendation: recommendation,
     completed_at: new Date().toISOString(),
-    user_agent: navigator.userAgent,
-    viewport_width: window.innerWidth,
-    viewport_height: window.innerHeight
+    ...browserData
   };
 };
 
@@ -132,7 +140,7 @@ export const formatDiagnosticData = (answers, score, recommendation) => {
  */
 export const isComplete = (answers) => {
   if (!answers || typeof answers !== 'object') return false;
-  
+
   return QUESTIONS.every(question => {
     const points = answers[question.id];
     return typeof points === 'number' && [0, 1, 2].includes(points);

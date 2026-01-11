@@ -15,6 +15,8 @@ const PaymentSuccess = () => {
         const timer = setTimeout(() => {
             setShowCal(true);
 
+            if (typeof document === 'undefined') return;
+
             // Load Cal.com embed script
             const script = document.createElement('script');
             script.src = 'https://app.cal.com/embed/embed.js';

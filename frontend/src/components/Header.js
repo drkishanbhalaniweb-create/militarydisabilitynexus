@@ -10,6 +10,8 @@ const Header = () => {
   const router = useRouter();
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };

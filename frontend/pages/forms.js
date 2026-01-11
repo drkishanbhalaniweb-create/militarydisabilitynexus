@@ -44,6 +44,8 @@ const Forms = () => {
     // Load Cal.com inline embed
     useEffect(() => {
         if (showCal) {
+            if (typeof document === 'undefined') return;
+
             // Load Cal.com embed script
             const script = document.createElement('script');
             script.src = 'https://app.cal.com/embed/embed.js';

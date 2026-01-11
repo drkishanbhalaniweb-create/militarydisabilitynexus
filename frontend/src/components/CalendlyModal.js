@@ -3,6 +3,8 @@ import { PopupModal } from 'react-calendly';
 
 const CalendlyModal = ({ isOpen, onClose, url }) => {
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -24,7 +26,7 @@ const CalendlyModal = ({ isOpen, onClose, url }) => {
       url={url}
       onModalClose={onClose}
       open={isOpen}
-      rootElement={document.getElementById('root')}
+      rootElement={typeof document !== 'undefined' ? document.getElementById('root') : undefined}
       pageSettings={{
         backgroundColor: 'ffffff',
         hideEventTypeDetails: false,

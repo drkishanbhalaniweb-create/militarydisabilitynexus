@@ -7,13 +7,13 @@ import { uploadBlogImage, deleteBlogImage, validateImage, formatFileSize } from 
  * ImageUpload Component
  * Drag & drop image upload with preview for blog posts
  */
-const ImageUpload = ({ 
-  onUploadComplete, 
+const ImageUpload = ({
+  onUploadComplete,
   existingImage = null,
   existingPath = null,
   folder = 'blog',
   label = 'Upload Image',
-  showPreview = true 
+  showPreview = true
 }) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(existingImage);
@@ -37,7 +37,7 @@ const ImageUpload = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -75,14 +75,16 @@ const ImageUpload = ({
       // Upload new image
       const result = await uploadBlogImage(file, folder);
 
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setPreview(previewUrl);
+      // Create preview URL only in browser
+      if (typeof window !== 'undefined') {
+        const previewUrl = URL.createObjectURL(file);
+        setPreview(previewUrl);
+      }
       setImagePath(result.path);
 
       // Notify parent component
       onUploadComplete(result.url, result.path);
-      
+
       toast.success('Image uploaded successfully!');
     } catch (error) {
       console.error('Upload error:', error);
@@ -98,16 +100,16 @@ const ImageUpload = ({
       if (imagePath) {
         await deleteBlogImage(imagePath);
       }
-      
+
       setPreview(null);
       setImagePath(null);
       onUploadComplete(null, null);
-      
+
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      
+
       toast.success('Image removed');
     } catch (error) {
       console.error('Error removing image:', error);
@@ -129,11 +131,10 @@ const ImageUpload = ({
       {!preview ? (
         // Upload area
         <div
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-            dragActive 
-              ? 'border-indigo-500 bg-indigo-50' 
+          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${dragActive
+              ? 'border-indigo-500 bg-indigo-50'
               : 'border-slate-300 hover:border-slate-400'
-          } ${uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            } ${uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -148,7 +149,7 @@ const ImageUpload = ({
             onChange={handleChange}
             disabled={uploading}
           />
-          
+
           {uploading ? (
             <div className="flex flex-col items-center">
               <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
@@ -177,7 +178,7 @@ const ImageUpload = ({
               alt="Preview"
               className="w-full h-64 object-cover rounded-lg border-2 border-slate-200"
             />
-            
+
             {/* Overlay with remove button */}
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center">
               <button

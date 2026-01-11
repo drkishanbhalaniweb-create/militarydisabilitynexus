@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 
 const SuccessModal = ({ isOpen, onClose, title, message }) => {
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -18,11 +20,11 @@ const SuccessModal = ({ isOpen, onClose, title, message }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto transform transition-all animate-in fade-in zoom-in duration-300">
         {/* Close Button */}

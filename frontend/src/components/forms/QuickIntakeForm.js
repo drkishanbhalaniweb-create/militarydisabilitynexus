@@ -33,6 +33,8 @@ const QuickIntakeForm = ({ onSuccess }) => {
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
