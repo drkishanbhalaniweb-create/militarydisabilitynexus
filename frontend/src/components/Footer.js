@@ -153,31 +153,7 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Organization Schema - Global */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "MedicalBusiness",
-          "name": "Military Disability Nexus",
-          "description": "Professional medical documentation services for VA disability claims",
-          "url": "https://militarydisabilitynexus.com",
-          "logo": "https://militarydisabilitynexus.com/logo.png",
-          "image": "https://militarydisabilitynexus.com/og-image.jpg",
-          "email": "contact@militarydisabilitynexus.com",
-          "telephone": "+1-307-301-2019",
-          "areaServed": {
-            "@type": "Country",
-            "name": "United States"
-          },
-          "priceRange": "$$",
-          "medicalSpecialty": "Veterans Medical Documentation",
-          "sameAs": [
-            "https://www.linkedin.com/company/military-disability-nexus/",
-            "https://www.facebook.com/share/1DXxUd6Q74/?mibextid=wwXIfr",
-            "https://www.instagram.com/military_disability_nexus?igsh=MTFtMmtvODg3NmZlMA==&utm_source=ig_contact_invite"
-          ]
-        })}
-      </script>
+
     </footer>
   );
 };

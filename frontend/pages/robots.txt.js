@@ -13,7 +13,7 @@ export const getServerSideProps = async ({ res }) => {
 Allow: /
 Allow: /_next/static/
 Allow: /_next/image/
-Disallow: /_next/data/
+
 Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/

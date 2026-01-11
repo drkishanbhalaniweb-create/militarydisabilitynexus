@@ -120,7 +120,7 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/services/${escapeXml(service.slug)}`,
                     lastmod: formatDate(service.updated_at),
-                    priority: '0.9',
+                    priority: '1.0',
                 });
             }
         });
@@ -131,7 +131,7 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/blog/${escapeXml(post.slug)}`,
                     lastmod: formatDate(post.updated_at || post.published_at),
-                    priority: '0.7',
+                    priority: '0.8',
                 });
             }
         });
@@ -142,7 +142,7 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/case-studies/${escapeXml(study.slug)}`,
                     lastmod: formatDate(study.updated_at || study.published_at),
-                    priority: '0.7',
+                    priority: '0.8',
                 });
             }
         });
@@ -153,7 +153,7 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/community/question/${escapeXml(question.slug)}`, // Matches /community/question/[slug].js
                     lastmod: formatDate(question.created_at), // Questions might not have updated_at, fallback to created_at
-                    priority: '0.8', // High priority for user generated content
+                    priority: '0.9', // High priority for user generated content
                 });
             }
         });

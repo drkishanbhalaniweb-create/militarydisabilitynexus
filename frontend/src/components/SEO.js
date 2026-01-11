@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 // Production site URL - used for canonical URLs and OG tags
 const SITE_URL = 'https://www.militarydisabilitynexus.com';
@@ -17,13 +18,25 @@ const SEO = ({
   faqSchema,
   breadcrumbs
 }) => {
-  // Always use production URL for SEO purposes
+  const router = useRouter();
   const siteUrl = SITE_URL;
-  // In Next.js SSR, window might be undefined initially, but Head handles it.
-  // For canonical, we can rely on the passed canonical or default to siteUrl.
-  // Ideally, we pass the current path from the parent page or use useRouter, 
-  // but for now, we'll rely on the default or prop.
-  const canonicalUrl = canonical || siteUrl;
+
+  // Canonical logic:
+  // 1. Use explicit canonical prop if provided
+  // 2. Fallback to current path (excluding query params) if not provided
+  let canonicalPath = canonical;
+
+  if (!canonicalPath) {
+    // If router is ready, use asPath but strip query params
+    // split('?')[0] removes query params
+    const path = router.asPath.split('?')[0];
+    canonicalPath = path;
+  }
+
+  // Ensure absolute URL
+  const canonicalUrl = canonicalPath.startsWith('http')
+    ? canonicalPath
+    : `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`;
 
   // Truncate description to 130 characters to avoid SEO penalties
   const metaDescription = description && description.length > 130
@@ -36,7 +49,7 @@ const SEO = ({
       {title && <title>{title} | Military Disability Nexus</title>}
       {metaDescription && <meta name="description" content={metaDescription} />}
       {keywords && <meta name="keywords" content={keywords} />}
-      {canonical && <link rel="canonical" href={canonicalUrl} />}
+      <link rel="canonical" href={canonicalUrl} />
 
       {/* Open Graph */}
       <meta property="og:type" content={article ? 'article' : 'website'} />
