@@ -9,6 +9,8 @@ import { supabase, STORAGE_BUCKETS } from './supabase';
 // ============================================
 
 // Fallback data for critical services that might be missing in some environments
+// force rebuild 2026-01-12
+
 const FALLBACK_SERVICES = [
   {
     id: '00000000-0000-0000-0000-000000000004',
