@@ -4,28 +4,72 @@ import { supabase, STORAGE_BUCKETS } from './supabase';
 // SERVICES
 // ============================================
 
+// ============================================
+// SERVICES
+// ============================================
+
+// Fallback data for critical services that might be missing in some environments
+const FALLBACK_SERVICES = [
+  {
+    id: '00000000-0000-0000-0000-000000000004',
+    slug: 'cp-coaching',
+    title: 'C&P Coaching',
+    short_description: 'Preparation for compensation and pension examinations',
+    full_description: 'Prepare for your C&P exam with expert coaching. We help you understand what to expect, how to accurately report your symptoms, and provide tips to ensure your disabilities are properly documented.',
+    features: ["What to expect", "Accurate symptom reporting", "Logbooks & lay tips"],
+    base_price_usd: 29,
+    duration: 'Same day or next business day',
+    category: 'coaching',
+    icon: 'users',
+    faqs: [{ "question": "What is C&P coaching?", "answer": "C&P coaching prepares you for your Compensation and Pension exam, helping you understand the process and communicate your condition effectively." }],
+    display_order: 4,
+    is_active: true
+  }
+];
+
 export const servicesApi = {
   async getAll() {
-    const { data, error } = await supabase
+    const { data: dbServices, error } = await supabase
       .from('services')
       .select('*')
       .eq('is_active', true)
       .order('display_order', { ascending: true });
 
     if (error) throw error;
-    return data;
+
+    // Check for missing fallback services and append them
+    let services = [...dbServices];
+
+    FALLBACK_SERVICES.forEach(fallback => {
+      if (!services.find(s => s.slug === fallback.slug)) {
+        services.push(fallback);
+      }
+    });
+
+    // Re-sort in case we added something
+    services.sort((a, b) => a.display_order - b.display_order);
+
+    return services;
   },
 
   async getBySlug(slug) {
-    const { data, error } = await supabase
+    const { data: dbService, error } = await supabase
       .from('services')
       .select('*')
       .eq('slug', slug)
       .eq('is_active', true)
-      .single();
+      .maybeSingle(); // Use maybeSingle to avoid error on not found
 
-    if (error) throw error;
-    return data;
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is JSON object is null, though maybeSingle shouldn't throw it
+
+    if (dbService) return dbService;
+
+    // Check fallback
+    const fallback = FALLBACK_SERVICES.find(s => s.slug === slug);
+    if (fallback) return fallback;
+
+    // If we're here, it's truly not found
+    return null;
   },
 
   async delete(id) {
@@ -101,9 +145,9 @@ export const contactsApi = {
   async submit(contactData) {
     // Convert serviceTypes array to a comma-separated string for subject
     const subject = contactData.serviceTypes && contactData.serviceTypes.length > 0
-      ? contactData.serviceTypes.map(type => 
-          type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-        ).join(', ')
+      ? contactData.serviceTypes.map(type =>
+        type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      ).join(', ')
       : contactData.subject || 'General Inquiry';
 
     const { data, error } = await supabase
@@ -294,7 +338,7 @@ export const formSubmissionsApi = {
 
 // Update file upload to support form submissions
 const originalUpload = fileUploadApi.upload;
-fileUploadApi.upload = async function(file, contactIdOrFormId, category = 'other', isFormSubmission = false) {
+fileUploadApi.upload = async function (file, contactIdOrFormId, category = 'other', isFormSubmission = false) {
   const fileExt = file.name.split('.').pop();
   const fileName = `${contactIdOrFormId}/${Date.now()}.${fileExt}`;
 
@@ -364,25 +408,25 @@ export const generateSlug = (title) => {
 const ensureUniqueSlug = async (slug, excludeId = null) => {
   let uniqueSlug = slug;
   let counter = 1;
-  
+
   while (true) {
     let query = supabase
       .from('case_studies')
       .select('id')
       .eq('slug', uniqueSlug);
-    
+
     if (excludeId) {
       query = query.neq('id', excludeId);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) throw error;
-    
+
     if (!data || data.length === 0) {
       return uniqueSlug;
     }
-    
+
     counter++;
     uniqueSlug = `${slug}-${counter}`;
   }
@@ -430,7 +474,7 @@ export const caseStudyApi = {
   async create(caseStudyData) {
     // Generate slug from title if not provided
     let slug = caseStudyData.slug || generateSlug(caseStudyData.title);
-    
+
     // Ensure slug is unique
     slug = await ensureUniqueSlug(slug);
 
