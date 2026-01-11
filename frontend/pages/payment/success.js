@@ -156,7 +156,7 @@ const PaymentSuccess = () => {
                             <div className="bg-white rounded-lg overflow-hidden">
                                 {/* Cal.com Inline Embed */}
                                 <iframe
-                                    src="https://cal.com/mdnexus-lkd3ut/claim-readiness-review?embed=true"
+                                    src="https://cal.com/militarydisabilitynexus/claim-readiness-review?embed=true"
                                     width="100%"
                                     height="700"
                                     frameBorder="0"
@@ -165,7 +165,7 @@ const PaymentSuccess = () => {
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
-                                Having trouble? <a href="https://cal.com/mdnexus-lkd3ut/claim-readiness-review" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                                Having trouble? <a href="https://cal.com/militarydisabilitynexus/claim-readiness-review" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
                             </p>
                         </div>
                     )}

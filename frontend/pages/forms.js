@@ -210,7 +210,7 @@ const Forms = () => {
                             <div className="bg-white rounded-lg overflow-hidden">
                                 {/* Cal.com Inline Embed */}
                                 <iframe
-                                    src="https://cal.com/mdnexus-lkd3ut/discovery-call?embed=true"
+                                    src="https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus?embed=true"
                                     width="100%"
                                     height="700"
                                     frameBorder="0"
@@ -219,7 +219,7 @@ const Forms = () => {
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
-                                Having trouble? <a href="https://cal.com/mdnexus-lkd3ut/discovery-call" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                                Having trouble? <a href="https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
                             </p>
                         </div>
                     ) : (
