@@ -33,10 +33,11 @@ const SEO = ({
     canonicalPath = path;
   }
 
-  // Ensure absolute URL
+  // Ensure absolute URL and handle root path correctly
+  // For root path (/), we want https://domain.com/ not https://domain.com/index
   const canonicalUrl = canonicalPath.startsWith('http')
     ? canonicalPath
-    : `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`;
+    : `${siteUrl}${canonicalPath}`;
 
   // Truncate description to 130 characters to avoid SEO penalties
   const metaDescription = description && description.length > 130
