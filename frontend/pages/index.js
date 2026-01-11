@@ -1,44 +1,51 @@
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowRight, Users, Clock, Award } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { servicesApi, blogApi } from '../src/lib/api';
 import SEO from '../src/components/SEO';
 import QuickIntakeForm from '../src/components/forms/QuickIntakeForm';
 import Layout from '../src/components/Layout';
 
-const Home = () => {
-    const router = useRouter();
-    const [services, setServices] = useState([]);
-    const [blogPosts, setBlogPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+export async function getStaticProps() {
+    try {
+        const [servicesData, blogData] = await Promise.all([
+            servicesApi.getAll(),
+            blogApi.getAll(3),
+        ]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [servicesData, blogData] = await Promise.all([
-                    servicesApi.getAll(),
-                    blogApi.getAll(3),
-                ]);
-                setServices(servicesData.slice(0, 4));
-                setBlogPosts(blogData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setServices([]);
-                setBlogPosts([]);
-            } finally {
-                setLoading(false);
-            }
+        return {
+            props: {
+                services: servicesData?.slice(0, 4) || [],
+                blogPosts: blogData || [],
+            },
+            revalidate: 3600, // Revalidate every hour
         };
-        fetchData();
-    }, []);
+    } catch (error) {
+        console.error('Error fetching homepage data:', error);
+        return {
+            props: {
+                services: [],
+                blogPosts: [],
+            },
+            revalidate: 60, // Retry sooner on error
+        };
+    }
+}
+
+const Home = ({ services, blogPosts }) => {
+    const router = useRouter();
 
     return (
         <Layout>
+            <Head>
+                <title>VA Nexus Letters & DBQs | Military Disability Nexus</title>
+                <meta
+                    name="description"
+                    content="Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, Aid & Attendance evaluations, and medical consultations for veterans seeking disability benefits and compensation."
+                />
+            </Head>
             <SEO
-                title="Medical Consulting for Veterans"
-                description="Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, Aid & Attendance evaluations, and medical consultations for veterans seeking disability benefits and compensation."
-                keywords="VA nexus letter, DBQ, disability benefits questionnaire, aid and attendance, C&P exam coaching, veteran medical documentation, 1151 claim"
                 structuredData={{
                     "@context": "https://schema.org",
                     "@type": "MedicalBusiness",
@@ -214,11 +221,7 @@ const Home = () => {
                         </p>
                     </div>
 
-                    {loading ? (
-                        <div className="text-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto" />
-                        </div>
-                    ) : services.length === 0 ? (
+                    {services.length === 0 ? (
                         <div className="text-center py-12 text-white/80">Services coming soon</div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -282,7 +285,7 @@ const Home = () => {
                 {/* Bottom Wave Transition */}
                 <div className="absolute bottom-0 left-0 w-full overflow-hidden" style={{ lineHeight: 0 }}>
                     <svg className="w-full" viewBox="0 0 1440 120" preserveAspectRatio="none" style={{ height: '80px', display: 'block' }}>
-                        <path fill="#ffffff" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
+                        <path fill="#ffffff" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
                     </svg>
                 </div>
             </section>
@@ -295,11 +298,7 @@ const Home = () => {
                         <p className="text-lg text-slate-600">Guides and updates to help with your claim</p>
                     </div>
 
-                    {loading ? (
-                        <div className="text-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
-                        </div>
-                    ) : blogPosts.length === 0 ? (
+                    {blogPosts.length === 0 ? (
                         <div className="text-center py-12 text-slate-600">Resources coming soon</div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
