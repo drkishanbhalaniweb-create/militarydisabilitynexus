@@ -1,0 +1,22 @@
+# Military Disability Nexus
+> Clinician-led medical documentation services (Nexus Letters & DBQs) for VA disability claims.
+
+## Core Pages
+- [/](/): Claim readiness diagnostic and quick intake.
+- [/services](/services): Index of medical documentation and coaching services.
+- [/case-studies](/case-studies): Real-world examples of successful medical evidence rationale.
+- [/community](/community): Q&A database for VA disability and claims questions.
+- [/blog](/blog): Educational resources on PACT Act, secondary conditions, and VA ratings.
+- [/about](/about): Mission, clinician expertise, and process overview.
+- [/contact](/contact): Free consultation booking and records review inquiry.
+
+## Service Categories
+- **Nexus Letters**: Independent Medical Opinions (IMO) for service connection.
+- **DBQs**: Disability Benefits Questionnaires for claim evaluations.
+- **Pension Benefits**: Aid & Attendance and Housebound evaluations.
+- **Claim Strategy**: Secondary conditions, PACT Act reviews, and 1151 claims.
+
+## Contact
+- Web: [Contact Form](/contact)
+- Email: contact@militarydisabilitynexus.com
+- Phone: +1-307-301-2019

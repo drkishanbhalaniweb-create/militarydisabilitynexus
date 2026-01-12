@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Briefcase, Filter } from 'lucide-react';
+import { Briefcase, Filter, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { caseStudyApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
@@ -39,6 +40,14 @@ const CaseStudies = ({ initialCaseStudies }) => {
     const [filteredCaseStudies, setFilteredCaseStudies] = useState(initialCaseStudies || []);
 
     const [selectedTag, setSelectedTag] = useState(null);
+
+    const handleShare = (e, slug) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = `${window.location.origin}/case-studies/${slug}`;
+        navigator.clipboard.writeText(url);
+        toast.success('Case study link copied to clipboard!');
+    };
 
     useEffect(() => {
         if (selectedTag) {
@@ -198,6 +207,13 @@ const CaseStudies = ({ initialCaseStudies }) => {
                                                                     <span className={`w-1.5 h-1.5 rounded-full ${tagColors.dot}`}></span>
                                                                     {primaryTag}
                                                                 </span>
+                                                                <button
+                                                                    onClick={(e) => handleShare(e, caseStudy.slug)}
+                                                                    className="ml-auto p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-navy-600 transition-colors"
+                                                                    title="Copy Link"
+                                                                >
+                                                                    <Share2 className="w-4 h-4" />
+                                                                </button>
                                                             </div>
 
                                                             {/* Title */}
@@ -311,6 +327,13 @@ const CaseStudies = ({ initialCaseStudies }) => {
                                                         <span className={`w-1.5 h-1.5 rounded-full ${tagColors.dot}`}></span>
                                                         {primaryTag}
                                                     </span>
+                                                    <button
+                                                        onClick={(e) => handleShare(e, caseStudy.slug)}
+                                                        className="ml-auto p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-navy-600 transition-colors"
+                                                        title="Copy Link"
+                                                    >
+                                                        <Share2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
 
                                                 {/* Title */}
