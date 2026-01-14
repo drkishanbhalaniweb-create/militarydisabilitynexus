@@ -14,7 +14,8 @@ const Diagnostics = () => {
         total: 0,
         converted: 0,
         avgScore: 0,
-        byRecommendation: {}
+        byRecommendation: {},
+        nonZeroScoreSessions: 0
     });
     const [filter, setFilter] = useState('all'); // all, converted, not_converted
     const [dateRange, setDateRange] = useState('7'); // days
@@ -71,7 +72,10 @@ const Diagnostics = () => {
             return acc;
         }, {});
 
-        setStats({ total, converted, avgScore, byRecommendation });
+        // Count sessions with score > 0 for revenue potential
+        const nonZeroScoreSessions = data.filter(s => (s.total_score || 0) > 0).length;
+
+        setStats({ total, converted, avgScore, byRecommendation, nonZeroScoreSessions });
     };
 
     const conversionRate = stats.total > 0
@@ -238,9 +242,9 @@ const Diagnostics = () => {
                                 <DollarSign className="w-5 h-5 text-purple-600" />
                             </div>
                             <div className="text-3xl font-bold text-slate-900">
-                                ${(stats.total - stats.converted) * 225}
+                                ${((stats.nonZeroScoreSessions - stats.converted) * 225)}
                             </div>
-                            <div className="text-sm text-slate-500 mt-1">from unconverted</div>
+                            <div className="text-sm text-slate-500 mt-1">from unconverted (score {'>'} 0)</div>
                         </div>
                     </div>
 
