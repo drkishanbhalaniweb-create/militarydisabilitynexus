@@ -328,7 +328,7 @@ export async function getStaticPaths() {
         console.error('Error fetching paths:', error);
         return {
             paths: [],
-            fallback: 'blocking',
+            fallback: false,
         };
     }
 }

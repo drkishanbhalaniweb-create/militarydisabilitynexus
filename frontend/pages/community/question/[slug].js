@@ -15,16 +15,16 @@ export async function getStaticPaths() {
             .select('slug')
             .eq('status', 'published')
             .order('created_at', { ascending: false })
-            .limit(50);
+            .limit(5000);
 
         const paths = (data || []).map((q) => ({
             params: { slug: q.slug },
         }));
 
-        return { paths, fallback: 'blocking' };
+        return { paths, fallback: false };
     } catch (error) {
         console.error('Error getting static paths for questions:', error);
-        return { paths: [], fallback: 'blocking' };
+        return { paths: [], fallback: false };
     }
 }
 

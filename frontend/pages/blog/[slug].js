@@ -8,14 +8,14 @@ import Layout from '../../src/components/Layout';
 
 export async function getStaticPaths() {
     try {
-        const posts = await blogApi.getAll();
+        const posts = await blogApi.getAll(10000);
         const paths = posts.map((post) => ({
             params: { slug: post.slug },
         }));
-        return { paths, fallback: 'blocking' };
+        return { paths, fallback: false };
     } catch (error) {
         console.error('Error getting static paths for blog:', error);
-        return { paths: [], fallback: 'blocking' };
+        return { paths: [], fallback: false };
     }
 }
 
