@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { CheckCircle, Mail, Clock, FileText, ArrowRight, Calendar } from 'lucide-react';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
+import { loadCalScript } from '../../src/lib/calLoader';
 
 const PaymentSuccess = () => {
     const router = useRouter();
@@ -15,19 +16,10 @@ const PaymentSuccess = () => {
         const timer = setTimeout(() => {
             setShowCal(true);
 
-            if (typeof document === 'undefined') return;
-
-            // Load Cal.com embed script
-            const script = document.createElement('script');
-            script.src = 'https://app.cal.com/embed/embed.js';
-            script.async = true;
-            document.head.appendChild(script);
-
-            return () => {
-                if (document.head.contains(script)) {
-                    document.head.removeChild(script);
-                }
-            };
+            // Load Cal.com embed script using singleton loader
+            loadCalScript().catch(error => {
+                console.error('Failed to load Cal.com script:', error);
+            });
         }, 2000);
 
         return () => clearTimeout(timer);

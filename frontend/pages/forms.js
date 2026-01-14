@@ -6,6 +6,7 @@ import SEO from '../src/components/SEO';
 import SuccessModal from '../src/components/SuccessModal';
 import { fileUploadApi, formSubmissionsApi } from '../src/lib/api';
 import Layout from '../src/components/Layout';
+import { loadCalScript } from '../src/lib/calLoader';
 
 const FORM_TYPES = [
     { value: 'nexus_letter', label: 'Nexus Letter' },
@@ -41,22 +42,12 @@ const Forms = () => {
         }
     }, [router.isReady, initialView]);
 
-    // Load Cal.com inline embed
+    // Load Cal.com inline embed using singleton loader
     useEffect(() => {
         if (showCal) {
-            if (typeof document === 'undefined') return;
-
-            // Load Cal.com embed script
-            const script = document.createElement('script');
-            script.src = 'https://app.cal.com/embed/embed.js';
-            script.async = true;
-            document.head.appendChild(script);
-
-            return () => {
-                if (document.head.contains(script)) {
-                    document.head.removeChild(script);
-                }
-            };
+            loadCalScript().catch(error => {
+                console.error('Failed to load Cal.com script:', error);
+            });
         }
     }, [showCal]);
 

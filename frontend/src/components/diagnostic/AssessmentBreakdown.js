@@ -10,19 +10,29 @@ const iconMap = {
 };
 
 const AssessmentBreakdown = ({ answers, score }) => {
-  const assessmentItems = Object.entries(answers).map(([questionId, points]) => {
-    const area = ASSESSMENT_AREAS[questionId];
-    const status = getStatusForPoints(points);
-    const indicator = STATUS_INDICATORS[status];
-    
-    return {
-      name: area.name,
-      description: area.description,
-      status,
-      indicator,
-      points
-    };
-  });
+  if (!answers) return null;
+
+  const assessmentItems = Object.entries(answers)
+    .filter(([questionId]) => {
+      const areaExists = !!ASSESSMENT_AREAS[questionId];
+      if (!areaExists) {
+        console.error(`AssessmentBreakdown: Missing config for questionId: ${questionId}`);
+      }
+      return areaExists;
+    })
+    .map(([questionId, points]) => {
+      const area = ASSESSMENT_AREAS[questionId];
+      const status = getStatusForPoints(points);
+      const indicator = STATUS_INDICATORS[status];
+
+      return {
+        name: area.name,
+        description: area.description,
+        status,
+        indicator,
+        points
+      };
+    });
 
   // Separate items by status
   const issues = assessmentItems.filter(item => item.points > 0);
@@ -47,7 +57,7 @@ const AssessmentBreakdown = ({ answers, score }) => {
         <h3 className={`text-xl font-bold mb-4 ${score === 0 ? 'text-green-900' : 'text-red-900'}`}>
           {score === 0 ? 'Your Claim Strengths' : 'Why This Recommendation Was Shown'}
         </h3>
-        
+
         <div className="space-y-3">
           {score === 0 ? (
             // Perfect score - show all as strengths
@@ -108,7 +118,7 @@ const AssessmentBreakdown = ({ answers, score }) => {
         <h3 className="text-xl font-bold text-blue-900 mb-4">
           What a Claim Readiness Review Focuses On
         </h3>
-        
+
         <div className="space-y-3">
           <div className="flex items-start">
             <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
@@ -119,7 +129,7 @@ const AssessmentBreakdown = ({ answers, score }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-start">
             <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
             <div>
@@ -129,7 +139,7 @@ const AssessmentBreakdown = ({ answers, score }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-start">
             <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
             <div>
@@ -139,7 +149,7 @@ const AssessmentBreakdown = ({ answers, score }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-start">
             <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
             <div>
@@ -149,7 +159,7 @@ const AssessmentBreakdown = ({ answers, score }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-start">
             <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
             <div>

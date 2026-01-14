@@ -9,8 +9,12 @@ const iconMap = {
 };
 
 const RecommendationCard = ({ recommendation }) => {
+  if (!recommendation || !recommendation.category) {
+    console.error('RecommendationCard received invalid recommendation:', recommendation);
+    return null;
+  }
   const Icon = iconMap[recommendation.icon] || Info;
-  
+
   const badgeColors = {
     green: 'border-green-600 text-green-700 bg-green-50',
     blue: 'border-blue-600 text-blue-700 bg-blue-50',
@@ -20,7 +24,7 @@ const RecommendationCard = ({ recommendation }) => {
 
   // Custom badge text mapping
   const getBadgeText = (category) => {
-    switch(category) {
+    switch (category) {
       case 'FULLY_READY':
         return 'FULLY READY';
       case 'OPTIONAL_CONFIRMATION':
@@ -38,7 +42,7 @@ const RecommendationCard = ({ recommendation }) => {
     <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
       {/* Icon and Badge */}
       <div className="flex items-center justify-between mb-6">
-        <div 
+        <div
           className="w-16 h-16 rounded-full flex items-center justify-center"
           style={{ backgroundColor: `${recommendation.color}20` }}
         >
@@ -53,7 +57,7 @@ const RecommendationCard = ({ recommendation }) => {
       <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
         {recommendation.message}
       </h2>
-      
+
       {/* Subtitle */}
       <p className="text-lg text-slate-600">
         {recommendation.subtitle}

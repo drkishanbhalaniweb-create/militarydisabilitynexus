@@ -341,7 +341,7 @@ fileUploadApi.upload = async function (file, contactIdOrFormId, category = 'othe
 
   if (dbError) throw dbError;
 
-  // Update form submission to mark it has uploads
+  // Update parent record to mark it has uploads
   if (isFormSubmission) {
     await supabase
       .from('form_submissions')
