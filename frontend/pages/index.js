@@ -30,7 +30,7 @@ export async function getStaticProps() {
                 services: servicesData?.slice(0, 4) || [],
                 blogPosts: blogData || [],
             },
-            revalidate: 3600, // Revalidate every hour
+            revalidate: 10, // Revalidate every 10 seconds
         };
     } catch (error) {
         console.error('Error fetching homepage data:', error);

@@ -30,7 +30,7 @@ export async function getStaticProps({ params }) {
 
         return {
             props: { caseStudy },
-            revalidate: 3600,
+            revalidate: 10,
         };
     } catch (error) {
         console.error(`Error fetching case study for slug ${params.slug}:`, error);

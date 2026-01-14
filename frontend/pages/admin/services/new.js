@@ -177,7 +177,7 @@ const ServiceForm = () => {
 
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Full Description *
+                                        Full Description * <span className="text-xs font-normal text-slate-500">(Supports [text](url) for links)</span>
                                     </label>
                                     <textarea
                                         name="full_description"
@@ -359,6 +359,10 @@ const ServiceForm = () => {
                                                 placeholder="Question"
                                                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             />
+                                            <div className="flex justify-between items-center mb-1">
+                                                <label className="text-xs font-semibold text-slate-500">Answer</label>
+                                                <span className="text-[10px] text-slate-400">Supports [text](url)</span>
+                                            </div>
                                             <textarea
                                                 value={faq.answer}
                                                 onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}

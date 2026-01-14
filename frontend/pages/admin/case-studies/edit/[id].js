@@ -79,6 +79,7 @@ const CaseStudyForm = () => {
         if (!html) return '';
 
         return html
+            .replace(/<a href="(.*?)".*?>(.*?)<\/a>/g, '[$2]($1)')
             .replace(/<h2>(.*?)<\/h2>/g, '# $1\n\n')
             .replace(/<h3>(.*?)<\/h3>/g, '## $1\n\n')
             .replace(/<\/p>/g, '\n\n')
@@ -94,8 +95,11 @@ const CaseStudyForm = () => {
     const textToHtml = (text) => {
         if (!text) return '';
 
+        // Add support for [text](url) links
+        let processedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-indigo-600 hover:underline">$1</a>');
+
         // Split by double line breaks for paragraphs
-        const paragraphs = text.split('\n\n');
+        const paragraphs = processedText.split('\n\n');
 
         return paragraphs.map(para => {
             para = para.trim();
@@ -335,7 +339,7 @@ const CaseStudyForm = () => {
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                             <h2 className="text-xl font-bold text-slate-900 mb-4">Content Sections</h2>
                             <p className="text-sm text-slate-500 mb-4">
-                                Use bullet points with "- " at the start of each line. Use blank lines between paragraphs.
+                                Use bullet points with "- " at the start of each line. Use [text](url) for links. Use blank lines between paragraphs.
                             </p>
 
                             <div className="space-y-4">

@@ -107,6 +107,13 @@ const Dashboard = () => {
                                 <h3 className="font-semibold text-slate-900">Manage Blog</h3>
                                 <p className="text-sm text-slate-600 mt-1">Create and edit posts</p>
                             </Link>
+                            <Link
+                                href="/admin/settings"
+                                className="p-4 border-2 border-slate-200 rounded-lg hover:border-indigo-600 hover:bg-indigo-50 transition-colors"
+                            >
+                                <h3 className="font-semibold text-slate-900">Rebuild Website</h3>
+                                <p className="text-sm text-slate-600 mt-1">Make new content live now</p>
+                            </Link>
                         </div>
                     </div>
                 </div>

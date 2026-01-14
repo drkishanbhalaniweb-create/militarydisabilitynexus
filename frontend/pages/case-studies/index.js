@@ -22,7 +22,7 @@ export async function getStaticProps() {
             props: {
                 initialCaseStudies,
             },
-            revalidate: 3600,
+            revalidate: 10,
         };
     } catch (error) {
         console.error('Error fetching case studies:', error);

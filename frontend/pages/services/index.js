@@ -165,7 +165,7 @@ export async function getStaticProps() {
             props: {
                 services: services || [],
             },
-            revalidate: 86400, // Revalidate every 24 hours
+            revalidate: 10, // Revalidate every 10 seconds
         };
     } catch (error) {
         console.error('Error fetching services for static props:', error);

@@ -13,7 +13,7 @@ export async function getStaticProps() {
             props: {
                 initialPosts,
             },
-            revalidate: 3600,
+            revalidate: 10,
         };
     } catch (error) {
         console.error('Error fetching blog posts:', error);

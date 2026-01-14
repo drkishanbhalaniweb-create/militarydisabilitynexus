@@ -29,7 +29,7 @@ export async function getStaticProps({ params }) {
 
         return {
             props: { post },
-            revalidate: 3600,
+            revalidate: 10,
         };
     } catch (error) {
         console.error(`Error fetching blog post for slug ${params.slug}:`, error);

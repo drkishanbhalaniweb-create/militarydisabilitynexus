@@ -102,17 +102,33 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
                                 <h2 id="overview-heading" className="text-2xl font-bold text-slate-900 mb-4">Overview</h2>
                                 <div className="text-slate-700 leading-relaxed whitespace-pre-wrap">
                                     {service.full_description && service.full_description.split('\n').map((line, i) => {
+                                        // Process [text](url) in the line
+                                        const processLinks = (text) => {
+                                            const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+                                            return parts.map((part, index) => {
+                                                const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                                                if (match) {
+                                                    return (
+                                                        <Link key={index} href={match[2]} className="text-navy-600 hover:underline font-medium">
+                                                            {match[1]}
+                                                        </Link>
+                                                    );
+                                                }
+                                                return part;
+                                            });
+                                        };
+
                                         // Check if line starts with bullet point markers
                                         if (line.trim().startsWith('•') || line.trim().startsWith('-') || line.trim().startsWith('*')) {
                                             return (
                                                 <div key={i} className="flex gap-2 mb-2">
                                                     <span className="flex-shrink-0">•</span>
-                                                    <span>{line.trim().replace(/^[•\-*]\s*/, '')}</span>
+                                                    <span>{processLinks(line.trim().replace(/^[•\-*]\s*/, ''))}</span>
                                                 </div>
                                             );
                                         }
                                         // Regular paragraph
-                                        return line.trim() ? <p key={i} className="mb-3">{line}</p> : <br key={i} />;
+                                        return line.trim() ? <p key={i} className="mb-3">{processLinks(line)}</p> : <br key={i} />;
                                     })}
                                 </div>
                             </section>
@@ -141,17 +157,33 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
                                                 <AccordionContent>
                                                     <div className="text-slate-600 whitespace-pre-wrap">
                                                         {faq.answer.split('\n').map((line, i) => {
+                                                            // Process [text](url) in the line
+                                                            const processLinks = (text) => {
+                                                                const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+                                                                return parts.map((part, index) => {
+                                                                    const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                                                                    if (match) {
+                                                                        return (
+                                                                            <Link key={index} href={match[2]} className="text-navy-600 hover:underline font-medium">
+                                                                                {match[1]}
+                                                                            </Link>
+                                                                        );
+                                                                    }
+                                                                    return part;
+                                                                });
+                                                            };
+
                                                             // Check if line starts with bullet point markers
                                                             if (line.trim().startsWith('•') || line.trim().startsWith('-') || line.trim().startsWith('*')) {
                                                                 return (
                                                                     <div key={i} className="flex gap-2 mb-1">
                                                                         <span className="flex-shrink-0">•</span>
-                                                                        <span>{line.trim().replace(/^[•\-*]\s*/, '')}</span>
+                                                                        <span>{processLinks(line.trim().replace(/^[•\-*]\s*/, ''))}</span>
                                                                     </div>
                                                                 );
                                                             }
                                                             // Regular paragraph
-                                                            return line.trim() ? <p key={i} className="mb-3">{line}</p> : <br key={i} />;
+                                                            return line.trim() ? <p key={i} className="mb-3">{processLinks(line)}</p> : <br key={i} />;
                                                         })}
                                                     </div>
                                                 </AccordionContent>
@@ -422,7 +454,7 @@ export async function getStaticProps({ params }) {
                 relatedBlogs: relatedBlogs,
                 relatedCaseStudies: relatedCaseStudies,
             },
-            revalidate: 86400, // Revalidate every 24 hours
+            revalidate: 10, // Revalidate every 10 seconds
         };
     } catch (error) {
         console.error('Error in getStaticProps:', error);

@@ -63,8 +63,11 @@ const BlogForm = () => {
     const textToHtml = (text) => {
         if (!text) return '';
 
+        // Add support for [text](url) links
+        let processedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
         // Split by double line breaks for paragraphs
-        const paragraphs = text.split('\n\n');
+        const paragraphs = processedText.split('\n\n');
 
         return paragraphs.map(para => {
             para = para.trim();
@@ -97,6 +100,7 @@ const BlogForm = () => {
         if (!html) return '';
 
         return html
+            .replace(/<a href="(.*?)">(.*?)<\/a>/g, '[$2]($1)')
             .replace(/<h2>(.*?)<\/h2>/g, '# $1\n\n')
             .replace(/<h3>(.*?)<\/h3>/g, '## $1\n\n')
             .replace(/<\/p>/g, '\n\n')
@@ -278,6 +282,7 @@ const BlogForm = () => {
                                             <li>• <strong># Heading</strong> - Creates a main heading</li>
                                             <li>• <strong>## Subheading</strong> - Creates a subheading</li>
                                             <li>• <strong>- Item</strong> - Creates a bullet point</li>
+                                            <li>• <strong>[Link Text](URL)</strong> - Inserts a link (Internal or External)</li>
                                             <li>• Leave blank lines between paragraphs</li>
                                         </ul>
                                     </div>

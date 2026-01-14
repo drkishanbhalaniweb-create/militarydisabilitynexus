@@ -46,8 +46,11 @@ const CaseStudyForm = () => {
     const textToHtml = (text) => {
         if (!text) return '';
 
+        // Add support for [text](url) links
+        let processedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-indigo-600 hover:underline">$1</a>');
+
         // Split by double line breaks for paragraphs
-        const paragraphs = text.split('\n\n');
+        const paragraphs = processedText.split('\n\n');
 
         return paragraphs.map(para => {
             para = para.trim();
@@ -240,8 +243,8 @@ const CaseStudyForm = () => {
                                                 type="button"
                                                 onClick={() => handleTagToggle(tag)}
                                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${(formData.tags || []).includes(tag)
-                                                        ? 'bg-indigo-600 text-white'
-                                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                                    ? 'bg-indigo-600 text-white'
+                                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                                                     }`}
                                             >
                                                 {tag}
@@ -286,7 +289,7 @@ const CaseStudyForm = () => {
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                             <h2 className="text-xl font-bold text-slate-900 mb-4">Content Sections</h2>
                             <p className="text-sm text-slate-500 mb-4">
-                                Use bullet points with "- " at the start of each line. Use blank lines between paragraphs.
+                                Use bullet points with "- " at the start of each line. Use [text](url) for links. Use blank lines between paragraphs.
                             </p>
 
                             <div className="space-y-4">

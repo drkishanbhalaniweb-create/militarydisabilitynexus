@@ -13,7 +13,8 @@ import {
   Users,
   HelpCircle,
   BookOpen,
-  Activity
+  Activity,
+  Settings
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -68,6 +69,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
     { name: 'Community Q&A', href: '/admin/community', icon: HelpCircle },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
     ...(isSuperAdmin ? [{ name: 'Admin Users', href: '/admin/users', icon: Users }] : []),
   ];
 
@@ -89,8 +91,8 @@ const AdminLayout = ({ children }) => {
                   key={item.name}
                   href={item.href}
                   className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${isActive(item.href)
-                      ? 'bg-indigo-800 text-white'
-                      : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
+                    ? 'bg-indigo-800 text-white'
+                    : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
                     }`}
                 >
                   <Icon className="mr-3 h-5 w-5" />
@@ -136,8 +138,8 @@ const AdminLayout = ({ children }) => {
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive(item.href)
-                      ? 'bg-indigo-800 text-white'
-                      : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
+                    ? 'bg-indigo-800 text-white'
+                    : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
                     }`}
                 >
                   <Icon className="mr-3 h-5 w-5" />
