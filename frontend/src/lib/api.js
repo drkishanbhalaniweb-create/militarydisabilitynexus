@@ -4,12 +4,6 @@ import { supabase, STORAGE_BUCKETS } from './supabase';
 // SERVICES
 // ============================================
 
-// ============================================
-// SERVICES
-// ============================================
-
-
-
 export const servicesApi = {
   async getAll() {
     const { data: dbServices, error } = await supabase
