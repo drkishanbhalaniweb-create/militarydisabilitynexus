@@ -8,26 +8,7 @@ import { supabase, STORAGE_BUCKETS } from './supabase';
 // SERVICES
 // ============================================
 
-// Fallback data for critical services that might be missing in some environments
-// force rebuild 2026-01-12
 
-const FALLBACK_SERVICES = [
-  {
-    id: '00000000-0000-0000-0000-000000000004',
-    slug: 'cp-coaching',
-    title: 'C&P Coaching',
-    short_description: 'Preparation for compensation and pension examinations',
-    full_description: 'Prepare for your C&P exam with expert coaching. We help you understand what to expect, how to accurately report your symptoms, and provide tips to ensure your disabilities are properly documented.',
-    features: ["What to expect", "Accurate symptom reporting", "Logbooks & lay tips"],
-    base_price_usd: 29,
-    duration: 'Same day or next business day',
-    category: 'coaching',
-    icon: 'users',
-    faqs: [{ "question": "What is C&P coaching?", "answer": "C&P coaching prepares you for your Compensation and Pension exam, helping you understand the process and communicate your condition effectively." }],
-    display_order: 4,
-    is_active: true
-  }
-];
 
 export const servicesApi = {
   async getAll() {
@@ -39,19 +20,7 @@ export const servicesApi = {
 
     if (error) throw error;
 
-    // Check for missing fallback services and append them
-    let services = [...dbServices];
-
-    FALLBACK_SERVICES.forEach(fallback => {
-      if (!services.find(s => s.slug === fallback.slug)) {
-        services.push(fallback);
-      }
-    });
-
-    // Re-sort in case we added something
-    services.sort((a, b) => a.display_order - b.display_order);
-
-    return services;
+    return dbServices;
   },
 
   async getBySlug(slug) {
@@ -66,9 +35,7 @@ export const servicesApi = {
 
     if (dbService) return dbService;
 
-    // Check fallback
-    const fallback = FALLBACK_SERVICES.find(s => s.slug === slug);
-    if (fallback) return fallback;
+
 
     // If we're here, it's truly not found
     return null;
