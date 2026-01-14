@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Calendar, Eye, Target, Lightbulb, TrendingUp, Star } from 'lucide-react';
@@ -39,6 +40,12 @@ export async function getStaticProps({ params }) {
 
 const CaseStudyDetail = ({ caseStudy }) => {
     const router = useRouter();
+
+    useEffect(() => {
+        if (caseStudy?.slug) {
+            caseStudyApi.incrementViews(caseStudy.slug);
+        }
+    }, [caseStudy?.slug]);
 
     if (router.isFallback) {
         return (
