@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Mail, Phone, Send, Upload, Calendar, X } from 'lucide-react';
+import { Mail, Phone, Send, Upload, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { contactsApi, fileUploadApi } from '../src/lib/api';
+import { contactsApi } from '../src/lib/api';
+import FileUpload from '../src/components/FileUpload';
 import FileList from '../src/components/FileList';
 import SuccessModal from '../src/components/SuccessModal';
 import SEO from '../src/components/SEO';
@@ -28,7 +29,7 @@ const Contact = () => {
     const [loading, setLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [contactId, setContactId] = useState(null);
-    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showFileUpload, setShowFileUpload] = useState(false);
     const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
 
     const handleChange = (e) => {
@@ -47,58 +48,33 @@ const Contact = () => {
         }));
     };
 
-    const handleFileSelect = (e) => {
-        const files = Array.from(e.target.files);
-        const newFiles = files.filter(file => {
-            if (file.size > 50 * 1024 * 1024) {
-                toast.error(`${file.name} is too large (max 50MB)`);
-                return false;
-            }
-            return true;
-        });
-
-        if (selectedFiles.length + newFiles.length > 10) {
-            toast.error('Maximum 10 files allowed');
-            return;
-        }
-        setSelectedFiles(prev => [...prev, ...newFiles]);
-    };
-
-    const removeFile = (index) => {
-        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
             const response = await contactsApi.submit(formData);
-            const newContactId = response.id;
-            setContactId(newContactId);
-
-            // Upload files if any
-            if (selectedFiles.length > 0) {
-                for (const fileItem of selectedFiles) {
-                    try {
-                        await fileUploadApi.upload(fileItem, newContactId, 'other');
-                    } catch (uploadError) {
-                        console.error('Error uploading file:', fileItem.name, uploadError);
-                        toast.error(`Failed to upload ${fileItem.name}`);
-                    }
-                }
-            }
-
+            setContactId(response.id);
+            setShowFileUpload(true);
             setShowSuccessModal(true);
             setFormData({ name: '', email: '', phone: '', serviceTypes: [], message: '' });
-            setSelectedFiles([]);
-            setFileRefreshTrigger(prev => prev + 1);
         } catch (error) {
             console.error('Error submitting form:', error);
             toast.error('Failed to send message. Please try again.');
         } finally {
             setLoading(false);
         }
+    };
+
+    // Handle file upload completion
+    const handleFileUploadComplete = (uploadedFile) => {
+        toast.success(`File "${uploadedFile.original_filename}" uploaded successfully!`);
+        setFileRefreshTrigger(prev => prev + 1); // Trigger file list refresh
+    };
+
+    // Handle file upload error
+    const handleFileUploadError = (error) => {
+        toast.error(`Upload failed: ${error}`);
     };
 
     return (
@@ -275,57 +251,6 @@ const Contact = () => {
                                             />
                                         </div>
 
-                                        {/* File Selection Section */}
-                                        <div className="mb-8">
-                                            <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                                Attachments (Optional)
-                                            </label>
-                                            <div className="relative border-2 border-dashed border-slate-300 bg-white/40 backdrop-blur-sm rounded-xl p-6 text-center hover:border-navy-400 transition-colors group">
-                                                <input
-                                                    type="file"
-                                                    multiple
-                                                    onChange={handleFileSelect}
-                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                                    disabled={loading}
-                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                                />
-                                                <div className="space-y-2">
-                                                    <Upload className="w-10 h-10 text-slate-400 mx-auto group-hover:text-navy-500 transition-colors" />
-                                                    <p className="text-sm font-medium text-slate-700">
-                                                        Click or drag files here
-                                                    </p>
-                                                    <p className="text-xs text-slate-500">
-                                                        PDF, DOC, or images up to 50MB (Max 10 files)
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {selectedFiles.length > 0 && (
-                                                <div className="mt-4 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                                                    {selectedFiles.map((file, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="flex items-center justify-between text-xs bg-white/80 backdrop-blur-sm px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm transition-all hover:border-indigo-200"
-                                                        >
-                                                            <div className="flex items-center space-x-2 truncate">
-                                                                <div className="w-1 h-1 bg-navy-500 rounded-full" />
-                                                                <span className="truncate font-medium text-slate-700">{file.name}</span>
-                                                                <span className="text-slate-400 text-[10px]">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                                                            </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeFile(index)}
-                                                                className="p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded transition-all"
-                                                                title="Remove file"
-                                                            >
-                                                                <X className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-
                                         <button
                                             type="submit"
                                             disabled={loading || formData.serviceTypes.length === 0}
@@ -347,7 +272,20 @@ const Contact = () => {
                                         </button>
                                     </form>
 
-
+                                    {/* File Upload Section */}
+                                    {showFileUpload && contactId && (
+                                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/40">
+                                            <h4 className="text-xl font-bold text-slate-900 mb-6">Upload Documents</h4>
+                                            <FileUpload
+                                                contactId={contactId}
+                                                onUploadComplete={handleFileUploadComplete}
+                                                onUploadError={handleFileUploadError}
+                                                maxFiles={10}
+                                                acceptedTypes="image/*,.pdf,.doc,.docx,.txt"
+                                                maxSizeInMB={50}
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* File List Section */}
                                     {contactId && (

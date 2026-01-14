@@ -50,23 +50,6 @@ const DiagnosticResults = () => {
 
     const recommendation = getRecommendationData(score);
 
-    if (!recommendation) {
-        console.error('DiagnosticResults: Invalid recommendation data derived from score:', score);
-        return (
-            <Layout>
-                <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl shadow p-8 max-w-md text-center">
-                        <h1 className="text-xl font-bold text-slate-900 mb-2">Something went wrong</h1>
-                        <p className="text-slate-600 mb-6">We couldn't generate your results. Please try taking the diagnostic again.</p>
-                        <Link href="/diagnostic" className="bg-navy-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-navy-800 transition-colors">
-                            Return to Diagnostic
-                        </Link>
-                    </div>
-                </div>
-            </Layout>
-        );
-    }
-
     return (
         <Layout>
             <SEO

@@ -359,6 +359,7 @@ picture img {
 
 /* Optimize scroll performance */
 .smooth-scroll {
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 

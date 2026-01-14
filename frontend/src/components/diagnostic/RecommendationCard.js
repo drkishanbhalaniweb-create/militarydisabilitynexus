@@ -9,10 +9,6 @@ const iconMap = {
 };
 
 const RecommendationCard = ({ recommendation }) => {
-  if (!recommendation || !recommendation.category) {
-    console.error('RecommendationCard received invalid recommendation:', recommendation);
-    return null;
-  }
   const Icon = iconMap[recommendation.icon] || Info;
 
   const badgeColors = {
