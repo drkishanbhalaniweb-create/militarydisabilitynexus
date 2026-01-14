@@ -147,7 +147,7 @@ const IntakeForm = () => {
                                 value={formData.phone}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                                placeholder="+1 307 301-2019"
+                                placeholder="+1 307 318 1367"
                             />
                         </div>
 

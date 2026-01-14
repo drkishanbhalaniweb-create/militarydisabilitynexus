@@ -17,20 +17,20 @@ const AidAttendanceForm = () => {
   const [formData, setFormData] = useState({
     // Service Selection
     formType: 'aid_attendance',
-    
+
     // Personal Information
     veteranName: '',
     veteranSSN: '',
     veteranDOB: '',
     veteranPhone: '',
     veteranEmail: '',
-    
+
     // Contact Information
     contactName: '',
     contactPhone: '',
     contactEmail: '',
     contactRelationship: '',
-    
+
     // Medical Information
     primaryDiagnosis: '',
     secondaryDiagnoses: '',
@@ -38,7 +38,7 @@ const AidAttendanceForm = () => {
     physicianName: '',
     physicianPhone: '',
     lastExamDate: '',
-    
+
     // Activities of Daily Living Assessment
     bathing: '',
     dressing: '',
@@ -47,16 +47,16 @@ const AidAttendanceForm = () => {
     mobility: '',
     transferring: '',
     continence: '',
-    
+
     // Care Requirements
     supervisionNeeded: '',
     assistanceHours: '',
     caregiverInfo: '',
-    
+
     // Additional Information
     additionalInfo: '',
     rushService: false,
-    
+
     // Service Selection
     serviceType: 'aid-attendance'
   });
@@ -118,11 +118,11 @@ const AidAttendanceForm = () => {
             <p className="text-slate-600 mb-6">
               Your Aid & Attendance form has been submitted. Our medical team will review your information and contact you within 1-2 business days.
             </p>
-            
+
             {showFileUpload && contactId && (
               <div className="mt-8">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">Upload Supporting Documents</h3>
-                <FileUpload 
+                <FileUpload
                   contactId={contactId}
                   onUploadComplete={() => toast.success('Document uploaded successfully!')}
                   onUploadError={(error) => toast.error('Upload failed: ' + error.message)}
@@ -130,7 +130,7 @@ const AidAttendanceForm = () => {
                 <FileList contactId={contactId} />
               </div>
             )}
-            
+
             <div className="mt-8 p-4 bg-indigo-50 rounded-lg">
               <h4 className="font-semibold text-teal-900 mb-2">What's Next?</h4>
               <ul className="text-sm text-indigo-700 space-y-1">
@@ -205,7 +205,7 @@ const AidAttendanceForm = () => {
               <User className="w-5 h-5 mr-2 text-indigo-600" />
               Veteran Information
             </h3>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -221,7 +221,7 @@ const AidAttendanceForm = () => {
                   placeholder="Enter veteran's full name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Social Security Number *
@@ -236,7 +236,7 @@ const AidAttendanceForm = () => {
                   placeholder="XXX-XX-XXXX"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Date of Birth *
@@ -250,7 +250,7 @@ const AidAttendanceForm = () => {
                   className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Phone Number *
@@ -262,10 +262,10 @@ const AidAttendanceForm = () => {
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none"
-                  placeholder="+1 307 301-2019"
+                  placeholder="+1 307 318 1367"
                 />
               </div>
-              
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Email Address *
@@ -289,7 +289,7 @@ const AidAttendanceForm = () => {
               <Phone className="w-5 h-5 mr-2 text-indigo-600" />
               Contact Person (if different from veteran)
             </h3>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -304,7 +304,7 @@ const AidAttendanceForm = () => {
                   placeholder="Contact person's name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Relationship to Veteran
@@ -324,7 +324,7 @@ const AidAttendanceForm = () => {
                   <option value="other">Other</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Contact Phone
@@ -335,10 +335,10 @@ const AidAttendanceForm = () => {
                   value={formData.contactPhone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none"
-                  placeholder="+1 307 301-2019"
+                  placeholder="+1 307 318 1367"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Contact Email
@@ -361,7 +361,7 @@ const AidAttendanceForm = () => {
               <FileText className="w-5 h-5 mr-2 text-indigo-600" />
               Medical Information
             </h3>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -377,7 +377,7 @@ const AidAttendanceForm = () => {
                   placeholder="Primary medical condition requiring assistance"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Secondary Diagnoses
@@ -391,7 +391,7 @@ const AidAttendanceForm = () => {
                   placeholder="List any additional medical conditions"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Current Medications
@@ -405,7 +405,7 @@ const AidAttendanceForm = () => {
                   placeholder="List current medications and dosages"
                 />
               </div>
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -420,7 +420,7 @@ const AidAttendanceForm = () => {
                     placeholder="Dr. Smith"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Physician Phone
@@ -431,11 +431,11 @@ const AidAttendanceForm = () => {
                     value={formData.physicianPhone}
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none"
-                    placeholder="+1 307 301-2019"
+                    placeholder="+1 307 318 1367"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Last Medical Examination Date
@@ -459,7 +459,7 @@ const AidAttendanceForm = () => {
             <p className="text-slate-600 mb-6">
               Please indicate the level of assistance needed for each activity:
             </p>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               {[
                 { name: 'bathing', label: 'Bathing/Showering' },
@@ -498,7 +498,7 @@ const AidAttendanceForm = () => {
             <h3 className="text-xl font-bold text-slate-900 mb-6">
               Care Requirements
             </h3>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -518,7 +518,7 @@ const AidAttendanceForm = () => {
                   <option value="constant">Constant supervision</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Hours of Assistance Needed Daily
@@ -532,7 +532,7 @@ const AidAttendanceForm = () => {
                   placeholder="e.g., 8 hours, 24 hours, as needed"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Current Caregiver Information
@@ -554,7 +554,7 @@ const AidAttendanceForm = () => {
             <h3 className="text-xl font-bold text-slate-900 mb-6">
               Additional Information
             </h3>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -569,7 +569,7 @@ const AidAttendanceForm = () => {
                   placeholder="Any additional information that would help with your evaluation..."
                 />
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <input
                   type="checkbox"

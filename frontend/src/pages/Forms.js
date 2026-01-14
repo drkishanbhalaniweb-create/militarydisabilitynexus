@@ -17,11 +17,11 @@ const FORM_TYPES = [
 const Forms = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Check URL parameter to determine initial view
   const searchParams = new URLSearchParams(location.search);
   const initialView = searchParams.get('view') === 'schedule';
-  
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -34,7 +34,7 @@ const Forms = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCal, setShowCal] = useState(initialView);
-  
+
   // Load Cal.com inline embed
   useEffect(() => {
     if (showCal) {
@@ -43,7 +43,7 @@ const Forms = () => {
       script.src = 'https://app.cal.com/embed/embed.js';
       script.async = true;
       document.head.appendChild(script);
-      
+
       return () => {
         if (document.head.contains(script)) {
           document.head.removeChild(script);
@@ -51,7 +51,7 @@ const Forms = () => {
       };
     }
   }, [showCal]);
-  
+
   // Update URL when toggling views
   useEffect(() => {
     const newSearchParams = new URLSearchParams();
@@ -107,7 +107,7 @@ const Forms = () => {
       }
 
       setShowSuccessModal(true);
-      
+
       // Reset form
       setFormData({
         name: '',
@@ -131,16 +131,16 @@ const Forms = () => {
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Get Started - VA Disability Claim Documentation Services"
         description="Submit your information to get started with professional VA disability claim documentation. Expert nexus letters, DBQs, Aid & Attendance evaluations, and medical consultations from licensed clinicians."
         keywords="VA claim form, nexus letter request, DBQ evaluation form, aid and attendance application, veteran medical documentation request"
       />
-      
+
       <div className="relative min-h-screen py-16 overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="fixed inset-0 z-0 overflow-hidden">
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: 'url("/form bg image.png")',
@@ -163,16 +163,15 @@ const Forms = () => {
             <p className="text-lg text-slate-600">
               Fill out the form below or schedule a free discovery call
             </p>
-            
+
             {/* Toggle Buttons */}
             <div className="flex justify-center gap-4 mt-6">
               <button
                 onClick={() => setShowCal(false)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  !showCal
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${!showCal
                     ? 'text-white shadow-lg'
                     : 'bg-white/80 text-slate-700 hover:bg-white'
-                }`}
+                  }`}
                 style={!showCal ? { backgroundColor: '#B91C3C' } : {}}
               >
                 <Send className="w-5 h-5 inline-block mr-2" />
@@ -180,11 +179,10 @@ const Forms = () => {
               </button>
               <button
                 onClick={() => setShowCal(true)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  showCal
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${showCal
                     ? 'text-white shadow-lg'
                     : 'bg-white/80 text-slate-700 hover:bg-white'
-                }`}
+                  }`}
                 style={showCal ? { backgroundColor: '#B91C3C' } : {}}
               >
                 <Calendar className="w-5 h-5 inline-block mr-2" />
@@ -267,7 +265,7 @@ const Forms = () => {
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
-                    placeholder="+1 307 301-2019"
+                    placeholder="+1 307 318 1367"
                   />
                 </div>
 

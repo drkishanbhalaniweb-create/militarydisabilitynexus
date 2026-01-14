@@ -69,7 +69,7 @@ const IntakeForm = () => {
       }
 
       setShowSuccessModal(true);
-      
+
       // Reset form
       setFormData({
         fullName: '',
@@ -90,7 +90,7 @@ const IntakeForm = () => {
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Intake Form"
         description="Submit your information and we'll recommend the right service for your VA disability claim."
       />
@@ -145,7 +145,7 @@ const IntakeForm = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                placeholder="+1 307 301-2019"
+                placeholder="+1 307 318 1367"
               />
             </div>
 
@@ -202,31 +202,31 @@ const IntakeForm = () => {
                 </p>
               </label>
 
-                {selectedFiles.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    {selectedFiles.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between bg-slate-50 px-4 py-3 rounded-lg"
-                      >
-                        <div className="flex items-center space-x-3 flex-1 min-w-0">
-                          <FileText className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                          <span className="text-sm text-slate-700 truncate">{file.name}</span>
-                          <span className="text-xs text-slate-500 flex-shrink-0">
-                            {(file.size / 1024 / 1024).toFixed(2)} MB
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeFile(index)}
-                          className="text-red-600 hover:text-red-700 ml-3 text-sm font-semibold"
-                        >
-                          Remove
-                        </button>
+              {selectedFiles.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {selectedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-slate-50 px-4 py-3 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <FileText className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                        <span className="text-sm text-slate-700 truncate">{file.name}</span>
+                        <span className="text-xs text-slate-500 flex-shrink-0">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        className="text-red-600 hover:text-red-700 ml-3 text-sm font-semibold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Rush Service Checkbox */}

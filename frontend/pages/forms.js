@@ -276,7 +276,7 @@ const Forms = () => {
                                         onChange={handleChange}
                                         required
                                         className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
-                                        placeholder="+1 307 301-2019"
+                                        placeholder="+1 307 318 1367"
                                     />
                                 </div>
 

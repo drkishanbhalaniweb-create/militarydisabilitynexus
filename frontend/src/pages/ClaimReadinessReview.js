@@ -12,11 +12,11 @@ const ClaimReadinessReview = () => {
   const [formSubmissionId, setFormSubmissionId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [price, setPrice] = useState(225); // Default price
-  
+
   // Check if coming from diagnostic
   const fromDiagnostic = location.state?.fromDiagnostic || false;
   const diagnosticScore = location.state?.diagnosticScore;
-  
+
   const [formData, setFormData] = useState({
     veteranName: '',
     email: '',
@@ -35,7 +35,7 @@ const ClaimReadinessReview = () => {
           .select('base_price_usd')
           .eq('slug', 'claim-readiness-review')
           .single();
-        
+
         if (data && !error) {
           setPrice(data.base_price_usd);
         }
@@ -191,7 +191,7 @@ const ClaimReadinessReview = () => {
           {/* Form */}
           <div className="bg-white rounded-2xl p-8 shadow-lg">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Your Information</h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Veteran Name */}
               <div>
@@ -243,7 +243,7 @@ const ClaimReadinessReview = () => {
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
-                  placeholder="+1 307 301-2019"
+                  placeholder="+1 307 318 1367"
                 />
               </div>
 

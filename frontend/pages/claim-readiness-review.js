@@ -247,7 +247,7 @@ const ClaimReadinessReview = () => {
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
-                                    placeholder="+1 307 301-2019"
+                                    placeholder="+1 307 318 1367"
                                 />
                             </div>
 
