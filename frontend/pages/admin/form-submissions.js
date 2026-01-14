@@ -6,7 +6,7 @@ import FormSubmissionDetailModal from '../../src/components/admin/FormSubmission
 import ErrorBoundary from '../../src/components/admin/ErrorBoundary';
 import { TableRowSkeleton } from '../../src/components/admin/SkeletonLoader';
 import { useDebounce } from '../../src/hooks/useDebounce';
-import { Search, Calendar, Eye, Filter, FileText, Mail, Phone, AlertCircle } from 'lucide-react';
+import { Search, Calendar, Eye, Filter, FileText, Mail, Phone, AlertCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../src/components/SEO';
 
@@ -18,6 +18,8 @@ const FormSubmissions = () => {
     const [selectedSubmission, setSelectedSubmission] = useState(null);
     const [fileCounts, setFileCounts] = useState({});
     const [error, setError] = useState(null);
+    const [showResetDialog, setShowResetDialog] = useState(false);
+    const [isResetting, setIsResetting] = useState(false);
 
     useEffect(() => {
         fetchSubmissions();
@@ -67,6 +69,70 @@ const FormSubmissions = () => {
             setFileCounts(counts);
         } catch (error) {
             console.error('Error fetching file counts:', error);
+        }
+    };
+
+    const handleResetData = async () => {
+        setIsResetting(true);
+        try {
+            // First, get all form submission IDs to delete associated files
+            const { data: allSubmissions, error: fetchError } = await supabase
+                .from('form_submissions')
+                .select('id');
+
+            if (fetchError) throw fetchError;
+
+            if (allSubmissions && allSubmissions.length > 0) {
+                const submissionIds = allSubmissions.map(s => s.id);
+
+                // Delete all associated file records from file_uploads table
+                const { error: fileRecordsError } = await supabase
+                    .from('file_uploads')
+                    .delete()
+                    .in('form_submission_id', submissionIds);
+
+                if (fileRecordsError) {
+                    console.error('Error deleting file records:', fileRecordsError);
+                    // Continue anyway - we'll still delete the submissions
+                }
+
+                // Delete all files from storage bucket
+                // Note: This requires listing all files in the bucket first
+                const { data: files, error: listError } = await supabase
+                    .storage
+                    .from('medical-documents')
+                    .list();
+
+                if (!listError && files && files.length > 0) {
+                    const filePaths = files.map(file => file.name);
+                    const { error: storageError } = await supabase
+                        .storage
+                        .from('medical-documents')
+                        .remove(filePaths);
+
+                    if (storageError) {
+                        console.error('Error deleting files from storage:', storageError);
+                        // Continue anyway
+                    }
+                }
+            }
+
+            // Finally, delete all form submissions
+            const { error: deleteError } = await supabase
+                .from('form_submissions')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all (using a condition that's always true)
+
+            if (deleteError) throw deleteError;
+
+            toast.success('All form submissions and files have been deleted');
+            setShowResetDialog(false);
+            await fetchSubmissions(); // Refresh the list
+        } catch (error) {
+            console.error('Error resetting data:', error);
+            toast.error('Failed to reset data. Please try again.');
+        } finally {
+            setIsResetting(false);
         }
     };
 
@@ -141,6 +207,14 @@ const FormSubmissions = () => {
                                 <h1 className="text-3xl font-bold text-slate-900">Form Submissions</h1>
                                 <p className="text-slate-600 mt-2">Manage all form submissions</p>
                             </div>
+                            <button
+                                onClick={() => setShowResetDialog(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                                aria-label="Reset all form submissions"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Reset Data
+                            </button>
                         </div>
 
                         {/* Search and Filter */}
@@ -291,6 +365,49 @@ const FormSubmissions = () => {
                         )}
 
                         {/* Form Submission Detail Modal */}
+                        {/* Reset Confirmation Dialog */}
+                        {showResetDialog && (
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                                <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                            <AlertCircle className="w-6 h-6 text-red-600" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-slate-900">Reset All Data?</h3>
+                                    </div>
+                                    <p className="text-slate-600 mb-6">
+                                        This will permanently delete <strong>all form submissions</strong> and their <strong>associated files</strong>. This action cannot be undone.
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setShowResetDialog(false)}
+                                            disabled={isResetting}
+                                            className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleResetData}
+                                            disabled={isResetting}
+                                            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {isResetting ? (
+                                                <>
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                                                    Deleting...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Trash2 className="w-4 h-4" />
+                                                    Delete All
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <FormSubmissionDetailModal
                             submission={selectedSubmission}
                             isOpen={!!selectedSubmission}
