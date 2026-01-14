@@ -76,11 +76,6 @@ const Footer = () => {
                   1151 Claims
                 </Link>
               </li>
-              <li>
-                <Link href="/services/cp-coaching" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
-                  C&P Exam Preparation
-                </Link>
-              </li>
             </ul>
           </div>
 
