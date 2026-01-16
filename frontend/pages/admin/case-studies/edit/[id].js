@@ -91,25 +91,46 @@ const CaseStudyForm = () => {
             .trim();
     };
 
+    // Escape HTML special characters to prevent XSS
+    const escapeHtml = (str) => {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
     // Convert plain text to HTML with basic formatting
     const textToHtml = (text) => {
         if (!text) return '';
 
-        // Add support for [text](url) links
-        let processedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-indigo-600 hover:underline">$1</a>');
+        // Store links with placeholders to protect them from escaping
+        const links = [];
+        let processedText = text.replace(/\[([^\]]+)\]\s*\(([^)]+)\)/g, (match, linkText, url) => {
+            const trimmedUrl = url.trim();
+            // Validate URL: only allow http, https, mailto, tel, and relative paths (excluding protocol-relative //)
+            if (/^(https?:\/\/|mailto:|tel:|\/(?!\/))/i.test(trimmedUrl)) {
+                const placeholder = `__LINK_${links.length}__`;
+                links.push(`<a href="${escapeHtml(trimmedUrl)}" class="text-indigo-600 hover:underline">${escapeHtml(linkText)}</a>`);
+                return placeholder;
+            }
+            return match;
+        });
 
         // Split by double line breaks for paragraphs
         const paragraphs = processedText.split('\n\n');
 
-        return paragraphs.map(para => {
+        let html = paragraphs.map(para => {
             para = para.trim();
             if (!para) return '';
 
             // Check if it's a heading (starts with # or ##)
             if (para.startsWith('## ')) {
-                return `<h3>${para.substring(3)}</h3>`;
+                return `<h3>${escapeHtml(para.substring(3))}</h3>`;
             } else if (para.startsWith('# ')) {
-                return `<h2>${para.substring(2)}</h2>`;
+                return `<h2>${escapeHtml(para.substring(2))}</h2>`;
             }
 
             // Check if it's a list (lines starting with - or *)
@@ -117,14 +138,21 @@ const CaseStudyForm = () => {
                 const items = para.split('\n').filter(line => line.trim());
                 const listItems = items.map(item => {
                     const cleaned = item.replace(/^[-*]\s*/, '').trim();
-                    return cleaned ? `<li>${cleaned}</li>` : '';
+                    return cleaned ? `<li>${escapeHtml(cleaned)}</li>` : '';
                 }).filter(Boolean).join('');
                 return `<ul>${listItems}</ul>`;
             }
 
             // Regular paragraph
-            return `<p>${para}</p>`;
+            return `<p>${escapeHtml(para)}</p>`;
         }).join('');
+
+        // Restore links
+        links.forEach((link, i) => {
+            html = html.replace(`__LINK_${i}__`, link);
+        });
+
+        return html;
     };
 
     const handleContentChange = (field, text) => {

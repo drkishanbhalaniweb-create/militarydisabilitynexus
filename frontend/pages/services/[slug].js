@@ -104,15 +104,19 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
                                     {service.full_description && service.full_description.split('\n').map((line, i) => {
                                         // Process [text](url) in the line
                                         const processLinks = (text) => {
-                                            const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+                                            const parts = text.split(/(\[[^\]]+\]\s*\([^)]+\))/g);
                                             return parts.map((part, index) => {
-                                                const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                                                const match = part.match(/\[([^\]]+)\]\s*\(([^)]+)\)/);
                                                 if (match) {
-                                                    return (
-                                                        <Link key={index} href={match[2]} className="text-navy-600 hover:underline font-medium">
-                                                            {match[1]}
-                                                        </Link>
-                                                    );
+                                                    const url = match[2].trim();
+                                                    // Validate URL: only allow http, https, mailto, tel, and relative paths (excluding //)
+                                                    if (/^(https?:\/\/|mailto:|tel:|\/(?!\/))/i.test(url)) {
+                                                        return (
+                                                            <Link key={index} href={url} className="text-navy-600 hover:underline font-medium">
+                                                                {match[1]}
+                                                            </Link>
+                                                        );
+                                                    }
                                                 }
                                                 return part;
                                             });
@@ -159,15 +163,19 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
                                                         {faq.answer.split('\n').map((line, i) => {
                                                             // Process [text](url) in the line
                                                             const processLinks = (text) => {
-                                                                const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+                                                                const parts = text.split(/(\[[^\]]+\]\s*\([^)]+\))/g);
                                                                 return parts.map((part, index) => {
-                                                                    const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                                                                    const match = part.match(/\[([^\]]+)\]\s*\(([^)]+)\)/);
                                                                     if (match) {
-                                                                        return (
-                                                                            <Link key={index} href={match[2]} className="text-navy-600 hover:underline font-medium">
-                                                                                {match[1]}
-                                                                            </Link>
-                                                                        );
+                                                                        const url = match[2].trim();
+                                                                        // Validate URL: only allow http, https, mailto, tel, and relative paths (excluding //)
+                                                                        if (/^(https?:\/\/|mailto:|tel:|\/(?!\/))/i.test(url)) {
+                                                                            return (
+                                                                                <Link key={index} href={url} className="text-navy-600 hover:underline font-medium">
+                                                                                    {match[1]}
+                                                                                </Link>
+                                                                            );
+                                                                        }
                                                                     }
                                                                     return part;
                                                                 });
