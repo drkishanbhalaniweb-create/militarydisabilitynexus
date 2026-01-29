@@ -16,7 +16,8 @@ const SEO = ({
   canonical,
   structuredData,
   faqSchema,
-  breadcrumbs
+  breadcrumbs,
+  noindex = false
 }) => {
   const router = useRouter();
   const siteUrl = SITE_URL;
@@ -37,7 +38,7 @@ const SEO = ({
   // For root path (/), we want https://domain.com/ not https://domain.com/index
   const canonicalUrl = canonicalPath.startsWith('http')
     ? canonicalPath
-    : `${siteUrl}${canonicalPath}`;
+    : `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`;
 
   // Truncate description to 130 characters to avoid SEO penalties
   const metaDescription = description && description.length > 130
@@ -51,6 +52,13 @@ const SEO = ({
       {metaDescription && <meta name="description" content={metaDescription} />}
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
+
+      {/* Robots tag - handled based on noindex prop */}
+      {noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow" />
+      )}
 
       {/* Open Graph */}
       <meta property="og:type" content={article ? 'article' : 'website'} />
@@ -76,7 +84,6 @@ const SEO = ({
       <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
       {/* Additional SEO */}
-      <meta name="robots" content="index, follow" />
       <meta name="author" content={author} />
       <meta name="language" content="English" />
 

@@ -18,6 +18,9 @@
 .env.test.local
 .env.production.local
 .env.example
+.env.render
+.env.railway
+.env.production
 
 npm-debug.log*
 yarn-debug.log*
@@ -30,3 +33,6 @@ yarn-error.log*
 # vercel
 .vercel
 
+
+# agent
+.agent/

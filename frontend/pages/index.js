@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { ArrowRight, Users, Clock, Award } from 'lucide-react';
@@ -78,18 +79,17 @@ const Home = ({ services, blogPosts }) => {
             <section className="relative min-h-screen w-full overflow-hidden">
                 {/* Fixed Blurred Background */}
                 <div className="fixed inset-0 z-0 w-full h-full overflow-hidden">
-                    <div
-                        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                        style={{
-                            backgroundImage: 'url("/Gemini_Generated_Image_7ax9sd7ax9sd7ax9.png")',
-                            filter: 'blur(4px)',
-                            width: '100%',
-                            height: '100%'
-                        }}
-                        role="presentation"
-                        aria-hidden="true"
-                    ></div>
-                    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-navy-700/50 via-navy-600/45 to-navy-500/50"></div>
+                    <Image
+                        src="/Gemini_Generated_Image_7ax9sd7ax9sd7ax9.png"
+                        alt="Military Disability Nexus Background"
+                        fill
+                        priority
+                        quality={90}
+                        className="object-cover"
+                        style={{ filter: 'blur(4px)' }}
+                        sizes="100vw"
+                    />
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-navy-700/50 via-navy-600/45 to-navy-500/50 z-10"></div>
                 </div>
 
                 {/* Hero Content */}
@@ -320,12 +320,13 @@ const Home = ({ services, blogPosts }) => {
                                 >
                                     <Link href={`/blog/${post.slug}`} className="flex flex-col h-full" aria-label={`Read article: ${post.title}`}>
                                         {post.featured_image_url && (
-                                            <div className="aspect-video bg-gradient-to-br from-indigo-400 to-indigo-500 overflow-hidden">
-                                                <img
+                                            <div className="aspect-video bg-gradient-to-br from-indigo-400 to-indigo-500 overflow-hidden relative">
+                                                <Image
                                                     src={post.featured_image_url}
                                                     alt={post.title}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    loading="lazy"
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                 />
                                             </div>
                                         )}

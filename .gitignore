@@ -102,3 +102,6 @@ out/
 **/.next/
 **/out/
 
+# agent
+.agent/
+
