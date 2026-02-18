@@ -52,7 +52,7 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
         "provider": {
             "@type": "Organization",
             "name": "Military Disability Nexus",
-            "url": "https://militarydisabilitynexus.com"
+            "url": "https://www.militarydisabilitynexus.com"
         },
         "serviceType": service.category,
         "offers": {
@@ -362,13 +362,13 @@ export async function getStaticPaths() {
 
         return {
             paths,
-            fallback: false,
+            fallback: 'blocking',
         };
     } catch (error) {
         console.error('Error fetching paths:', error);
         return {
             paths: [],
-            fallback: false,
+            fallback: 'blocking',
         };
     }
 }

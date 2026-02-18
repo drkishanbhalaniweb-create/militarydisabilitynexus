@@ -4,6 +4,7 @@ import PaymentButton from '../../src/components/payment/PaymentButton';
 import PricingDisplay from '../../src/components/payment/PricingDisplay';
 import { SERVICE_PRICING } from '../../src/lib/payment';
 import Layout from '../../src/components/Layout';
+import SEO from '../../src/components/SEO';
 
 const TestPayment = () => {
     const [isRushService, setIsRushService] = useState(false);
@@ -12,6 +13,11 @@ const TestPayment = () => {
 
     return (
         <Layout>
+            <SEO
+                title="Stripe Payment Test"
+                description="Internal Stripe payment test flow."
+                noindex={true}
+            />
             <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 py-12 px-4">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}

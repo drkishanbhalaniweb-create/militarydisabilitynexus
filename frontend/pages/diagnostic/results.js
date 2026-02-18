@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Clock, CheckCircle, FileText, Heart, HelpCircle, Lock } from 'lucide-react';
@@ -9,31 +9,57 @@ import AssessmentBreakdown from '../../src/components/diagnostic/AssessmentBreak
 import { getRecommendationData } from '../../src/lib/diagnosticScoring';
 import { trackDiagnosticComplete } from '../../src/lib/redditPixel';
 
+export async function getServerSideProps({ query }) {
+    const answersParam = Array.isArray(query.answers) ? query.answers[0] : query.answers;
+    const scoreParam = Array.isArray(query.score) ? query.score[0] : query.score;
+
+    const hasValidAnswers = typeof answersParam === 'string' && answersParam.trim().length > 0;
+    const hasValidScore = typeof scoreParam === 'string' && scoreParam.trim().length > 0 && !Number.isNaN(Number(scoreParam));
+
+    if (!hasValidAnswers || !hasValidScore) {
+        return {
+            redirect: {
+                destination: '/diagnostic',
+                permanent: false,
+            },
+        };
+    }
+
+    return {
+        props: {},
+    };
+}
+
 const DiagnosticResults = () => {
     const router = useRouter();
-    const [price, setPrice] = useState(225);
+    const price = 225;
     const hasTracked = useRef(false);
 
     // Get data from query params
-    const { answers: answersJson, score: scoreStr, recommendation: recommendationCategory } = router.query;
+    const { recommendation: recommendationCategory } = router.query;
 
-    // Parse data
-    const answers = answersJson ? JSON.parse(answersJson) : null;
-    const score = scoreStr ? parseInt(scoreStr, 10) : null;
+    const answers = useMemo(() => {
+        const answersParam = Array.isArray(router.query.answers) ? router.query.answers[0] : router.query.answers;
+        if (typeof answersParam !== 'string') return null;
+        try {
+            return JSON.parse(answersParam);
+        } catch {
+            return null;
+        }
+    }, [router.query.answers]);
 
-    // Wait for hydration
-    const [isClient, setIsClient] = useState(false);
-    useEffect(() => { setIsClient(true); }, []);
+    const score = useMemo(() => {
+        const scoreParam = Array.isArray(router.query.score) ? router.query.score[0] : router.query.score;
+        if (typeof scoreParam !== 'string') return null;
+        const parsed = parseInt(scoreParam, 10);
+        return Number.isNaN(parsed) ? null : parsed;
+    }, [router.query.score]);
 
     useEffect(() => {
-        if (!isClient) return;
+        if (!router.isReady) return;
 
-        // If no state data, redirect back to diagnostic
         if (!answers || score === null || isNaN(score)) {
-            // Only redirect if query params are completely missing and we've waited for them
-            if (router.isReady) {
-                router.push('/diagnostic');
-            }
+            router.replace('/diagnostic');
             return;
         }
 
@@ -42,10 +68,21 @@ const DiagnosticResults = () => {
             trackDiagnosticComplete(score, recommendationCategory);
             hasTracked.current = true;
         }
-    }, [answers, score, recommendationCategory, router, isClient]);
+    }, [answers, score, recommendationCategory, router]);
 
     if (!answers || score === null) {
-        return null; // Or loading state
+        return (
+            <Layout>
+                <SEO
+                    title="Claim Readiness Results"
+                    description="Redirecting to the claim readiness diagnostic."
+                    noindex={true}
+                />
+                <div className="min-h-[50vh] flex items-center justify-center text-slate-600">
+                    Redirecting to diagnostic...
+                </div>
+            </Layout>
+        );
     }
 
     const recommendation = getRecommendationData(score);
@@ -55,6 +92,7 @@ const DiagnosticResults = () => {
             <SEO
                 title="Your Claim Readiness Results"
                 description="View your personalized VA claim readiness assessment and next steps."
+                noindex={true}
             />
 
             <div className="min-h-screen bg-gradient-to-br from-navy-50 via-slate-50 to-slate-100 py-12 px-4">

@@ -140,11 +140,6 @@ const Footer = () => {
               </Link>
             </div>
           </div>
-          <div className="text-center">
-            <Link href="/admin/login" onClick={handleLinkClick} className="text-white/20 hover:text-white/40 transition-colors text-xs inline-block">
-              Admin
-            </Link>
-          </div>
         </div>
       </div>
 

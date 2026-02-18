@@ -21,10 +21,10 @@ export async function getStaticPaths() {
             params: { slug: q.slug },
         }));
 
-        return { paths, fallback: false };
+        return { paths, fallback: 'blocking' };
     } catch (error) {
         console.error('Error getting static paths for questions:', error);
-        return { paths: [], fallback: false };
+        return { paths: [], fallback: 'blocking' };
     }
 }
 
