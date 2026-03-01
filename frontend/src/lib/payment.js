@@ -109,8 +109,8 @@ export const SERVICE_PRICING = {
   },
   cp_exam_prep: {
     name: 'C&P Exam Preparation',
-    basePrice: 50000, // $500
-    rushFee: 20000,
+    basePrice: 15000, // $150
+    rushFee: 0,
   },
   claim_1151: {
     name: '1151 Claim Support',

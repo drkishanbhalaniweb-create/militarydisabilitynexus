@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { FileText, Clock, Lock, GraduationCap, Building2 } from 'lucide-react';
+import { FileText, Clock, Lock, GraduationCap, Building2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
@@ -20,12 +20,18 @@ const Diagnostic = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [showLeadCapture, setShowLeadCapture] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [email, setEmail] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const currentQuestion = QUESTIONS[currentQuestionIndex];
-    const isLastQuestion = currentQuestionIndex === TOTAL_QUESTIONS - 1;
+    const currentQuestion = QUESTIONS[currentQuestionIndex] || QUESTIONS[QUESTIONS.length - 1];
+    const isLastQuestion = currentQuestionIndex >= TOTAL_QUESTIONS - 1;
 
     // Handle answer selection
     const handleAnswer = async (questionId, answerText, points) => {
+        if (isTransitioning || showLeadCapture) return;
+
         // Record answer
         const newAnswers = {
             ...answers,
@@ -36,9 +42,13 @@ const Diagnostic = () => {
         // Wait for visual feedback
         await new Promise(resolve => setTimeout(resolve, 400));
 
-        // If last question, calculate and save results
+        // If last question, show lead capture instead of completing immediately
         if (isLastQuestion) {
-            await completeDignostic(newAnswers);
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setShowLeadCapture(true);
+                setIsTransitioning(false);
+            }, 300);
         } else {
             // Move to next question
             setIsTransitioning(true);
@@ -52,12 +62,17 @@ const Diagnostic = () => {
     // Complete diagnostic and save to database
     const completeDignostic = async (finalAnswers) => {
         try {
+            setIsSubmitting(true);
             // Calculate score and recommendation
             const score = calculateTotalScore(finalAnswers);
             const recommendation = getRecommendationCategory(score);
 
             // Format data for database
-            const diagnosticData = formatDiagnosticData(finalAnswers, score, recommendation);
+            const diagnosticData = {
+                ...formatDiagnosticData(finalAnswers, score, recommendation),
+                first_name: firstName.trim() || null,
+                email: email.trim() || null
+            };
 
             // Save to Supabase
             const { data, error } = await supabase
@@ -92,7 +107,22 @@ const Diagnostic = () => {
         } catch (error) {
             console.error('Error completing diagnostic:', error);
             toast.error('An error occurred. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
+    };
+
+    // Handle lead capture submit
+    const handleLeadSubmit = async (e) => {
+        e.preventDefault();
+
+        // Basic email validation
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+
+        await completeDignostic(answers);
     };
 
     // Start diagnostic
@@ -180,6 +210,87 @@ const Diagnostic = () => {
         );
     }
 
+    // Lead Capture Screen
+    if (showLeadCapture) {
+        return (
+            <Layout>
+                <SEO
+                    title="VA Claim Readiness Diagnostic - Get Results"
+                    description="Enter your email to receive your personalized VA claim readiness assessment and recommendations."
+                />
+
+                <div className="min-h-screen bg-gradient-to-br from-navy-50 via-slate-50 to-slate-100 py-12 px-4">
+                    <div className="max-w-xl mx-auto">
+                        <div className={`
+                            bg-white rounded-2xl p-8 md:p-10 shadow-xl transition-opacity duration-300
+                            ${isTransitioning ? 'opacity-0' : 'opacity-100'}
+                        `}>
+                            <div className="text-center mb-8">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
+                                    <FileText className="w-8 h-8 text-green-600" />
+                                </div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+                                    Your Results Are Ready
+                                </h2>
+                                <p className="text-slate-600">
+                                    Where should we send your personalized claim readiness assessment and action plan?
+                                </p>
+                            </div>
+
+                            <form onSubmit={handleLeadSubmit} className="space-y-6">
+                                <div>
+                                    <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-1">
+                                        First Name (Optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="firstName"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 transition-colors"
+                                        placeholder="Enter your first name"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                                        Email Address <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 transition-colors"
+                                        placeholder="you@example.com"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full flex items-center justify-center space-x-2 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                                    style={{ backgroundColor: '#B91C3C' }}
+                                >
+                                    <span>{isSubmitting ? 'Analyzing Results...' : 'See My Results'}</span>
+                                    {!isSubmitting && <ArrowRight className="w-5 h-5" />}
+                                </button>
+
+                                <p className="text-xs text-center text-slate-500 mt-4 flex items-center justify-center">
+                                    <Lock className="w-3 h-3 mr-1" />
+                                    Your information is secure and will never be shared.
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
+
     // Question screen
     return (
         <Layout>
@@ -194,18 +305,18 @@ const Diagnostic = () => {
                     <ProgressBar
                         currentStep={currentQuestionIndex + 1}
                         totalSteps={TOTAL_QUESTIONS}
-                        category={currentQuestion.category}
+                        category={currentQuestion?.category || ''}
                     />
 
                     {/* Question Card */}
                     <div className={`
-            bg-white rounded-2xl p-8 shadow-lg transition-opacity duration-300
-            ${isTransitioning ? 'opacity-0' : 'opacity-100'}
-          `}>
+                    bg-white rounded-2xl p-8 shadow-lg transition-opacity duration-300
+                    ${isTransitioning ? 'opacity-0' : 'opacity-100'}
+                  `}>
                         <QuestionCard
                             question={currentQuestion}
                             onAnswer={handleAnswer}
-                            selectedAnswer={answers[currentQuestion.id] !== undefined ?
+                            selectedAnswer={currentQuestion && answers[currentQuestion.id] !== undefined ?
                                 currentQuestion.options.find(opt => opt.points === answers[currentQuestion.id])?.text :
                                 null
                             }

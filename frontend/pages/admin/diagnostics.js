@@ -299,10 +299,10 @@ const Diagnostics = () => {
                                     <thead className="bg-slate-50">
                                         <tr>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Contact</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Score</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Recommendation</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Converted</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Session ID</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200">
@@ -310,6 +310,16 @@ const Diagnostics = () => {
                                             <tr key={session.id} className="hover:bg-slate-50">
                                                 <td className="px-6 py-4 text-sm text-slate-900">
                                                     {new Date(session.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm">
+                                                    {session.first_name || session.email ? (
+                                                        <div>
+                                                            {session.first_name && <div className="font-semibold text-slate-900">{session.first_name}</div>}
+                                                            {session.email && <div className="text-slate-500 text-xs">{session.email}</div>}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-slate-400 italic">Anonymous</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <span className="font-bold text-slate-900">{session.total_score}</span>
@@ -332,9 +342,6 @@ const Diagnostics = () => {
                                                     ) : (
                                                         <span className="text-slate-400">No</span>
                                                     )}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-slate-500 font-mono">
-                                                    {session.session_id.substring(0, 20)}...
                                                 </td>
                                             </tr>
                                         ))}

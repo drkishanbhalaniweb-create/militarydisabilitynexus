@@ -105,3 +105,4 @@ out/
 # agent
 .agent/
 
+.memory/state.json

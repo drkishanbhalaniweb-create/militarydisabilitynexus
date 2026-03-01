@@ -76,6 +76,11 @@ const Footer = () => {
                   1151 Claims
                 </Link>
               </li>
+              <li>
+                <Link href="/cp-exam-coaching" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
+                  C&P Exam Coaching
+                </Link>
+              </li>
             </ul>
           </div>
 

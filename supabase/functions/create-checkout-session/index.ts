@@ -25,6 +25,7 @@ interface CheckoutRequest {
   customerEmail: string;
   successUrl: string;
   cancelUrl: string;
+  priceId?: string;
 }
 
 const getServiceName = (serviceType: string): string => {
@@ -54,6 +55,7 @@ serve(async (req) => {
       customerEmail,
       successUrl,
       cancelUrl,
+      priceId,
     }: CheckoutRequest = await req.json();
 
     // Validate input
@@ -65,10 +67,13 @@ serve(async (req) => {
     }
 
     // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: any = {
       payment_method_types: ['card'],
       line_items: [
-        {
+        priceId ? {
+          price: priceId,
+          quantity: 1,
+        } : {
           price_data: {
             currency: 'usd',
             product_data: {
@@ -83,11 +88,6 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      currency_options: {
-        usd: {
-          unit_amount: amount,
-        },
-      },
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: customerEmail,
@@ -96,7 +96,15 @@ serve(async (req) => {
         serviceType,
         isRushService: isRushService.toString(),
       },
-    });
+    };
+
+    if (!priceId) {
+      sessionConfig.currency_options = {
+        usd: { unit_amount: amount }
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     // Store pending payment in database
     const { error: dbError } = await supabase.from('payments').insert({
