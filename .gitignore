@@ -106,3 +106,7 @@ out/
 .agent/
 
 .memory/state.json
+# Supabase
+supabase/.env
+.env
+.env.*

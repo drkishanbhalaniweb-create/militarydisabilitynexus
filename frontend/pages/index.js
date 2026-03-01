@@ -64,7 +64,7 @@ const Home = ({ services, blogPosts }) => {
                     "name": "Military Disability Nexus",
                     "description": "Professional medical documentation services for VA disability claims",
                     "url": "https://www.militarydisabilitynexus.com",
-                    "telephone": "+1-307-318-1367",
+                    "telephone": "+1-888-215-9785",
                     "priceRange": "$$",
                     "areaServed": {
                         "@type": "Country",

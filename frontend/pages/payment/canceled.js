@@ -49,7 +49,7 @@ const PaymentCanceled = () => {
                             </li>
                             <li className="flex items-start">
                                 <span className="mr-2">•</span>
-                                <span>Call us at +1 307 318 1367</span>
+                                <span>Call us at +1 888 215 9785</span>
                             </li>
                             <li className="flex items-start">
                                 <span className="mr-2">•</span>
