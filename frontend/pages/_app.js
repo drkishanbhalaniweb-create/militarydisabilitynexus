@@ -42,20 +42,6 @@ function MyApp({ Component, pageProps }) {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
 
-            {/* Google Analytics - GTM */}
-            <Script
-                src="https://www.googletagmanager.com/gtag/js?id=G-QHR9W0GZ8R"
-                strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-                {`
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'G-QHR9W0GZ8R');
-                `}
-            </Script>
-
             {/* Reddit Pixel */}
             <Script id="reddit-pixel" strategy="afterInteractive">
                 {`

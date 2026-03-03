@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { CheckCircle, Clock, Calendar, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
 import SEO from '../../src/components/SEO';
@@ -9,6 +9,7 @@ const CPCoachingSuccess = () => {
     const router = useRouter();
     const { session_id } = router.query;
     const [showCal, setShowCal] = useState(false);
+    const conversionTrackedRef = useRef(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -31,6 +32,25 @@ const CPCoachingSuccess = () => {
 
         return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        if (!router.isReady || conversionTrackedRef.current) return;
+        if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+
+        const googleAdsTagId = 'AW-17752607391';
+        const conversionLabel = process.env.NEXT_PUBLIC_GOOGLE_ADS_CP_SUCCESS_LABEL;
+        const sendTo = conversionLabel ? `${googleAdsTagId}/${conversionLabel}` : googleAdsTagId;
+        const transactionId = typeof session_id === 'string' ? session_id : undefined;
+
+        window.gtag('event', 'conversion', {
+            send_to: sendTo,
+            value: 150.0,
+            currency: 'USD',
+            transaction_id: transactionId,
+        });
+
+        conversionTrackedRef.current = true;
+    }, [router.isReady, session_id]);
 
     return (
         <Layout>
