@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ArrowLeft, Calendar, Eye, Target, Lightbulb, TrendingUp, Star } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, Target, Lightbulb, TrendingUp, Star, ArrowRight } from 'lucide-react';
 import { caseStudyApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
+import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import {
+    buildOrganizationReference,
+    clinicalReviewTeam,
+    editorialTeam,
+} from '../../src/lib/trust';
 // import OptimizedImage from '../../src/components/OptimizedImage'; // Simple img replacement
 
 export async function getStaticPaths() {
@@ -71,11 +77,15 @@ const CaseStudyDetail = ({ caseStudy }) => {
         "@type": "Article",
         "headline": caseStudy.title,
         "description": caseStudy.excerpt,
+        "author": {
+            "@type": "Organization",
+            "name": editorialTeam.name,
+            "url": `https://www.militarydisabilitynexus.com${editorialTeam.href}`
+        },
         "datePublished": caseStudy.published_at,
         "dateModified": caseStudy.updated_at || caseStudy.published_at,
         "publisher": {
-            "@type": "Organization",
-            "name": "Military Disability Nexus",
+            ...buildOrganizationReference(),
             "logo": {
                 "@type": "ImageObject",
                 "url": "https://www.militarydisabilitynexus.com/logo.png"
@@ -92,9 +102,10 @@ const CaseStudyDetail = ({ caseStudy }) => {
             <SEO
                 title={caseStudy.title}
                 description={caseStudy.excerpt}
-                keywords={`case study, success story, VA disability, ${caseStudy.client_name || ''}`}
+                keywords={`case study, success story, VA disability, ${(caseStudy.tags || []).join(', ')}`}
                 article={true}
                 publishedTime={caseStudy.published_at}
+                modifiedTime={caseStudy.updated_at || caseStudy.published_at}
                 structuredData={structuredData}
                 breadcrumbs={[
                     { name: 'Home', path: '/' },
@@ -236,6 +247,30 @@ const CaseStudyDetail = ({ caseStudy }) => {
                         </div>
                     )}
 
+                    <AttributionPanel
+                        author={editorialTeam}
+                        reviewer={clinicalReviewTeam}
+                        updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
+                    />
+
+                    <div className="mt-8 grid gap-4 md:grid-cols-3">
+                        <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Services</div>
+                            <div className="mt-2 text-lg font-bold text-slate-900">Explore related services</div>
+                            <p className="mt-2 text-sm text-slate-600">See the documentation and review options tied to the kind of case described here.</p>
+                        </Link>
+                        <Link href="/testimonials" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Proof</div>
+                            <div className="mt-2 text-lg font-bold text-slate-900">Read testimonial feedback</div>
+                            <p className="mt-2 text-sm text-slate-600">Compare structured case narratives with direct feedback from veterans.</p>
+                        </Link>
+                        <Link href="/editorial-policy" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Standards</div>
+                            <div className="mt-2 text-lg font-bold text-slate-900">Editorial policy</div>
+                            <p className="mt-2 text-sm text-slate-600">Understand how proof content is framed and maintained on the site.</p>
+                        </Link>
+                    </div>
+
                     {/* CTA */}
                     <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
                         <h3 className="text-2xl font-bold text-white mb-4">
@@ -249,6 +284,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                             className="inline-block bg-white text-navy-600 px-8 py-3 rounded-full font-semibold hover:bg-slate-50 transition-colors"
                         >
                             Get Free Consultation
+                            <ArrowRight className="inline ml-2 w-4 h-4" />
                         </Link>
                     </div>
                 </article>

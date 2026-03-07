@@ -37,7 +37,7 @@ const About = () => {
                     {/* Hero */}
                     <section className="py-24">
                         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                            <h1 className="text-5xl font-bold text-slate-900 mb-6 drop-shadow-sm">🎖 Who We Are</h1>
+                            <h1 className="text-5xl font-bold text-slate-900 mb-6 drop-shadow-sm">Who We Are</h1>
                             <p className="text-xl text-slate-700">
                                 Clinician-led expert medical opinions for VA disability claims
                             </p>
@@ -55,10 +55,10 @@ const About = () => {
                                     Military Disability Nexus is a clinician-led expert company that helps veterans build strong, medically sound evidence for their VA disability claims.
                                 </p>
                                 <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    Our mission is simple: To bridge the gap between medicine and the VA — giving veterans the clear, credible documentation they need to receive the benefits they've earned.
+                                    Our mission is simple: To bridge the gap between medicine and the VA - giving veterans the clear, credible documentation they need to receive the benefits they&apos;ve earned.
                                 </p>
                                 <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    We're not a law firm or a claims representative. We're a team of subject matter experts and clinicians professionals who understand both the clinical and regulatory sides of the VA process.
+                                    We&apos;re not a law firm or a claims representative. We&apos;re a team of subject matter experts and clinicians professionals who understand both the clinical and regulatory sides of the VA process.
                                 </p>
                                 <p className="text-lg text-slate-700 leading-relaxed">
                                     Our clinicians know how to interpret complex medical histories and translate them into clear, VA-ready documentation that decision-makers can rely on.
@@ -73,13 +73,13 @@ const About = () => {
                             <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Target className="w-8 h-8 text-navy-700" />
-                                    <h2 className="text-3xl font-bold text-slate-900">⚖ Our Mission</h2>
+                                    <h2 className="text-3xl font-bold text-slate-900">Our Mission</h2>
                                 </div>
                                 <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    To empower veterans through credible, expert-authored medical documentation that tells the truth of their service and their health — clearly, professionally, and respectfully.
+                                    To empower veterans through credible, expert-authored medical documentation that tells the truth of their service and their health - clearly, professionally, and respectfully.
                                 </p>
                                 <p className="text-lg text-slate-700 leading-relaxed">
-                                    We believe veterans shouldn't lose benefits because of incomplete or confusing medical evidence. Our role is to make the medical side of your claim understandable, accurate, and VA-ready.
+                                    We believe veterans shouldn&apos;t lose benefits because of incomplete or confusing medical evidence. Our role is to make the medical side of your claim understandable, accurate, and VA-ready.
                                 </p>
                             </div>
                         </div>

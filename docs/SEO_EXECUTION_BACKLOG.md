@@ -19,24 +19,24 @@ content expansion.
 ## P1: YMYL trust signals
 
 - [ ] Create clinician profile pages with credentials, specialties, and review roles.
-- [ ] Add author and reviewer attribution blocks to blog and case-study templates.
+- [x] Add author and reviewer attribution blocks to blog and case-study templates.
 - [ ] Add `ProfilePage` or stronger person/entity schema for named experts.
-- [ ] Publish editorial policy and medical review policy pages.
+- [x] Publish editorial policy and medical review policy pages.
 - [ ] Expand the About page with real clinician identity and process details.
 - [ ] Add organization-level `sameAs` and entity consistency across all templates.
 
 ## P1: Content architecture cleanup
 
-- [ ] Reduce duplicate content on the case studies index and keep detailed narratives on the detail pages only.
+- [x] Reduce duplicate content on the case studies index and keep detailed narratives on the detail pages only.
 - [ ] Decide the primary intake route and consolidate intent between `/forms` and `/intake-form`.
-- [ ] Add stronger internal links between services, case studies, testimonials, and blog posts.
-- [ ] Add testimonial proof blocks to more high-intent service pages.
+- [x] Add stronger internal links between services, case studies, testimonials, and blog posts.
+- [x] Add testimonial proof blocks to more high-intent service pages.
 
 ## P2: Structured data and template depth
 
 - [ ] Add `QAPage` schema only for reviewed community threads worth indexing later.
 - [ ] Improve blog schema with reviewer information once expert pages exist.
-- [ ] Add richer service-page schema with clearer provider/entity context.
+- [x] Add richer service-page schema with clearer provider/entity context.
 - [ ] Add page-specific OG images for key service and proof pages.
 
 ## P2: Page experience and CWV

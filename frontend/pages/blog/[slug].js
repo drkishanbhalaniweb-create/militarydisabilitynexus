@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ArrowLeft, Clock, Calendar, User } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, User, ArrowRight } from 'lucide-react';
 import { blogApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
+import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import {
+    buildOrganizationReference,
+    clinicalReviewTeam,
+    editorialTeam,
+} from '../../src/lib/trust';
 // import OptimizedImage from '../../src/components/OptimizedImage'; // Simple img wrapper
 
 export async function getStaticPaths() {
@@ -66,15 +72,15 @@ const BlogPost = ({ post }) => {
         "description": post.excerpt,
         "url": `https://www.militarydisabilitynexus.com/blog/${post.slug}`,
         "author": {
-            "@type": "Person",
-            "name": post.author_name
+            "@type": "Organization",
+            "name": editorialTeam.name,
+            "url": `https://www.militarydisabilitynexus.com${editorialTeam.href}`
         },
         "datePublished": post.published_at,
         "dateModified": post.updated_at || post.published_at,
         "keywords": post.tags || [],
         "publisher": {
-            "@type": "Organization",
-            "name": "Military Disability Nexus",
+            ...buildOrganizationReference(),
             "logo": {
                 "@type": "ImageObject",
                 "url": "https://www.militarydisabilitynexus.com/logo.png"
@@ -161,6 +167,12 @@ const BlogPost = ({ post }) => {
                         />
                     </div>
 
+                    <AttributionPanel
+                        author={editorialTeam}
+                        reviewer={clinicalReviewTeam}
+                        updatedLabel={`Originally published ${formatDate(post.published_at)}${post.updated_at ? ` • Last updated ${formatDate(post.updated_at)}` : ''}`}
+                    />
+
                     {/* Tags */}
                     {post.tags && post.tags.length > 0 && (
                         <div className="mt-8 flex flex-wrap gap-2">
@@ -175,6 +187,24 @@ const BlogPost = ({ post }) => {
                         </div>
                     )}
 
+                    <div className="mt-8 grid gap-4 md:grid-cols-3">
+                        <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Services</div>
+                            <div className="mt-2 text-lg font-bold text-slate-900">See service options</div>
+                            <p className="mt-2 text-sm text-slate-600">Move from educational content to the relevant documentation or review service.</p>
+                        </Link>
+                        <Link href="/testimonials" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Proof</div>
+                            <div className="mt-2 text-lg font-bold text-slate-900">Read testimonials</div>
+                            <p className="mt-2 text-sm text-slate-600">See how veterans describe the experience in their own words.</p>
+                        </Link>
+                        <Link href="/medical-review-policy" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Standards</div>
+                            <div className="mt-2 text-lg font-bold text-slate-900">Medical review policy</div>
+                            <p className="mt-2 text-sm text-slate-600">Understand how clinically sensitive educational content is reviewed on this site.</p>
+                        </Link>
+                    </div>
+
                     {/* CTA */}
                     <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
                         <h3 className="text-2xl font-bold text-white mb-4">
@@ -188,6 +218,7 @@ const BlogPost = ({ post }) => {
                             className="inline-block bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-slate-50 transition-colors"
                         >
                             Get Free Consultation
+                            <ArrowRight className="inline ml-2 w-4 h-4" />
                         </Link>
                     </div>
                 </div>

@@ -8,6 +8,9 @@
 - [/community](/community): Q&A database for VA disability and claims questions.
 - [/blog](/blog): Educational resources on PACT Act, secondary conditions, and VA ratings.
 - [/about](/about): Mission, clinician expertise, and process overview.
+- [/editorial-policy](/editorial-policy): How educational and service content is written and maintained.
+- [/medical-review-policy](/medical-review-policy): How medically sensitive content is reviewed for accuracy and scope.
+- [/testimonials](/testimonials): Verified feedback from veterans across core service categories.
 - [/contact](/contact): Free consultation booking and records review inquiry.
 
 ## Service Categories

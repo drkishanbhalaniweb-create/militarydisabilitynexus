@@ -1,17 +1,19 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { CheckCircle, ArrowLeft, Clock, ArrowRight, FileText } from 'lucide-react';
-import { servicesApi, blogApi, caseStudyApi } from '../../src/lib/api';
+import { servicesApi, blogApi, caseStudyApi, testimonialApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
+import TestimonialCard from '../../src/components/testimonials/TestimonialCard';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from '../../src/components/ui/accordion';
+import { buildOrganizationReference, serviceTagMap } from '../../src/lib/trust';
 
-const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) => {
+const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [] }) => {
     const router = useRouter();
 
     // Fallback for when the page is being generated (if fallback: true was used, but we use blocking so this might not render)
@@ -50,11 +52,13 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
         "name": service.title,
         "description": service.short_description,
         "provider": {
-            "@type": "Organization",
-            "name": "Military Disability Nexus",
-            "url": "https://www.militarydisabilitynexus.com"
+            ...buildOrganizationReference()
         },
         "serviceType": service.category,
+        "areaServed": {
+            "@type": "Country",
+            "name": "United States"
+        },
         "offers": {
             "@type": "Offer",
             "price": service.base_price_usd,
@@ -233,6 +237,33 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
                                     </div>
                                 </section>
                             )}
+
+                            {relatedTestimonials.length > 0 && (
+                                <section className="bg-white rounded-2xl p-8" aria-labelledby="testimonials-heading">
+                                    <div className="flex items-center justify-between gap-4 mb-6">
+                                        <div>
+                                            <h2 id="testimonials-heading" className="text-2xl font-bold text-slate-900">Relevant Veteran Feedback</h2>
+                                            <p className="mt-2 text-slate-600">
+                                                Real testimonial proof tied to the type of service a visitor is evaluating.
+                                            </p>
+                                        </div>
+                                        <Link href="/testimonials" className="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-navy-700 hover:text-navy-800">
+                                            View all testimonials
+                                            <ArrowRight className="w-4 h-4" />
+                                        </Link>
+                                    </div>
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                        {relatedTestimonials.map((testimonial) => (
+                                            <TestimonialCard
+                                                key={testimonial.id}
+                                                testimonial={testimonial}
+                                                compact={true}
+                                                showDate={false}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
 
                         {/* Sidebar */}
@@ -345,6 +376,17 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [] }) 
                                     </p>
                                 )}
                             </div>
+
+                            <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-xl">
+                                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/65">Build Trust Before Buying</div>
+                                <div className="mt-3 text-2xl font-bold">Explore proof and standards</div>
+                                <div className="mt-4 space-y-3 text-sm text-white/80">
+                                    <Link href="/case-studies" className="block hover:text-white">Case studies for real claim scenarios</Link>
+                                    <Link href="/testimonials" className="block hover:text-white">Testimonials from veterans</Link>
+                                    <Link href="/medical-review-policy" className="block hover:text-white">Medical review policy</Link>
+                                    <Link href="/editorial-policy" className="block hover:text-white">Editorial policy</Link>
+                                </div>
+                            </div>
                         </aside>
                     </div>
                 </div>
@@ -385,6 +427,8 @@ export async function getStaticProps({ params }) {
         if (!service) {
             return { notFound: true };
         }
+
+        const serviceTags = serviceTagMap[cleanSlug] || [];
 
         // Fetch related blogs
         let relatedBlogs = [];
@@ -455,12 +499,27 @@ export async function getStaticProps({ params }) {
             console.error('Error fetching and filtering case studies:', e);
         }
 
+        let relatedTestimonials = [];
+        try {
+            if (serviceTags.length > 0) {
+                const allTestimonials = await testimonialApi.getAll(50);
+                relatedTestimonials = allTestimonials
+                    .filter((testimonial) =>
+                        serviceTags.some((tag) => (testimonial.tags || []).includes(tag))
+                    )
+                    .slice(0, 2);
+            }
+        } catch (e) {
+            console.error('Error fetching related testimonials:', e);
+        }
+
         return {
             props: {
                 service,
                 slug: cleanSlug,
                 relatedBlogs: relatedBlogs,
                 relatedCaseStudies: relatedCaseStudies,
+                relatedTestimonials,
             },
             revalidate: 10, // Revalidate every 10 seconds
         };

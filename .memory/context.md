@@ -24,6 +24,8 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 - **YMYL SEO Direction**: The first SEO pass prioritized metadata consistency, homepage entity cleanup, sitemap hygiene, community noindexing, and stronger trust/proof surfaces.
 - Switched repo project-memory usage from external npx CLI to a local script for Windows-safe reliability.
 - **Header Navigation Simplification**: Removed the `Contact` link from the shared header navigation; the `/contact` page remains accessible through the `Book a Call` CTA.
+- Implemented the next SEO batch around YMYL trust signals using policy pages, attribution blocks, case-study deduplication, and service-page proof links without inventing unsupported clinician identities.
+- Lawyer-drafted pages such as About, Privacy Policy, and Disclaimer are source-of-truth content and should not have substantive copy rewritten during SEO work.
 
 ## Wall of Shame
 
@@ -49,6 +51,7 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 - Added admin testimonials create/edit/delete flows and a new testimonial schema migration path.
 - Added a repo-local project-memory CLI and updated rule files to stop depending on the broken external npx package.
 - Removed the `Contact` item from the shared header nav while keeping the `/contact` CTA in place.
+- Published editorial and medical review policy pages, expanded the About page, added author/reviewer attribution blocks, simplified the case-studies index, and added service-page testimonial proof/internal links.
 
 ## History
 
