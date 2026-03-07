@@ -101,6 +101,100 @@ export const blogApi = {
 };
 
 // ============================================
+// TESTIMONIALS
+// ============================================
+
+export const testimonialApi = {
+  normalize(testimonial) {
+    if (!testimonial) {
+      return null;
+    }
+
+    return {
+      ...testimonial,
+      name: testimonial.name || testimonial.client_name || '',
+      branch: testimonial.branch || testimonial.client_title || '',
+      feedback: testimonial.feedback || testimonial.testimonial_text || '',
+      tags: testimonial.tags || [],
+      rating: testimonial.rating || 0,
+    };
+  },
+
+  async getAll(limit = null) {
+    let query = supabase
+      .from('testimonials')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
+  },
+
+  async getById(id) {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return testimonialApi.normalize(data);
+  },
+
+  async create(testimonialData) {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .insert([
+        {
+          name: testimonialData.name,
+          branch: testimonialData.branch,
+          tags: testimonialData.tags || [],
+          rating: testimonialData.rating,
+          feedback: testimonialData.feedback,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return testimonialApi.normalize(data);
+  },
+
+  async update(id, testimonialData) {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .update({
+        name: testimonialData.name,
+        branch: testimonialData.branch,
+        tags: testimonialData.tags || [],
+        rating: testimonialData.rating,
+        feedback: testimonialData.feedback,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return testimonialApi.normalize(data);
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('testimonials')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  },
+};
+
+// ============================================
 // CONTACTS
 // ============================================
 
@@ -533,6 +627,7 @@ export const caseStudyApi = {
 export default {
   services: servicesApi,
   blog: blogApi,
+  testimonials: testimonialApi,
   contacts: contactsApi,
   fileUpload: fileUploadApi,
   formSubmissions: formSubmissionsApi,

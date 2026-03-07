@@ -14,7 +14,8 @@ import {
   HelpCircle,
   BookOpen,
   Activity,
-  Settings
+  Settings,
+  Quote
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -67,6 +68,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Diagnostics', href: '/admin/diagnostics', icon: Activity },
     { name: 'Services', href: '/admin/services', icon: Briefcase },
     { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
+    { name: 'Testimonials', href: '/admin/testimonials', icon: Quote },
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
     { name: 'Community Q&A', href: '/admin/community', icon: HelpCircle },
     { name: 'Settings', href: '/admin/settings', icon: Settings },

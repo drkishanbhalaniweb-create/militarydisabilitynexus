@@ -95,6 +95,7 @@ const IntakeForm = () => {
             <SEO
                 title="Intake Form"
                 description="Submit your information and we'll recommend the right service for your VA disability claim."
+                noindex={true}
             />
             <div className="min-h-screen bg-slate-50 py-12">
                 <div className="max-w-3xl mx-auto px-4">

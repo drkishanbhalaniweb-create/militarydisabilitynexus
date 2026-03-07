@@ -176,10 +176,10 @@ INSERT INTO blog_posts (id, slug, title, excerpt, content_html, category, tags, 
 -- ============================================
 -- SAMPLE TESTIMONIALS
 -- ============================================
-INSERT INTO testimonials (client_name, client_title, rating, testimonial_text, is_featured, display_order) VALUES
-('John D.', 'Army Veteran', 5, 'The nexus letter was exactly what I needed. Clear, professional, and my claim was approved within 3 months. Highly recommend!', true, 1),
-('Sarah M.', 'Navy Veteran', 5, 'After two denials, the rebuttal letter helped me win my appeal. The medical analysis was thorough and addressed every point the VA raised.', true, 2),
-('Robert K.', 'Marine Corps Veteran', 5, 'Professional service from start to finish. The C&P coaching prepared me perfectly for my exam. Worth every penny.', false, 3);
+INSERT INTO testimonials (name, branch, rating, feedback, tags) VALUES
+('John D.', 'Army', 5, 'The nexus letter was exactly what I needed. Clear, professional, and my claim was approved within 3 months. Highly recommend!', ARRAY['nexus letter']),
+('Sarah M.', 'Navy', 5, 'After two denials, the rebuttal letter helped me win my appeal. The medical analysis was thorough and addressed every point the VA raised.', ARRAY['nexus letter', 'claim readiness review']),
+('Robert K.', 'Marine Corps', 5, 'Professional service from start to finish. The C&P exam coaching prepared me well for my exam. Worth every penny.', ARRAY['c&p exam coaching']);
 
 -- ============================================
 -- VERIFICATION

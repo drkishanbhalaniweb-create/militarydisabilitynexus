@@ -21,6 +21,7 @@ const SEO = ({
 }) => {
   const router = useRouter();
   const siteUrl = SITE_URL;
+  const siteName = 'Military Disability Nexus';
 
   // Canonical logic:
   // 1. Use explicit canonical prop if provided
@@ -40,16 +41,15 @@ const SEO = ({
     ? canonicalPath
     : `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`;
 
-  // Truncate description to 130 characters to avoid SEO penalties
-  const metaDescription = description && description.length > 130
-    ? `${description.substring(0, 127)}...`
-    : description;
+  const fullTitle = title
+    ? (title.includes(siteName) ? title : `${title} | ${siteName}`)
+    : siteName;
 
   return (
     <Head>
       {/* Basic Meta Tags - only render if explicitly provided */}
-      {title && <title>{title} | Military Disability Nexus</title>}
-      {metaDescription && <meta name="description" content={metaDescription} />}
+      <title>{fullTitle}</title>
+      {description && <meta name="description" content={description} />}
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
 
@@ -62,11 +62,11 @@ const SEO = ({
 
       {/* Open Graph */}
       <meta property="og:type" content={article ? 'article' : 'website'} />
-      {title && <meta property="og:title" content={title} />}
-      {metaDescription && <meta property="og:description" content={metaDescription} />}
+      <meta property="og:title" content={fullTitle} />
+      {description && <meta property="og:description" content={description} />}
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={`${siteUrl}${ogImage}`} />
-      <meta property="og:site_name" content="Military Disability Nexus" />
+      <meta property="og:site_name" content={siteName} />
 
       {/* Article specific */}
       {article && (
@@ -79,8 +79,8 @@ const SEO = ({
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
-      {title && <meta name="twitter:title" content={title} />}
-      {metaDescription && <meta name="twitter:description" content={metaDescription} />}
+      <meta name="twitter:title" content={fullTitle} />
+      {description && <meta name="twitter:description" content={description} />}
       <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
       {/* Additional SEO */}

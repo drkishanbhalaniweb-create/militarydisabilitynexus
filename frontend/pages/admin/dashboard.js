@@ -3,7 +3,7 @@ import { supabase } from '../../src/lib/supabase';
 import AdminLayout from '../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../src/components/admin/ProtectedRoute';
 import Link from 'next/link';
-import { MessageSquare, Briefcase, FileText, Upload } from 'lucide-react';
+import { MessageSquare, Briefcase, FileText, Upload, Quote } from 'lucide-react';
 import SEO from '../../src/components/SEO';
 
 const Dashboard = () => {
@@ -12,6 +12,7 @@ const Dashboard = () => {
         services: 0,
         blogPosts: 0,
         files: 0,
+        testimonials: 0,
     });
     const [loading, setLoading] = useState(true);
 
@@ -21,11 +22,12 @@ const Dashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const [contacts, services, blogPosts, files] = await Promise.all([
+            const [contacts, services, blogPosts, files, testimonials] = await Promise.all([
                 supabase.from('contacts').select('id', { count: 'exact', head: true }),
                 supabase.from('services').select('id', { count: 'exact', head: true }),
                 supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
                 supabase.from('file_uploads').select('id', { count: 'exact', head: true }),
+                supabase.from('testimonials').select('id', { count: 'exact', head: true }),
             ]);
 
             setStats({
@@ -33,6 +35,7 @@ const Dashboard = () => {
                 services: services.count || 0,
                 blogPosts: blogPosts.count || 0,
                 files: files.count || 0,
+                testimonials: testimonials.count || 0,
             });
         } catch (error) {
             console.error('Error fetching stats:', error);
@@ -46,6 +49,7 @@ const Dashboard = () => {
         { name: 'Services', value: stats.services, icon: Briefcase, color: 'bg-indigo-500' },
         { name: 'Blog Posts', value: stats.blogPosts, icon: FileText, color: 'bg-purple-500' },
         { name: 'Files Uploaded', value: stats.files, icon: Upload, color: 'bg-orange-500' },
+        { name: 'Testimonials', value: stats.testimonials, icon: Quote, color: 'bg-emerald-500' },
     ];
 
     return (
@@ -106,6 +110,13 @@ const Dashboard = () => {
                             >
                                 <h3 className="font-semibold text-slate-900">Manage Blog</h3>
                                 <p className="text-sm text-slate-600 mt-1">Create and edit posts</p>
+                            </Link>
+                            <Link
+                                href="/admin/testimonials"
+                                className="p-4 border-2 border-slate-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            >
+                                <h3 className="font-semibold text-slate-900">Manage Testimonials</h3>
+                                <p className="text-sm text-slate-600 mt-1">Add, edit, and remove client feedback</p>
                             </Link>
                             <Link
                                 href="/admin/settings"

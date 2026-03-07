@@ -173,7 +173,12 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
 
     return (
         <Layout>
-            <SEO title={question.title + ' | Community'} description={question.content.substring(0, 160)} breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }, { name: question.title, path: `/community/question/${question.slug}` }]} />
+            <SEO
+                title={question.title + ' | Community'}
+                description={question.content.substring(0, 160)}
+                breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }, { name: question.title, path: `/community/question/${question.slug}` }]}
+                noindex={true}
+            />
             <div className="relative min-h-screen overflow-hidden">
                 {/* Fixed Background */}
                 <div className="fixed inset-0 z-0 overflow-hidden">

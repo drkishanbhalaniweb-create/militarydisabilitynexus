@@ -188,7 +188,12 @@ const Community = ({ initialQuestions }) => {
 
     return (
         <Layout>
-            <SEO title="Community Q and A | VA Benefits Questions" description="Ask questions and get answers about VA benefits." breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }]} />
+            <SEO
+                title="Community Q and A | VA Benefits Questions"
+                description="Ask questions and get answers about VA benefits."
+                breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }]}
+                noindex={true}
+            />
             <div className="relative min-h-screen overflow-hidden">
                 {/* Fixed Background */}
                 <div className="fixed inset-0 z-0 overflow-hidden">

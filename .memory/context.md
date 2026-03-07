@@ -18,16 +18,25 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 
 - **C&P Coaching Payment Flow**: Switched from traditional consulting booking to a "payment-first" direct Stripe integration with a dedicated Cal.com success page.
 - **Edge Function Modifications**: Updated the generic `create-checkout-session` Supabase Edge Function to directly accept a `priceId` to handle hardcoded standalone products like the $150 C&P Coaching service.
+- **Testimonials Source of Truth**: Testimonials are now managed through the admin panel and rendered from Supabase on both the homepage proof section and `/testimonials`, with no testimonial detail pages.
+- **Testimonials Data Model**: Testimonials now use `name`, `branch`, `tags[]`, `rating`, and `feedback`, sorted newest-first and made public immediately on save.
+- **Testimonials Migration Safety**: The frontend includes a read-side compatibility layer so it can safely consume both old and new testimonial columns during schema rollout.
+- **YMYL SEO Direction**: The first SEO pass prioritized metadata consistency, homepage entity cleanup, sitemap hygiene, community noindexing, and stronger trust/proof surfaces.
+- Switched repo project-memory usage from external npx CLI to a local script for Windows-safe reliability.
+- **Header Navigation Simplification**: Removed the `Contact` link from the shared header navigation; the `/contact` page remains accessible through the `Book a Call` CTA.
 
 ## Wall of Shame
 
 > ⚠️ These are mistakes that have been made. NEVER repeat them.
 
-<!-- Entries are added via: project-memory log --mistake "description" -->
+- The `project-memory` CLI currently fails in this environment with `ERR_MODULE_NOT_FOUND` for `commander`, so the normal automatic logging flow is broken.
+- The first testimonial migration ordering was wrong: dropping `is_published` before removing the policy that referenced it caused Postgres dependency failures.
 
 ## Active Tasks
 
-<!-- Current work items. Added via: project-memory log --todo "description" -->
+- Connect Codex to the Supabase MCP server for this project.
+- Continue the YMYL SEO roadmap with clinician/reviewer pages, editorial policy pages, and stronger expert/entity signals.
+- Confirm the testimonial migration is applied in the live Supabase project before relying on admin testimonial writes in production.
 
 ## Completed Tasks
 
@@ -35,6 +44,11 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 - Implemented `BookingModal` for Name/Email capture before checkout.
 - Processed secure $150 transactions using a direct Stripe `priceId`.
 - Built `/cp-exam-coaching/success` with a customized Cal.com embed for session scheduling.
+- Normalized SEO metadata handling, improved sitemap behavior, and noindexed lower-trust community/intake routes during the first YMYL SEO pass.
+- Added a public `/testimonials` page with tag filtering and a homepage testimonial proof section.
+- Added admin testimonials create/edit/delete flows and a new testimonial schema migration path.
+- Added a repo-local project-memory CLI and updated rule files to stop depending on the broken external npx package.
+- Removed the `Contact` item from the shared header nav while keeping the `/contact` CTA in place.
 
 ## History
 

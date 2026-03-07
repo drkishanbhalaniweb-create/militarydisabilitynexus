@@ -1,12 +1,13 @@
-import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { ArrowRight, Users, Clock, Award } from 'lucide-react';
-import { servicesApi, blogApi } from '../src/lib/api';
+import { servicesApi, blogApi, testimonialApi } from '../src/lib/api';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
+import TestimonialCard from '../src/components/testimonials/TestimonialCard';
+import { testimonialThemes } from '../src/lib/testimonials';
 
 // Dynamic import for QuickIntakeForm to prevent SSR (uses document APIs)
 const QuickIntakeForm = dynamic(
@@ -21,15 +22,17 @@ const QuickIntakeForm = dynamic(
 
 export async function getStaticProps() {
     try {
-        const [servicesData, blogData] = await Promise.all([
+        const [servicesData, blogData, testimonialsData] = await Promise.all([
             servicesApi.getAll(),
             blogApi.getAll(3),
+            testimonialApi.getAll(3),
         ]);
 
         return {
             props: {
                 services: servicesData?.slice(0, 4) || [],
                 blogPosts: blogData || [],
+                testimonials: testimonialsData || [],
             },
             revalidate: 10, // Revalidate every 10 seconds
         };
@@ -39,40 +42,48 @@ export async function getStaticProps() {
             props: {
                 services: [],
                 blogPosts: [],
+                testimonials: [],
             },
             revalidate: 60, // Retry sooner on error
         };
     }
 }
 
-const Home = ({ services, blogPosts }) => {
+const Home = ({ services, blogPosts, testimonials }) => {
     const router = useRouter();
+    const featuredTestimonial = testimonials[0] || null;
 
     return (
         <Layout>
-            <Head>
-                <title>VA Nexus Letters & DBQs | Military Disability Nexus</title>
-                <meta
-                    name="description"
-                    content="Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, Aid & Attendance evaluations, and medical consultations for veterans seeking disability benefits and compensation."
-                />
-            </Head>
             <SEO
-                structuredData={{
-                    "@context": "https://schema.org",
-                    "@type": "MedicalBusiness",
-                    "name": "Military Disability Nexus",
-                    "description": "Professional medical documentation services for VA disability claims",
-                    "url": "https://www.militarydisabilitynexus.com",
-                    "telephone": "+1-888-215-9785",
-                    "priceRange": "$$",
-                    "areaServed": {
-                        "@type": "Country",
-                        "name": "United States"
+                title="VA Nexus Letters & DBQs"
+                description="Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, Aid and Attendance evaluations, claim reviews, and consultations for veterans seeking stronger evidence."
+                canonical="/"
+                structuredData={[
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "Organization",
+                        "name": "Military Disability Nexus",
+                        "url": "https://www.militarydisabilitynexus.com",
+                        "email": "contact@militarydisabilitynexus.com",
+                        "telephone": "+1-888-215-9785",
+                        "sameAs": [
+                            "https://www.linkedin.com/company/military-disability-nexus/",
+                            "https://www.facebook.com/share/1DXxUd6Q74/?mibextid=wwXIfr",
+                            "https://www.instagram.com/military_disability_nexus?igsh=MTFtMmtvODg3NmZlMA==&utm_source=ig_contact_invite"
+                        ],
+                        "areaServed": {
+                            "@type": "Country",
+                            "name": "United States"
+                        }
                     },
-                    "medicalSpecialty": "Veterans Medical Documentation",
-                    "email": "contact@militarydisabilitynexus.com"
-                }}
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        "name": "Military Disability Nexus",
+                        "url": "https://www.militarydisabilitynexus.com"
+                    }
+                ]}
             />
 
             {/* Hero Section with Fixed Background */}
@@ -301,6 +312,67 @@ const Home = ({ services, blogPosts }) => {
                 </div>
             </section>
 
+            <section className="relative bg-white py-16 sm:py-20 w-full overflow-hidden">
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12 items-start">
+                        <div className="bg-slate-50 border border-slate-200 rounded-[2rem] p-8 sm:p-10 shadow-xl">
+                            <div className="inline-flex items-center rounded-full bg-red-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-red-700">
+                                Veteran Feedback
+                            </div>
+                            <h2 className="mt-6 text-3xl sm:text-4xl font-bold text-slate-900">
+                                Why veterans say the process feels clearer here
+                            </h2>
+                            <p className="mt-4 text-lg text-slate-600 leading-relaxed max-w-2xl">
+                                This site is new, but the positioning should still feel earned: clear expectations, clinician-led reasoning, and support that reduces uncertainty before a high-stakes VA step.
+                            </p>
+
+                            {featuredTestimonial ? (
+                                <div className="mt-8">
+                                    <TestimonialCard
+                                        testimonial={featuredTestimonial}
+                                        compact={true}
+                                        showDate={false}
+                                        className="bg-white shadow-sm"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="mt-8 rounded-[1.75rem] border border-dashed border-slate-300 bg-white p-6 sm:p-8 text-slate-600">
+                                    Testimonials added from the admin panel will appear here automatically.
+                                </div>
+                            )}
+
+                            <div className="mt-8 flex flex-wrap gap-4">
+                                <Link
+                                    href="/testimonials"
+                                    className="inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold text-white transition-all hover:shadow-lg"
+                                    style={{ backgroundColor: '#B91C3C' }}
+                                >
+                                    Read More Feedback
+                                </Link>
+                                <Link
+                                    href="/case-studies"
+                                    className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition-colors hover:bg-slate-100"
+                                >
+                                    Browse Case Studies
+                                </Link>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {testimonialThemes.map((theme) => (
+                                <article
+                                    key={theme.title}
+                                    className="rounded-[1.5rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm"
+                                >
+                                    <h3 className="text-xl font-bold text-slate-900">{theme.title}</h3>
+                                    <p className="mt-3 text-slate-600 leading-relaxed">{theme.summary}</p>
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Latest Resources Section */}
             <section className="relative bg-white py-16 sm:py-20 w-full overflow-hidden">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -346,7 +418,7 @@ const Home = ({ services, blogPosts }) => {
                                             </div>
                                             <div className="flex items-center justify-between text-xs text-slate-500 mt-auto">
                                                 <span>{new Date(post.published_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</span>
-                                                <span>{post.read_time || '5'} min read</span>
+                                                <span>{post.read_time || '5 min read'}</span>
                                             </div>
                                         </div>
                                     </Link>

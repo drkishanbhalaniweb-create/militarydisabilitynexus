@@ -50,18 +50,28 @@ const BlogPost = ({ post }) => {
         );
     }
 
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
     // Structured data for blog article
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "headline": post.title,
         "description": post.excerpt,
+        "url": `https://www.militarydisabilitynexus.com/blog/${post.slug}`,
         "author": {
             "@type": "Person",
             "name": post.author_name
         },
         "datePublished": post.published_at,
         "dateModified": post.updated_at || post.published_at,
+        "keywords": post.tags || [],
         "publisher": {
             "@type": "Organization",
             "name": "Military Disability Nexus",
@@ -70,6 +80,9 @@ const BlogPost = ({ post }) => {
                 "url": "https://www.militarydisabilitynexus.com/logo.png"
             }
         },
+        ...(post.featured_image ? {
+            "image": [post.featured_image]
+        } : {}),
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": `https://www.militarydisabilitynexus.com/blog/${post.slug}`
@@ -84,6 +97,7 @@ const BlogPost = ({ post }) => {
                 keywords={`${post.category}, VA disability, ${post.tags?.join(', ')}`}
                 article={true}
                 publishedTime={post.published_at}
+                modifiedTime={post.updated_at || post.published_at}
                 author={post.author_name}
                 structuredData={structuredData}
                 breadcrumbs={[
@@ -114,7 +128,7 @@ const BlogPost = ({ post }) => {
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Calendar className="w-5 h-5" />
-                                <span>{post.published_at}</span>
+                                <span>{formatDate(post.published_at)}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Clock className="w-5 h-5" />
