@@ -36,7 +36,7 @@ const Services = ({ services }) => {
                 {/* Fixed Background Image with Glassmorphic Blur */}
                 <div className="fixed inset-0 z-0 overflow-hidden">
                     <img
-                        src="/wavefillservicep.png"
+                        src="/wavefillservicep.webp"
                         alt="Background pattern"
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{

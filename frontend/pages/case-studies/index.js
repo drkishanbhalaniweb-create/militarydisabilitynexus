@@ -94,7 +94,7 @@ const CaseStudies = ({ initialCaseStudies }) => {
             <div className="relative min-h-screen overflow-hidden">
                 <div className="fixed inset-0 z-0 overflow-hidden">
                     <img
-                        src="/blogimg.png"
+                        src="/blogimg.webp"
                         alt="Background pattern"
                         className="absolute inset-0 h-full w-full object-cover"
                         style={{

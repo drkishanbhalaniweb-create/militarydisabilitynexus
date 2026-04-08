@@ -73,7 +73,6 @@ const Forms = () => {
         } else if (!showCal && currentView === 'schedule') {
             router.replace({ pathname: router.pathname, query: {} }, undefined, { shallow: true });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showCal]);
 
     const handleChange = (e) => {
@@ -146,6 +145,7 @@ const Forms = () => {
                 title="Get Started - VA Disability Claim Documentation Services"
                 description="Submit your information to get started with professional VA disability claim documentation. Expert nexus letters, DBQs, Aid & Attendance evaluations, and medical consultations from licensed clinicians."
                 keywords="VA claim form, nexus letter request, DBQ evaluation form, aid and attendance application, veteran medical documentation request"
+                canonical="/forms"
             />
 
             <div className="relative min-h-screen py-16 overflow-hidden">
@@ -154,7 +154,7 @@ const Forms = () => {
                     <div
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                         style={{
-                            backgroundImage: 'url("/form bg image.png")',
+                            backgroundImage: 'url("/form bg image.webp")',
                             filter: 'blur(4px)',
                             transform: 'scale(1.1)',
                             width: '100%',

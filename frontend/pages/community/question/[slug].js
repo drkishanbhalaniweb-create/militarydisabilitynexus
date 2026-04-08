@@ -80,7 +80,6 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
         if (question?.id) {
             incrementViews(question.id);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const incrementViews = async (id) => {
@@ -175,9 +174,8 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
         <Layout>
             <SEO
                 title={question.title + ' | Community'}
-                description={question.content.substring(0, 160)}
+                description={question.content?.substring(0, 160) || `Community question about ${question.title}`}
                 breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }, { name: question.title, path: `/community/question/${question.slug}` }]}
-                noindex={true}
             />
             <div className="relative min-h-screen overflow-hidden">
                 {/* Fixed Background */}
@@ -185,7 +183,7 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
                     <div
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                         style={{
-                            backgroundImage: 'url("/blogimg.png")',
+                            backgroundImage: 'url("/blogimg.webp")',
                             filter: 'blur(4px)',
                             transform: 'scale(1.1)',
                             width: '100%',

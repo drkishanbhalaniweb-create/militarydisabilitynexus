@@ -186,7 +186,7 @@ export const getFileTypeLabel = (mimeType, filename = '') => {
       return 'Image';
     case 'pdf':
       return 'PDF Document';
-    case 'document':
+    case 'document': {
       const ext = getFileExtension(filename).toUpperCase();
       if (ext === 'DOC' || ext === 'DOCX') return 'Word Document';
       if (ext === 'XLS' || ext === 'XLSX') return 'Excel Spreadsheet';
@@ -194,11 +194,13 @@ export const getFileTypeLabel = (mimeType, filename = '') => {
       if (ext === 'TXT') return 'Text File';
       if (ext === 'CSV') return 'CSV File';
       return 'Document';
+    }
     case 'archive':
       return 'Archive';
-    default:
+    default: {
       const extension = getFileExtension(filename);
       return extension ? `${extension.toUpperCase()} File` : 'Unknown File';
+    }
   }
 };
 

@@ -3,7 +3,7 @@ import { ArrowRight, FilePenLine, ShieldCheck } from 'lucide-react';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
 import {
-    buildOrganizationSchema,
+    buildOrganizationReference,
     editorialPolicyHighlights,
     editorialTeam,
 } from '../src/lib/trust';
@@ -14,7 +14,7 @@ const EditorialPolicyPage = () => {
         '@type': 'WebPage',
         name: 'Editorial Policy',
         url: 'https://www.militarydisabilitynexus.com/editorial-policy',
-        about: buildOrganizationSchema(),
+        about: buildOrganizationReference(),
     };
 
     return (

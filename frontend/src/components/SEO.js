@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { buildOrganizationSchema } from '../lib/trust';
 
 // Production site URL - used for canonical URLs and OG tags
 const SITE_URL = 'https://www.militarydisabilitynexus.com';
@@ -17,7 +18,8 @@ const SEO = ({
   structuredData,
   faqSchema,
   breadcrumbs,
-  noindex = false
+  noindex = false,
+  includeOrganizationSchema = true
 }) => {
   const router = useRouter();
   const siteUrl = SITE_URL;
@@ -44,6 +46,13 @@ const SEO = ({
   const fullTitle = title
     ? (title.includes(siteName) ? title : `${title} | ${siteName}`)
     : siteName;
+
+  const structuredDataItems = [
+    ...(includeOrganizationSchema && !noindex ? [buildOrganizationSchema()] : []),
+    ...(structuredData
+      ? (Array.isArray(structuredData) ? structuredData : [structuredData])
+      : []),
+  ];
 
   return (
     <Head>
@@ -88,12 +97,13 @@ const SEO = ({
       <meta name="language" content="English" />
 
       {/* Structured Data (JSON-LD) */}
-      {structuredData && (
+      {structuredDataItems.map((schema, index) => (
         <script
+          key={`structured-data-${index}`}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
-      )}
+      ))}
 
       {/* FAQ Schema */}
       {faqSchema && faqSchema.length > 0 && (

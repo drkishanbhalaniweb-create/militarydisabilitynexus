@@ -33,10 +33,11 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 
 - The `project-memory` CLI currently fails in this environment with `ERR_MODULE_NOT_FOUND` for `commander`, so the normal automatic logging flow is broken.
 - The first testimonial migration ordering was wrong: dropping `is_published` before removing the policy that referenced it caused Postgres dependency failures.
+- Diagnostic regression on 2026-03-12: removing the Lucide `Lock` import from `frontend/pages/diagnostic/index.js` while deleting trust badges left the lead-capture screen still rendering `<Lock />`. In the browser that resolved to the Web Locks API global `Lock`, so React threw `TypeError: Illegal constructor` after finishing the diagnostic. Fix by importing the icon explicitly under a local name such as `LockIcon`.
 
 ## Active Tasks
 
-- Connect Codex to the Supabase MCP server for this project.
+-Actively working on improving the SEO of the page using the agent SEO skills.
 - Continue the YMYL SEO roadmap with clinician/reviewer pages, editorial policy pages, and stronger expert/entity signals.
 - Confirm the testimonial migration is applied in the live Supabase project before relying on admin testimonial writes in production.
 

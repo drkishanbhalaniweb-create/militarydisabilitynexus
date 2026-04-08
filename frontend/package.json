@@ -66,7 +66,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "reactSnap": {
     "source": "build",
@@ -89,12 +90,13 @@
       "/services/disability-benefits-questionnaire-dbq",
       "/services/aid-and-attendance",
       "/services/va-medical-malpractice-1151-case",
-      "/services/cp-coaching",
+      "/cp-exam-coaching",
       "/blog",
       "/community",
       "/case-studies",
       "/forms",
-      "/intake",
+      "/intake-form",
+      "/aid-attendance-form",
       "/diagnostic",
       "/claim-readiness-review",
       "/contact",

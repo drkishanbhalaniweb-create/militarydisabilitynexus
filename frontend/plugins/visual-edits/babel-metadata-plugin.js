@@ -725,7 +725,7 @@ const babelMetadataPlugin = ({ types: t }) => {
         __filename;
       const absPath = resolveImportPath(from, fileFrom);
       const exportName = bindingPath.node.imported.name;
-      result = !!absPath ? fileExportIsDynamic({ absPath, exportName }) : false;
+      result = absPath ? fileExportIsDynamic({ absPath, exportName }) : false;
       BINDING_DYNAMIC_CACHE.set(bindingPath.node, result);
       return result;
     }
@@ -738,7 +738,7 @@ const babelMetadataPlugin = ({ types: t }) => {
         state.file?.sourceFileName ||
         __filename;
       const absPath = resolveImportPath(from, fileFrom);
-      result = !!absPath
+      result = absPath
         ? fileExportIsDynamic({ absPath, exportName: "default" })
         : false;
       BINDING_DYNAMIC_CACHE.set(bindingPath.node, result);

@@ -32,6 +32,11 @@ const nextConfig = {
                 destination: '/',
                 permanent: true, // 301 redirect
             },
+            {
+                source: '/intake-form',
+                destination: '/forms',
+                permanent: true,
+            },
         ];
     },
 }

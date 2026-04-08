@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { FileText, Clock, Lock, GraduationCap, Building2, ArrowRight } from 'lucide-react';
+import { FileText, Clock, GraduationCap, ArrowRight, Lock as LockIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
@@ -167,26 +167,10 @@ const Diagnostic = () => {
                                 </div>
 
                                 <div className="flex items-start">
-                                    <Lock className="w-6 h-6 text-navy-600 mr-3 mt-1 flex-shrink-0" />
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900">No email required</h3>
-                                        <p className="text-sm text-slate-600">Anonymous and private</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start">
                                     <GraduationCap className="w-6 h-6 text-navy-600 mr-3 mt-1 flex-shrink-0" />
                                     <div>
                                         <h3 className="font-semibold text-slate-900">Educational & veteran-first</h3>
                                         <p className="text-sm text-slate-600">Honest, objective guidance</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start">
-                                    <Building2 className="w-6 h-6 text-navy-600 mr-3 mt-1 flex-shrink-0" />
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900">Not affiliated with the VA</h3>
-                                        <p className="text-sm text-slate-600">Independent assessment</p>
                                     </div>
                                 </div>
                             </div>
@@ -280,7 +264,7 @@ const Diagnostic = () => {
                                 </button>
 
                                 <p className="text-xs text-center text-slate-500 mt-4 flex items-center justify-center">
-                                    <Lock className="w-3 h-3 mr-1" />
+                                    <LockIcon className="w-3 h-3 mr-1" />
                                     Your information is secure and will never be shared.
                                 </p>
                             </form>

@@ -75,20 +75,24 @@ export const getServerSideProps = async ({ res }) => {
         const services = await fetchAll('services', 'slug, updated_at', { is_active: true });
         const blogs = await fetchAll('blog_posts', 'slug, updated_at, published_at', { is_published: true });
         const caseStudies = await fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true });
+        const communityQuestions = await fetchAll('community_questions', 'slug, updated_at', { status: 'published' });
 
         const staticRoutes = [
             '', // root
             '/services',
             '/blog',
             '/case-studies',
+            '/community',
             '/testimonials',
             '/about',
             '/editorial-policy',
             '/medical-review-policy',
             '/contact',
             '/forms',
+            '/intake-form',
             '/aid-attendance-form',
             '/claim-readiness-review',
+            '/cp-exam-coaching',
             '/diagnostic',
             '/privacy',
             '/terms',
@@ -126,6 +130,15 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/case-studies/${escapeXml(study.slug)}`,
                     lastmod: formatDate(study.updated_at || study.published_at),
+                });
+            }
+        });
+
+        communityQuestions.forEach(question => {
+            if (question.slug) {
+                urls.push({
+                    loc: `${SITE_URL}/community/question/${escapeXml(question.slug)}`,
+                    lastmod: formatDate(question.updated_at),
                 });
             }
         });

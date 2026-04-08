@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
                     <div
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                         style={{
-                            backgroundImage: 'url("/Gemini_Generated_Image_f6860of6860of686.png")',
+                            backgroundImage: 'url("/Gemini_Generated_Image_f6860of6860of686.webp")',
                             filter: 'blur(4px)',
                             transform: 'scale(1.1)',
                             width: '100%',

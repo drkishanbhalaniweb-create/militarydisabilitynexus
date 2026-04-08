@@ -1,184 +1,280 @@
-import { Award, Target, CheckCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import {
+    ArrowRight,
+    Building2,
+    CheckCircle2,
+    FilePenLine,
+    Mail,
+    MapPin,
+    Phone,
+    ShieldCheck,
+    Stethoscope,
+} from 'lucide-react';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
+import {
+    aboutProcessSteps,
+    buildOrganizationReference,
+    clinicalReviewTeam,
+    editorialTeam,
+    organizationEntity,
+    organizationSocialProfiles,
+} from '../src/lib/trust';
+
+const scopeItems = [
+    'Clinician-led reviews focused on medical evidence, causation language, chronology, and documentation quality for VA disability claims.',
+    'Educational content, service pages, and proof pages that are aligned with published editorial and medical review standards.',
+    'A nationwide service model centered on record review, written documentation, and consultations within the business scope disclosed on this site.',
+];
+
+const limitItems = [
+    'The site does not offer legal representation, accreditation as a VA claims representative, or guarantees of claim outcomes.',
+    'Website content and clinical review do not create a physician-patient relationship or replace diagnosis, treatment, or emergency care.',
+    'Trust language is intentionally restrained because veterans are making high-stakes decisions on a YMYL website.',
+];
+
+const trustLinks = [
+    {
+        href: editorialTeam.href,
+        label: 'Editorial policy',
+        description: 'See how educational and proof content is planned, written, and updated.',
+        icon: FilePenLine,
+    },
+    {
+        href: clinicalReviewTeam.href,
+        label: 'Medical review policy',
+        description: 'See how medically sensitive website content is reviewed for scope and accuracy.',
+        icon: Stethoscope,
+    },
+    {
+        href: '/disclaimer',
+        label: 'Disclaimer',
+        description: 'Read the site-level legal and service boundary disclosures.',
+        icon: ShieldCheck,
+    },
+];
 
 const About = () => {
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: 'About Military Disability Nexus',
+        url: `${organizationEntity.url}/about`,
+        description:
+            'Learn how Military Disability Nexus structures clinician-led evidence review, site trust standards, and service boundaries for veterans researching VA disability documentation.',
+        mainEntity: buildOrganizationReference(),
+        about: buildOrganizationReference(),
+    };
+
     return (
         <Layout>
             <SEO
-                title="About Us - Clinician-Led VA Medical Documentation"
-                description="Military Disability Nexus provides clinician-led expert medical opinions for VA disability claims. Licensed professionals helping veterans nationwide with nexus letters, DBQs, and medical consultations."
-                keywords="VA medical experts, clinician-led nexus letters, veteran medical documentation, licensed medical professionals"
+                title="About Military Disability Nexus"
+                description="Learn how Military Disability Nexus handles clinician-led evidence review, service boundaries, and trust standards for veterans researching VA disability documentation."
+                keywords="about Military Disability Nexus, clinician-led VA documentation, medical review process, veteran-first claim support"
+                canonical="/about"
+                structuredData={structuredData}
                 breadcrumbs={[
                     { name: 'Home', path: '/' },
                     { name: 'About', path: '/about' }
                 ]}
             />
-            <div className="relative min-h-screen overflow-hidden">
-                {/* Fixed Background */}
-                <div className="fixed inset-0 z-0 overflow-hidden">
-                    <div
-                        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                        style={{
-                            backgroundImage: 'url("/Gemini_Generated_Image_f6860of6860of686.png")',
-                            filter: 'blur(4px)',
-                            transform: 'scale(1.1)',
-                            width: '100%',
-                            height: '100%'
-                        }}
-                        role="presentation"
-                        aria-hidden="true"
-                    ></div>
-                    <div className="absolute inset-0 bg-white/50"></div>
-                </div>
 
-                <div className="relative z-10">
-                    {/* Hero */}
-                    <section className="py-24">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                            <h1 className="text-5xl font-bold text-slate-900 mb-6 drop-shadow-sm">Who We Are</h1>
-                            <p className="text-xl text-slate-700">
-                                Clinician-led expert medical opinions for VA disability claims
+            <div className="min-h-screen bg-slate-50">
+                <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-navy-800 to-slate-800 text-white">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(185,28,60,0.18),transparent_24%)]" />
+                    <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+                        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+                            <div>
+                                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
+                                    <Building2 className="h-4 w-4" />
+                                    <span>About The Organization</span>
+                                </div>
+                                <h1 className="mt-6 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+                                    Clinician-led evidence work with explicit trust boundaries
+                                </h1>
+                                <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/85 sm:text-xl">
+                                    Military Disability Nexus is positioned around medically grounded documentation for VA disability claims. On a YMYL site, that means being clear about what the organization does, how reviews happen, and where the boundaries are.
+                                </p>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                                <article className="rounded-[1.5rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Legal entity</div>
+                                    <div className="mt-3 text-2xl font-bold text-white">{organizationEntity.legalName}</div>
+                                    <p className="mt-3 text-sm leading-relaxed text-white/80">
+                                        Operates as {organizationEntity.name} with publicly disclosed contact and policy pages.
+                                    </p>
+                                </article>
+                                <article className="rounded-[1.5rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Published standards</div>
+                                    <div className="mt-3 text-2xl font-bold text-white">Editorial + Clinical Review</div>
+                                    <p className="mt-3 text-sm leading-relaxed text-white/80">
+                                        Trust pages explain how educational content is maintained and how medically sensitive pages are reviewed.
+                                    </p>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                        <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+                            <h2 className="text-3xl font-bold text-slate-900">What this organization is trying to do</h2>
+                            <p className="mt-5 text-lg leading-relaxed text-slate-700">
+                                The site exists to help veterans understand the medical-documentation side of a VA disability claim. That includes record review, evidence-focused services, and site content that explains what tends to strengthen or weaken a claim file.
+                            </p>
+                            <p className="mt-4 text-lg leading-relaxed text-slate-700">
+                                The intent is not to sound bigger than the business scope. For SEO and trust, that restraint matters more than generic authority language because veterans are making high-stakes decisions here.
+                            </p>
+                        </article>
+
+                        <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+                            <h2 className="text-3xl font-bold text-slate-900">Entity details</h2>
+                            <div className="mt-6 space-y-4 text-slate-700">
+                                <div className="flex items-start gap-3">
+                                    <Mail className="mt-1 h-5 w-5 text-navy-700" />
+                                    <a href={`mailto:${organizationEntity.email}`} className="font-medium hover:text-navy-700">
+                                        {organizationEntity.email}
+                                    </a>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <Phone className="mt-1 h-5 w-5 text-navy-700" />
+                                    <a href={`tel:${organizationEntity.telephone}`} className="font-medium hover:text-navy-700">
+                                        {organizationEntity.telephone}
+                                    </a>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <MapPin className="mt-1 h-5 w-5 text-navy-700" />
+                                    <div>
+                                        {organizationEntity.address.streetAddress}
+                                        <br />
+                                        {organizationEntity.address.addressLocality}, {organizationEntity.address.addressRegion} {organizationEntity.address.postalCode}
+                                        <br />
+                                        {organizationEntity.address.addressCountry}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 border-t border-slate-200 pt-6">
+                                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Verified profiles</div>
+                                <div className="mt-4 flex flex-wrap gap-3">
+                                    {organizationSocialProfiles.map((profile) => (
+                                        <a
+                                            key={profile.href}
+                                            href={profile.href}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-navy-700 hover:text-navy-700"
+                                        >
+                                            {profile.label}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+                    <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+                        <div className="max-w-3xl">
+                            <h2 className="text-3xl font-bold text-slate-900">How the work is structured</h2>
+                            <p className="mt-4 text-lg leading-relaxed text-slate-700">
+                                The process needs to be understandable to users and machine-readable to search engines. These steps reflect the actual trust framing already used throughout the site.
                             </p>
                         </div>
-                    </section>
 
-                    {/* Who We Are */}
-                    <section className="py-16">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
-                                <h2 className="text-3xl font-bold text-slate-900 mb-6">
-                                    Military Disability Nexus
-                                </h2>
-                                <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    Military Disability Nexus is a clinician-led expert company that helps veterans build strong, medically sound evidence for their VA disability claims.
-                                </p>
-                                <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    Our mission is simple: To bridge the gap between medicine and the VA - giving veterans the clear, credible documentation they need to receive the benefits they&apos;ve earned.
-                                </p>
-                                <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    We&apos;re not a law firm or a claims representative. We&apos;re a team of subject matter experts and clinicians professionals who understand both the clinical and regulatory sides of the VA process.
-                                </p>
-                                <p className="text-lg text-slate-700 leading-relaxed">
-                                    Our clinicians know how to interpret complex medical histories and translate them into clear, VA-ready documentation that decision-makers can rely on.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Our Mission */}
-                    <section className="py-16">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <Target className="w-8 h-8 text-navy-700" />
-                                    <h2 className="text-3xl font-bold text-slate-900">Our Mission</h2>
-                                </div>
-                                <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    To empower veterans through credible, expert-authored medical documentation that tells the truth of their service and their health - clearly, professionally, and respectfully.
-                                </p>
-                                <p className="text-lg text-slate-700 leading-relaxed">
-                                    We believe veterans shouldn&apos;t lose benefits because of incomplete or confusing medical evidence. Our role is to make the medical side of your claim understandable, accurate, and VA-ready.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Why Clinician-Led Matters */}
-                    <section className="py-16">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <Award className="w-8 h-8 text-navy-700" />
-                                    <h2 className="text-3xl font-bold text-slate-900">Why "Clinician-Led" Matters</h2>
-                                </div>
-                                <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    Too often, veterans rely on general assistance or legal support that lacks medical depth.
-                                </p>
-                                <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                                    At Military Disability Nexus, every review, opinion, and consultation is led by Subject Matter Expert and/or Licensed Clinicians - who understand anatomy, pathophysiology, causation, and diagnosis from the inside out.
-                                </p>
-                                <p className="text-lg text-slate-700 leading-relaxed">
-                                    That means every word we write and every opinion we issue is grounded in real medical expertise, not guesswork or templates.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* What We Offer */}
-                    <section className="py-16">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 md:p-12 shadow-2xl border border-white/40">
-                                <h2 className="text-3xl font-bold text-slate-900 mb-6">What We Offer</h2>
-                                <div className="space-y-4">
-                                    <div className="flex items-start space-x-3">
-                                        <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <h3 className="font-semibold text-slate-900 mb-1">Nexus Letters</h3>
-                                            <p className="text-slate-700">Expert medical opinions linking your condition to service</p>
-                                        </div>
+                        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+                            {aboutProcessSteps.map((step, index) => (
+                                <article key={step.title} className="rounded-[1.5rem] bg-slate-50 p-6">
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-navy-700">
+                                        Step {index + 1}
                                     </div>
-                                    <div className="flex items-start space-x-3">
-                                        <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <h3 className="font-semibold text-slate-900 mb-1">DBQ Evaluations</h3>
-                                            <p className="text-slate-700">Comprehensive disability benefits questionnaires</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start space-x-3">
-                                        <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <h3 className="font-semibold text-slate-900 mb-1">Aid & Attendance</h3>
-                                            <p className="text-slate-700">Medical evaluations for pension benefits</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start space-x-3">
-                                        <CheckCircle className="w-6 h-6 text-navy-700 mt-1 flex-shrink-0" />
-                                        <div>
-                                            <h3 className="font-semibold text-slate-900 mb-1">C&P Exam Coaching</h3>
-                                            <p className="text-slate-700">Preparation guidance for compensation exams</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-8">
-                                    <Link
-                                        href="/services"
-                                        className="inline-flex items-center space-x-2 text-navy-700 font-semibold hover:text-navy-800 transition-colors"
-                                    >
-                                        <span>View All Services</span>
-                                        <ArrowRight className="w-5 h-5" />
-                                    </Link>
-                                </div>
-                            </div>
+                                    <h3 className="mt-3 text-xl font-bold text-slate-900">{step.title}</h3>
+                                    <p className="mt-3 leading-relaxed text-slate-700">{step.body}</p>
+                                </article>
+                            ))}
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    {/* CTA Section */}
-                    <section className="py-16">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="bg-gradient-to-br from-navy-700 via-navy-800 to-navy-900 rounded-3xl p-12 text-center shadow-2xl relative overflow-hidden">
-                                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-                                <div className="relative z-10">
-                                    <h2 className="text-4xl font-bold text-white mb-6">
-                                        Ready to Get Started?
-                                    </h2>
-                                    <p className="text-xl text-white/90 mb-8">
-                                        Contact us for a free consultation and let us help strengthen your VA claim
-                                    </p>
-                                    <Link
-                                        href="/contact"
-                                        className="inline-flex items-center space-x-2 bg-white text-navy-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-slate-50 transition-all hover:scale-105 shadow-xl"
-                                    >
-                                        <span>Contact Us</span>
-                                        <ArrowRight className="w-5 h-5" />
-                                    </Link>
-                                </div>
+                <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 lg:grid-cols-2">
+                        <article className="rounded-[2rem] border border-emerald-200 bg-white p-8 shadow-sm sm:p-10">
+                            <h2 className="text-3xl font-bold text-slate-900">What the site does</h2>
+                            <div className="mt-6 space-y-4">
+                                {scopeItems.map((item) => (
+                                    <div key={item} className="flex items-start gap-3">
+                                        <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-emerald-600" />
+                                        <p className="leading-relaxed text-slate-700">{item}</p>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
-                    </section>
+                        </article>
 
-                </div>
+                        <article className="rounded-[2rem] border border-amber-200 bg-white p-8 shadow-sm sm:p-10">
+                            <h2 className="text-3xl font-bold text-slate-900">What the site does not do</h2>
+                            <div className="mt-6 space-y-4">
+                                {limitItems.map((item) => (
+                                    <div key={item} className="flex items-start gap-3">
+                                        <ShieldCheck className="mt-1 h-5 w-5 flex-shrink-0 text-amber-700" />
+                                        <p className="leading-relaxed text-slate-700">{item}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 lg:grid-cols-3">
+                        {trustLinks.map((item) => {
+                            const Icon = item.icon;
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className="rounded-[1.75rem] border border-slate-200 bg-white p-8 shadow-sm transition-colors hover:border-navy-700 hover:bg-slate-50"
+                                >
+                                    <Icon className="h-8 w-8 text-navy-700" />
+                                    <h2 className="mt-5 text-2xl font-bold text-slate-900">{item.label}</h2>
+                                    <p className="mt-3 leading-relaxed text-slate-600">{item.description}</p>
+                                    <span className="mt-5 inline-flex items-center gap-2 font-semibold text-navy-700">
+                                        Read more
+                                        <ArrowRight className="h-4 w-4" />
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </section>
+
+                <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
+                    <div className="rounded-[2rem] bg-gradient-to-br from-navy-700 via-navy-800 to-slate-900 p-10 text-white shadow-2xl sm:p-12">
+                        <h2 className="text-3xl font-bold sm:text-4xl">Need help understanding the right next step?</h2>
+                        <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/85">
+                            Start with the main intake route if you want to submit details or schedule a discovery call. Use the policy pages above if you are evaluating the trust and process standards behind the site.
+                        </p>
+                        <div className="mt-8 flex flex-wrap gap-4">
+                            <Link
+                                href="/forms"
+                                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-navy-800"
+                            >
+                                Go to the intake page
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
+                            <Link
+                                href="/contact"
+                                className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-6 py-3 font-semibold text-white/90 transition-colors hover:bg-white/10"
+                            >
+                                Contact the team
+                            </Link>
+                        </div>
+                    </div>
+                </section>
             </div>
         </Layout>
     );

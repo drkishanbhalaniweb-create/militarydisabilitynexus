@@ -8,6 +8,7 @@ import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
 import TestimonialCard from '../src/components/testimonials/TestimonialCard';
 import { testimonialThemes } from '../src/lib/testimonials';
+import { buildWebsiteSchema } from '../src/lib/trust';
 
 // Dynamic import for QuickIntakeForm to prevent SSR (uses document APIs)
 const QuickIntakeForm = dynamic(
@@ -59,31 +60,7 @@ const Home = ({ services, blogPosts, testimonials }) => {
                 title="VA Nexus Letters & DBQs"
                 description="Professional medical documentation services for VA disability claims. Expert nexus letters, DBQs, Aid and Attendance evaluations, claim reviews, and consultations for veterans seeking stronger evidence."
                 canonical="/"
-                structuredData={[
-                    {
-                        "@context": "https://schema.org",
-                        "@type": "Organization",
-                        "name": "Military Disability Nexus",
-                        "url": "https://www.militarydisabilitynexus.com",
-                        "email": "contact@militarydisabilitynexus.com",
-                        "telephone": "+1-888-215-9785",
-                        "sameAs": [
-                            "https://www.linkedin.com/company/military-disability-nexus/",
-                            "https://www.facebook.com/share/1DXxUd6Q74/?mibextid=wwXIfr",
-                            "https://www.instagram.com/military_disability_nexus?igsh=MTFtMmtvODg3NmZlMA==&utm_source=ig_contact_invite"
-                        ],
-                        "areaServed": {
-                            "@type": "Country",
-                            "name": "United States"
-                        }
-                    },
-                    {
-                        "@context": "https://schema.org",
-                        "@type": "WebSite",
-                        "name": "Military Disability Nexus",
-                        "url": "https://www.militarydisabilitynexus.com"
-                    }
-                ]}
+                structuredData={buildWebsiteSchema()}
             />
 
             {/* Hero Section with Fixed Background */}
@@ -91,7 +68,7 @@ const Home = ({ services, blogPosts, testimonials }) => {
                 {/* Fixed Blurred Background */}
                 <div className="fixed inset-0 z-0 w-full h-full overflow-hidden">
                     <Image
-                        src="/Gemini_Generated_Image_7ax9sd7ax9sd7ax9.png"
+                        src="/Gemini_Generated_Image_7ax9sd7ax9sd7ax9.webp"
                         alt="Military Disability Nexus Background"
                         fill
                         priority

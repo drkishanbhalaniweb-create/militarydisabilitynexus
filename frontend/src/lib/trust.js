@@ -18,6 +18,21 @@ export const organizationEntity = {
   },
 };
 
+export const organizationSocialProfiles = [
+  {
+    label: 'LinkedIn',
+    href: organizationEntity.sameAs[0],
+  },
+  {
+    label: 'Facebook',
+    href: organizationEntity.sameAs[1],
+  },
+  {
+    label: 'Instagram',
+    href: organizationEntity.sameAs[2],
+  },
+];
+
 export const editorialTeam = {
   name: 'Military Disability Nexus Editorial Team',
   role: 'Content authorship and evidence-based educational publishing',
@@ -97,4 +112,12 @@ export const buildOrganizationReference = () => ({
 export const buildOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   ...buildOrganizationReference(),
+});
+
+export const buildWebsiteSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: organizationEntity.name,
+  url: organizationEntity.url,
+  publisher: buildOrganizationReference(),
 });

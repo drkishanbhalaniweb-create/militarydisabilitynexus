@@ -92,7 +92,7 @@ const Contact = () => {
                 {/* Fixed Background */}
                 <div className="fixed inset-0 z-0 overflow-hidden">
                     <img
-                        src="/contactimg.png"
+                        src="/contactimg.webp"
                         alt="Background pattern"
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{

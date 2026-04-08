@@ -3,7 +3,7 @@ import { ArrowRight, ShieldCheck, Stethoscope } from 'lucide-react';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
 import {
-    buildOrganizationSchema,
+    buildOrganizationReference,
     clinicalReviewTeam,
     medicalReviewHighlights,
 } from '../src/lib/trust';
@@ -14,7 +14,7 @@ const MedicalReviewPolicyPage = () => {
         '@type': 'WebPage',
         name: 'Medical Review Policy',
         url: 'https://www.militarydisabilitynexus.com/medical-review-policy',
-        about: buildOrganizationSchema(),
+        about: buildOrganizationReference(),
     };
 
     return (

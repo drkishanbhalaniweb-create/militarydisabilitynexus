@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import posthog from 'posthog-js';
 import { Toaster } from 'sonner';
+import { META_PIXEL_ID, trackMetaPageView } from '../src/lib/metaPixel';
 import '../src/index.css';
 import '../src/App.css';
 
@@ -23,7 +24,10 @@ function MyApp({ Component, pageProps }) {
             },
         });
 
-        const handleRouteChange = () => posthog?.capture('$pageview');
+        const handleRouteChange = () => {
+            posthog?.capture('$pageview');
+            trackMetaPageView();
+        };
 
         // Track page views
         router.events.on('routeChangeComplete', handleRouteChange);
@@ -48,6 +52,21 @@ function MyApp({ Component, pageProps }) {
                 !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
                 rdt('init','a2_i2eauxejgsxp');
                 rdt('track', 'PageVisit');
+                `}
+            </Script>
+
+            <Script id="meta-pixel" strategy="afterInteractive">
+                {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window,document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${META_PIXEL_ID}');
+                fbq('track', 'PageView');
                 `}
             </Script>
 
