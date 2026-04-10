@@ -46,6 +46,14 @@ const FormDataParser = React.memo(({ data, formType = null, className = '' }) =>
         return 'Aid & Attendance Form';
       case 'quick-intake':
         return 'Quick Intake Form';
+      case 'claim-readiness-review':
+        return 'Claim Readiness Review Form';
+      case 'nexus-letter':
+        return 'Nexus Letter Form';
+      case 'dbq':
+        return 'DBQ Form';
+      case '1151-claim':
+        return '1151 Claim Form';
       default:
         return type.split(/[-_]/).map(word => 
           word.charAt(0).toUpperCase() + word.slice(1)

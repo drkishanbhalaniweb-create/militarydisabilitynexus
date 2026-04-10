@@ -175,8 +175,12 @@ const FormSubmissions = () => {
         const labels = {
             'quick_intake': 'Quick Intake',
             'aid_attendance': 'Aid & Attendance',
-            'unsure': 'Unsure',
-            'general': 'General'
+            'unsure': 'General Inquiry',
+            'general': 'General Inquiry',
+            'claim_readiness_review': 'Claim Readiness Review',
+            'nexus_letter': 'Nexus Letter',
+            'dbq': 'DBQ',
+            '1151_claim': '1151 Claim'
         };
         return labels[type] || type;
     };
@@ -249,8 +253,12 @@ const FormSubmissions = () => {
                                         <option value="all">All Forms</option>
                                         <option value="quick_intake">Quick Intake</option>
                                         <option value="aid_attendance">Aid & Attendance</option>
-                                        <option value="unsure">Unsure</option>
-                                        <option value="general">General</option>
+                                        <option value="unsure">General Inquiry</option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="claim_readiness_review">Claim Readiness Review</option>
+                                        <option value="nexus_letter">Nexus Letter</option>
+                                        <option value="dbq">DBQ</option>
+                                        <option value="1151_claim">1151 Claim</option>
                                     </select>
                                 </div>
                             </div>

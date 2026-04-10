@@ -3,6 +3,7 @@ import { Upload, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { formSubmissionsApi, fileUploadApi } from '../../lib/api';
 import SuccessModal from '../SuccessModal';
+import { createSubmissionMeta, validateSubmissionMeta } from '../../lib/submissionValidation';
 
 const FORM_TYPES = [
   { value: 'nexus_letter', label: 'Nexus Letter', requiresUpload: false },
@@ -13,6 +14,7 @@ const FORM_TYPES = [
 ];
 
 const QuickIntakeForm = ({ onSuccess }) => {
+  const formStartedAt = useRef(Date.now());
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -20,6 +22,7 @@ const QuickIntakeForm = ({ onSuccess }) => {
     formTypes: [], // Changed to array for multiple selections
     briefSummary: '',
     rushService: false,
+    website: '',
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -81,6 +84,12 @@ const QuickIntakeForm = ({ onSuccess }) => {
     setLoading(true);
 
     try {
+      const submissionMeta = createSubmissionMeta({
+        honeypot: formData.website,
+        startedAt: formStartedAt.current,
+      });
+      validateSubmissionMeta(submissionMeta);
+
       // Submit form - use 'quick_intake' as formType (allowed by database CHECK constraint)
       // Store selected services in form_data
       const submission = await formSubmissionsApi.submit({
@@ -94,7 +103,7 @@ const QuickIntakeForm = ({ onSuccess }) => {
           rushService: formData.rushService,
         },
         requiresUpload,
-      });
+      }, submissionMeta);
 
 
       // Upload files if any
@@ -118,12 +127,14 @@ const QuickIntakeForm = ({ onSuccess }) => {
         formTypes: [],
         briefSummary: '',
         rushService: false,
+        website: '',
       });
       setSelectedFiles([]);
       setIsDropdownOpen(false);
+      formStartedAt.current = Date.now();
     } catch (error) {
       console.error('Error submitting form:', error);
-      toast.error('Failed to submit form. Please try again.');
+      toast.error(error.message || 'Failed to submit form. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -137,6 +148,18 @@ const QuickIntakeForm = ({ onSuccess }) => {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+          <label htmlFor="quick-intake-website">Website</label>
+          <input
+            id="quick-intake-website"
+            type="text"
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
         <div>
           <input
             type="text"

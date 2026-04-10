@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CheckCircle, FileText, User, Mail, Phone, MessageSquare, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
+import { formSubmissionsApi } from '../src/lib/api';
 import PaymentWrapper from '../src/components/payment/PaymentWrapper';
 import { supabase } from '../src/lib/supabase';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
+import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
 
 const ClaimReadinessReview = () => {
     const router = useRouter();
+    const formStartedAt = useRef(Date.now());
     const [step, setStep] = useState('form'); // 'form' or 'payment'
     const [formSubmissionId, setFormSubmissionId] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -26,6 +29,7 @@ const ClaimReadinessReview = () => {
         currentStatus: '',
         additionalInfo: '',
         acceptedTerms: false,
+        website: '',
     });
 
     // Fetch price from services table
@@ -61,32 +65,25 @@ const ClaimReadinessReview = () => {
         setLoading(true);
 
         try {
-            // Submit form to database
-            const { data, error } = await supabase
-                .from('form_submissions')
-                .insert({
-                    form_type: 'claim_readiness_review',
-                    form_data: {
-                        currentStatus: formData.currentStatus,
-                        additionalInfo: formData.additionalInfo,
-                        fromDiagnostic: fromDiagnostic === 'true', // Query params are strings
-                        diagnosticScore: diagnosticScore,
-                    },
-                    full_name: formData.veteranName,
-                    email: formData.email,
-                    phone: formData.phone,
-                })
-                .select()
-                .single();
+            const submissionMeta = createSubmissionMeta({
+                honeypot: formData.website,
+                startedAt: formStartedAt.current,
+            });
+            validateSubmissionMeta(submissionMeta);
 
-            if (error) {
-                console.error('Supabase error:', error);
-                throw new Error(error.message || 'Failed to submit form');
-            }
-
-            if (!data) {
-                throw new Error('No data returned from submission');
-            }
+            const data = await formSubmissionsApi.submit({
+                formType: 'claim_readiness_review',
+                fullName: formData.veteranName,
+                email: formData.email,
+                phone: formData.phone,
+                formData: {
+                    currentStatus: formData.currentStatus,
+                    additionalInfo: formData.additionalInfo,
+                    fromDiagnostic: fromDiagnostic === 'true',
+                    diagnosticScore: diagnosticScore,
+                },
+                requiresUpload: false,
+            }, submissionMeta);
 
             // If from diagnostic, update diagnostic session conversion status
             if (fromDiagnostic === 'true') {
@@ -106,6 +103,7 @@ const ClaimReadinessReview = () => {
             setFormSubmissionId(data.id);
             setStep('payment');
             toast.success('Form submitted! Please complete payment to proceed.');
+            formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Error submitting form:', error);
             toast.error(error.message || 'Failed to submit form. Please try again.');
@@ -197,6 +195,18 @@ const ClaimReadinessReview = () => {
                         <h2 className="text-2xl font-bold text-slate-900 mb-6">Your Information</h2>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                                <label htmlFor="claim-readiness-website">Website</label>
+                                <input
+                                    id="claim-readiness-website"
+                                    type="text"
+                                    name="website"
+                                    value={formData.website}
+                                    onChange={handleChange}
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                />
+                            </div>
                             {/* Veteran Name */}
                             <div>
                                 <label htmlFor="veteranName" className="block text-sm font-semibold text-slate-700 mb-2">

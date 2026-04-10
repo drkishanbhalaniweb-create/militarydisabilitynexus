@@ -4,6 +4,7 @@ import { fileUploadApi } from '../lib/api';
 
 const FileUpload = ({ 
   contactId = null, 
+  formSubmissionId = null,
   onUploadComplete = () => {}, 
   onUploadError = () => {},
   maxFiles = 5,
@@ -152,8 +153,9 @@ const FileUpload = ({
 
         const response = await fileUploadApi.upload(
           fileItem.file,
-          contactId,
-          'other'
+          formSubmissionId || contactId,
+          'other',
+          Boolean(formSubmissionId)
         );
 
         // Update status to completed

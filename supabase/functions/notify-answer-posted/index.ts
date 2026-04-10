@@ -1,9 +1,23 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
+import {
+  formatInlineHtml,
+  formatMultilineHtml,
+  sanitizeMailboxHeader,
+  sanitizeReplyToAddress,
+  sanitizeSubjectLine,
+} from '../_shared/email-safety.ts';
+import {
+  sanitizeEmailAddress,
+  sanitizeInlineText,
+  sanitizeMultilineText,
+} from '../_shared/submission-utils.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const frontendUrl = Deno.env.get('FRONTEND_URL') || 'http://localhost:3000';
+const fallbackFromHeader = 'Military Disability Nexus <contact@militarydisabilitynexus.com>';
+const defaultFromEmail = Deno.env.get('MAIL_FROM_EMAIL') || 'contact@militarydisabilitynexus.com';
+const defaultReplyTo = Deno.env.get('MAIL_REPLY_TO') || defaultFromEmail;
 
 interface NotificationRequest {
   questionId: string;
@@ -16,31 +30,54 @@ interface NotificationRequest {
 }
 
 serve(async (req) => {
-  try {
-    const {
-      questionTitle,
-      questionSlug,
-      questionAuthorEmail,
-      questionAuthorName,
-      answerAuthor,
-      answerContent,
-    }: NotificationRequest = await req.json();
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
 
-    // Validate required fields
-    if (!questionAuthorEmail || !questionTitle || !questionSlug) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+  try {
+    const payload: NotificationRequest = await req.json();
+
+    if (!RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not set');
     }
 
-    // Build the question URL
-    const questionUrl = `${SUPABASE_URL.replace('/v1', '')}/community/question/${questionSlug}`;
+    const recipientEmail = sanitizeEmailAddress(payload.questionAuthorEmail);
+    const safeQuestionTitle =
+      sanitizeInlineText(payload.questionTitle, 180) || 'your question';
+    const safeQuestionSlug = encodeURIComponent(
+      sanitizeInlineText(payload.questionSlug, 200) || '',
+    );
+    const safeQuestionAuthorName = sanitizeInlineText(payload.questionAuthorName, 120);
+    const safeAnswerAuthor =
+      sanitizeInlineText(payload.answerAuthor, 120) || 'Someone from our community';
+    const normalizedAnswer = sanitizeMultilineText(payload.answerContent, 1200);
+    const answerPreview =
+      normalizedAnswer.length > 240
+        ? `${normalizedAnswer.slice(0, 237).trimEnd()}...`
+        : normalizedAnswer || 'A new answer is waiting for you.';
 
-    // Prepare email content
-    const greeting = questionAuthorName && !questionAuthorName.includes('@')
-      ? `Hi ${questionAuthorName}`
-      : 'Hi';
+    if (!safeQuestionSlug) {
+      return jsonResponse({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const questionUrl = `${frontendUrl}/community/question/${safeQuestionSlug}`;
+    const greeting =
+      safeQuestionAuthorName && !safeQuestionAuthorName.includes('@')
+        ? `Hi ${safeQuestionAuthorName},`
+        : 'Hi,';
+    const safeSubject = sanitizeSubjectLine(
+      `New answer to your question: ${safeQuestionTitle}`,
+      'New answer to your question',
+    );
+    const defaultFromHeader = sanitizeMailboxHeader(
+      `Military Disability Nexus <${defaultFromEmail}>`,
+      fallbackFromHeader,
+    );
+    const communityFromHeader = sanitizeMailboxHeader(
+      `Community Q&A <${defaultFromEmail}>`,
+      defaultFromHeader,
+    );
+    const replyToHeader = sanitizeReplyToAddress(defaultReplyTo, defaultFromEmail);
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -52,59 +89,54 @@ serve(async (req) => {
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8f 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">New Answer to Your Question!</h1>
+            <h1 style="color: white; margin: 0; font-size: 24px;">New Answer to Your Question</h1>
           </div>
-          
+
           <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
-            <p style="font-size: 16px; margin-bottom: 20px;">${greeting},</p>
-            
+            <p style="font-size: 16px; margin-bottom: 20px;">${formatInlineHtml(greeting, 'Hi,', 140)}</p>
+
             <p style="font-size: 16px; margin-bottom: 20px;">
-              <strong>${answerAuthor}</strong> just answered your question:
+              <strong>${formatInlineHtml(safeAnswerAuthor, 'Community member', 120)}</strong> just answered your question:
             </p>
-            
+
             <div style="background: white; padding: 20px; border-left: 4px solid #B91C3C; margin: 20px 0; border-radius: 5px;">
-              <h2 style="margin: 0 0 10px 0; font-size: 18px; color: #1e3a5f;">${questionTitle}</h2>
-              <p style="color: #666; font-size: 14px; margin: 0; font-style: italic;">
-                "${answerContent}${answerContent.length >= 200 ? '...' : ''}"
-              </p>
+              <h2 style="margin: 0 0 10px 0; font-size: 18px; color: #1e3a5f;">${formatInlineHtml(safeQuestionTitle, 'Your question', 180)}</h2>
+              <p style="color: #666; font-size: 14px; margin: 0;">${formatMultilineHtml(answerPreview, 'A new answer is waiting for you.', 300)}</p>
             </div>
-            
+
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${questionUrl}" 
+              <a href="${questionUrl}"
                  style="display: inline-block; background: #B91C3C; color: white; padding: 14px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
                 View Full Answer
               </a>
             </div>
-            
+
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-            
+
             <p style="font-size: 14px; color: #666; margin: 0;">
-              You're receiving this email because you asked a question on our Community Q&A platform.
+              You're receiving this email because you asked a question on our Community Q&amp;A platform.
             </p>
           </div>
-          
+
           <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
-            <p>Military Disability Nexus - Community Q&A</p>
+            <p>Military Disability Nexus - Community Q&amp;A</p>
           </div>
         </body>
       </html>
     `;
 
-    const emailText = `
-${greeting},
+    const emailText = `${greeting}
 
-${answerAuthor} just answered your question: "${questionTitle}"
+${safeAnswerAuthor} just answered your question: ${safeQuestionTitle}
 
 Answer preview:
-"${answerContent}${answerContent.length >= 200 ? '...' : ''}"
+${answerPreview}
 
 View the full answer here: ${questionUrl}
 
 ---
-You're receiving this email because you asked a question on our Community Q&A platform.
-    `;
+You're receiving this email because you asked a question on our Community Q&A platform.`;
 
-    // Send email using Resend
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -112,11 +144,12 @@ You're receiving this email because you asked a question on our Community Q&A pl
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Community Q&A <noreply@militarydisabilitynexus.com>',
-        to: [questionAuthorEmail],
-        subject: `New answer to your question: "${questionTitle}"`,
+        from: communityFromHeader,
+        to: [recipientEmail],
+        subject: safeSubject,
         html: emailHtml,
         text: emailText,
+        reply_to: replyToHeader,
       }),
     });
 
@@ -124,21 +157,18 @@ You're receiving this email because you asked a question on our Community Q&A pl
 
     if (!res.ok) {
       console.error('Resend API error:', data);
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email', details: data }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      return jsonResponse(
+        { error: 'Failed to send email', details: data },
+        { status: 500 },
       );
     }
 
-    return new Response(
-      JSON.stringify({ success: true, messageId: data.id }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ success: true, messageId: data.id });
   } catch (error) {
     console.error('Error in notify-answer-posted function:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : 'Failed to send email' },
+      { status: 500 },
     );
   }
 });

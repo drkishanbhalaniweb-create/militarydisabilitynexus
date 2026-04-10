@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Upload, Send, FileText } from 'lucide-react';
 import { toast } from 'sonner';
@@ -6,6 +6,7 @@ import { formSubmissionsApi, fileUploadApi } from '../src/lib/api';
 import SEO from '../src/components/SEO';
 import SuccessModal from '../src/components/SuccessModal';
 import Layout from '../src/components/Layout';
+import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
 
 const FORM_TYPES = [
     { value: 'quick_intake', label: 'Quick Intake', requiresUpload: false },
@@ -15,6 +16,7 @@ const FORM_TYPES = [
 
 const IntakeForm = () => {
     const router = useRouter();
+    const formStartedAt = useRef(Date.now());
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -22,6 +24,7 @@ const IntakeForm = () => {
         formType: 'unsure',
         briefSummary: '',
         rushService: false,
+        website: '',
     });
 
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -51,6 +54,12 @@ const IntakeForm = () => {
         setLoading(true);
 
         try {
+            const submissionMeta = createSubmissionMeta({
+                honeypot: formData.website,
+                startedAt: formStartedAt.current,
+            });
+            validateSubmissionMeta(submissionMeta);
+
             const submission = await formSubmissionsApi.submit({
                 formType: formData.formType,
                 fullName: formData.fullName,
@@ -60,7 +69,7 @@ const IntakeForm = () => {
                     briefSummary: formData.briefSummary,
                 },
                 requiresUpload,
-            });
+            }, submissionMeta);
 
             setSubmissionId(submission.id);
 
@@ -80,11 +89,13 @@ const IntakeForm = () => {
                 formType: 'unsure',
                 briefSummary: '',
                 rushService: false,
+                website: '',
             });
             setSelectedFiles([]);
+            formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Error submitting form:', error);
-            toast.error('Failed to submit form. Please try again.');
+            toast.error(error.message || 'Failed to submit form. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -107,6 +118,18 @@ const IntakeForm = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-lg space-y-6">
+                        <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                            <label htmlFor="intake-website">Website</label>
+                            <input
+                                id="intake-website"
+                                type="text"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleChange}
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
+                        </div>
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
                                 Full Name *

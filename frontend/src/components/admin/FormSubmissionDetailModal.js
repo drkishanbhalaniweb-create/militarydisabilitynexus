@@ -4,6 +4,17 @@ import FormDataParser from './FormDataParser';
 import DocumentViewer from './DocumentViewer';
 import FilePreviewModal from './FilePreviewModal';
 
+const FORM_TYPE_LABELS = {
+  quick_intake: 'Quick Intake',
+  aid_attendance: 'Aid & Attendance',
+  unsure: 'General Inquiry',
+  general: 'General Inquiry',
+  claim_readiness_review: 'Claim Readiness Review',
+  nexus_letter: 'Nexus Letter',
+  dbq: 'DBQ',
+  '1151_claim': '1151 Claim',
+};
+
 const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('details');
   const [previewFile, setPreviewFile] = useState(null);
@@ -17,28 +28,21 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
-  const getFormTypeLabel = (type) => {
-    const labels = {
-      'quick_intake': 'Quick Intake',
-      'aid_attendance': 'Aid & Attendance',
-      'unsure': 'Unsure',
-      'general': 'General'
-    };
-    return labels[type] || type;
-  };
+  const getFormTypeLabel = (type) => FORM_TYPE_LABELS[type] || type;
 
   const getStatusBadge = (status) => {
     const styles = {
-      'new': 'bg-navy-100 text-navy-800',
-      'contacted': 'bg-yellow-100 text-yellow-800',
-      'in_progress': 'bg-purple-100 text-purple-800',
-      'completed': 'bg-green-100 text-green-800',
-      'closed': 'bg-slate-100 text-slate-800'
+      new: 'bg-navy-100 text-navy-800',
+      contacted: 'bg-yellow-100 text-yellow-800',
+      in_progress: 'bg-purple-100 text-purple-800',
+      completed: 'bg-green-100 text-green-800',
+      closed: 'bg-slate-100 text-slate-800',
     };
+
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || styles.new}`}>
         {status.replace('_', ' ')}
@@ -50,13 +54,12 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-slate-200">
             <div>
               <h2 className="text-2xl font-bold text-slate-900">{submission.full_name}</h2>
               <div className="flex items-center gap-3 mt-2">
                 <span className="text-sm text-slate-600">{getFormTypeLabel(submission.form_type)}</span>
-                <span className="text-slate-300">•</span>
+                <span className="text-slate-300">|</span>
                 {getStatusBadge(submission.status)}
               </div>
             </div>
@@ -68,7 +71,6 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
             </button>
           </div>
 
-          {/* Tabs */}
           <div className="flex border-b border-slate-200 px-6">
             <button
               onClick={() => setActiveTab('details')}
@@ -102,11 +104,9 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
             </button>
           </div>
 
-          {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
             {activeTab === 'details' && (
               <div className="space-y-6">
-                {/* Basic Info */}
                 <div className="bg-slate-50 rounded-lg p-4">
                   <h3 className="text-sm font-semibold text-slate-700 mb-3">Contact Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -133,18 +133,16 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
                   </div>
                 </div>
 
-                {/* Form Data */}
                 {submission.form_data && Object.keys(submission.form_data).length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-3">Form Details</h3>
-                    <FormDataParser 
-                      data={submission.form_data} 
+                    <FormDataParser
+                      data={submission.form_data}
                       formType={submission.form_type}
                     />
                   </div>
                 )}
 
-                {/* Admin Notes */}
                 {submission.notes && (
                   <div className="bg-yellow-50 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Admin Notes</h3>
@@ -152,7 +150,6 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Assigned To */}
                 {submission.assigned_to && (
                   <div className="bg-navy-50 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Assigned To</h3>
@@ -200,7 +197,6 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
             )}
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200">
             <button
               onClick={onClose}
@@ -212,7 +208,6 @@ const FormSubmissionDetailModal = ({ submission, isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* File Preview Modal */}
       <FilePreviewModal
         file={previewFile}
         isOpen={!!previewFile}

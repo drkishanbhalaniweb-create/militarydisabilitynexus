@@ -1,4 +1,9 @@
 import { supabase, STORAGE_BUCKETS } from './supabase';
+import {
+  createSubmissionMeta,
+  prepareContactSubmission,
+  prepareFormSubmission,
+} from './submissionValidation';
 
 // ============================================
 // SERVICES
@@ -199,32 +204,21 @@ export const testimonialApi = {
 // ============================================
 
 export const contactsApi = {
-  async submit(contactData) {
-    // Convert serviceTypes array to a comma-separated string for subject
-    const subject = contactData.serviceTypes && contactData.serviceTypes.length > 0
-      ? contactData.serviceTypes.map(type =>
-        type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-      ).join(', ')
-      : contactData.subject || 'General Inquiry';
-
-    const { data, error } = await supabase
-      .from('contacts')
-      .insert([
-        {
-          name: contactData.name,
-          email: contactData.email,
-          phone: contactData.phone || null,
-          subject: subject,
-          message: contactData.message,
-          service_interest: contactData.serviceTypes ? contactData.serviceTypes.join(', ') : (contactData.serviceInterest || contactData.service || null),
-          status: 'new',
-        },
-      ])
-      .select()
-      .single();
+  async submit(contactData, submissionMeta = null) {
+    const preparedContact = prepareContactSubmission(contactData);
+    const { data, error } = await supabase.functions.invoke('submit-contact', {
+      body: {
+        ...preparedContact,
+        meta: submissionMeta ? createSubmissionMeta(submissionMeta) : undefined,
+      },
+    });
 
     if (error) throw error;
-    return data;
+    if (!data?.success || !data.contact) {
+      throw new Error(data?.error || 'Failed to submit contact form.');
+    }
+
+    return data.contact;
   },
 };
 
@@ -233,23 +227,13 @@ export const contactsApi = {
 // ============================================
 
 export const submitGenericForm = async (formData) => {
-  const { data, error } = await supabase
-    .from('contacts')
-    .insert([
-      {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
-        subject: 'Generic Form Submission',
-        message: formData.additionalDetails || 'No additional details provided',
-        status: 'new',
-      },
-    ])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  return contactsApi.submit({
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone || null,
+    subject: 'Generic Form Submission',
+    message: formData.additionalDetails || 'No additional details provided',
+  });
 };
 
 // ============================================
@@ -360,25 +344,21 @@ export const fileUploadApi = {
 // ============================================
 
 export const formSubmissionsApi = {
-  async submit(formData) {
-    const { data, error } = await supabase
-      .from('form_submissions')
-      .insert([
-        {
-          form_type: formData.formType,
-          full_name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone || null,
-          form_data: formData.formData || {},
-          requires_upload: formData.requiresUpload || false,
-          status: 'new',
-        },
-      ])
-      .select()
-      .single();
+  async submit(formData, submissionMeta = null) {
+    const preparedSubmission = prepareFormSubmission(formData);
+    const { data, error } = await supabase.functions.invoke('submit-form-submission', {
+      body: {
+        ...preparedSubmission,
+        meta: submissionMeta ? createSubmissionMeta(submissionMeta) : undefined,
+      },
+    });
 
     if (error) throw error;
-    return data;
+    if (!data?.success || !data.submission) {
+      throw new Error(data?.error || 'Failed to submit form.');
+    }
+
+    return data.submission;
   },
 
   async getById(id) {

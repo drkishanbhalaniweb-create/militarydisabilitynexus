@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { User, Phone, Mail, Calendar, FileText, Heart, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { contactsApi } from '../src/lib/api';
+import { formSubmissionsApi } from '../src/lib/api';
 import FileUpload from '../src/components/FileUpload';
 import FileList from '../src/components/FileList';
 import Layout from '../src/components/Layout';
 import SEO from '../src/components/SEO';
+import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
 
 const FORM_TYPES = [
     { value: 'nexus_letter', label: 'Nexus Letter' },
@@ -16,6 +17,7 @@ const FORM_TYPES = [
 ];
 
 const AidAttendanceForm = () => {
+    const formStartedAt = useRef(Date.now());
     const [formData, setFormData] = useState({
         // Service Selection
         formType: 'aid_attendance',
@@ -60,12 +62,13 @@ const AidAttendanceForm = () => {
         rushService: false,
 
         // Service Selection
-        serviceType: 'aid-attendance'
+        serviceType: 'aid-attendance',
+        website: ''
     });
 
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [contactId, setContactId] = useState(null);
+    const [submissionId, setSubmissionId] = useState(null);
     const [showFileUpload, setShowFileUpload] = useState(false);
 
     const handleChange = (e) => {
@@ -81,23 +84,42 @@ const AidAttendanceForm = () => {
         setLoading(true);
 
         try {
-            const submissionData = {
-                name: formData.veteranName,
-                email: formData.veteranEmail,
-                phone: formData.veteranPhone,
-                subject: 'Aid & Attendance Form Submission',
-                message: JSON.stringify(formData, null, 2),
-                service: 'aid-attendance'
-            };
+            const submissionMeta = createSubmissionMeta({
+                honeypot: formData.website,
+                startedAt: formStartedAt.current,
+            });
+            validateSubmissionMeta(submissionMeta);
 
-            const response = await contactsApi.submit(submissionData);
+            const {
+                website,
+                veteranName,
+                veteranEmail,
+                veteranPhone,
+                formType,
+                ...formSpecificData
+            } = formData;
+
+            const response = await formSubmissionsApi.submit({
+                formType,
+                fullName: veteranName,
+                email: veteranEmail,
+                phone: veteranPhone,
+                formData: {
+                    ...formSpecificData,
+                    veteranName,
+                    veteranEmail,
+                    veteranPhone,
+                },
+                requiresUpload: true,
+            }, submissionMeta);
             setSubmitted(true);
-            setContactId(response.id);
+            setSubmissionId(response.id);
             setShowFileUpload(true);
             toast.success('Aid & Attendance form submitted successfully! You can now upload supporting documents.');
+            formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Error submitting form:', error);
-            toast.error('Failed to submit form. Please try again.');
+            toast.error(error.message || 'Failed to submit form. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -123,15 +145,15 @@ const AidAttendanceForm = () => {
                                 Your Aid & Attendance form has been submitted. Our medical team will review your information and contact you within 1-2 business days.
                             </p>
 
-                            {showFileUpload && contactId && (
+                            {showFileUpload && submissionId && (
                                 <div className="mt-8">
                                     <h3 className="text-lg font-semibold text-slate-900 mb-4">Upload Supporting Documents</h3>
                                     <FileUpload
-                                        contactId={contactId}
+                                        formSubmissionId={submissionId}
                                         onUploadComplete={() => toast.success('Document uploaded successfully!')}
                                         onUploadError={(error) => toast.error('Upload failed: ' + error.message)}
                                     />
-                                    <FileList contactId={contactId} />
+                                    <FileList formSubmissionId={submissionId} />
                                 </div>
                             )}
 
@@ -185,6 +207,18 @@ const AidAttendanceForm = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-lg">
+                        <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                            <label htmlFor="aid-attendance-website">Website</label>
+                            <input
+                                id="aid-attendance-website"
+                                type="text"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleChange}
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
+                        </div>
                         {/* Service Selection */}
                         <div className="mb-8">
                             <h3 className="text-xl font-bold text-slate-900 mb-6">

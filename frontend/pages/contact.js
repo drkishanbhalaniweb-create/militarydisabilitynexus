@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Mail, Phone, Send, Upload, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,15 +8,18 @@ import FileList from '../src/components/FileList';
 import SuccessModal from '../src/components/SuccessModal';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
+import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
 
 const Contact = () => {
     const router = useRouter();
+    const formStartedAt = useRef(Date.now());
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
         serviceTypes: [], // Changed from subject to serviceTypes array
         message: '',
+        website: '',
     });
 
     const SERVICE_TYPES = [
@@ -53,14 +56,21 @@ const Contact = () => {
         setLoading(true);
 
         try {
-            const response = await contactsApi.submit(formData);
+            const submissionMeta = createSubmissionMeta({
+                honeypot: formData.website,
+                startedAt: formStartedAt.current,
+            });
+            validateSubmissionMeta(submissionMeta);
+
+            const response = await contactsApi.submit(formData, submissionMeta);
             setContactId(response.id);
             setShowFileUpload(true);
             setShowSuccessModal(true);
-            setFormData({ name: '', email: '', phone: '', serviceTypes: [], message: '' });
+            setFormData({ name: '', email: '', phone: '', serviceTypes: [], message: '', website: '' });
+            formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Error submitting form:', error);
-            toast.error('Failed to send message. Please try again.');
+            toast.error(error.message || 'Failed to send message. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -163,6 +173,19 @@ const Contact = () => {
                                 <div className="space-y-6 lg:space-y-8">
                                     <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/40">
                                         <h2 className="text-2xl font-bold text-slate-900 mb-6">Send Us a Message</h2>
+
+                                        <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                                            <label htmlFor="contact-website">Website</label>
+                                            <input
+                                                id="contact-website"
+                                                type="text"
+                                                name="website"
+                                                value={formData.website}
+                                                onChange={handleChange}
+                                                tabIndex={-1}
+                                                autoComplete="off"
+                                            />
+                                        </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                             <div>

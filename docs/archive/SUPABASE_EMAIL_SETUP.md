@@ -6,7 +6,7 @@ Complete step-by-step guide to set up email notifications for your Military Disa
 
 - Supabase CLI installed
 - Supabase project created
-- Resend API key: `re_7QUxVQQy_GE93KB2nETJPqgwK2A9AN5Sd`
+- Resend API key: `YOUR_RESEND_API_KEY`
 
 ## Step 1: Install Supabase CLI (if not already installed)
 
@@ -90,7 +90,7 @@ $$ LANGUAGE plpgsql IMMUTABLE SECURITY DEFINER;
 
 ```bash
 # Set Resend API key
-supabase secrets set RESEND_API_KEY=re_7QUxVQQy_GE93KB2nETJPqgwK2A9AN5Sd
+supabase secrets set RESEND_API_KEY=YOUR_RESEND_API_KEY
 
 # Set frontend URL (for admin panel links in emails)
 supabase secrets set FRONTEND_URL=https://militarydisabilitynexus.com

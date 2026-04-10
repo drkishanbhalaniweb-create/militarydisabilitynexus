@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Download, Trash2, Eye, File, Image, FileText, Shield, Calendar, User } from 'lucide-react';
 import { fileUploadApi } from '../lib/api';
 
-const FileList = ({ contactId = null, refreshTrigger = 0 }) => {
+const FileList = ({ contactId = null, formSubmissionId = null, refreshTrigger = 0 }) => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,7 +51,7 @@ const FileList = ({ contactId = null, refreshTrigger = 0 }) => {
   const fetchFiles = async () => {
     try {
       setLoading(true);
-      const data = await fileUploadApi.getAll(contactId);
+      const data = await fileUploadApi.getAll(contactId, formSubmissionId);
       setFiles(data);
       setError(null);
     } catch (err) {
@@ -111,7 +111,7 @@ const FileList = ({ contactId = null, refreshTrigger = 0 }) => {
 
   useEffect(() => {
     fetchFiles();
-  }, [contactId, refreshTrigger]);
+  }, [contactId, formSubmissionId, refreshTrigger]);
 
   if (loading) {
     return (

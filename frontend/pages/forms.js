@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Send, Upload, X, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
@@ -6,6 +6,7 @@ import SEO from '../src/components/SEO';
 import SuccessModal from '../src/components/SuccessModal';
 import { fileUploadApi, formSubmissionsApi } from '../src/lib/api';
 import Layout from '../src/components/Layout';
+import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
 
 const FORM_TYPES = [
     { value: 'nexus_letter', label: 'Nexus Letter' },
@@ -17,6 +18,7 @@ const FORM_TYPES = [
 
 const Forms = () => {
     const router = useRouter();
+    const formStartedAt = useRef(Date.now());
 
     // Check URL parameter to determine initial view
     const { view } = router.query;
@@ -28,7 +30,8 @@ const Forms = () => {
         email: '',
         formType: 'unsure',
         additionalDetails: '',
-        rushService: false
+        rushService: false,
+        website: '',
     });
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,6 +100,12 @@ const Forms = () => {
         setIsSubmitting(true);
 
         try {
+            const submissionMeta = createSubmissionMeta({
+                honeypot: formData.website,
+                startedAt: formStartedAt.current,
+            });
+            validateSubmissionMeta(submissionMeta);
+
             // Submit form data first
             const submission = await formSubmissionsApi.submit({
                 formType: formData.formType,
@@ -107,7 +116,7 @@ const Forms = () => {
                     additionalDetails: formData.additionalDetails,
                 },
                 requiresUpload: false,
-            });
+            }, submissionMeta);
 
             // Upload files if any
             if (selectedFiles.length > 0) {
@@ -125,12 +134,14 @@ const Forms = () => {
                 email: '',
                 formType: 'unsure',
                 additionalDetails: '',
-                rushService: false
+                rushService: false,
+                website: '',
             });
             setSelectedFiles([]);
+            formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Form submission error:', error);
-            toast.error('Failed to submit form. Please try again.');
+            toast.error(error.message || 'Failed to submit form. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -228,6 +239,18 @@ const Forms = () => {
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/40">
                             <h2 className="text-2xl font-bold text-slate-900 mb-6">Request Your Medical Documentation</h2>
                             <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                                    <label htmlFor="forms-website">Website</label>
+                                    <input
+                                        id="forms-website"
+                                        type="text"
+                                        name="website"
+                                        value={formData.website}
+                                        onChange={handleChange}
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                    />
+                                </div>
                                 <div>
                                     <label htmlFor="formType" className="block text-sm font-medium text-slate-700 mb-2">
                                         What service do you need? <span className="text-red-500">*</span>

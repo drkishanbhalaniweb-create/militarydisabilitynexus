@@ -45,7 +45,7 @@ supabase link --project-ref your-project-ref
 
 ```bash
 # Set Resend API key
-supabase secrets set RESEND_API_KEY=re_7QUxVQQy_GE93KB2nETJPqgwK2A9AN5Sd
+supabase secrets set RESEND_API_KEY=YOUR_RESEND_API_KEY
 
 # Set frontend URL (for admin panel links)
 supabase secrets set FRONTEND_URL=https://militarydisabilitynexus.com
@@ -78,7 +78,7 @@ supabase start
 
 ```bash
 # Create .env file in supabase/functions
-echo "RESEND_API_KEY=re_7QUxVQQy_GE93KB2nETJPqgwK2A9AN5Sd" > .env
+echo "RESEND_API_KEY=YOUR_RESEND_API_KEY" > .env
 echo "FRONTEND_URL=http://localhost:3000" >> .env
 
 # Serve a specific function
