@@ -21,7 +21,7 @@ export async function getStaticProps() {
             props: {
                 initialTestimonials,
             },
-            revalidate: 10,
+            revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
         console.error('Error fetching testimonials:', error);
@@ -29,7 +29,7 @@ export async function getStaticProps() {
             props: {
                 initialTestimonials: [],
             },
-            revalidate: 60,
+            revalidate: 300, // Retry in 5 minutes on error
         };
     }
 }

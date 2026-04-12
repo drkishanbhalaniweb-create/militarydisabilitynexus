@@ -44,7 +44,7 @@ export async function getStaticProps() {
             props: {
                 initialQuestions: data || [],
             },
-            revalidate: 60, // Revalidate every minute
+            revalidate: 300, // Revalidate every 5 minutes
         };
     } catch (error) {
         console.error('Error fetching questions for static props:', error);
@@ -52,7 +52,7 @@ export async function getStaticProps() {
             props: {
                 initialQuestions: [],
             },
-            revalidate: 60,
+            revalidate: 300, // Retry in 5 minutes on error
         };
     }
 }

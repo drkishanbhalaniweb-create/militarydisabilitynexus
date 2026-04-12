@@ -77,33 +77,36 @@ export const getServerSideProps = async ({ res }) => {
         const caseStudies = await fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true });
         const communityQuestions = await fetchAll('community_questions', 'slug, updated_at', { status: 'published' });
 
+        // Static routes with priority and changefreq signals
+        // Priority: 1.0 = homepage, 0.8 = core pages, 0.7 = content hubs, 0.5 = secondary pages
+        // NOTE: /aid-attendance-form and /intake-form are excluded because they 301-redirect to /forms
         const staticRoutes = [
-            '', // root
-            '/services',
-            '/blog',
-            '/case-studies',
-            '/community',
-            '/testimonials',
-            '/about',
-            '/editorial-policy',
-            '/medical-review-policy',
-            '/contact',
-            '/forms',
-            '/intake-form',
-            '/aid-attendance-form',
-            '/claim-readiness-review',
-            '/cp-exam-coaching',
-            '/diagnostic',
-            '/privacy',
-            '/terms',
-            '/disclaimer',
+            { path: '', priority: '1.0', changefreq: 'weekly' }, // root
+            { path: '/services', priority: '0.9', changefreq: 'weekly' },
+            { path: '/blog', priority: '0.8', changefreq: 'daily' },
+            { path: '/case-studies', priority: '0.8', changefreq: 'weekly' },
+            { path: '/community', priority: '0.7', changefreq: 'daily' },
+            { path: '/testimonials', priority: '0.7', changefreq: 'weekly' },
+            { path: '/about', priority: '0.7', changefreq: 'monthly' },
+            { path: '/contact', priority: '0.7', changefreq: 'monthly' },
+            { path: '/forms', priority: '0.6', changefreq: 'monthly' },
+            { path: '/claim-readiness-review', priority: '0.6', changefreq: 'monthly' },
+            { path: '/cp-exam-coaching', priority: '0.6', changefreq: 'monthly' },
+            { path: '/diagnostic', priority: '0.6', changefreq: 'monthly' },
+            { path: '/editorial-policy', priority: '0.5', changefreq: 'monthly' },
+            { path: '/medical-review-policy', priority: '0.5', changefreq: 'monthly' },
+            { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
+            { path: '/terms', priority: '0.3', changefreq: 'yearly' },
+            { path: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
         ];
 
         const urls = [];
 
         staticRoutes.forEach(route => {
             urls.push({
-                loc: `${SITE_URL}${route}`,
+                loc: `${SITE_URL}${route.path}`,
+                priority: route.priority,
+                changefreq: route.changefreq,
             });
         });
 
@@ -112,6 +115,8 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/services/${escapeXml(service.slug)}`,
                     lastmod: formatDate(service.updated_at),
+                    priority: '0.8',
+                    changefreq: 'monthly',
                 });
             }
         });
@@ -121,6 +126,8 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/blog/${escapeXml(post.slug)}`,
                     lastmod: formatDate(post.updated_at || post.published_at),
+                    priority: '0.7',
+                    changefreq: 'monthly',
                 });
             }
         });
@@ -130,6 +137,8 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/case-studies/${escapeXml(study.slug)}`,
                     lastmod: formatDate(study.updated_at || study.published_at),
+                    priority: '0.7',
+                    changefreq: 'monthly',
                 });
             }
         });
@@ -139,6 +148,8 @@ export const getServerSideProps = async ({ res }) => {
                 urls.push({
                     loc: `${SITE_URL}/community/question/${escapeXml(question.slug)}`,
                     lastmod: formatDate(question.updated_at),
+                    priority: '0.5',
+                    changefreq: 'weekly',
                 });
             }
         });
@@ -150,6 +161,8 @@ ${urls
                     (url) => `  <url>
     <loc>${url.loc}</loc>${url.lastmod ? `
     <lastmod>${url.lastmod}</lastmod>` : ''}
+    <changefreq>${url.changefreq}</changefreq>
+    <priority>${url.priority}</priority>
   </url>`
                 )
                 .join('\n')}

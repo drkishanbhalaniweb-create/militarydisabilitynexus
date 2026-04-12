@@ -55,7 +55,7 @@ export async function getStaticProps({ params }) {
                 initialQuestion: questionData,
                 initialAnswers: answersData || [],
             },
-            revalidate: 60, // Revalidate every minute
+            revalidate: 300, // Revalidate every 5 minutes
         };
     } catch (error) {
         console.error(`Error fetching question for slug ${params.slug}:`, error);

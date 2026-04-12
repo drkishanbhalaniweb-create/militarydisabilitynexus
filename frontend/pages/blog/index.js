@@ -13,7 +13,7 @@ export async function getStaticProps() {
             props: {
                 initialPosts,
             },
-            revalidate: 10,
+            revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
         console.error('Error fetching blog posts:', error);
@@ -21,7 +21,7 @@ export async function getStaticProps() {
             props: {
                 initialPosts: [],
             },
-            revalidate: 60,
+            revalidate: 300, // Retry in 5 minutes on error
         };
     }
 }

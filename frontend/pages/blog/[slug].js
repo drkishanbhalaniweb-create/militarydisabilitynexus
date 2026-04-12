@@ -35,7 +35,7 @@ export async function getStaticProps({ params }) {
 
         return {
             props: { post },
-            revalidate: 10,
+            revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
         console.error(`Error fetching blog post for slug ${params.slug}:`, error);

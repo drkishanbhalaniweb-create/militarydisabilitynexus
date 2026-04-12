@@ -521,7 +521,7 @@ export async function getStaticProps({ params }) {
                 relatedCaseStudies: relatedCaseStudies,
                 relatedTestimonials,
             },
-            revalidate: 10, // Revalidate every 10 seconds
+            revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
         console.error('Error in getStaticProps:', error);

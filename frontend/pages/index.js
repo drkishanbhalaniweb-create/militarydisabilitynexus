@@ -35,7 +35,7 @@ export async function getStaticProps() {
                 blogPosts: blogData || [],
                 testimonials: testimonialsData || [],
             },
-            revalidate: 10, // Revalidate every 10 seconds
+            revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
         console.error('Error fetching homepage data:', error);
@@ -45,7 +45,7 @@ export async function getStaticProps() {
                 blogPosts: [],
                 testimonials: [],
             },
-            revalidate: 60, // Retry sooner on error
+            revalidate: 300, // Retry in 5 minutes on error
         };
     }
 }
