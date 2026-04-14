@@ -268,10 +268,15 @@ const Contact = () => {
                                                 value={formData.message}
                                                 onChange={handleChange}
                                                 required
+                                                minLength={10}
                                                 rows="6"
                                                 data-testid="contact-message-input"
+                                                placeholder="Please describe how we can help you (minimum 10 characters)..."
                                                 className="w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg focus:border-indigo-500 focus:outline-none resize-none shadow-sm"
                                             />
+                                            {formData.message.length > 0 && formData.message.length < 10 && (
+                                                <p className="text-sm text-amber-600 mt-1">Please add a little more detail ({formData.message.length}/10 characters minimum)</p>
+                                            )}
                                         </div>
 
                                         <button
@@ -331,7 +336,7 @@ const Contact = () => {
                             message="Thank you for contacting Military Disability Nexus - a member of our clinical intake team will review your submission and respond within 1–2 business days."
                         />
                     </div>
-                </div >
+                </div>
             </div >
         </Layout>
     );

@@ -206,19 +206,23 @@ export const testimonialApi = {
 export const contactsApi = {
   async submit(contactData, submissionMeta = null) {
     const preparedContact = prepareContactSubmission(contactData);
-    const { data, error } = await supabase.functions.invoke('submit-contact', {
-      body: {
+
+    const response = await fetch('/api/submit-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         ...preparedContact,
         meta: submissionMeta ? createSubmissionMeta(submissionMeta) : undefined,
-      },
+      }),
     });
 
-    if (error) throw error;
-    if (!data?.success || !data.contact) {
-      throw new Error(data?.error || 'Failed to submit contact form.');
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to submit contact form.');
     }
 
-    return data.contact;
+    return result.contact;
   },
 };
 
@@ -346,19 +350,23 @@ export const fileUploadApi = {
 export const formSubmissionsApi = {
   async submit(formData, submissionMeta = null) {
     const preparedSubmission = prepareFormSubmission(formData);
-    const { data, error } = await supabase.functions.invoke('submit-form-submission', {
-      body: {
+
+    const response = await fetch('/api/submit-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         ...preparedSubmission,
         meta: submissionMeta ? createSubmissionMeta(submissionMeta) : undefined,
-      },
+      }),
     });
 
-    if (error) throw error;
-    if (!data?.success || !data.submission) {
-      throw new Error(data?.error || 'Failed to submit form.');
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to submit form.');
     }
 
-    return data.submission;
+    return result.submission;
   },
 
   async getById(id) {
