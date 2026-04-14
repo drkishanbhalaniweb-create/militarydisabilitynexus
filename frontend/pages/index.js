@@ -300,7 +300,7 @@ const Home = ({ services, blogPosts, testimonials }) => {
                                 Why veterans say the process feels clearer here
                             </h2>
                             <p className="mt-4 text-lg text-slate-600 leading-relaxed max-w-2xl">
-                                This site is new, but the positioning should still feel earned: clear expectations, clinician-led reasoning, and support that reduces uncertainty before a high-stakes VA step.
+                                Experience clear expectations, clinician-led medical reasoning, and dedicated support designed to reduce uncertainty and strengthen your VA disability claim.
                             </p>
 
                             {featuredTestimonial ? (

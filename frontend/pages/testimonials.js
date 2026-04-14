@@ -94,7 +94,7 @@ const TestimonialsPage = ({ initialTestimonials }) => {
                                     Real feedback from veterans who used the service
                                 </h1>
                                 <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/85 sm:text-xl">
-                                    On a YMYL site, this page should reinforce trust with specificity: who the client was, what kind of help they received, and what the experience actually felt like.
+                                    Discover how our clinician-led documentation and expert medical opinions have made a tangible difference for veterans navigating the VA claims process.
                                 </p>
 
                                 <div className="mt-8 flex flex-wrap gap-4">
@@ -254,7 +254,7 @@ const TestimonialsPage = ({ initialTestimonials }) => {
                         <div className="rounded-[2rem] bg-gradient-to-br from-navy-700 to-slate-900 px-8 py-10 text-white shadow-2xl sm:px-12 sm:py-14">
                             <h2 className="text-3xl font-bold sm:text-4xl">Need help with your own claim file?</h2>
                             <p className="mt-4 max-w-3xl text-lg leading-relaxed text-white/85">
-                                Testimonials help with trust, but they should sit next to clinician bios, service details, and case studies that explain the work more concretely.
+                                Explore our comprehensive case studies and service details to clearly understand how our clinician-led team can support your specific VA claim.
                             </p>
                             <div className="mt-8 flex flex-wrap gap-4">
                                 <Link
