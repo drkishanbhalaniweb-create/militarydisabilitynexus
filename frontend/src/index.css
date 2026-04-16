@@ -91,6 +91,11 @@ code {
         font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
         letter-spacing: -0.025em;
     }
+
+    /* Ensure that Tailwind's typography prose doesn't override custom text colors on bold text */
+    .prose strong, .prose b {
+        color: inherit;
+    }
 }
 
 @layer base {

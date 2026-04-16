@@ -2,7 +2,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2 } from 'lucide-react';
+import { Color } from '@tiptap/extension-color';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { uploadBlogImage, validateImage } from '../../lib/imageUpload';
 import { GlobalWrapperDiv, GlobalInlineSpan } from './tiptap-extensions/PremiumBlocks';
@@ -75,6 +77,11 @@ const MenuBar = ({ editor }) => {
                 <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`p-2 rounded font-bold ${editor.isActive('heading', { level: 2 }) ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Heading 2"><Heading2 className="w-4 h-4" /></button>
                 <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={`p-2 rounded font-bold ${editor.isActive('heading', { level: 3 }) ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Heading 3"><Heading3 className="w-4 h-4" /></button>
                 <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                <div className="flex items-center gap-1 group">
+                    <button type="button" onClick={() => editor.chain().focus().unsetColor().run()} className={`p-2 rounded ${editor.isActive('textStyle') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Remove Text Color"><Baseline className="w-4 h-4" /></button>
+                    <input type="color" onInput={(e) => editor.chain().setColor(e.target.value).run()} value={editor.getAttributes('textStyle').color || '#cca35e'} className="w-6 h-6 p-0 border-0 bg-transparent rounded cursor-pointer self-center" title="Custom Text Color" />
+                </div>
+                <div className="w-px h-6 bg-slate-300 mx-1"></div>
                 <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded ${editor.isActive('bulletList') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Bullet List"><List className="w-4 h-4" /></button>
                 <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Numbered List"><ListOrdered className="w-4 h-4" /></button>
                 <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={`p-2 rounded ${editor.isActive('blockquote') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Quote"><Quote className="w-4 h-4" /></button>
@@ -118,6 +125,8 @@ const RichTextEditor = ({ value, onChange }) => {
         immediatelyRender: false,
         extensions: [
             StarterKit,
+            TextStyle,
+            Color,
             Link.configure({
                 openOnClick: false,
             }),
