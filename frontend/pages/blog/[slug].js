@@ -5,12 +5,12 @@ import { blogApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import { formatBlogHTML } from '../../src/lib/htmlUtils';
 import {
     buildOrganizationReference,
     clinicalReviewTeam,
     editorialTeam,
 } from '../../src/lib/trust';
-// import OptimizedImage from '../../src/components/OptimizedImage'; // Simple img wrapper
 
 export async function getStaticPaths() {
     try {
@@ -64,6 +64,38 @@ const BlogPost = ({ post }) => {
         });
     };
 
+    // Extract FAQs from content_html for JSON-LD
+    const generateFaqSchema = (html) => {
+        if (!html || !html.includes('faq-block')) return null;
+
+        const faqs = [];
+        const faqRegex = /<div class="faq-block">.*?<h3>(.*?)<\/h3>.*?<div class="faq-answer">(.*?)<\/div>/gis;
+
+        let match;
+        while ((match = faqRegex.exec(html)) !== null) {
+            const questionText = match[1].replace(/<[^>]*>?/gm, '').trim();
+            const answerText = match[2].replace(/<[^>]*>?/gm, '').trim();
+            if (questionText && answerText) {
+                faqs.push({
+                    "@type": "Question",
+                    "name": questionText,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": answerText
+                    }
+                });
+            }
+        }
+
+        if (faqs.length === 0) return null;
+
+        return {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs
+        };
+    };
+
     // Structured data for blog article
     const structuredData = {
         "@context": "https://schema.org",
@@ -95,6 +127,9 @@ const BlogPost = ({ post }) => {
         }
     };
 
+    const faqSchema = generateFaqSchema(post.content_html);
+    const finalStructuredData = faqSchema ? [structuredData, faqSchema] : structuredData;
+
     return (
         <Layout>
             <SEO
@@ -105,7 +140,7 @@ const BlogPost = ({ post }) => {
                 publishedTime={post.published_at}
                 modifiedTime={post.updated_at || post.published_at}
                 author={post.author_name}
-                structuredData={structuredData}
+                structuredData={finalStructuredData}
                 breadcrumbs={[
                     { name: 'Home', path: '/' },
                     { name: 'Blog', path: '/blog' },
@@ -160,12 +195,10 @@ const BlogPost = ({ post }) => {
 
                 {/* Content */}
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg">
-                        <div
-                            className="prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-a:text-indigo-600"
-                            dangerouslySetInnerHTML={{ __html: post.content_html }}
-                        />
-                    </div>
+                    <div 
+                        className="prose-container"
+                        dangerouslySetInnerHTML={{ __html: formatBlogHTML(post.content_html) }}
+                    />
 
                     <AttributionPanel
                         author={editorialTeam}

@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import { META_PIXEL_ID, trackMetaPageView } from '../src/lib/metaPixel';
 import '../src/index.css';
 import '../src/App.css';
+import '../src/blog-design.css';
 
 // We keep the old CSS imports for now to minimize breakage.
 // Ideally, we move these to styles/globals.css later.

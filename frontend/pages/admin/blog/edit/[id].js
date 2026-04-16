@@ -5,8 +5,10 @@ import AdminLayout from '../../../../src/components/admin/AdminLayout';
 import ImageUpload from '../../../../src/components/admin/ImageUpload';
 import ProtectedRoute from '../../../../src/components/admin/ProtectedRoute';
 import SEO from '../../../../src/components/SEO';
-import { Save, X } from 'lucide-react';
+import { Save, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import RichTextEditor from '../../../../src/components/admin/RichTextEditor';
+import BlogPreviewModal from '../../../../src/components/admin/BlogPreviewModal';
 
 const BlogForm = () => {
     const router = useRouter();
@@ -14,6 +16,8 @@ const BlogForm = () => {
     const isEdit = true;
 
     const [loading, setLoading] = useState(false);
+    const [useAdvancedEditor, setUseAdvancedEditor] = useState(true);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
@@ -235,12 +239,22 @@ const BlogForm = () => {
                         <h1 className="text-3xl font-bold text-slate-900">
                             Edit Blog Post
                         </h1>
-                        <button
-                            onClick={() => router.push('/admin/blog')}
-                            className="text-slate-600 hover:text-slate-900"
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
+                        <div className="flex items-center space-x-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsPreviewOpen(true)}
+                                className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 flex items-center space-x-2 transition-colors border border-slate-200"
+                            >
+                                <Eye className="w-5 h-5" />
+                                <span>Preview Page</span>
+                            </button>
+                            <button
+                                onClick={() => router.push('/admin/blog')}
+                                className="text-slate-600 hover:text-slate-900 p-2"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -301,34 +315,61 @@ const BlogForm = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Content *
-                                    </label>
-                                    <div className="mb-2 p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600">
-                                        <p className="font-semibold mb-2">Formatting Guide:</p>
-                                        <ul className="space-y-1 text-xs">
-                                            <li>• <strong># Heading</strong> - Creates a main heading</li>
-                                            <li>• <strong>## Subheading</strong> - Creates a subheading</li>
-                                            <li>• <strong>- Item</strong> - Creates a bullet point</li>
-                                            <li>• <strong>[Link Text](URL)</strong> - Inserts a link (Internal or External)</li>
-                                            <li>• Leave blank lines between paragraphs</li>
-                                        </ul>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="block text-sm font-semibold text-slate-700">
+                                            Content *
+                                        </label>
+                                        <div className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="editorToggle"
+                                                checked={useAdvancedEditor}
+                                                onChange={(e) => setUseAdvancedEditor(e.target.checked)}
+                                                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                                            />
+                                            <label htmlFor="editorToggle" className="ml-2 text-sm font-medium text-slate-600">
+                                                Use Advanced Editor (TipTap)
+                                            </label>
+                                        </div>
                                     </div>
-                                    <textarea
-                                        value={contentText}
-                                        onChange={handleContentChange}
-                                        required
-                                        rows="16"
-                                        placeholder="# Main Heading&#10;&#10;Write your content here. Leave blank lines between paragraphs.&#10;&#10;## Subheading&#10;&#10;More content here.&#10;&#10;- Bullet point 1&#10;- Bullet point 2&#10;- Bullet point 3"
-                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    />
-                                    <p className="text-xs text-slate-500 mt-2">
-                                        Write naturally - formatting will be applied automatically
-                                    </p>
+
+                                    {!useAdvancedEditor && (
+                                        <div className="mb-2 p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600">
+                                            <p className="font-semibold mb-2">Formatting Guide:</p>
+                                            <ul className="space-y-1 text-xs">
+                                                <li>• <strong># Heading</strong> - Creates a main heading</li>
+                                                <li>• <strong>## Subheading</strong> - Creates a subheading</li>
+                                                <li>• <strong>- Item</strong> - Creates a bullet point</li>
+                                                <li>• <strong>[Link Text](URL)</strong> - Inserts a link (Internal or External)</li>
+                                                <li>• Leave blank lines between paragraphs</li>
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {useAdvancedEditor ? (
+                                        <RichTextEditor
+                                            value={formData.content_html}
+                                            onChange={(html) => setFormData({ ...formData, content_html: html })}
+                                        />
+                                    ) : (
+                                        <>
+                                            <textarea
+                                                value={contentText}
+                                                onChange={handleContentChange}
+                                                required={!formData.content_html}
+                                                rows="16"
+                                                placeholder="# Main Heading&#10;&#10;Write your content here. Leave blank lines between paragraphs.&#10;&#10;## Subheading&#10;&#10;More content here.&#10;&#10;- Bullet point 1&#10;- Bullet point 2&#10;- Bullet point 3"
+                                                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                            <p className="text-xs text-slate-500 mt-2">
+                                                Write naturally - formatting will be applied automatically
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
 
                                 {/* Preview */}
-                                {contentText && (
+                                {(!useAdvancedEditor && contentText) && (
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-2">
                                             Preview
@@ -476,6 +517,12 @@ const BlogForm = () => {
                         </div>
                     </form>
                 </div>
+                
+                <BlogPreviewModal 
+                    isOpen={isPreviewOpen} 
+                    onClose={() => setIsPreviewOpen(false)} 
+                    post={formData} 
+                />
             </AdminLayout>
         </ProtectedRoute>
     );
