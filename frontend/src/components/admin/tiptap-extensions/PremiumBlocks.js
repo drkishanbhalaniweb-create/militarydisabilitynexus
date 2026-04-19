@@ -14,6 +14,9 @@ export const GlobalWrapperDiv = Node.create({
       class: {
         default: null,
       },
+      style: {
+        default: null,
+      }
     };
   },
 
@@ -28,11 +31,12 @@ export const GlobalWrapperDiv = Node.create({
             'faq-section', 'faq-block', 'faq-answer', 
             'highlight-box', 'hook-block', 
             'denial-grid', 'denial-card', 'denial-header', 'denial-body', 
-            'definition-block', 'definition-content'
+            'definition-block', 'definition-content', 'toc-block', 'alert-box'
           ];
           
           if (allowedWrappers.some(c => cls.includes(c))) {
-            return { class: cls };
+            const style = element.getAttribute('style');
+            return style ? { class: cls, style } : { class: cls };
           }
           return false;
         },

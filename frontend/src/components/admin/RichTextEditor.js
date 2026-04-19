@@ -4,7 +4,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { uploadBlogImage, validateImage } from '../../lib/imageUpload';
 import { GlobalWrapperDiv, GlobalInlineSpan } from './tiptap-extensions/PremiumBlocks';
@@ -19,7 +19,9 @@ const TEMPLATES = {
     DENIAL_GRID: `<div class="denial-grid"><div class="denial-card"><span class="card-num">Reason 01</span><h4>No Formal Diagnosis</h4><p>The VA requires a formal diagnosis from a licensed professional.</p></div></div><p></p>`,
     DEFINITION_BLOCK: `<div class="definition-block"><span class="def-label">Definition</span><h3>What Is a PTSD Nexus Letter?</h3><p>An independent medical opinion linking your condition to your service.</p></div><p></p>`,
     QUOTABLE: `<p class="quotable">A denial from the VA is not a verdict on whether your condition is real. <strong>Understanding why claims fail is the first step.</strong></p><p></p>`,
-    CHECKLIST: `<ul class="checklist"><li>I have a current, formal diagnosis.</li><li>I can clearly identify my in-service stressor.</li></ul><p></p>`
+    CHECKLIST: `<ul class="checklist"><li>I have a current, formal diagnosis.</li><li>I can clearly identify my in-service stressor.</li></ul><p></p>`,
+    TOC_BLOCK: `<div class="toc-block"><p class="text-slate-500 text-sm font-semibold italic text-center">Table of contents will automatically generate here when viewed.</p></div><p></p>`,
+    ALERT_BOX: `<div class="alert-box"><p><strong>⚠️ Warning or Pattern Title</strong></p><p>Describe the specific issue, pattern, or warning here in a couple of sentences.</p></div><p></p>`
 };
 
 const MenuBar = ({ editor }) => {
@@ -82,6 +84,27 @@ const MenuBar = ({ editor }) => {
                     <input type="color" onInput={(e) => editor.chain().setColor(e.target.value).run()} value={editor.getAttributes('textStyle').color || '#cca35e'} className="w-6 h-6 p-0 border-0 bg-transparent rounded cursor-pointer self-center" title="Custom Text Color" />
                 </div>
                 <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                <div className="flex items-center gap-1 group" title="Box Component Background Color">
+                    <button type="button" onClick={() => {
+                        if (editor.isActive('globalWrapperDiv')) {
+                            const currentStyle = editor.getAttributes('globalWrapperDiv').style || '';
+                            const newStyle = currentStyle.replace(/background-color:[^;]+;?/i, '').trim();
+                            editor.chain().focus().updateAttributes('globalWrapperDiv', { style: newStyle || null }).run();
+                        }
+                    }} className="p-2 rounded text-slate-600 hover:bg-slate-200"><PaintBucket className="w-4 h-4" /></button>
+                    <input type="color" onInput={(e) => {
+                        if (editor.isActive('globalWrapperDiv')) {
+                            const color = e.target.value;
+                            const currentStyle = editor.getAttributes('globalWrapperDiv').style || '';
+                            let newStyle = currentStyle.replace(/background-color:[^;]+;?/i, '');
+                            newStyle += ` background-color: ${color} !important;`;
+                            editor.chain().focus().updateAttributes('globalWrapperDiv', { style: newStyle.trim() }).run();
+                        } else {
+                            toast.error("Click inside a box component first to set its background color!");
+                        }
+                    }} value={(editor.isActive('globalWrapperDiv') && editor.getAttributes('globalWrapperDiv').style?.match(/background-color:\s*([^; !]+)/i)?.[1]) || '#f8fafc'} className="w-6 h-6 p-0 border-0 bg-transparent rounded cursor-pointer self-center" />
+                </div>
+                <div className="w-px h-6 bg-slate-300 mx-1"></div>
                 <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded ${editor.isActive('bulletList') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Bullet List"><List className="w-4 h-4" /></button>
                 <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Numbered List"><ListOrdered className="w-4 h-4" /></button>
                 <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={`p-2 rounded ${editor.isActive('blockquote') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Quote"><Quote className="w-4 h-4" /></button>
@@ -114,6 +137,12 @@ const MenuBar = ({ editor }) => {
                 </button>
                 <button type="button" onClick={() => insertBlock(TEMPLATES.DEFINITION_BLOCK)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1">
                     <Info className="w-3 h-3" /> Definition Block
+                </button>
+                <button type="button" onClick={() => insertBlock(TEMPLATES.TOC_BLOCK)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1">
+                    <ListOrdered className="w-3 h-3" /> TOC
+                </button>
+                <button type="button" onClick={() => insertBlock(TEMPLATES.ALERT_BOX)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> Alert Box
                 </button>
             </div>
         </div>
@@ -173,7 +202,9 @@ const RichTextEditor = ({ value, onChange }) => {
                 .tiptap-wrapper .ProseMirror .highlight-box,
                 .tiptap-wrapper .ProseMirror .hook-block,
                 .tiptap-wrapper .ProseMirror .denial-grid,
-                .tiptap-wrapper .ProseMirror .definition-block {
+                .tiptap-wrapper .ProseMirror .definition-block,
+                .tiptap-wrapper .ProseMirror .alert-box,
+                .tiptap-wrapper .ProseMirror .toc-block {
                     margin: 1.5rem 0;
                     padding: 1.5rem;
                     border: 2px dashed #cbd5e1;

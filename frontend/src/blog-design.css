@@ -303,6 +303,23 @@
     .step-body h4 { font-family: 'Playfair Display', serif; font-size: 0.97rem; font-weight: 700; color: var(--blog-navy); margin-bottom: 5px; margin-top: 0; }
     .step-body p { font-size: 0.875rem; color: #555; line-height: 1.6; margin: 0; }
 
+    /* ── ALERT BOX ── */
+    .alert-box {
+      border-left: 4px solid var(--blog-danger);
+      background: var(--blog-highlight);
+      padding: 24px 28px; margin: 32px 0;
+      border-radius: 2px;
+    }
+    .alert-box strong {
+      color: var(--blog-navy); font-size: 1.05rem; display: block; margin-bottom: 12px; font-weight: 700;
+    }
+    .alert-box p {
+      font-size: 0.95rem; color: #3a2e1a; line-height: 1.65; margin: 0;
+    }
+    .alert-box p + p {
+      margin-top: 12px;
+    }
+
 @media (max-width: 620px) {
     .denial-grid { grid-template-columns: 1fr; }
     .writer-grid { grid-template-columns: 1fr; }
