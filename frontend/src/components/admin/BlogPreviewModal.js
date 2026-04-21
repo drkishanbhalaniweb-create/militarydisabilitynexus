@@ -108,7 +108,7 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                                                 dangerouslySetInnerHTML={{ __html: formattedContent.html }}
                                             />
                                         ) : (
-                                            <div className="p-8 md:p-12 text-center py-12 text-slate-400 font-semibold italic">
+                                            <div className="text-center py-12 text-slate-400 font-semibold italic">
                                                 No content added yet.
                                             </div>
                                         )}

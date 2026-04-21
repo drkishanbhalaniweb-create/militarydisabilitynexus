@@ -146,7 +146,7 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
     processedHtml += CARD_CLOSE;
 
     // Replace the markers with actual HTML
-    const actualCardOpen = '<div class="p-8 md:p-12 mb-2 prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-a:text-[#B91C3C] font-inter">';
+    const actualCardOpen = '<div class="mb-6 prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-a:text-[#B91C3C] font-inter">';
     const actualCardClose = '</div>';
 
     // Clean up empty cards before replacing (remove spacing and <p></p> inside them)
