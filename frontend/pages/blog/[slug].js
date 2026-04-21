@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Clock, Calendar, User, ArrowRight } from 'lucide-react';
-import { blogApi, caseStudyApi } from '../../src/lib/api';
+import { blogApi, caseStudyApi, clinicalProfileApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import ClinicalAuthorCard from '../../src/components/shared/ClinicalAuthorCard';
 import TableOfContents from '../../src/components/blog/TableOfContents';
 import RelatedInsights from '../../src/components/shared/RelatedInsights';
 import { formatBlogHTML } from '../../src/lib/htmlUtils';
@@ -72,12 +73,28 @@ export async function getStaticProps({ params }) {
             relatedInsights = [...relatedInsights, ...additional];
         }
 
+        // Fetch clinical profiles if linked
+        let authorProfile = null;
+        let reviewerProfile = null;
+        try {
+            if (post.author_profile_id) {
+                authorProfile = await clinicalProfileApi.getById(post.author_profile_id);
+            }
+            if (post.reviewer_profile_id) {
+                reviewerProfile = await clinicalProfileApi.getById(post.reviewer_profile_id);
+            }
+        } catch (e) {
+            console.error('Error fetching clinical profiles:', e);
+        }
+
         return {
             props: { 
                 post,
-                relatedInsights: relatedInsights.slice(0, 3)
+                relatedInsights: relatedInsights.slice(0, 3),
+                authorProfile,
+                reviewerProfile,
             },
-            revalidate: 3600, // Revalidate every hour
+            revalidate: 3600,
         };
     } catch (error) {
         console.error(`Error fetching blog post for slug ${params.slug}:`, error);
@@ -85,7 +102,7 @@ export async function getStaticProps({ params }) {
     }
 }
 
-const BlogPost = ({ post, relatedInsights = [] }) => {
+const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerProfile = null }) => {
     const router = useRouter();
 
     const formattedContent = useMemo(() => {
@@ -150,7 +167,12 @@ const BlogPost = ({ post, relatedInsights = [] }) => {
         "headline": post.title,
         "description": post.excerpt,
         "url": `https://www.militarydisabilitynexus.com/blog/${post.slug}`,
-        "author": {
+        "author": authorProfile ? {
+            "@type": "Person",
+            "name": authorProfile.full_name + (authorProfile.credentials ? `, ${authorProfile.credentials}` : ''),
+            "url": `https://www.militarydisabilitynexus.com/clinician/${authorProfile.slug}`,
+            ...(authorProfile.linkedin_url ? { "sameAs": [authorProfile.linkedin_url] } : {})
+        } : {
             "@type": "Organization",
             "name": editorialTeam.name,
             "url": `https://www.militarydisabilitynexus.com${editorialTeam.href}`
@@ -266,11 +288,19 @@ const BlogPost = ({ post, relatedInsights = [] }) => {
                                 dangerouslySetInnerHTML={{ __html: formattedContent.html }}
                             />
 
-                            <AttributionPanel
-                                author={editorialTeam}
-                                reviewer={clinicalReviewTeam}
-                                updatedLabel={`Originally published ${formatDate(post.published_at)}${post.updated_at ? ` • Last updated ${formatDate(post.updated_at)}` : ''}`}
-                            />
+                            {(authorProfile || reviewerProfile) ? (
+                                <ClinicalAuthorCard
+                                    author={authorProfile}
+                                    reviewer={reviewerProfile}
+                                    updatedLabel={`Originally published ${formatDate(post.published_at)}${post.updated_at ? ` • Last updated ${formatDate(post.updated_at)}` : ''}`}
+                                />
+                            ) : (
+                                <AttributionPanel
+                                    author={editorialTeam}
+                                    reviewer={clinicalReviewTeam}
+                                    updatedLabel={`Originally published ${formatDate(post.published_at)}${post.updated_at ? ` • Last updated ${formatDate(post.updated_at)}` : ''}`}
+                                />
+                            )}
 
                             {/* Tags */}
                             {post.tags && post.tags.length > 0 && (

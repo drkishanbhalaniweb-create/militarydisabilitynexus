@@ -7,6 +7,7 @@ import { Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../../src/components/SEO';
 import RelatedPostPicker from '../../../../src/components/admin/RelatedPostPicker';
+import ClinicalProfilePicker from '../../../../src/components/admin/ClinicalProfilePicker';
 
 const CaseStudyForm = () => {
     const router = useRouter();
@@ -26,6 +27,8 @@ const CaseStudyForm = () => {
         published_at: new Date().toISOString().split('T')[0],
         tags: [],
         related_post_ids: [],
+        author_profile_id: null,
+        reviewer_profile_id: null,
     });
 
     const availableTags = [
@@ -63,6 +66,8 @@ const CaseStudyForm = () => {
                 ...data,
                 published_at: data.published_at?.split('T')[0] || new Date().toISOString().split('T')[0],
                 related_post_ids: data.related_post_ids || [],
+                author_profile_id: data.author_profile_id || null,
+                reviewer_profile_id: data.reviewer_profile_id || null,
             });
             // Convert HTML back to plain text for editing
             setContentText({
@@ -230,6 +235,8 @@ const CaseStudyForm = () => {
                 is_published: formData.is_published,
                 published_at: formData.published_at + 'T00:00:00Z',
                 related_post_ids: formData.related_post_ids || [],
+                author_profile_id: formData.author_profile_id || null,
+                reviewer_profile_id: formData.reviewer_profile_id || null,
             };
 
             const { error } = await supabase
@@ -339,6 +346,21 @@ const CaseStudyForm = () => {
                                     <RelatedPostPicker 
                                         selectedIds={formData.related_post_ids}
                                         onChange={(ids) => setFormData({ ...formData, related_post_ids: ids })}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                                    <ClinicalProfilePicker
+                                        label="Clinical Author Profile"
+                                        value={formData.author_profile_id}
+                                        onChange={(id) => setFormData({ ...formData, author_profile_id: id })}
+                                        helpText="Overrides author display with a rich clinical profile card."
+                                    />
+                                    <ClinicalProfilePicker
+                                        label="Medical Reviewer Profile"
+                                        value={formData.reviewer_profile_id}
+                                        onChange={(id) => setFormData({ ...formData, reviewer_profile_id: id })}
+                                        helpText="Adds a 'Reviewed for Clinical Accuracy' trust signal."
                                     />
                                 </div>
 

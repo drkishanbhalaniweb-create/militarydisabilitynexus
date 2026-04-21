@@ -15,7 +15,8 @@ import {
   BookOpen,
   Activity,
   Settings,
-  Quote
+  Quote,
+  Stethoscope
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -69,6 +70,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Services', href: '/admin/services', icon: Briefcase },
     { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Quote },
+    { name: 'Clinical Profiles', href: '/admin/clinical-profiles', icon: Stethoscope },
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
     { name: 'Community Q&A', href: '/admin/community', icon: HelpCircle },
     { name: 'Settings', href: '/admin/settings', icon: Settings },

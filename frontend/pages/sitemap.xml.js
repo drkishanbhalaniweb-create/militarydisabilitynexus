@@ -76,6 +76,7 @@ export const getServerSideProps = async ({ res }) => {
         const blogs = await fetchAll('blog_posts', 'slug, updated_at, published_at', { is_published: true });
         const caseStudies = await fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true });
         const communityQuestions = await fetchAll('community_questions', 'slug, updated_at', { status: 'published' });
+        const clinicians = await fetchAll('clinical_profiles', 'slug, updated_at', { is_active: true });
 
         // Static routes with priority and changefreq signals
         // Priority: 1.0 = homepage, 0.8 = core pages, 0.7 = content hubs, 0.5 = secondary pages
@@ -150,6 +151,17 @@ export const getServerSideProps = async ({ res }) => {
                     lastmod: formatDate(question.updated_at),
                     priority: '0.5',
                     changefreq: 'weekly',
+                });
+            }
+        });
+
+        clinicians.forEach(clinician => {
+            if (clinician.slug) {
+                urls.push({
+                    loc: `${SITE_URL}/clinician/${escapeXml(clinician.slug)}`,
+                    lastmod: formatDate(clinician.updated_at),
+                    priority: '0.6',
+                    changefreq: 'monthly',
                 });
             }
         });

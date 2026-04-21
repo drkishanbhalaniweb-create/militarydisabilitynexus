@@ -2,10 +2,11 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Calendar, Eye, Target, Lightbulb, TrendingUp, Star, ArrowRight } from 'lucide-react';
-import { caseStudyApi, blogApi } from '../../src/lib/api';
+import { caseStudyApi, blogApi, clinicalProfileApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import ClinicalAuthorCard from '../../src/components/shared/ClinicalAuthorCard';
 import RelatedInsights from '../../src/components/shared/RelatedInsights';
 import {
     buildOrganizationReference,
@@ -78,12 +79,28 @@ export async function getStaticProps({ params }) {
             relatedInsights = [...relatedInsights, ...additional];
         }
 
+        // Fetch clinical profiles if linked
+        let authorProfile = null;
+        let reviewerProfile = null;
+        try {
+            if (caseStudy.author_profile_id) {
+                authorProfile = await clinicalProfileApi.getById(caseStudy.author_profile_id);
+            }
+            if (caseStudy.reviewer_profile_id) {
+                reviewerProfile = await clinicalProfileApi.getById(caseStudy.reviewer_profile_id);
+            }
+        } catch (e) {
+            console.error('Error fetching clinical profiles:', e);
+        }
+
         return {
             props: { 
                 caseStudy,
-                relatedInsights: relatedInsights.slice(0, 3)
+                relatedInsights: relatedInsights.slice(0, 3),
+                authorProfile,
+                reviewerProfile,
             },
-            revalidate: 3600, // Revalidate every hour
+            revalidate: 3600,
         };
     } catch (error) {
         console.error(`Error fetching case study for slug ${params.slug}:`, error);
@@ -91,7 +108,7 @@ export async function getStaticProps({ params }) {
     }
 }
 
-const CaseStudyDetail = ({ caseStudy, relatedInsights = [] }) => {
+const CaseStudyDetail = ({ caseStudy, relatedInsights = [], authorProfile = null, reviewerProfile = null }) => {
     const router = useRouter();
 
     useEffect(() => {
@@ -124,7 +141,12 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [] }) => {
         "@type": "Article",
         "headline": caseStudy.title,
         "description": caseStudy.excerpt,
-        "author": {
+        "author": authorProfile ? {
+            "@type": "Person",
+            "name": authorProfile.full_name + (authorProfile.credentials ? `, ${authorProfile.credentials}` : ''),
+            "url": `https://www.militarydisabilitynexus.com/clinician/${authorProfile.slug}`,
+            ...(authorProfile.linkedin_url ? { "sameAs": [authorProfile.linkedin_url] } : {})
+        } : {
             "@type": "Organization",
             "name": editorialTeam.name,
             "url": `https://www.militarydisabilitynexus.com${editorialTeam.href}`
@@ -294,11 +316,19 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [] }) => {
                         </div>
                     )}
 
-                    <AttributionPanel
-                        author={editorialTeam}
-                        reviewer={clinicalReviewTeam}
-                        updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
-                    />
+                    {(authorProfile || reviewerProfile) ? (
+                        <ClinicalAuthorCard
+                            author={authorProfile}
+                            reviewer={reviewerProfile}
+                            updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
+                        />
+                    ) : (
+                        <AttributionPanel
+                            author={editorialTeam}
+                            reviewer={clinicalReviewTeam}
+                            updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
+                        />
+                    )}
 
                     <div className="mt-8 grid gap-4 md:grid-cols-3">
                         <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">

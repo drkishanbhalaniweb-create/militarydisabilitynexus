@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import RichTextEditor from '../../../src/components/admin/RichTextEditor';
 import BlogPreviewModal from '../../../src/components/admin/BlogPreviewModal';
 import RelatedPostPicker from '../../../src/components/admin/RelatedPostPicker';
+import ClinicalProfilePicker from '../../../src/components/admin/ClinicalProfilePicker';
 
 const BlogForm = () => {
     const router = useRouter();
@@ -33,6 +34,8 @@ const BlogForm = () => {
         featured_image: '',
         featured_image_path: '',
         related_post_ids: [],
+        author_profile_id: null,
+        reviewer_profile_id: null,
     });
 
     const [tagInput, setTagInput] = useState('');
@@ -398,6 +401,21 @@ const BlogForm = () => {
                                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                         />
                                     </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                                    <ClinicalProfilePicker
+                                        label="Clinical Author Profile"
+                                        value={formData.author_profile_id}
+                                        onChange={(id) => setFormData({ ...formData, author_profile_id: id })}
+                                        helpText="Overrides author display with a rich clinical profile card."
+                                    />
+                                    <ClinicalProfilePicker
+                                        label="Medical Reviewer Profile"
+                                        value={formData.reviewer_profile_id}
+                                        onChange={(id) => setFormData({ ...formData, reviewer_profile_id: id })}
+                                        helpText="Adds a 'Reviewed for Clinical Accuracy' trust signal."
+                                    />
                                 </div>
 
                                 <div>

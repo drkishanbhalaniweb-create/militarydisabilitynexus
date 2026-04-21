@@ -646,6 +646,149 @@ export const caseStudyApi = {
   },
 };
 
+// ============================================
+// CLINICAL PROFILES
+// ============================================
+
+export const clinicalProfileApi = {
+  async getAll(activeOnly = true) {
+    let query = supabase
+      .from('clinical_profiles')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (activeOnly) {
+      query = query.eq('is_active', true);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  },
+
+  async getBySlug(slug) {
+    const { data, error } = await supabase
+      .from('clinical_profiles')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getById(id) {
+    if (!id) return null;
+    const { data, error } = await supabase
+      .from('clinical_profiles')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(profileData) {
+    let slug = profileData.slug || generateSlug(profileData.full_name);
+
+    // Ensure unique slug within clinical_profiles
+    let uniqueSlug = slug;
+    let counter = 1;
+    while (true) {
+      const { data } = await supabase
+        .from('clinical_profiles')
+        .select('id')
+        .eq('slug', uniqueSlug);
+
+      if (!data || data.length === 0) break;
+      counter++;
+      uniqueSlug = `${slug}-${counter}`;
+    }
+
+    const { data, error } = await supabase
+      .from('clinical_profiles')
+      .insert([{
+        slug: uniqueSlug,
+        full_name: profileData.full_name,
+        credentials: profileData.credentials || null,
+        photo_url: profileData.photo_url || null,
+        bio: profileData.bio,
+        linkedin_url: profileData.linkedin_url || null,
+        is_active: profileData.is_active !== undefined ? profileData.is_active : true,
+        display_order: profileData.display_order || 0,
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id, profileData) {
+    const updateData = {
+      full_name: profileData.full_name,
+      credentials: profileData.credentials || null,
+      photo_url: profileData.photo_url || null,
+      bio: profileData.bio,
+      linkedin_url: profileData.linkedin_url || null,
+      is_active: profileData.is_active,
+      display_order: profileData.display_order || 0,
+    };
+
+    if (profileData.slug) {
+      const slug = generateSlug(profileData.slug);
+      let uniqueSlug = slug;
+      let counter = 1;
+      while (true) {
+        const { data } = await supabase
+          .from('clinical_profiles')
+          .select('id')
+          .eq('slug', uniqueSlug)
+          .neq('id', id);
+
+        if (!data || data.length === 0) break;
+        counter++;
+        uniqueSlug = `${slug}-${counter}`;
+      }
+      updateData.slug = uniqueSlug;
+    }
+
+    const { data, error } = await supabase
+      .from('clinical_profiles')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('clinical_profiles')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  },
+
+  async toggleActive(id, currentStatus) {
+    const { data, error } = await supabase
+      .from('clinical_profiles')
+      .update({ is_active: !currentStatus })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+};
+
 export default {
   services: servicesApi,
   blog: blogApi,
@@ -654,4 +797,5 @@ export default {
   fileUpload: fileUploadApi,
   formSubmissions: formSubmissionsApi,
   caseStudy: caseStudyApi,
+  clinicalProfile: clinicalProfileApi,
 };
