@@ -6,6 +6,7 @@ import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
 import { Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../src/components/SEO';
+import RelatedPostPicker from '../../../src/components/admin/RelatedPostPicker';
 
 const CaseStudyForm = () => {
     const router = useRouter();
@@ -24,6 +25,7 @@ const CaseStudyForm = () => {
         is_published: false,
         published_at: new Date().toISOString().split('T')[0],
         tags: [],
+        related_post_ids: [],
     });
 
     const availableTags = [
@@ -177,6 +179,7 @@ const CaseStudyForm = () => {
                 tags: formData.tags || [],
                 is_published: formData.is_published,
                 published_at: formData.published_at + 'T00:00:00Z',
+                related_post_ids: formData.related_post_ids || [],
             };
 
             const { error } = await supabase
@@ -279,6 +282,13 @@ const CaseStudyForm = () => {
                                             </button>
                                         ))}
                                     </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-slate-100">
+                                    <RelatedPostPicker 
+                                        selectedIds={formData.related_post_ids}
+                                        onChange={(ids) => setFormData({ ...formData, related_post_ids: ids })}
+                                    />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">

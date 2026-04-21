@@ -26,6 +26,8 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 - **Header Navigation Simplification**: Removed the `Contact` link from the shared header navigation; the `/contact` page remains accessible through the `Book a Call` CTA.
 - Implemented the next SEO batch around YMYL trust signals using policy pages, attribution blocks, case-study deduplication, and service-page proof links without inventing unsupported clinician identities.
 - Lawyer-drafted pages such as About, Privacy Policy, and Disclaimer are source-of-truth content and should not have substantive copy rewritten during SEO work.
+- **Blog Table of Contents Redesign**: Moved to a minimalist, technical monospace style with custom dash/arrow markers instead of numbering. Implemented internal subtle scrollbars and fixed sticky positioning tracks in the grid layout to ensure the TOC stays reachable during long-form reading flows.
+- **Relates Insights Implementation**: Added a manual internal linking system for blogs and case studies via `related_post_ids`, supported by an automated fallback scoring system based on title and tag matches.
 
 ## Wall of Shame
 
@@ -40,6 +42,7 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 -Actively working on improving the SEO of the page using the agent SEO skills.
 - Continue the YMYL SEO roadmap with clinician/reviewer pages, editorial policy pages, and stronger expert/entity signals.
 - Confirm the testimonial migration is applied in the live Supabase project before relying on admin testimonial writes in production.
+- Refine the admin-side blog post picker to simplify the selection of related insights during content creation.
 
 ## Completed Tasks
 
@@ -53,6 +56,9 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 - Added a repo-local project-memory CLI and updated rule files to stop depending on the broken external npx package.
 - Removed the `Contact` item from the shared header nav while keeping the `/contact` CTA in place.
 - Published editorial and medical review policy pages, expanded the About page, added author/reviewer attribution blocks, simplified the case-studies index, and added service-page testimonial proof/internal links.
+- Refactored the Table of Contents (TOC) to a minimalist, procedural technical aesthetic using `font-mono` at `13px` with dash/arrow markers.
+- Fixed TOC sticky behavior on blog pages by adjusting grid container `items-start` behavior and adding a `.subtle-scrollbar` utility for desktop readability.
+- Implemented the "Related Insights" internal linking feature with manual selection in admin and automated scoring fallback for public pages.
 
 ## History
 

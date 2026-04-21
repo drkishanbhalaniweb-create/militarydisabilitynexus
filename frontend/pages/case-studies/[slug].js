@@ -2,16 +2,16 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Calendar, Eye, Target, Lightbulb, TrendingUp, Star, ArrowRight } from 'lucide-react';
-import { caseStudyApi } from '../../src/lib/api';
+import { caseStudyApi, blogApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import RelatedInsights from '../../src/components/shared/RelatedInsights';
 import {
     buildOrganizationReference,
     clinicalReviewTeam,
     editorialTeam,
 } from '../../src/lib/trust';
-// import OptimizedImage from '../../src/components/OptimizedImage'; // Simple img replacement
 
 export async function getStaticPaths() {
     try {
@@ -34,8 +34,55 @@ export async function getStaticProps({ params }) {
             return { notFound: true };
         }
 
+        // Fetch Related Insights
+        let relatedInsights = [];
+        
+        // 1. Try manual selection first
+        if (caseStudy.related_post_ids && caseStudy.related_post_ids.length > 0) {
+            // Check both blogs and studies (could be any ID)
+            const [blogs, studies] = await Promise.all([
+                blogApi.getByIds(caseStudy.related_post_ids),
+                caseStudyApi.getByIds(caseStudy.related_post_ids)
+            ]);
+            
+            relatedInsights = [
+                ...blogs.map(b => ({ ...b, type: 'blog' })),
+                ...studies.filter(s => s.id !== caseStudy.id).map(s => ({ ...s, type: 'case_study' }))
+            ].sort((a, b) => {
+                const indexA = caseStudy.related_post_ids.indexOf(a.id);
+                const indexB = caseStudy.related_post_ids.indexOf(b.id);
+                return indexA - indexB;
+            });
+        }
+
+        // 2. Fallback to auto-populate if less than 3
+        if (relatedInsights.length < 3) {
+            const allBlogs = await blogApi.getAll(50);
+            const allStudies = await caseStudyApi.getAll();
+            
+            const existingIds = new Set(relatedInsights.map(item => item.id));
+            const candidates = [
+                ...allBlogs.map(b => ({ ...b, type: 'blog' })),
+                ...allStudies.filter(s => s.id !== caseStudy.id).map(s => ({ ...s, type: 'case_study' }))
+            ].filter(item => !existingIds.has(item.id));
+
+            // Score by tag match
+            const scored = candidates.map(item => {
+                let score = 0;
+                const commonTags = (item.tags || []).filter(t => (caseStudy.tags || []).includes(t));
+                score += commonTags.length * 2;
+                return { ...item, score };
+            }).sort((a, b) => b.score - a.score);
+
+            const additional = scored.slice(0, 3 - relatedInsights.length);
+            relatedInsights = [...relatedInsights, ...additional];
+        }
+
         return {
-            props: { caseStudy },
+            props: { 
+                caseStudy,
+                relatedInsights: relatedInsights.slice(0, 3)
+            },
             revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
@@ -44,7 +91,7 @@ export async function getStaticProps({ params }) {
     }
 }
 
-const CaseStudyDetail = ({ caseStudy }) => {
+const CaseStudyDetail = ({ caseStudy, relatedInsights = [] }) => {
     const router = useRouter();
 
     useEffect(() => {
@@ -272,7 +319,7 @@ const CaseStudyDetail = ({ caseStudy }) => {
                     </div>
 
                     {/* CTA */}
-                    <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
+                    <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center mb-12">
                         <h3 className="text-2xl font-bold text-white mb-4">
                             Ready to achieve similar results?
                         </h3>
@@ -286,6 +333,11 @@ const CaseStudyDetail = ({ caseStudy }) => {
                             Get Free Consultation
                             <ArrowRight className="inline ml-2 w-4 h-4" />
                         </Link>
+                    </div>
+
+                    {/* Related Insights */}
+                    <div className="mt-12">
+                        <RelatedInsights insights={relatedInsights} />
                     </div>
                 </article>
             </div>

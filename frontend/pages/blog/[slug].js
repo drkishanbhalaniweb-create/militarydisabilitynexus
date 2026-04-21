@@ -1,10 +1,13 @@
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Clock, Calendar, User, ArrowRight } from 'lucide-react';
-import { blogApi } from '../../src/lib/api';
+import { blogApi, caseStudyApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import AttributionPanel from '../../src/components/trust/AttributionPanel';
+import TableOfContents from '../../src/components/blog/TableOfContents';
+import RelatedInsights from '../../src/components/shared/RelatedInsights';
 import { formatBlogHTML } from '../../src/lib/htmlUtils';
 import {
     buildOrganizationReference,
@@ -33,8 +36,47 @@ export async function getStaticProps({ params }) {
             return { notFound: true };
         }
 
+        // Fetch Related Insights
+        let relatedInsights = [];
+        
+        // 1. Try manual selection first
+        if (post.related_post_ids && post.related_post_ids.length > 0) {
+            const manualBlogs = await blogApi.getByIds(post.related_post_ids);
+            relatedInsights = manualBlogs.map(b => ({ ...b, type: 'blog' }));
+            
+            // If we have room, check for manual case studies too (assuming same column)
+            // For now, blogApi.getByIds covers it if they are in same table, 
+            // but usually they are separate.
+        }
+
+        // 2. Fallback to auto-populate if less than 3
+        if (relatedInsights.length < 3) {
+            const allBlogs = await blogApi.getAll(50);
+            const allStudies = await caseStudyApi.getAll();
+            
+            const candidates = [
+                ...allBlogs.filter(b => b.id !== post.id).map(b => ({ ...b, type: 'blog' })),
+                ...allStudies.map(s => ({ ...s, type: 'case_study' }))
+            ];
+
+            // Score by tag/category match
+            const scored = candidates.map(item => {
+                let score = 0;
+                if (item.category === post.category) score += 5;
+                const commonTags = (item.tags || []).filter(t => (post.tags || []).includes(t));
+                score += commonTags.length * 2;
+                return { ...item, score };
+            }).sort((a, b) => b.score - a.score);
+
+            const additional = scored.slice(0, 3 - relatedInsights.length);
+            relatedInsights = [...relatedInsights, ...additional];
+        }
+
         return {
-            props: { post },
+            props: { 
+                post,
+                relatedInsights: relatedInsights.slice(0, 3)
+            },
             revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
@@ -43,8 +85,13 @@ export async function getStaticProps({ params }) {
     }
 }
 
-const BlogPost = ({ post }) => {
+const BlogPost = ({ post, relatedInsights = [] }) => {
     const router = useRouter();
+
+    const formattedContent = useMemo(() => {
+        if (!post?.content_html) return { html: '', tocItems: [], hasToc: false };
+        return formatBlogHTML(post.content_html, { extractToc: true });
+    }, [post?.content_html]);
 
     if (router.isFallback) {
         return (
@@ -194,65 +241,94 @@ const BlogPost = ({ post }) => {
                 )}
 
                 {/* Content */}
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div 
-                        className="prose-container"
-                        dangerouslySetInnerHTML={{ __html: formatBlogHTML(post.content_html) }}
-                    />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 relative">
+                        {/* Mobile TOC */}
+                        {formattedContent.hasToc && (
+                            <div className="block lg:hidden mb-8 w-full sticky top-[72px] z-40 shadow-sm border-b border-slate-200">
+                                <TableOfContents items={formattedContent.tocItems} mobile={true} />
+                            </div>
+                        )}
 
-                    <AttributionPanel
-                        author={editorialTeam}
-                        reviewer={clinicalReviewTeam}
-                        updatedLabel={`Originally published ${formatDate(post.published_at)}${post.updated_at ? ` • Last updated ${formatDate(post.updated_at)}` : ''}`}
-                    />
-
-                    {/* Tags */}
-                    {post.tags && post.tags.length > 0 && (
-                        <div className="mt-8 flex flex-wrap gap-2">
-                            {post.tags.map((tag, idx) => (
-                                <span
-                                    key={idx}
-                                    className="bg-slate-200 text-slate-700 px-4 py-2 rounded-full text-sm font-medium"
-                                >
-                                    #{tag}
-                                </span>
-                            ))}
+                        {/* Desktop TOC Sidebar */}
+                        <div className="hidden lg:block lg:col-span-3">
+                            <div className="sticky top-24">
+                                {formattedContent.hasToc && (
+                                    <TableOfContents items={formattedContent.tocItems} />
+                                )}
+                            </div>
                         </div>
-                    )}
 
-                    <div className="mt-8 grid gap-4 md:grid-cols-3">
-                        <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Services</div>
-                            <div className="mt-2 text-lg font-bold text-slate-900">See service options</div>
-                            <p className="mt-2 text-sm text-slate-600">Move from educational content to the relevant documentation or review service.</p>
-                        </Link>
-                        <Link href="/testimonials" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Proof</div>
-                            <div className="mt-2 text-lg font-bold text-slate-900">Read testimonials</div>
-                            <p className="mt-2 text-sm text-slate-600">See how veterans describe the experience in their own words.</p>
-                        </Link>
-                        <Link href="/medical-review-policy" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Standards</div>
-                            <div className="mt-2 text-lg font-bold text-slate-900">Medical review policy</div>
-                            <p className="mt-2 text-sm text-slate-600">Understand how clinically sensitive educational content is reviewed on this site.</p>
-                        </Link>
+                        {/* Main Content Area */}
+                        <div className="lg:col-span-7 w-full">
+                            <div 
+                                className="prose-container"
+                                dangerouslySetInnerHTML={{ __html: formattedContent.html }}
+                            />
+
+                            <AttributionPanel
+                                author={editorialTeam}
+                                reviewer={clinicalReviewTeam}
+                                updatedLabel={`Originally published ${formatDate(post.published_at)}${post.updated_at ? ` • Last updated ${formatDate(post.updated_at)}` : ''}`}
+                            />
+
+                            {/* Tags */}
+                            {post.tags && post.tags.length > 0 && (
+                                <div className="mt-8 flex flex-wrap gap-2">
+                                    {post.tags.map((tag, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="bg-slate-200 text-slate-700 px-4 py-2 rounded-full text-sm font-medium"
+                                        >
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="mt-8 grid gap-4 md:grid-cols-3">
+                                <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Services</div>
+                                    <div className="mt-2 text-lg font-bold text-slate-900">See service options</div>
+                                    <p className="mt-2 text-sm text-slate-600">Move from educational content to the relevant documentation or review service.</p>
+                                </Link>
+                                <Link href="/testimonials" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Proof</div>
+                                    <div className="mt-2 text-lg font-bold text-slate-900">Read testimonials</div>
+                                    <p className="mt-2 text-sm text-slate-600">See how veterans describe the experience in their own words.</p>
+                                </Link>
+                                <Link href="/medical-review-policy" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Standards</div>
+                                    <div className="mt-2 text-lg font-bold text-slate-900">Medical review policy</div>
+                                    <p className="mt-2 text-sm text-slate-600">Understand how clinically sensitive educational content is reviewed on this site.</p>
+                                </Link>
+                            </div>
+
+                            {/* CTA */}
+                            <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
+                                <h3 className="text-2xl font-bold text-white mb-4">
+                                    Need help with your VA claim?
+                                </h3>
+                                <p className="text-indigo-50 mb-6">
+                                    Get expert guidance and documentation from our licensed clinicians
+                                </p>
+                                <Link
+                                    href="/contact"
+                                    className="inline-block bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-slate-50 transition-colors"
+                                >
+                                    Get Free Consultation
+                                    <ArrowRight className="inline ml-2 w-4 h-4" />
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Empty Right Column for balance */}
+                        <div className="hidden lg:block lg:col-span-2"></div>
                     </div>
-
-                    {/* CTA */}
-                    <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
-                        <h3 className="text-2xl font-bold text-white mb-4">
-                            Need help with your VA claim?
-                        </h3>
-                        <p className="text-indigo-50 mb-6">
-                            Get expert guidance and documentation from our licensed clinicians
-                        </p>
-                        <Link
-                            href="/contact"
-                            className="inline-block bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-slate-50 transition-colors"
-                        >
-                            Get Free Consultation
-                            <ArrowRight className="inline ml-2 w-4 h-4" />
-                        </Link>
+                    
+                    {/* Related Insights - Moved outside the grid to make TOC stop at blog end */}
+                    <div className="mt-16">
+                        <RelatedInsights insights={relatedInsights} />
                     </div>
                 </div>
             </article>

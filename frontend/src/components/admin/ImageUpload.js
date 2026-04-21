@@ -145,7 +145,7 @@ const ImageUpload = ({
             ref={fileInputRef}
             type="file"
             className="hidden"
-            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml"
             onChange={handleChange}
             disabled={uploading}
           />
@@ -164,7 +164,7 @@ const ImageUpload = ({
                 Click to upload or drag and drop
               </p>
               <p className="text-xs text-slate-500">
-                PNG, JPG, WebP, GIF up to 5MB
+                PNG, JPG, WebP, GIF, SVG up to 5MB
               </p>
             </div>
           )}

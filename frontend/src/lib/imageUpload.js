@@ -7,7 +7,7 @@ import { supabase } from './supabase';
 
 const BUCKET_NAME = 'blog'; // Using existing blog bucket
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
 
 /**
  * Validate image file
@@ -22,7 +22,7 @@ export const validateImage = (file) => {
 
   // Check file type
   if (!ALLOWED_TYPES.includes(file.type)) {
-    errors.push('Invalid file type. Allowed: JPG, PNG, WebP, GIF');
+    errors.push('Invalid file type. Allowed: JPG, PNG, WebP, GIF, SVG');
   }
 
   // Check file size

@@ -34,8 +34,6 @@ export const servicesApi = {
 
     if (dbService) return dbService;
 
-
-
     // If we're here, it's truly not found
     return null;
   },
@@ -75,6 +73,18 @@ export const blogApi = {
       .eq('slug', slug)
       .eq('is_published', true)
       .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .in('id', ids)
+      .eq('is_published', true);
 
     if (error) throw error;
     return data;
@@ -136,6 +146,18 @@ export const testimonialApi = {
     }
 
     const { data, error } = await query;
+    if (error) throw error;
+    return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
+  },
+
+  async getByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .in('id', ids)
+      .eq('is_published', true);
+
     if (error) throw error;
     return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
   },
@@ -511,6 +533,18 @@ export const caseStudyApi = {
       .select('*')
       .eq('id', id)
       .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    const { data, error } = await supabase
+      .from('case_studies')
+      .select('*')
+      .in('id', ids)
+      .eq('is_published', true);
 
     if (error) throw error;
     return data;

@@ -1,10 +1,17 @@
+import { useMemo } from 'react';
 import { X } from 'lucide-react';
 import { Clock, Calendar, User } from 'lucide-react';
 import AttributionPanel from '../trust/AttributionPanel';
+import TableOfContents from '../blog/TableOfContents';
 import { clinicalReviewTeam, editorialTeam } from '../../lib/trust';
 import { formatBlogHTML } from '../../lib/htmlUtils';
 
 const BlogPreviewModal = ({ isOpen, onClose, post }) => {
+    const formattedContent = useMemo(() => {
+        if (!post?.content_html) return { html: '', tocItems: [], hasToc: false };
+        return formatBlogHTML(post.content_html, { extractToc: true });
+    }, [post?.content_html]);
+
     if (!isOpen) return null;
 
     const formatDate = (dateString) => {
@@ -77,38 +84,78 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                         )}
 
                         {/* Content */}
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-                            <div className="prose-container mb-12">
-                                {post.content_html ? (
-                                    <div
-                                        dangerouslySetInnerHTML={{ __html: formatBlogHTML(post.content_html) }}
-                                    />
-                                ) : (
-                                    <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg text-center py-12 text-slate-400 font-semibold italic">
-                                        No content added yet.
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+                            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start relative">
+                                {/* Mobile TOC */}
+                                {formattedContent.hasToc && (
+                                    <div className="block lg:hidden mb-8 w-full sticky top-[72px] z-40 shadow-sm border-b border-slate-200">
+                                        <TableOfContents items={formattedContent.tocItems} mobile={true} />
                                     </div>
                                 )}
-                            </div>
 
-                            <AttributionPanel
-                                author={editorialTeam}
-                                reviewer={clinicalReviewTeam}
-                                updatedLabel={`Originally published ${formatDate(post.published_at)}`}
-                            />
-
-                            {/* Tags */}
-                            {post.tags && post.tags.length > 0 && (
-                                <div className="mt-8 flex flex-wrap gap-2">
-                                    {post.tags.map((tag, idx) => (
-                                        <span
-                                            key={idx}
-                                            className="bg-slate-200 text-slate-700 px-4 py-2 rounded-full text-sm font-medium"
-                                        >
-                                            #{tag}
-                                        </span>
-                                    ))}
+                                {/* Desktop TOC Sidebar */}
+                                <div className="hidden lg:block lg:col-span-3 sticky top-24">
+                                    {formattedContent.hasToc && (
+                                        <TableOfContents items={formattedContent.tocItems} />
+                                    )}
                                 </div>
-                            )}
+
+                                {/* Main Content Area */}
+                                <div className="lg:col-span-7 w-full">
+                                    <div className="prose-container mb-12">
+                                        {post.content_html ? (
+                                            <div
+                                                dangerouslySetInnerHTML={{ __html: formattedContent.html }}
+                                            />
+                                        ) : (
+                                            <div className="p-8 md:p-12 text-center py-12 text-slate-400 font-semibold italic">
+                                                No content added yet.
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <AttributionPanel
+                                        author={editorialTeam}
+                                        reviewer={clinicalReviewTeam}
+                                        updatedLabel={`Originally published ${formatDate(post.published_at)}`}
+                                    />
+
+                                    {/* Tags */}
+                                    {post.tags && post.tags.length > 0 && (
+                                        <div className="mt-8 flex flex-wrap gap-2">
+                                            {post.tags.map((tag, idx) => (
+                                                <span
+                                                    key={idx}
+                                                    className="bg-slate-200 text-slate-700 px-4 py-2 rounded-full text-sm font-medium"
+                                                >
+                                                    #{tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Empty Right Column */}
+                                <div className="hidden lg:block lg:col-span-2"></div>
+                            </div>
+                            
+                            {/* Related Insights Preview */}
+                            <div className="mt-16 border-t border-slate-200 pt-12">
+                                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm opacity-60">
+                                    <h3 className="text-xl font-bold text-slate-900 mb-6 italic">Related Insights Section</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="border border-slate-200 rounded-xl p-5 bg-slate-50 h-32 flex flex-col justify-center items-center text-slate-400">
+                                                <p className="text-xs font-bold uppercase tracking-widest mb-1">Related Item {i}</p>
+                                                <p className="text-xs italic">(Auto-populated based on tags/category)</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="mt-6 text-xs text-slate-500 text-center italic">
+                                        * In the live page, this section will feature premium cards for selected or related content.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </article>
                 </div>

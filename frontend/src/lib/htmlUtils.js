@@ -1,5 +1,7 @@
-export const formatBlogHTML = (htmlString) => {
-    if (!htmlString) return '';
+export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
+    if (!htmlString) {
+        return options.extractToc ? { html: '', tocItems: [], hasToc: false } : '';
+    }
 
     const customBlocks = ['stat-strip', 'faq-section', 'highlight-box', 'hook-block', 'denial-grid', 'definition-block', 'author-block', 'toc-block', 'alert-box'];
 
@@ -32,30 +34,39 @@ export const formatBlogHTML = (htmlString) => {
         return `<h${level}${attributes}>${innerHtml}</h${level}>`;
     });
 
+    let hasToc = false;
+
     // 2. Generate TOC if toc-block exists and headings are present
     if (headings.length > 0 && sourceHtml.includes('<div class="toc-block"')) {
-        const tocItems = headings.map((h, i) => `
-            <li class="mb-5 last:mb-0">
-                <a href="#${h.id}" class="flex items-start gap-3 md:gap-4 group no-underline text-slate-600 hover:text-slate-900 transition-colors">
-                    <span class="text-[#cca35e] font-bold text-lg leading-snug">${i + 1}.</span>
-                    <span class="text-base md:text-lg font-medium leading-snug group-hover:underline underline-offset-4 decoration-[#cca35e]/40 transition duration-300">${h.text}</span>
-                </a>
-            </li>
-        `).join('');
+        hasToc = true;
+        if (options.extractToc) {
+            // Strip out the placeholder toc-block completely
+            sourceHtml = sourceHtml.replace(/<div class="toc-block".*?<\/div>(?:<p><\/p>|<p><br><\/p>)?/is, '');
+        } else {
+            const tocItems = headings.map((h) => `
+                <li class="mb-3 last:mb-0">
+                    <a href="#${h.id}" class="flex items-start gap-3 group no-underline text-slate-600 hover:text-slate-900 transition-colors font-mono text-[14px]">
+                        <span class="text-slate-300 font-bold group-hover:text-navy-700 transition-colors">—</span>
+                        <span class="font-medium leading-snug group-hover:underline underline-offset-4 decoration-navy-700/40 transition duration-300">${h.text}</span>
+                    </a>
+                </li>
+            `).join('');
 
-        const tocHtml = `
-        <div class="toc-block bg-[#Faf9f6] border-l-4 border-[#cca35e] p-8 md:p-10 rounded-r-2xl shadow-sm my-12">
-            <div class="text-xs font-bold tracking-[0.15em] text-slate-400 uppercase mb-6 flex items-center gap-3">
-                <span class="w-8 h-px bg-slate-300"></span>
-                In This Article
-            </div>
-            <ul class="list-none p-0 m-0">
-                ${tocItems}
-            </ul>
-        </div>`;
+            const tocHtml = `
+            <div class="toc-block py-6 my-10 border-t border-b border-slate-100">
+                <div class="text-[11px] font-bold tracking-[0.2em] text-slate-400 uppercase mb-6 flex items-center gap-3">
+                    <span class="w-6 h-px bg-slate-300"></span>
+                    In This Article
+                </div>
+                <ul class="list-none p-0 m-0">
+                    ${tocItems}
+                </ul>
+            </div>`;
 
-        // Replace the tip tap placeholder toc-block with our generated toc html
-        sourceHtml = sourceHtml.replace(/<div class="toc-block".*?<\/div>(?:<p><\/p>|<p><br><\/p>)?/is, tocHtml);
+
+            // Replace the tip tap placeholder toc-block with our generated toc html
+            sourceHtml = sourceHtml.replace(/<div class="toc-block".*?<\/div>(?:<p><\/p>|<p><br><\/p>)?/is, tocHtml);
+        }
     }
 
     let processedHtml = '';
@@ -135,7 +146,7 @@ export const formatBlogHTML = (htmlString) => {
     processedHtml += CARD_CLOSE;
 
     // Replace the markers with actual HTML
-    const actualCardOpen = '<div class="bg-white rounded-2xl p-8 md:p-12 shadow-lg mb-10 prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-a:text-[#B91C3C]">';
+    const actualCardOpen = '<div class="p-8 md:p-12 mb-2 prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-a:text-[#B91C3C] font-inter">';
     const actualCardClose = '</div>';
 
     // Clean up empty cards before replacing (remove spacing and <p></p> inside them)
@@ -145,6 +156,14 @@ export const formatBlogHTML = (htmlString) => {
     // Now replace the remaining markers
     processedHtml = processedHtml.split('%%%CARD_OPEN%%%').join(actualCardOpen);
     processedHtml = processedHtml.split('%%%CARD_CLOSE%%%').join(actualCardClose);
+
+    if (options.extractToc) {
+        return {
+            html: processedHtml,
+            tocItems: headings,
+            hasToc: hasToc
+        };
+    }
 
     return processedHtml;
 };

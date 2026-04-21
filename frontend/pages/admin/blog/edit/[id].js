@@ -9,6 +9,7 @@ import { Save, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import RichTextEditor from '../../../../src/components/admin/RichTextEditor';
 import BlogPreviewModal from '../../../../src/components/admin/BlogPreviewModal';
+import RelatedPostPicker from '../../../../src/components/admin/RelatedPostPicker';
 
 const BlogForm = () => {
     const router = useRouter();
@@ -31,6 +32,7 @@ const BlogForm = () => {
         published_at: new Date().toISOString().split('T')[0],
         featured_image: '',
         featured_image_path: '',
+        related_post_ids: [],
     });
 
     const [tagInput, setTagInput] = useState('');
@@ -65,6 +67,7 @@ const BlogForm = () => {
             setFormData({
                 ...data,
                 published_at: data.published_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+                related_post_ids: data.related_post_ids || [],
             });
             // Convert HTML back to plain text for editing
             setContentText(htmlToText(data.content_html));
@@ -481,6 +484,13 @@ const BlogForm = () => {
                                             </span>
                                         ))}
                                     </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-slate-100">
+                                    <RelatedPostPicker 
+                                        selectedIds={formData.related_post_ids}
+                                        onChange={(ids) => setFormData({ ...formData, related_post_ids: ids })}
+                                    />
                                 </div>
 
                                 <div className="flex items-center">

@@ -195,20 +195,21 @@
     }
     .denial-card p { font-size: 0.875rem; color: #444; line-height: 1.6; margin: 0; }
   
-    /* ── HIGHLIGHT BOX ── */
+    /* ── HIGHLIGHT BOX (Soft-Float Editorial) ── */
     .highlight-box {
-      background: var(--blog-navy); color: var(--blog-cream);
-      padding: 36px 36px; margin: 40px 0; border-radius: 4px;
-      position: relative; overflow: hidden;
+      background: var(--blog-navy); 
+      color: var(--blog-cream);
+      padding: 48px 48px; 
+      margin: 48px 0; 
+      border-radius: 24px;
+      position: relative; 
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 
+        0 25px 50px -12px rgba(15, 23, 42, 0.15),
+        0 10px 20px -10px rgba(0, 0, 0, 0.1);
     }
-    .highlight-box::after {
-      content: '';
-      position: absolute; top: -40px; right: -40px;
-      width: 160px; height: 160px;
-      background: radial-gradient(circle, rgba(196,137,46,0.15) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    .highlight-box .section-label { color: var(--blog-primary-lt); }
+    .highlight-box .section-label { color: var(--blog-primary-lt); margin-bottom: 16px; }
     .highlight-box h2, .highlight-box h3 { color: #fff; position: relative; z-index: 10; font-family: 'Playfair Display', serif; }
     .highlight-box p { color: rgba(244,239,230,0.82); position: relative; z-index: 10; }
   
@@ -318,6 +319,18 @@
     }
     .alert-box p + p {
       margin-top: 12px;
+    }
+
+    /* ── DROP CAP ── */
+    .drop-cap {
+      float: left;
+      font-size: 4.8rem;
+      line-height: 0.8;
+      margin-right: 14px;
+      margin-top: 10px;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      display: inline-block;
     }
 
 @media (max-width: 620px) {
