@@ -227,8 +227,10 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                             <ArrowLeft className="w-4 h-4" />
                             <span>Back to Blog</span>
                         </Link>
-                        <div className="inline-block bg-indigo-500 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                            {post.category}
+                        <div>
+                            <span className="inline-block border border-white/25 bg-white/[0.07] text-slate-200 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase mb-4 backdrop-blur-sm">
+                                {post.category?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                            </span>
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">{post.title}</h1>
                         <div className="flex flex-wrap items-center gap-6 text-indigo-50">

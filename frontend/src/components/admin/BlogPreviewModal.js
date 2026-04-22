@@ -46,8 +46,8 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                                     <ArrowLeftIcon /> Back to Blog
                                 </span>
                                 <div className="block">
-                                    <div className="inline-block bg-indigo-500 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                                        {post.category || 'Category'}
+                                    <div className="inline-block border border-white/25 bg-white/[0.07] text-slate-200 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase mb-4 backdrop-blur-sm">
+                                        {(post.category || 'Category')?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                                     </div>
                                 </div>
                                 <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
