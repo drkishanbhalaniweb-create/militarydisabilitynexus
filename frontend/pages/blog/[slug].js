@@ -253,7 +253,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                 {/* Featured Image */}
                 {post.featured_image && (
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-8">
-                        <div className="w-full h-96 overflow-hidden rounded-2xl shadow-2xl">
+                        <div className="w-full aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-2xl shadow-2xl">
                             <img
                                 src={post.featured_image}
                                 alt={post.title}

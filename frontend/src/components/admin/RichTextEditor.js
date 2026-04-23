@@ -2,11 +2,12 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import TextAlign from '@tiptap/extension-text-align';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import { FontSize, DropCap } from './tiptap-extensions/AdvancedTypography';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, ChevronDown, Trash2 } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, ChevronDown, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { uploadBlogImage, validateImage } from '../../lib/imageUpload';
 import { GlobalWrapperDiv, GlobalInlineSpan } from './tiptap-extensions/PremiumBlocks';
@@ -110,6 +111,16 @@ const MenuBar = ({ editor }) => {
                 <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded ${editor.isActive('bold') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Bold"><Bold className="w-4 h-4" /></button>
                 <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded ${editor.isActive('italic') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Italic"><Italic className="w-4 h-4" /></button>
                 
+                <div className="w-px h-6 bg-slate-300 mx-1"></div>
+
+                {/* Alignment */}
+                <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded ${editor.isActive({ textAlign: 'left' }) ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Align Left"><AlignLeft className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`p-2 rounded ${editor.isActive({ textAlign: 'center' }) ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Align Center"><AlignCenter className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`p-2 rounded ${editor.isActive({ textAlign: 'right' }) ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Align Right"><AlignRight className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={`p-2 rounded ${editor.isActive({ textAlign: 'justify' }) ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Justify"><AlignJustify className="w-4 h-4" /></button>
+                </div>
+
                 <div className="w-px h-6 bg-slate-300 mx-1"></div>
                 
                 {/* Font Family Selector */}
@@ -238,6 +249,9 @@ const RichTextEditor = ({ value, onChange }) => {
         immediatelyRender: false,
         extensions: [
             StarterKit,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
             TextStyle,
             FontFamily,
             FontSize,

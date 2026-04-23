@@ -164,16 +164,16 @@ const Blog = ({ initialPosts }) => {
                                             className="block h-full"
                                         >
                                             {post.featured_image ? (
-                                                <div className="h-48 w-full overflow-hidden">
+                                                <div className="aspect-[16/9] w-full overflow-hidden">
                                                     <img
                                                         src={post.featured_image}
                                                         alt={post.title}
-                                                        className="h-full w-full object-cover"
+                                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                         loading="lazy"
                                                     />
                                                 </div>
                                             ) : (
-                                                <div className="h-48 bg-gradient-to-br from-navy-600 to-navy-800" />
+                                                <div className="aspect-[16/9] bg-gradient-to-br from-navy-600 to-navy-800" />
                                             )}
                                             <div className="p-6">
                                                 <div className="flex items-center justify-between mb-3">

@@ -20,6 +20,8 @@ const FormSubmissions = () => {
     const [error, setError] = useState(null);
     const [showResetDialog, setShowResetDialog] = useState(false);
     const [isResetting, setIsResetting] = useState(false);
+    const [submissionToDelete, setSubmissionToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchSubmissions();
@@ -69,6 +71,65 @@ const FormSubmissions = () => {
             setFileCounts(counts);
         } catch (error) {
             console.error('Error fetching file counts:', error);
+        }
+    };
+
+    const handleDeleteSubmission = async () => {
+        if (!submissionToDelete) return;
+        
+        setIsDeleting(true);
+        try {
+            // 1. Fetch file paths before deleting records
+            const { data: files, error: fetchFilesError } = await supabase
+                .from('file_uploads')
+                .select('file_path')
+                .eq('form_submission_id', submissionToDelete.id);
+
+            if (fetchFilesError) {
+                console.error('Error fetching file records:', fetchFilesError);
+            }
+
+            // 2. Delete files from storage if they exist
+            if (files && files.length > 0) {
+                const filePaths = files.map(file => file.file_path);
+                const { error: storageError } = await supabase
+                    .storage
+                    .from('medical-documents')
+                    .remove(filePaths);
+
+                if (storageError) {
+                    console.error('Error deleting files from storage:', storageError);
+                }
+            }
+
+            // 3. Delete file records from the database
+            const { error: fileRecordsError } = await supabase
+                .from('file_uploads')
+                .delete()
+                .eq('form_submission_id', submissionToDelete.id);
+
+            if (fileRecordsError) {
+                console.error('Error deleting file records:', fileRecordsError);
+            }
+
+            // 4. Delete the actual form submission
+            const { error: deleteError } = await supabase
+                .from('form_submissions')
+                .delete()
+                .eq('id', submissionToDelete.id);
+
+            if (deleteError) throw deleteError;
+
+            toast.success('Submission deleted successfully');
+            setSubmissionToDelete(null);
+            
+            // Refresh the submissions list
+            await fetchSubmissions();
+        } catch (error) {
+            console.error('Error deleting submission:', error);
+            toast.error('Failed to delete submission. Please try again.');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -345,14 +406,24 @@ const FormSubmissions = () => {
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                                <button
-                                                                    onClick={() => setSelectedSubmission(submission)}
-                                                                    className="text-indigo-600 hover:text-teal-900"
-                                                                    aria-label={`View details for ${submission.full_name}`}
-                                                                    title="View submission details"
-                                                                >
-                                                                    <Eye className="w-5 h-5" aria-hidden="true" />
-                                                                </button>
+                                                                <div className="flex items-center gap-3">
+                                                                    <button
+                                                                        onClick={() => setSelectedSubmission(submission)}
+                                                                        className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                                                        aria-label={`View details for ${submission.full_name}`}
+                                                                        title="View submission details"
+                                                                    >
+                                                                        <Eye className="w-5 h-5" aria-hidden="true" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => setSubmissionToDelete(submission)}
+                                                                        className="text-red-500 hover:text-red-700 transition-colors"
+                                                                        aria-label={`Delete submission from ${submission.full_name}`}
+                                                                        title="Delete submission"
+                                                                    >
+                                                                        <Trash2 className="w-5 h-5" aria-hidden="true" />
+                                                                    </button>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     );
@@ -369,6 +440,49 @@ const FormSubmissions = () => {
                                 {searchQuery && (
                                     <p className="text-slate-500 text-sm mt-2">Try adjusting your search or filter</p>
                                 )}
+                            </div>
+                        )}
+
+                        {/* Delete Single Submission Dialog */}
+                        {submissionToDelete && (
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                                <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                            <AlertCircle className="w-6 h-6 text-red-600" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-slate-900">Delete Submission?</h3>
+                                    </div>
+                                    <p className="text-slate-600 mb-6">
+                                        Are you sure you want to delete the submission from <strong>{submissionToDelete.full_name}</strong>? This action cannot be undone.
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setSubmissionToDelete(null)}
+                                            disabled={isDeleting}
+                                            className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleDeleteSubmission}
+                                            disabled={isDeleting}
+                                            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {isDeleting ? (
+                                                <>
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                                                    Deleting...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Trash2 className="w-4 h-4" />
+                                                    Delete
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

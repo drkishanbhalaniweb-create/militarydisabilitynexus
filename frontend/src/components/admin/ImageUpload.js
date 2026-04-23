@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { uploadBlogImage, deleteBlogImage, validateImage, formatFileSize } from '../../lib/imageUpload';
 
@@ -209,10 +209,21 @@ const ImageUpload = ({
         )
       )}
 
-      {/* Help text */}
-      <p className="text-xs text-slate-500">
-        Recommended: 1200x630px for featured images, 800x600px for content images
-      </p>
+      {/* Image Best Practices Guide */}
+      <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+        <div className="flex items-start space-x-3">
+          <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <h4 className="font-bold text-blue-900 mb-1">Image Best Practices</h4>
+            <ul className="text-blue-800 space-y-1 list-disc list-inside">
+              <li><strong>Optimal Ratio:</strong> Use <strong>16:9</strong> (standard widescreen) for best compatibility.</li>
+              <li><strong>Resolution:</strong> <strong>1920x1080px</strong> is recommended for high-quality displays.</li>
+              <li><strong>Subject Placement:</strong> Keep the main subject in the <strong>center</strong> to avoid it being cut on mobile.</li>
+              <li><strong>File Format:</strong> WebP is preferred for speed, but JPG/PNG are also supported (Max 5MB).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
