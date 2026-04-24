@@ -35,55 +35,55 @@ export const organizationSocialProfiles = [
 
 export const editorialTeam = {
   name: 'Military Disability Nexus Editorial Team',
-  role: 'Content authorship and evidence-based educational publishing',
+  role: 'Educational Guidance and Evidence Research',
   href: '/editorial-policy',
   description:
-    'Publishes site content designed to explain documentation standards, common claim issues, and what veterans should understand before purchasing services.',
+    'Our team plans and writes every guide on this site to help you understand documentation standards and avoid common claim pitfalls.',
 };
 
 export const clinicalReviewTeam = {
   name: 'Military Disability Nexus Clinical Review Team',
-  role: 'Clinical review for medically sensitive educational and proof content',
+  role: 'Clinical Integrity and Accuracy Review',
   href: '/medical-review-policy',
   description:
-    'Reviews medically sensitive content for clinical accuracy, scope limitations, and consistency with the site’s non-treatment positioning.',
+    'Every piece of medically sensitive content is reviewed by our clinicians to ensure it is accurate, honest, and stays within our professional scope.',
 };
 
 export const aboutProcessSteps = [
   {
-    title: 'Record intake and scope review',
+    title: 'Understanding your records',
     body:
-      'Every case starts with understanding the veteran’s question, what records exist, and whether the request fits the site’s non-clinical medicolegal scope.',
+      'We start by reviewing your specific medical history to understand your journey and determine if our specialized expertise is the right fit for your needs.',
   },
   {
-    title: 'Clinician-led evidence analysis',
+    title: 'Expert clinical analysis',
     body:
-      'Licensed clinicians review the medical file for causation, chronology, functional impact, and gaps that affect whether documentation is persuasive and defensible.',
+      'Our licensed clinicians perform a deep-dive into your records, looking for the medical evidence, chronology, and functional impacts that the VA requires.',
   },
   {
-    title: 'Clear documentation standards',
+    title: 'Professional documentation',
     body:
-      'Written work is structured to be readable, clinically grounded, and aligned with the evidentiary purpose of VA disability claims rather than treatment planning.',
+      'We build your documentation to be clear, clinically grounded, and strictly focused on providing the evidence needed for a fair disability review.',
   },
   {
-    title: 'Respectful limits and disclosures',
+    title: 'Honest boundaries',
     body:
-      'The site is explicit about what it does not provide: legal representation, treatment, emergency care, or guarantees of VA outcomes.',
+      'We are always clear about our limits. We provide expert medical review and documentation—not legal representation, treatment, or guaranteed outcomes.',
   },
 ];
 
 export const editorialPolicyHighlights = [
-  'Content is written to clarify documentation standards, claim evidence issues, and common decision-point questions for veterans.',
-  'Pages are reviewed for accuracy, restraint, and consistency with the site’s legal disclaimers before publication.',
-  'The site avoids guarantees, exaggerated success claims, and unsupported medical or legal promises.',
-  'When a page contains medically sensitive educational content, it is labeled with clinical review context.',
+  'We write to bring clarity to complex VA documentation standards.',
+  'Every page is reviewed for accuracy and honesty before it goes live.',
+  'We avoid hype, exaggerated claims, and unrealistic promises.',
+  'When we discuss medical topics, we provide the clinical context you need.',
 ];
 
 export const medicalReviewHighlights = [
-  'Clinical review is focused on medical accuracy, evidentiary framing, and consistency with the site’s non-treatment role.',
-  'Review does not create a physician-patient relationship and is not a substitute for diagnosis, treatment, or emergency care.',
-  'Medically sensitive pages are checked for overstatement, unsupported causation language, and ambiguity around scope of services.',
-  'Clinical review aims to reduce misinformation while keeping content readable for veterans making high-stakes decisions.',
+  'Our clinical review ensures every medical statement is accurate and responsible.',
+  'We maintain a clear line: we provide expert review, not medical treatment or diagnosis.',
+  'We check every page to ensure our language is clear, supported, and professional.',
+  'Our goal is to eliminate confusion and provide veterans with reliable, expert-backed information.',
 ];
 
 export const serviceTagMap = {

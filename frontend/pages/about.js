@@ -22,15 +22,15 @@ import {
 } from '../src/lib/trust';
 
 const scopeItems = [
-    'Clinician-led reviews focused on medical evidence, causation language, chronology, and documentation quality for VA disability claims.',
-    'Educational content, service pages, and proof pages that are aligned with published editorial and medical review standards.',
-    'A nationwide service model centered on record review, written documentation, and consultations within the business scope disclosed on this site.',
+    'Expert reviews by licensed clinicians focused on medical evidence, chronology, and the quality of your claim documentation.',
+    'Educational content and guidance that follows strict medical and editorial standards to ensure accuracy.',
+    'A nationwide service dedicated to record review and clinical documentation built for the VA’s requirements.',
 ];
 
 const limitItems = [
-    'The site does not offer legal representation, accreditation as a VA claims representative, or guarantees of claim outcomes.',
-    'Website content and clinical review do not create a physician-patient relationship or replace diagnosis, treatment, or emergency care.',
-    'Trust language is intentionally restrained because veterans are making high-stakes decisions on a YMYL website.',
+    'We are consultants, not legal representatives. We do not offer legal advice or VA accreditation.',
+    'Our work is for evidence purposes and does not create a doctor-patient relationship or replace your clinical care.',
+    'We lead with honesty and restraint because we know how much these decisions matter to you.',
 ];
 
 const trustLinks = [
@@ -61,7 +61,7 @@ const About = () => {
         name: 'About Military Disability Nexus',
         url: `${organizationEntity.url}/about`,
         description:
-            'Learn how Military Disability Nexus structures clinician-led evidence review, site trust standards, and service boundaries for veterans researching VA disability documentation.',
+            'Learn about Military Disability Nexus: our mission to provide expert clinical evidence review and our commitment to transparency for veterans.',
         mainEntity: buildOrganizationReference(),
         about: buildOrganizationReference(),
     };
@@ -69,9 +69,9 @@ const About = () => {
     return (
         <Layout>
             <SEO
-                title="About Military Disability Nexus"
-                description="Learn how Military Disability Nexus handles clinician-led evidence review, service boundaries, and trust standards for veterans researching VA disability documentation."
-                keywords="about Military Disability Nexus, clinician-led VA documentation, medical review process, veteran-first claim support"
+                title="About Military Disability Nexus | Our Mission & Values"
+                description="Learn about our commitment to providing veterans with expert, clinician-led medical evidence and honest guidance for VA disability claims."
+                keywords="about Military Disability Nexus, veteran medical evidence, clinical record review, honest VA documentation"
                 canonical="/about"
                 structuredData={structuredData}
                 breadcrumbs={[
@@ -91,26 +91,26 @@ const About = () => {
                                     <span>About The Organization</span>
                                 </div>
                                 <h1 className="mt-6 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-                                    Clinician-led evidence work with explicit trust boundaries
+                                    Evidence you can trust. Expertise you can lean on.
                                 </h1>
                                 <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/85 sm:text-xl">
-                                    Military Disability Nexus is positioned around medically grounded documentation for VA disability claims. On a YMYL site, that means being clear about what the organization does, how reviews happen, and where the boundaries are.
+                                    Military Disability Nexus was founded on a simple principle: veterans deserve medical documentation that is as disciplined and rigorous as their service. We provide the expertise you need to move forward with confidence.
                                 </p>
                             </div>
 
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                                 <article className="rounded-[1.5rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
-                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Legal entity</div>
-                                    <div className="mt-3 text-2xl font-bold text-white">{organizationEntity.legalName}</div>
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Our Foundation</div>
+                                    <div className="mt-3 text-2xl font-bold text-white">Integrity & Clarity</div>
                                     <p className="mt-3 text-sm leading-relaxed text-white/80">
-                                        Operates as {organizationEntity.name} with publicly disclosed contact and policy pages.
+                                        We operate with absolute transparency, ensuring you know exactly who we are and how we work.
                                     </p>
                                 </article>
                                 <article className="rounded-[1.5rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
-                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Published standards</div>
-                                    <div className="mt-3 text-2xl font-bold text-white">Editorial + Clinical Review</div>
+                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Our Promise</div>
+                                    <div className="mt-3 text-2xl font-bold text-white">Professional Excellence</div>
                                     <p className="mt-3 text-sm leading-relaxed text-white/80">
-                                        Trust pages explain how educational content is maintained and how medically sensitive pages are reviewed.
+                                        Every page and every report is held to the highest standard of clinical and editorial review.
                                     </p>
                                 </article>
                             </div>
@@ -121,12 +121,12 @@ const About = () => {
                 <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
                     <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
                         <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
-                            <h2 className="text-3xl font-bold text-slate-900">What this organization is trying to do</h2>
+                            <h2 className="text-3xl font-bold text-slate-900">Why we’re here</h2>
                             <p className="mt-5 text-lg leading-relaxed text-slate-700">
-                                The site exists to help veterans understand the medical-documentation side of a VA disability claim. That includes record review, evidence-focused services, and site content that explains what tends to strengthen or weaken a claim file.
+                                We believe that navigating the medical side of a VA claim shouldn’t be a mystery. We’re here to help you understand your records, clarify the evidence, and build documentation that accurately reflects your service and your health.
                             </p>
                             <p className="mt-4 text-lg leading-relaxed text-slate-700">
-                                The intent is not to sound bigger than the business scope. For SEO and trust, that restraint matters more than generic authority language because veterans are making high-stakes decisions here.
+                                We lead with honesty and professional restraint. We don’t make empty promises or use hype—because we know that when it comes to your benefits, accuracy is the only thing that matters.
                             </p>
                         </article>
 
@@ -180,9 +180,9 @@ const About = () => {
                 <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
                     <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
                         <div className="max-w-3xl">
-                            <h2 className="text-3xl font-bold text-slate-900">How the work is structured</h2>
+                            <h2 className="text-3xl font-bold text-slate-900">Our approach to your evidence</h2>
                             <p className="mt-4 text-lg leading-relaxed text-slate-700">
-                                The process needs to be understandable to users and machine-readable to search engines. These steps reflect the actual trust framing already used throughout the site.
+                                Our process is designed to be transparent and thorough. We want you to understand exactly how your records are reviewed and how our clinical expertise works for you.
                             </p>
                         </div>
 
@@ -203,7 +203,7 @@ const About = () => {
                 <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
                     <div className="grid gap-6 lg:grid-cols-2">
                         <article className="rounded-[2rem] border border-emerald-200 bg-white p-8 shadow-sm sm:p-10">
-                            <h2 className="text-3xl font-bold text-slate-900">What the site does</h2>
+                            <h2 className="text-3xl font-bold text-slate-900">How we help</h2>
                             <div className="mt-6 space-y-4">
                                 {scopeItems.map((item) => (
                                     <div key={item} className="flex items-start gap-3">
@@ -215,7 +215,7 @@ const About = () => {
                         </article>
 
                         <article className="rounded-[2rem] border border-amber-200 bg-white p-8 shadow-sm sm:p-10">
-                            <h2 className="text-3xl font-bold text-slate-900">What the site does not do</h2>
+                            <h2 className="text-3xl font-bold text-slate-900">Our commitments</h2>
                             <div className="mt-6 space-y-4">
                                 {limitItems.map((item) => (
                                     <div key={item} className="flex items-start gap-3">
@@ -254,9 +254,9 @@ const About = () => {
 
                 <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
                     <div className="rounded-[2rem] bg-gradient-to-br from-navy-700 via-navy-800 to-slate-900 p-10 text-white shadow-2xl sm:p-12">
-                        <h2 className="text-3xl font-bold sm:text-4xl">Need help understanding the right next step?</h2>
+                        <h2 className="text-3xl font-bold sm:text-4xl">Ready to take the next step?</h2>
                         <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/85">
-                            Start with the main intake route if you want to submit details or schedule a discovery call. Use the policy pages above if you are evaluating the trust and process standards behind the site.
+                            Whether you need a full record review or just have questions about our process, we’re here to help. Explore our services or reach out to our team to get started.
                         </p>
                         <div className="mt-8 flex flex-wrap gap-4">
                             <Link
