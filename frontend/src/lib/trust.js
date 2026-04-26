@@ -96,7 +96,7 @@ export const serviceTagMap = {
 };
 
 export const buildOrganizationReference = () => ({
-  '@type': 'Organization',
+  '@type': ['Organization', 'MedicalBusiness'],
   name: organizationEntity.name,
   legalName: organizationEntity.legalName,
   url: organizationEntity.url,
@@ -107,6 +107,14 @@ export const buildOrganizationReference = () => ({
     '@type': 'PostalAddress',
     ...organizationEntity.address,
   },
+  knowsAbout: [
+    { "@type": "MedicalCondition", "name": "Post-Traumatic Stress Disorder (PTSD)" },
+    { "@type": "MedicalCondition", "name": "Sleep Apnea" },
+    { "@type": "MedicalCondition", "name": "Tinnitus" },
+    { "@type": "MedicalCondition", "name": "Migraine" },
+    { "@type": "MedicalCondition", "name": "Cervical Radiculopathy" }
+  ],
+  disclaimer: "Military Disability Nexus provides expert medical review and documentation for VA disability claims. We are not a law firm, we do not provide legal advice, and we are not accredited by the VA. Our services do not create a doctor-patient relationship.",
 });
 
 export const buildOrganizationSchema = () => ({

@@ -18,6 +18,33 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/
 
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityUser
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
 Sitemap: https://www.militarydisabilitynexus.com/sitemap.xml`;
 
     res.write(content);

@@ -50,10 +50,18 @@ export async function getStaticProps({ params }) {
             .order('is_best_answer', { ascending: false, nullsFirst: false })
             .order('upvotes', { ascending: false });
 
+        const { data: relatedQuestionsData } = await supabase
+            .from('community_questions')
+            .select('slug, title, answers_count')
+            .eq('status', 'published')
+            .neq('id', questionData.id)
+            .limit(2);
+
         return {
             props: {
                 initialQuestion: questionData,
                 initialAnswers: answersData || [],
+                relatedQuestions: relatedQuestionsData || [],
             },
             revalidate: 300, // Revalidate every 5 minutes
         };
@@ -63,7 +71,7 @@ export async function getStaticProps({ params }) {
     }
 }
 
-const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
+const QuestionDetail = ({ initialQuestion, initialAnswers, relatedQuestions = [] }) => {
     const router = useRouter();
     const [question, setQuestion] = useState(initialQuestion);
     const [answers, setAnswers] = useState(initialAnswers || []);
@@ -170,11 +178,49 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
         </Layout>
     );
 
+    const expertAnswer = answers.find(a => a.is_expert_answer) || answers.find(a => a.is_best_answer);
+    const qaPageSchema = {
+        "@context": "https://schema.org",
+        "@type": "QAPage",
+        "name": question.seo_title || question.title,
+        "description": question.seo_description || (question.content?.substring(0, 160) || `Community question about ${question.title}`),
+        "url": `https://www.militarydisabilitynexus.com/community/question/${question.slug}`,
+        "mainEntity": {
+            "@type": "Question",
+            "name": question.title,
+            "text": question.content,
+            "dateCreated": question.created_at,
+            "answerCount": answers.length,
+            ...(expertAnswer && {
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": expertAnswer.content,
+                    "dateCreated": expertAnswer.created_at,
+                    "upvoteCount": expertAnswer.upvotes || 0,
+                    "url": `https://www.militarydisabilitynexus.com/community/question/${question.slug}#expert-answer`,
+                    "author": {
+                        "@type": "Person",
+                        "name": expertAnswer.is_anonymous ? 'Anonymous' : (expertAnswer.display_name || 'Community Member'),
+                        ...(expertAnswer.is_expert_answer && {
+                            "jobTitle": "Clinician",
+                            "worksFor": {
+                                "@type": "MedicalOrganization",
+                                "name": "Military Disability Nexus",
+                                "url": "https://www.militarydisabilitynexus.com"
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    };
+
     return (
         <Layout>
             <SEO
-                title={question.title + ' | Community'}
-                description={question.content?.substring(0, 160) || `Community question about ${question.title}`}
+                title={question.seo_title || (question.title + ' | Community')}
+                description={question.seo_description || (question.content?.substring(0, 160) || `Community question about ${question.title}`)}
+                structuredData={qaPageSchema}
                 breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }, { name: question.title, path: `/community/question/${question.slug}` }]}
             />
             <div className="relative min-h-screen overflow-hidden">
@@ -217,7 +263,7 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
                             ) : (
                                 <div className="space-y-4">
                                     {answers.map((answer) => (
-                                        <div key={answer.id} className={'bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border p-6 relative ' + (answer.is_expert_answer ? 'border-amber-400 border-2' : answer.is_best_answer ? 'border-emerald-500 border-2' : 'border-white/40')}>
+                                        <div key={answer.id} id={answer.is_expert_answer || answer.is_best_answer ? "expert-answer" : undefined} className={'bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border p-6 relative ' + (answer.is_expert_answer ? 'border-amber-400 border-2' : answer.is_best_answer ? 'border-emerald-500 border-2' : 'border-white/40')}>
                                             {answer.is_expert_answer && (
                                                 <div className="absolute -top-3 right-4 flex items-center gap-1.5 px-3 py-1 bg-amber-400 text-amber-900 text-sm font-semibold rounded-full shadow-md">
                                                     <Award className="w-4 h-4" />
@@ -281,6 +327,20 @@ const QuestionDetail = ({ initialQuestion, initialAnswers }) => {
                                 </div>
                             </form>
                         </div>
+
+                        {relatedQuestions && relatedQuestions.length > 0 && (
+                            <div className="mt-8 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 p-6">
+                                <h3 className="text-xl font-semibold text-slate-900 mb-4">Veterans also asked</h3>
+                                <div className="space-y-3">
+                                    {relatedQuestions.map(rq => (
+                                        <Link key={rq.slug} href={`/community/question/${rq.slug}`} className="block p-4 rounded-xl border border-slate-100 hover:border-navy-200 hover:bg-slate-50 transition-colors">
+                                            <div className="font-medium text-navy-800">{rq.title}</div>
+                                            <div className="text-sm text-slate-500 mt-1">{rq.answers_count || 0} answers</div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

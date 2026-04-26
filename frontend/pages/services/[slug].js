@@ -45,12 +45,35 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
         );
     }
 
+    // Map service slugs to medical conditions for schema
+    const medicalConditionMap = {
+        'independent-medical-opinion-nexus-letter': [
+            { "@type": "MedicalCondition", "name": "Post-Traumatic Stress Disorder (PTSD)" },
+            { "@type": "MedicalCondition", "name": "Sleep Apnea" },
+            { "@type": "MedicalCondition", "name": "Tinnitus" }
+        ],
+        'disability-benefits-questionnaire-dbq': [
+            { "@type": "MedicalCondition", "name": "Migraine" },
+            { "@type": "MedicalCondition", "name": "Cervical Radiculopathy" },
+            { "@type": "MedicalCondition", "name": "Mental Health Disorders" }
+        ],
+        'aid-attendance': [
+            { "@type": "MedicalCondition", "name": "Chronic Illness" },
+            { "@type": "MedicalCondition", "name": "Mobility Impairment" }
+        ],
+        'va-medical-malpractice-1151-case': [
+            { "@type": "MedicalCondition", "name": "Medical Malpractice Injury" }
+        ]
+    };
+
+    const conditionForSchema = medicalConditionMap[service.slug] || [];
+
     // Structured data for service
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "Service",
         "name": service.title,
-        "description": service.short_description,
+        "description": service.ai_citable_lead || service.short_description,
         "provider": {
             ...buildOrganizationReference()
         },
@@ -63,7 +86,13 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
             "@type": "Offer",
             "price": service.base_price_usd,
             "priceCurrency": "USD"
-        }
+        },
+        ...(conditionForSchema.length > 0 && {
+            "audience": {
+                "@type": "MedicalAudience",
+                "healthCondition": conditionForSchema
+            }
+        })
     };
 
     return (
@@ -103,7 +132,15 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
                         <div className="lg:col-span-2 space-y-8">
                             {/* Overview */}
                             <section className="bg-white rounded-2xl p-8" aria-labelledby="overview-heading">
-                                <h2 id="overview-heading" className="text-2xl font-bold text-slate-900 mb-4">Overview</h2>
+                                {/* AI Citable Lead / Direct Answer */}
+                                <div className="mb-8 p-6 bg-indigo-50 border-l-4 border-indigo-600 rounded-r-xl">
+                                    <h2 className="text-lg font-bold text-navy-800 mb-2">What is a {service.title}?</h2>
+                                    <p className="text-slate-700 font-medium leading-relaxed">
+                                        {service.ai_citable_lead || service.short_description}
+                                    </p>
+                                </div>
+                                
+                                <h3 id="overview-heading" className="text-2xl font-bold text-slate-900 mb-4">Overview</h3>
                                 <div className="text-slate-700 leading-relaxed whitespace-pre-wrap">
                                     {service.full_description && service.full_description.split('\n').map((line, i) => {
                                         // Process [text](url) in the line

@@ -290,6 +290,23 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                                 dangerouslySetInnerHTML={{ __html: formattedContent.html }}
                             />
 
+                            {/* CTA */}
+                            <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
+                                <h3 className="text-2xl font-bold text-white mb-4">
+                                    Need help with your VA claim?
+                                </h3>
+                                <p className="text-indigo-50 mb-6">
+                                    Get expert guidance and documentation from our licensed clinicians
+                                </p>
+                                <Link
+                                    href="/contact"
+                                    className="inline-block bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-slate-50 transition-colors"
+                                >
+                                    Get Free Consultation
+                                    <ArrowRight className="inline ml-2 w-4 h-4" />
+                                </Link>
+                            </div>
+
                             {(authorProfile || reviewerProfile) ? (
                                 <ClinicalAuthorCard
                                     author={authorProfile}
@@ -318,40 +335,6 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                                 </div>
                             )}
 
-                            <div className="mt-8 grid gap-4 md:grid-cols-3">
-                                <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Services</div>
-                                    <div className="mt-2 text-lg font-bold text-slate-900">See service options</div>
-                                    <p className="mt-2 text-sm text-slate-600">Move from educational content to the relevant documentation or review service.</p>
-                                </Link>
-                                <Link href="/testimonials" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Proof</div>
-                                    <div className="mt-2 text-lg font-bold text-slate-900">Read testimonials</div>
-                                    <p className="mt-2 text-sm text-slate-600">See how veterans describe the experience in their own words.</p>
-                                </Link>
-                                <Link href="/medical-review-policy" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Standards</div>
-                                    <div className="mt-2 text-lg font-bold text-slate-900">Medical review policy</div>
-                                    <p className="mt-2 text-sm text-slate-600">Understand how clinically sensitive educational content is reviewed on this site.</p>
-                                </Link>
-                            </div>
-
-                            {/* CTA */}
-                            <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
-                                <h3 className="text-2xl font-bold text-white mb-4">
-                                    Need help with your VA claim?
-                                </h3>
-                                <p className="text-indigo-50 mb-6">
-                                    Get expert guidance and documentation from our licensed clinicians
-                                </p>
-                                <Link
-                                    href="/contact"
-                                    className="inline-block bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-slate-50 transition-colors"
-                                >
-                                    Get Free Consultation
-                                    <ArrowRight className="inline ml-2 w-4 h-4" />
-                                </Link>
-                            </div>
                         </div>
 
                         {/* Empty Right Column for balance */}

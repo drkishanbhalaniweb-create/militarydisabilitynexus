@@ -94,13 +94,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/editorial-policy" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
-                  Editorial Policy
+                <Link href="/methodology" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
+                  Methodology & Editorial Standards
                 </Link>
               </li>
               <li>
-                <Link href="/medical-review-policy" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
-                  Medical Review Policy
+                <Link href="/corrections-policy" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
+                  Corrections Policy
                 </Link>
               </li>
               <li>

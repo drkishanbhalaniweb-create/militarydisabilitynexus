@@ -188,8 +188,8 @@ const Community = ({ initialQuestions }) => {
     return (
         <Layout>
             <SEO
-                title="Community Q and A | VA Benefits Questions"
-                description="Ask questions and get answers about VA benefits."
+                title="VA Benefits Q&A Forum — Expert Answers for Veterans | Military Disability Nexus"
+                description="Free expert answers to VA disability claim questions — from clinicians, not Reddit. Search by condition: PTSD, tinnitus, sleep apnea, migraines, nexus letters and more."
                 breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }]}
             />
             <div className="relative min-h-screen overflow-hidden">
@@ -218,8 +218,8 @@ const Community = ({ initialQuestions }) => {
                                     <MessageSquare className="w-4 h-4" />
                                     <span>COMMUNITY Q&A</span>
                                 </div>
-                                <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 drop-shadow-sm">Community Q and A</h1>
-                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Ask questions about VA benefits and get answers from our community.</p>
+                                <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 drop-shadow-sm">VA Benefits Questions — Answered by Medical Experts, Free</h1>
+                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Skip the Reddit speculation. Ask your VA disability claim questions and get direct, evidence-based answers from licensed clinicians. We verify every medical response to ensure you get accurate guidance.</p>
                             </div>
                         </section>
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 p-4 mb-6 flex flex-col sm:flex-row gap-4">

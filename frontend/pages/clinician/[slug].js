@@ -86,17 +86,28 @@ const ClinicianProfile = ({ profile, articles = [] }) => {
         });
     };
 
-    // JSON-LD Person structured data for E-E-A-T
+    // JSON-LD Physician structured data for E-E-A-T
     const structuredData = {
         "@context": "https://schema.org",
-        "@type": "Person",
+        "@type": ["Person", "Physician"],
+        "@id": `https://www.militarydisabilitynexus.com/clinician/${profile.slug}#physician`,
         "name": displayName,
         "description": profile.bio,
         "url": `https://www.militarydisabilitynexus.com/clinician/${profile.slug}`,
-        ...(profile.linkedin_url ? { "sameAs": [profile.linkedin_url] } : {}),
+        "sameAs": [
+            ...(profile.linkedin_url ? [profile.linkedin_url] : []),
+            ...(profile.board_certification_url ? [profile.board_certification_url] : [])
+        ],
         ...(profile.photo_url ? { "image": profile.photo_url } : {}),
         "worksFor": buildOrganizationReference(),
         "jobTitle": profile.credentials || "Clinical Contributor",
+        "hasCredential": [
+            {
+                "@type": "EducationalOccupationalCredential",
+                "credentialCategory": "Medical License/Certification",
+                "name": profile.credentials || "Medical Credential"
+            }
+        ]
     };
 
     return (

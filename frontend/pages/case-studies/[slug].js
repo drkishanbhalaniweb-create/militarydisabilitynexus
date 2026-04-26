@@ -316,38 +316,6 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [], authorProfile = null
                         </div>
                     )}
 
-                    {(authorProfile || reviewerProfile) ? (
-                        <ClinicalAuthorCard
-                            author={authorProfile}
-                            reviewer={reviewerProfile}
-                            updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
-                        />
-                    ) : (
-                        <AttributionPanel
-                            author={editorialTeam}
-                            reviewer={clinicalReviewTeam}
-                            updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
-                        />
-                    )}
-
-                    <div className="mt-8 grid gap-4 md:grid-cols-3">
-                        <Link href="/services" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Services</div>
-                            <div className="mt-2 text-lg font-bold text-slate-900">Explore related services</div>
-                            <p className="mt-2 text-sm text-slate-600">See the documentation and review options tied to the kind of case described here.</p>
-                        </Link>
-                        <Link href="/testimonials" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Proof</div>
-                            <div className="mt-2 text-lg font-bold text-slate-900">Read testimonial feedback</div>
-                            <p className="mt-2 text-sm text-slate-600">Compare structured case narratives with direct feedback from veterans.</p>
-                        </Link>
-                        <Link href="/editorial-policy" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:bg-slate-100">
-                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Standards</div>
-                            <div className="mt-2 text-lg font-bold text-slate-900">Editorial policy</div>
-                            <p className="mt-2 text-sm text-slate-600">Understand how proof content is framed and maintained on the site.</p>
-                        </Link>
-                    </div>
-
                     {/* CTA */}
                     <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center mb-12">
                         <h3 className="text-2xl font-bold text-white mb-4">
@@ -364,6 +332,21 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [], authorProfile = null
                             <ArrowRight className="inline ml-2 w-4 h-4" />
                         </Link>
                     </div>
+
+                    {(authorProfile || reviewerProfile) ? (
+                        <ClinicalAuthorCard
+                            author={authorProfile}
+                            reviewer={reviewerProfile}
+                            updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
+                        />
+                    ) : (
+                        <AttributionPanel
+                            author={editorialTeam}
+                            reviewer={clinicalReviewTeam}
+                            updatedLabel={`Originally published ${formatDate(caseStudy.published_at)}${caseStudy.updated_at ? ` • Last updated ${formatDate(caseStudy.updated_at)}` : ''}`}
+                        />
+                    )}
+
 
                     {/* Related Insights */}
                     <div className="mt-12">

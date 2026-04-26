@@ -14,6 +14,9 @@ const SEO = ({
   publishedTime,
   modifiedTime,
   author = 'Military Disability Nexus',
+  reviewedBy,
+  lastReviewed,
+  citations,
   canonical,
   structuredData,
   faqSchema,
@@ -47,11 +50,22 @@ const SEO = ({
     ? (title.includes(siteName) ? title : `${title} | ${siteName}`)
     : siteName;
 
+  const medicalWebPageSchema = (article && reviewedBy) ? {
+    "@context": "https://schema.org",
+    "@type": "MedicalWebPage",
+    "name": fullTitle,
+    "url": canonicalUrl,
+    ...(reviewedBy ? { "reviewedBy": reviewedBy } : {}),
+    ...(lastReviewed ? { "lastReviewed": lastReviewed } : {}),
+    ...(citations?.length ? { "citation": citations } : {})
+  } : null;
+
   const structuredDataItems = [
     ...(includeOrganizationSchema && !noindex ? [buildOrganizationSchema()] : []),
     ...(structuredData
       ? (Array.isArray(structuredData) ? structuredData : [structuredData])
       : []),
+    ...(medicalWebPageSchema ? [medicalWebPageSchema] : [])
   ];
 
   return (
