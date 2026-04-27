@@ -186,7 +186,7 @@ const Diagnostic = () => {
                         </button>
 
                         <p className="text-center text-sm text-slate-500 mt-4">
-                            Free • No signup required • Instant results
+                            Free • Instant results
                         </p>
                     </div>
                 </div>
