@@ -327,10 +327,7 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
                                             <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
                                             <span>Instant personalized results</span>
                                         </div>
-                                        <div className="flex items-center space-x-3 text-slate-700 text-sm">
-                                            <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
-                                            <span>No email required</span>
-                                        </div>
+
                                     </div>
 
                                     <Link
@@ -341,7 +338,7 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
                                     </Link>
 
                                     <p className="text-xs text-slate-500 mt-4 text-center">
-                                        Get clarity on your claim readiness before investing
+                                        Get clarity on your claim readiness before filling claim
                                     </p>
                                 </div>
                             )}

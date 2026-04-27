@@ -110,3 +110,4 @@ out/
 supabase/.env
 .env
 .env.*
+.gitnexus
