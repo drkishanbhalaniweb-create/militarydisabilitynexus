@@ -7,10 +7,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Node 20.6+ native env loading
 try {
   process.loadEnvFile(path.resolve(__dirname, '../.env.local'));
-} catch (e) {
+} catch {
   try {
      process.loadEnvFile(path.resolve(__dirname, '../.env'));
-  } catch (e2) {}
+  } catch {
+     // Fallback to existing process.env variables if no file is found
+  }
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
