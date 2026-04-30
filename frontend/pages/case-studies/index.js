@@ -80,12 +80,25 @@ const CaseStudies = ({ initialCaseStudies }) => {
         }
     }, [selectedTag, caseStudies]);
 
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Military Disability Nexus Case Studies",
+        "description": "Explore case study summaries showing how medically grounded evidence and documentation support VA disability claims.",
+        "itemListElement": caseStudies.map((caseStudy, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "url": `https://www.militarydisabilitynexus.com/case-studies/${caseStudy.slug}`
+        }))
+    };
+
     return (
         <Layout>
             <SEO
                 title="Case Studies - Success Stories & Client Results"
                 description="Explore case study summaries showing how medically grounded evidence and documentation support VA disability claims."
                 keywords="case studies, success stories, client results, VA disability success, nexus letter results"
+                structuredData={structuredData}
                 breadcrumbs={[
                     { name: 'Home', path: '/' },
                     { name: 'Case Studies', path: '/case-studies' }

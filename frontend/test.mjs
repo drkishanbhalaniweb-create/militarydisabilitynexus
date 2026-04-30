@@ -1,0 +1,1 @@
+const res = await fetch('http://localhost:3000/case-studies/irritable-bowel-syndrome-ibs-as-secondary-to-anxietydepression'); const text = await res.text(); const match = text.match(/<link rel=\"canonical\" href=\"([^\"]+)\"/); console.log('Canonical:', match ? match[1] : 'Not found');
