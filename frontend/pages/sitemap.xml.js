@@ -81,19 +81,38 @@ export const getServerSideProps = async ({ res }) => {
         // Static routes with priority and changefreq signals
         // Priority: 1.0 = homepage, 0.8 = core pages, 0.7 = content hubs, 0.5 = secondary pages
         // NOTE: /aid-attendance-form and /intake-form are excluded because they 301-redirect to /forms
+
+        // Derive a "freshest" lastmod from dynamic content for hub pages
+        const latestServiceDate = services.reduce((latest, s) => {
+            const d = new Date(s.updated_at);
+            return d > latest ? d : latest;
+        }, new Date(0)).toISOString();
+
+        const latestBlogDate = blogs.reduce((latest, b) => {
+            const d = new Date(b.updated_at || b.published_at);
+            return d > latest ? d : latest;
+        }, new Date(0)).toISOString();
+
+        const latestCaseStudyDate = caseStudies.reduce((latest, s) => {
+            const d = new Date(s.updated_at || s.published_at);
+            return d > latest ? d : latest;
+        }, new Date(0)).toISOString();
+
+        const now = new Date().toISOString();
+
         const staticRoutes = [
-            { path: '', priority: '1.0', changefreq: 'weekly' }, // root
-            { path: '/services', priority: '0.9', changefreq: 'weekly' },
-            { path: '/blog', priority: '0.8', changefreq: 'daily' },
-            { path: '/case-studies', priority: '0.8', changefreq: 'weekly' },
-            { path: '/community', priority: '0.7', changefreq: 'daily' },
+            { path: '', priority: '1.0', changefreq: 'weekly', lastmod: now },
+            { path: '/services', priority: '0.9', changefreq: 'weekly', lastmod: latestServiceDate },
+            { path: '/blog', priority: '0.8', changefreq: 'daily', lastmod: latestBlogDate },
+            { path: '/case-studies', priority: '0.8', changefreq: 'weekly', lastmod: latestCaseStudyDate },
+            { path: '/community', priority: '0.7', changefreq: 'daily', lastmod: now },
             { path: '/testimonials', priority: '0.7', changefreq: 'weekly' },
             { path: '/about', priority: '0.7', changefreq: 'monthly' },
             { path: '/contact', priority: '0.7', changefreq: 'monthly' },
             { path: '/forms', priority: '0.6', changefreq: 'monthly' },
             { path: '/claim-readiness-review', priority: '0.6', changefreq: 'monthly' },
             { path: '/cp-exam-coaching', priority: '0.6', changefreq: 'monthly' },
-            { path: '/diagnostic', priority: '0.6', changefreq: 'monthly' },
+            { path: '/diagnostic', priority: '0.8', changefreq: 'monthly', lastmod: now },
             { path: '/editorial-policy', priority: '0.5', changefreq: 'monthly' },
             { path: '/medical-review-policy', priority: '0.5', changefreq: 'monthly' },
             { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
@@ -108,6 +127,7 @@ export const getServerSideProps = async ({ res }) => {
                 loc: `${SITE_URL}${route.path}`,
                 priority: route.priority,
                 changefreq: route.changefreq,
+                ...(route.lastmod && { lastmod: route.lastmod }),
             });
         });
 

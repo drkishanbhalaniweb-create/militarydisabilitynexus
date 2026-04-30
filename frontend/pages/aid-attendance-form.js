@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { User, Phone, Mail, Calendar, FileText, Heart, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { formSubmissionsApi } from '../src/lib/api';
 import FileUpload from '../src/components/FileUpload';
@@ -666,6 +667,16 @@ const AidAttendanceForm = () => {
                             )}
                         </button>
                     </form>
+
+                    {/* Service Link */}
+                    <div className="mt-8 text-center text-sm text-slate-600">
+                        <Link
+                            href="/services/aid-and-attendance"
+                            className="text-navy-600 hover:text-navy-700 font-medium underline inline-block"
+                        >
+                            Learn more about our Aid &amp; Attendance service
+                        </Link>
+                    </div>
                 </div>
             </div>
         </Layout>

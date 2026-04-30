@@ -135,9 +135,22 @@ const Diagnostic = () => {
         return (
             <Layout>
                 <SEO
-                    title="VA Claim Readiness Diagnostic"
-                    description="Take our free 5-question diagnostic to assess if your VA disability claim is ready to file. Get personalized recommendations in 2 minutes."
-                    keywords="VA claim diagnostic, claim readiness, VA disability assessment, claim preparation"
+                    title="Free VA Claim Readiness Review & Diagnostic Tool"
+                    description="Take our free 5-question diagnostic tool to review if your VA disability claim is ready to file. Get an instant, personalized claim readiness assessment."
+                    keywords="free va claim review, va claim diagnostic, free claim readiness review, free va disability claim assessment"
+                    structuredData={{
+                        "@context": "https://schema.org",
+                        "@type": "SoftwareApplication",
+                        "name": "VA Claim Readiness Diagnostic",
+                        "applicationCategory": "HealthApplication",
+                        "operatingSystem": "Web",
+                        "description": "Free tool to assess VA disability claim readiness.",
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        }
+                    }}
                 />
 
                 <div className="min-h-screen bg-gradient-to-br from-navy-50 via-slate-50 to-slate-100 py-12 px-4">

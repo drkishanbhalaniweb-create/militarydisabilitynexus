@@ -17,6 +17,7 @@ const ServiceForm = () => {
         title: '',
         slug: '',
         short_description: '',
+        ai_citable_lead: '',
         full_description: '',
         base_price_usd: '',
         duration: '',
@@ -196,6 +197,21 @@ const ServiceForm = () => {
                                         rows="2"
                                         className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        AI-Citable Lead <span className="text-xs font-normal text-slate-500">(Used as subtitle on service page & in schema data for AI search engines)</span>
+                                    </label>
+                                    <textarea
+                                        name="ai_citable_lead"
+                                        value={formData.ai_citable_lead || ''}
+                                        onChange={handleChange}
+                                        rows="3"
+                                        placeholder="A direct-answer paragraph that AI search engines can cite when asked about this service."
+                                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                    <p className="text-xs text-slate-500 mt-1">This text appears as the visible subtitle on the service detail page. If empty, short_description is used instead.</p>
                                 </div>
 
                                 <div>

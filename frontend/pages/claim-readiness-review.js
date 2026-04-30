@@ -351,11 +351,17 @@ const ClaimReadinessReview = () => {
                     </div>
 
                     {/* Trust Indicators */}
-                    <div className="mt-8 text-center text-sm text-slate-600">
+                    <div className="mt-8 text-center text-sm text-slate-600 space-y-3">
                         <p className="flex items-center justify-center">
                             <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
                             Secure payment processing via Stripe
                         </p>
+                        <Link
+                            href="/services/claim-readiness-review"
+                            className="text-navy-600 hover:text-navy-700 font-medium underline inline-block"
+                        >
+                            Learn more about our Claim Readiness Review service
+                        </Link>
                     </div>
                 </div>
             </div>

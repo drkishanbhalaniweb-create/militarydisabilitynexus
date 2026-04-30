@@ -31,7 +31,7 @@ export async function getStaticProps() {
 
         return {
             props: {
-                services: servicesData?.slice(0, 4) || [],
+                services: servicesData || [],
                 blogPosts: blogData || [],
                 testimonials: testimonialsData || [],
             },
@@ -95,12 +95,12 @@ const Home = ({ services, blogPosts, testimonials }) => {
 
                             <p className="text-base sm:text-lg text-white/90 leading-relaxed drop-shadow">
                                 Our licensed clinicians provide evidence-based{" "}
-                                <a
-                                    href="https://www.militarydisabilitynexus.com/services/independent-medical-opinion-nexus-letter"
+                                <Link
+                                    href="/services/independent-medical-opinion-nexus-letter"
                                     className="underline hover:text-white"
                                 >
                                     medical opinions
-                                </a>
+                                </Link>
                                 , expert consultations, and record reviews to help veterans build strong,
                                 VA-ready documentation.
                             </p>
@@ -247,6 +247,16 @@ const Home = ({ services, blogPosts, testimonials }) => {
                             ))}
                         </div>
                     )}
+
+                    <div className="text-center mt-10">
+                        <Link
+                            href="/services"
+                            className="inline-flex items-center space-x-2 text-white/90 font-semibold hover:text-white transition-colors text-lg"
+                        >
+                            <span>View All Services</span>
+                            <ArrowRight className="w-5 h-5" />
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Bottom Wave Transition */}

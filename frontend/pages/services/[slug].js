@@ -13,7 +13,16 @@ import {
 } from '../../src/components/ui/accordion';
 import { buildOrganizationReference, serviceTagMap } from '../../src/lib/trust';
 
-const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [] }) => {
+// SEO-optimized title overrides — ensures high-value keywords appear in the <title> tag
+const seoTitleOverrides = {
+    'independent-medical-opinion-nexus-letter': 'VA Nexus Letter & Independent Medical Opinion (IMO) | Expert Clinician Review',
+    'disability-benefits-questionnaire-dbq': 'VA DBQ Evaluation | Disability Benefits Questionnaire Service',
+    'aid-and-attendance': 'VA Aid & Attendance Medical Documentation | Housebound Benefits',
+    'claim-readiness-review': 'VA Claim Readiness Review | Pre-Filing Medical Record Analysis',
+    'va-medical-malpractice-1151-case': 'VA 1151 Claim (Medical Malpractice) | Expert IMO for § 1151 Cases',
+};
+
+const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [] }) => {
     const router = useRouter();
 
     // Fallback for when the page is being generated (if fallback: true was used, but we use blocking so this might not render)
@@ -57,12 +66,15 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
             { "@type": "MedicalCondition", "name": "Cervical Radiculopathy" },
             { "@type": "MedicalCondition", "name": "Mental Health Disorders" }
         ],
-        'aid-attendance': [
+        'aid-and-attendance': [
             { "@type": "MedicalCondition", "name": "Chronic Illness" },
             { "@type": "MedicalCondition", "name": "Mobility Impairment" }
         ],
         'va-medical-malpractice-1151-case': [
-            { "@type": "MedicalCondition", "name": "Medical Malpractice Injury" }
+            { "@type": "MedicalCondition", "name": "Medical Malpractice Injury" },
+            { "@type": "MedicalCondition", "name": "Iatrogenic Injury" },
+            { "@type": "MedicalCondition", "name": "Surgical Complication" },
+            { "@type": "MedicalCondition", "name": "Medication Error" }
         ]
     };
 
@@ -98,7 +110,7 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
     return (
         <Layout>
             <SEO
-                title={service.title}
+                title={seoTitleOverrides[service.slug] || service.title}
                 description={service.short_description}
                 keywords={`${service.title}, ${service.category}, VA disability, medical documentation`}
                 structuredData={structuredData}
@@ -424,6 +436,38 @@ const ServiceDetail = ({ service, relatedBlogs = [], relatedCaseStudies = [], re
                         </aside>
                     </div>
                 </div>
+
+                {/* Related Services — Cross-linking for SEO */}
+                {allServices.length > 1 && (
+                    <section className="py-16 bg-white border-t border-slate-200">
+                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <h2 className="text-2xl font-bold text-slate-900 mb-8">Explore Our Other Services</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {allServices
+                                    .filter(s => s.slug !== service.slug)
+                                    .slice(0, 3)
+                                    .map((related) => (
+                                        <Link
+                                            key={related.id}
+                                            href={`/services/${related.slug}`}
+                                            className="group rounded-xl border border-slate-200 p-6 hover:border-navy-300 hover:shadow-lg transition-all"
+                                        >
+                                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-navy-700 transition-colors mb-2">
+                                                {related.title}
+                                            </h3>
+                                            <p className="text-sm text-slate-600 line-clamp-2 mb-3">
+                                                {related.short_description?.split('\n')[0]}
+                                            </p>
+                                            <span className="inline-flex items-center text-sm font-medium text-navy-600 group-hover:translate-x-1 transition-transform">
+                                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
+                                            </span>
+                                        </Link>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    </section>
+                )}
             </div >
         </Layout>
     );
@@ -547,10 +591,19 @@ export async function getStaticProps({ params }) {
             console.error('Error fetching related testimonials:', e);
         }
 
+        // Fetch all services for the "Related Services" cross-linking section
+        let allServices = [];
+        try {
+            allServices = await servicesApi.getAll();
+        } catch (e) {
+            console.error('Error fetching all services for cross-links:', e);
+        }
+
         return {
             props: {
                 service,
                 slug: cleanSlug,
+                allServices,
                 relatedBlogs: relatedBlogs,
                 relatedCaseStudies: relatedCaseStudies,
                 relatedTestimonials,

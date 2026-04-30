@@ -229,8 +229,15 @@ const DiagnosticResults = () => {
                         </p>
                     </div>
 
-                    {/* Back to Home */}
-                    <div className="text-center mt-8">
+                    {/* Navigation Links */}
+                    <div className="text-center mt-8 flex items-center justify-center gap-6">
+                        <Link
+                            href="/services/claim-readiness-review"
+                            className="text-navy-600 hover:text-navy-700 font-medium underline"
+                        >
+                            Learn About Claim Readiness Review
+                        </Link>
+                        <span className="text-slate-300">|</span>
                         <Link
                             href="/"
                             className="text-navy-600 hover:text-navy-700 font-medium underline"
