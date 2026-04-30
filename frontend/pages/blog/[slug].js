@@ -165,7 +165,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "headline": post.title,
-        "description": post.excerpt,
+        "description": post.seo_description || post.excerpt,
         "url": `https://www.militarydisabilitynexus.com/blog/${post.slug}`,
         "author": authorProfile ? {
             "@type": "Person",
@@ -179,7 +179,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
         },
         "datePublished": post.published_at,
         "dateModified": post.updated_at || post.published_at,
-        "keywords": post.tags || [],
+        "keywords": post.seo_keywords ? post.seo_keywords.split(',').map(k => k.trim()) : (post.tags || []),
         "publisher": {
             ...buildOrganizationReference(),
             "logo": {
@@ -203,8 +203,8 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
         <Layout>
             <SEO
                 title={post.title}
-                description={post.excerpt}
-                keywords={`${post.category}, VA disability, ${post.tags?.join(', ')}`}
+                description={post.seo_description || post.excerpt}
+                keywords={post.seo_keywords || `${post.category}, VA disability, ${post.tags?.join(', ')}`}
                 article={true}
                 publishedTime={post.published_at}
                 modifiedTime={post.updated_at || post.published_at}
