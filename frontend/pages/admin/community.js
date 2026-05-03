@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../src/lib/supabase';
 import AdminLayout from '../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../src/components/admin/ProtectedRoute';
-import { Search, Trash2, Eye, MessageSquare, ThumbsUp, User, ChevronDown, ChevronUp, Send, Award, Stethoscope } from 'lucide-react';
+import { Search, Trash2, Eye, MessageSquare, ThumbsUp, User, ChevronDown, ChevronUp, Send, Award, Stethoscope, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../src/components/SEO';
 import { clinicalProfileApi } from '../../src/lib/api';
@@ -154,6 +154,17 @@ const AdminCommunity = () => {
         }
     };
 
+    const handleToggleFeatured = async (id, currentValue) => {
+        try {
+            const { error } = await supabase.from('community_questions').update({ is_featured: !currentValue }).eq('id', id);
+            if (error) throw error;
+            toast.success(currentValue ? 'Removed from featured' : 'Added to featured');
+            fetchQuestions();
+        } catch (error) {
+            toast.error('Failed to update featured status');
+        }
+    };
+
     const handleSubmitExpertAnswer = async (questionId) => {
         const content = expertAnswer[questionId]?.trim();
         if (!content) {
@@ -250,6 +261,7 @@ const AdminCommunity = () => {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <span className={'px-2 py-0.5 text-xs font-medium rounded-full ' + (question.status === 'published' ? 'bg-emerald-100 text-emerald-700' : question.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{question.status}</span>
+                                                    {question.is_featured && <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-700">Featured</span>}
                                                     <span className="text-sm text-slate-500">{formatDate(question.created_at)}</span>
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-slate-900 mb-1">{question.title}</h3>
@@ -262,6 +274,7 @@ const AdminCommunity = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
+                                                <button onClick={() => handleToggleFeatured(question.id, question.is_featured)} title={question.is_featured ? 'Remove from featured' : 'Add to featured'} className={'p-2 transition-colors ' + (question.is_featured ? 'text-amber-500 hover:text-amber-600' : 'text-slate-300 hover:text-amber-400')}><Star className="w-5 h-5" fill={question.is_featured ? 'currentColor' : 'none'} /></button>
                                                 <select value={question.status} onChange={(e) => handleStatusChange(question.id, e.target.value)} className="text-sm px-2 py-1 border border-slate-200 rounded focus:ring-2 focus:ring-navy-600 focus:outline-none">
                                                     <option value="published">Published</option>
                                                     <option value="pending">Pending</option>

@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResponse } from '../_shared/cors.ts';
 import {
   formatInlineHtml,
@@ -14,6 +15,8 @@ import {
 } from '../_shared/submission-utils.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SECRET_KEY');
 const frontendUrl = Deno.env.get('FRONTEND_URL') || 'http://localhost:3000';
 const fallbackFromHeader = 'Military Disability Nexus <contact@militarydisabilitynexus.com>';
 const defaultFromEmail = Deno.env.get('MAIL_FROM_EMAIL') || 'contact@militarydisabilitynexus.com';
@@ -27,6 +30,7 @@ interface NotificationRequest {
   questionAuthorName?: string;
   answerAuthor: string;
   answerContent: string;
+  answerId?: string;
 }
 
 serve(async (req) => {
@@ -154,6 +158,31 @@ You're receiving this email because you asked a question on our Community Q&A pl
     });
 
     const data = await res.json();
+
+    // Log to email_logs if Supabase credentials are available
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      
+      const logData = {
+        recipient_email: recipientEmail,
+        recipient_name: payload.questionAuthorName || null,
+        community_question_id: payload.questionId,
+        community_answer_id: payload.answerId || null,
+        email_type: 'user_confirmation',
+        subject: safeSubject,
+        status: res.ok ? 'sent' : 'failed',
+        email_service_id: data?.id || null,
+        error_message: res.ok ? null : JSON.stringify(data),
+        sent_at: res.ok ? new Date().toISOString() : null,
+        failed_at: res.ok ? null : new Date().toISOString(),
+      };
+
+      try {
+        await supabase.from('email_logs').insert(logData);
+      } catch (logError) {
+        console.error('Error logging to email_logs:', logError);
+      }
+    }
 
     if (!res.ok) {
       console.error('Resend API error:', data);

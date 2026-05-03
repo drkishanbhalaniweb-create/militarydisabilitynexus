@@ -36,8 +36,7 @@ export async function getStaticProps() {
             .select('*')
             .eq('status', 'published')
             .eq('is_featured', true)
-            .order('created_at', { ascending: false })
-            .limit(5);
+            .order('created_at', { ascending: false });
 
         const { data, error } = await supabase
             .from('community_questions')
@@ -74,6 +73,7 @@ const Community = ({ initialQuestions, featuredQuestions = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('recent');
     const [selectedTags, setSelectedTags] = useState([]);
+    const [showAllFeatured, setShowAllFeatured] = useState(false);
     const [user, setUser] = useState(null);
     const [showAskForm, setShowAskForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -241,7 +241,7 @@ const Community = ({ initialQuestions, featuredQuestions = [] }) => {
                                     Featured Expert Discussions
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {featuredQuestions.map((q) => (
+                                    {(showAllFeatured ? featuredQuestions : featuredQuestions.slice(0, 6)).map((q) => (
                                         <Link key={q.id} href={'/community/question/' + q.slug} className="group bg-gradient-to-br from-amber-50 to-white backdrop-blur-xl rounded-2xl shadow-md border border-amber-200/50 p-6 hover:shadow-xl hover:border-amber-400 transition-all">
                                             <div className="flex justify-between items-start mb-3">
                                                 <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Expert Answer Included</span>
@@ -259,6 +259,16 @@ const Community = ({ initialQuestions, featuredQuestions = [] }) => {
                                         </Link>
                                     ))}
                                 </div>
+                                {featuredQuestions.length > 6 && (
+                                    <div className="text-center mt-4">
+                                        <button
+                                            onClick={() => setShowAllFeatured(!showAllFeatured)}
+                                            className="text-sm font-medium text-amber-700 hover:text-amber-900 transition-colors"
+                                        >
+                                            {showAllFeatured ? 'Show Less' : 'Show All'}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 p-4 mb-6 flex flex-col sm:flex-row gap-4">
