@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Calendar, User, BookOpen, ArrowRight } from 'l
 import { clinicalProfileApi, blogApi, caseStudyApi } from '../../src/lib/api';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
+import { supabase } from '../../src/lib/supabase';
 import { buildOrganizationReference } from '../../src/lib/trust';
 
 export async function getStaticPaths() {
@@ -59,7 +60,25 @@ export async function getStaticProps({ params }) {
                     role: s.author_profile_id === profile.id ? 'Author' : 'Reviewer',
                 }));
 
-            articles = [...authoredBlogs, ...authoredStudies]
+            // Fetch community expert answers
+            const { data: communityAnswers } = await supabase
+                .from('community_answers')
+                .select('id, content, created_at, community_questions(title, slug)')
+                .eq('clinician_profile_id', profile.id)
+                .eq('status', 'published')
+                .limit(10);
+
+            const expertAnswers = (communityAnswers || []).map(a => ({
+                id: a.id,
+                title: a.community_questions?.title,
+                slug: a.community_questions?.slug,
+                excerpt: a.content.substring(0, 160) + '...',
+                published_at: a.created_at,
+                type: 'community_answer',
+                role: 'Expert Contributor'
+            }));
+
+            articles = [...authoredBlogs, ...authoredStudies, ...expertAnswers]
                 .sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
         } catch (e) {
             console.error('Error fetching associated articles:', e);
@@ -194,16 +213,18 @@ const ClinicianProfile = ({ profile, articles = [] }) => {
                                 {articles.map((article) => (
                                     <Link
                                         key={article.id}
-                                        href={article.type === 'blog' ? `/blog/${article.slug}` : `/case-studies/${article.slug}`}
+                                        href={article.type === 'blog' ? `/blog/${article.slug}` : article.type === 'case_study' ? `/case-studies/${article.slug}` : `/community/question/${article.slug}`}
                                         className="group bg-white rounded-xl p-5 border border-slate-200 hover:border-navy-300 hover:shadow-md transition-all"
                                     >
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                                                 article.type === 'blog'
                                                     ? 'bg-indigo-100 text-indigo-700'
-                                                    : 'bg-emerald-100 text-emerald-700'
+                                                    : article.type === 'case_study'
+                                                    ? 'bg-emerald-100 text-emerald-700'
+                                                    : 'bg-amber-100 text-amber-700'
                                             }`}>
-                                                {article.type === 'blog' ? 'Blog' : 'Case Study'}
+                                                {article.type === 'blog' ? 'Blog' : article.type === 'case_study' ? 'Case Study' : 'Expert Answer'}
                                             </span>
                                             <span className="text-xs text-slate-400">{article.role}</span>
                                         </div>

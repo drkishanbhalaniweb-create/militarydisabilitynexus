@@ -43,19 +43,26 @@ export async function getStaticProps({ params }) {
 
         const { data: answersData } = await supabase
             .from('community_answers')
-            .select('*')
+            .select('*, clinical_profiles(*)')
             .eq('question_id', questionData.id)
             .eq('status', 'published')
             .order('is_expert_answer', { ascending: false, nullsFirst: false })
             .order('is_best_answer', { ascending: false, nullsFirst: false })
             .order('upvotes', { ascending: false });
 
-        const { data: relatedQuestionsData } = await supabase
+        // Fetch related questions based on overlapping tags
+        let relatedQuestionsQuery = supabase
             .from('community_questions')
             .select('slug, title, answers_count')
             .eq('status', 'published')
-            .neq('id', questionData.id)
-            .limit(2);
+            .neq('id', questionData.id);
+
+        if (questionData.tags && questionData.tags.length > 0) {
+            // Simple approach: match first tag
+            relatedQuestionsQuery = relatedQuestionsQuery.contains('tags', [questionData.tags[0]]);
+        }
+
+        const { data: relatedQuestionsData } = await relatedQuestionsQuery.limit(3);
 
         return {
             props: {
@@ -179,6 +186,8 @@ const QuestionDetail = ({ initialQuestion, initialAnswers, relatedQuestions = []
     );
 
     const expertAnswer = answers.find(a => a.is_expert_answer) || answers.find(a => a.is_best_answer);
+    const clinician = expertAnswer?.clinical_profiles;
+
     const qaPageSchema = {
         "@context": "https://schema.org",
         "@type": "QAPage",
@@ -194,15 +203,15 @@ const QuestionDetail = ({ initialQuestion, initialAnswers, relatedQuestions = []
             ...(expertAnswer && {
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": expertAnswer.content,
+                    "text": expertAnswer.content.replace(/<[^>]*>/g, ''), // Strip HTML for schema
                     "dateCreated": expertAnswer.created_at,
                     "upvoteCount": expertAnswer.upvotes || 0,
                     "url": `https://www.militarydisabilitynexus.com/community/question/${question.slug}#expert-answer`,
                     "author": {
                         "@type": "Person",
-                        "name": expertAnswer.is_anonymous ? 'Anonymous' : (expertAnswer.display_name || 'Community Member'),
+                        "name": clinician ? clinician.full_name : (expertAnswer.is_anonymous ? 'Anonymous' : (expertAnswer.display_name || 'Community Member')),
                         ...(expertAnswer.is_expert_answer && {
-                            "jobTitle": "Clinician",
+                            "jobTitle": clinician?.credentials || "Clinician",
                             "worksFor": {
                                 "@type": "MedicalOrganization",
                                 "name": "Military Disability Nexus",
@@ -278,7 +287,18 @@ const QuestionDetail = ({ initialQuestion, initialAnswers, relatedQuestions = []
                                                     <button onClick={() => handleVote('down', 'answer', answer.id, answer.downvotes)} className="flex items-center gap-1 text-slate-500 hover:text-red-600 transition-colors"><ThumbsDown className="w-4 h-4" /><span>{answer.downvotes || 0}</span></button>
                                                 </div>
                                                 <div className="flex items-center gap-4 text-sm text-slate-500">
-                                                    <span className="flex items-center gap-1"><User className="w-4 h-4" />{answer.is_anonymous ? 'Anonymous' : (answer.display_name || 'User')}</span>
+                                                    {answer.is_expert_answer && answer.clinical_profiles ? (
+                                                        <Link href={`/clinician/${answer.clinical_profiles.slug}`} className="flex items-center gap-2 text-amber-700 hover:text-amber-800 font-medium transition-colors">
+                                                            {answer.clinical_profiles.photo_url ? (
+                                                                <img src={answer.clinical_profiles.photo_url} alt={answer.clinical_profiles.full_name} className="w-6 h-6 rounded-full object-cover" />
+                                                            ) : (
+                                                                <User className="w-4 h-4" />
+                                                            )}
+                                                            <span>{answer.clinical_profiles.full_name}{answer.clinical_profiles.credentials ? `, ${answer.clinical_profiles.credentials}` : ''}</span>
+                                                        </Link>
+                                                    ) : (
+                                                        <span className="flex items-center gap-1"><User className="w-4 h-4" />{answer.is_anonymous ? 'Anonymous' : (answer.display_name || 'User')}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

@@ -124,6 +124,11 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/conditions" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
+                  Conditions We Support
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
                   Contact
                 </Link>

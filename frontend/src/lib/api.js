@@ -789,6 +789,131 @@ export const clinicalProfileApi = {
   },
 };
 
+// ============================================
+// CONDITIONS (Programmatic SEO)
+// ============================================
+
+export const conditionApi = {
+  async getAll(includeUnpublished = false) {
+    let query = supabase
+      .from('conditions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!includeUnpublished) {
+      query = query.eq('is_published', true);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  },
+
+  async getBySlug(slug) {
+    const { data, error } = await supabase
+      .from('conditions')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getById(id) {
+    const { data, error } = await supabase
+      .from('conditions')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(conditionData) {
+    let slug = conditionData.slug || generateSlug(conditionData.page_title);
+
+    let uniqueSlug = slug;
+    let counter = 1;
+    while (true) {
+      const { data } = await supabase
+        .from('conditions')
+        .select('id')
+        .eq('slug', uniqueSlug);
+
+      if (!data || data.length === 0) break;
+      counter++;
+      uniqueSlug = `${slug}-${counter}`;
+    }
+
+    const { data, error } = await supabase
+      .from('conditions')
+      .insert([{
+        slug: uniqueSlug,
+        page_title: conditionData.page_title,
+        meta_description: conditionData.meta_description,
+        hero_heading: conditionData.hero_heading,
+        content_html: conditionData.content_html,
+        faqs: conditionData.faqs || [],
+        related_service_ids: conditionData.related_service_ids || [],
+        is_published: conditionData.is_published !== undefined ? conditionData.is_published : true,
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id, conditionData) {
+    const updateData = {
+      page_title: conditionData.page_title,
+      meta_description: conditionData.meta_description,
+      hero_heading: conditionData.hero_heading,
+      content_html: conditionData.content_html,
+      faqs: conditionData.faqs || [],
+      related_service_ids: conditionData.related_service_ids || [],
+      is_published: conditionData.is_published,
+    };
+
+    if (conditionData.slug) {
+      const slug = generateSlug(conditionData.slug);
+      const { data } = await supabase
+        .from('conditions')
+        .select('id')
+        .eq('slug', slug)
+        .neq('id', id);
+        
+      if (data && data.length > 0) {
+        throw new Error('A condition with this slug already exists.');
+      }
+      updateData.slug = slug;
+    }
+
+    const { data, error } = await supabase
+      .from('conditions')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('conditions')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  },
+};
+
 export default {
   services: servicesApi,
   blog: blogApi,
@@ -798,4 +923,5 @@ export default {
   formSubmissions: formSubmissionsApi,
   caseStudy: caseStudyApi,
   clinicalProfile: clinicalProfileApi,
+  condition: conditionApi,
 };

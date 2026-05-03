@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../src/lib/supabase';
 import AdminLayout from '../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../src/components/admin/ProtectedRoute';
-import { Search, Trash2, Eye, MessageSquare, ThumbsUp, User, ChevronDown, ChevronUp, Send, Award } from 'lucide-react';
+import { Search, Trash2, Eye, MessageSquare, ThumbsUp, User, ChevronDown, ChevronUp, Send, Award, Stethoscope } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../src/components/SEO';
+import { clinicalProfileApi } from '../../src/lib/api';
 
 const AdminCommunity = () => {
     const [questions, setQuestions] = useState([]);
@@ -17,8 +18,21 @@ const AdminCommunity = () => {
     const [expertAnswer, setExpertAnswer] = useState({});
     const [submittingAnswer, setSubmittingAnswer] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
+    const [clinicalProfiles, setClinicalProfiles] = useState([]);
+    const [selectedClinician, setSelectedClinician] = useState({});
+    const [seoData, setSeoData] = useState({});
+    const [savingSeo, setSavingSeo] = useState(null);
 
-    useEffect(() => { fetchQuestions(); fetchCurrentUser(); }, [statusFilter]);
+    useEffect(() => { fetchQuestions(); fetchCurrentUser(); fetchClinicalProfiles(); }, [statusFilter]);
+
+    const fetchClinicalProfiles = async () => {
+        try {
+            const profiles = await clinicalProfileApi.getAll(true);
+            setClinicalProfiles(profiles || []);
+        } catch (error) {
+            console.error('Error fetching clinical profiles:', error);
+        }
+    };
 
     const fetchCurrentUser = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -33,11 +47,45 @@ const AdminCommunity = () => {
             const { data, error } = await query;
             if (error) throw error;
             setQuestions(data || []);
+
+            // Initialize SEO data
+            const initialSeo = {};
+            data.forEach(q => {
+                initialSeo[q.id] = {
+                    seo_title: q.seo_title || '',
+                    seo_description: q.seo_description || '',
+                    slug: q.slug || ''
+                };
+            });
+            setSeoData(initialSeo);
         } catch (error) {
             console.error('Error:', error);
             toast.error('Failed to load questions');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleUpdateSEO = async (questionId) => {
+        const data = seoData[questionId];
+        if (!data) return;
+        
+        setSavingSeo(questionId);
+        try {
+            const { error } = await supabase.from('community_questions').update({
+                seo_title: data.seo_title,
+                seo_description: data.seo_description,
+                slug: data.slug
+            }).eq('id', questionId);
+            
+            if (error) throw error;
+            toast.success('SEO settings updated');
+            fetchQuestions();
+        } catch (error) {
+            console.error('Error updating SEO:', error);
+            toast.error(error.message || 'Failed to update SEO');
+        } finally {
+            setSavingSeo(null);
         }
     };
 
@@ -116,6 +164,18 @@ const AdminCommunity = () => {
             toast.error('You must be logged in');
             return;
         }
+
+        const profileId = selectedClinician[questionId];
+        if (!profileId) {
+            toast.error('Please select a clinician profile');
+            return;
+        }
+
+        const profile = clinicalProfiles.find(p => p.id === profileId);
+        const displayName = profile
+            ? `${profile.full_name}${profile.credentials ? ', ' + profile.credentials : ''}`
+            : 'Expert';
+
         setSubmittingAnswer(questionId);
         try {
             const insertData = {
@@ -123,9 +183,10 @@ const AdminCommunity = () => {
                 user_id: currentUser.id,
                 content: content,
                 is_anonymous: false,
-                display_name: 'Expert',
+                display_name: displayName,
                 is_expert_answer: true,
-                status: 'published'
+                status: 'published',
+                clinician_profile_id: profileId,
             };
 
             const { data, error } = await supabase.from('community_answers').insert(insertData).select();
@@ -141,6 +202,7 @@ const AdminCommunity = () => {
 
             toast.success('Expert answer posted!');
             setExpertAnswer(prev => ({ ...prev, [questionId]: '' }));
+            setSelectedClinician(prev => ({ ...prev, [questionId]: '' }));
             fetchAnswers(questionId);
             fetchQuestions();
         } catch (error) {
@@ -219,6 +281,24 @@ const AdminCommunity = () => {
                                                     <Award className="w-5 h-5 text-amber-600" />
                                                     <h4 className="font-medium text-amber-800">Post Expert Answer</h4>
                                                 </div>
+                                                <div className="mb-2">
+                                                    <label className="block text-xs font-medium text-amber-700 mb-1">
+                                                        <Stethoscope className="w-3.5 h-3.5 inline mr-1" />
+                                                        Clinician Profile <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <select
+                                                        value={selectedClinician[question.id] || ''}
+                                                        onChange={(e) => setSelectedClinician(prev => ({ ...prev, [question.id]: e.target.value }))}
+                                                        className="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm bg-white"
+                                                    >
+                                                        <option value="">Select clinician...</option>
+                                                        {clinicalProfiles.map((profile) => (
+                                                            <option key={profile.id} value={profile.id}>
+                                                                {profile.full_name}{profile.credentials ? `, ${profile.credentials}` : ''}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                                 <textarea
                                                     value={expertAnswer[question.id] || ''}
                                                     onChange={(e) => setExpertAnswer(prev => ({ ...prev, [question.id]: e.target.value }))}
@@ -233,6 +313,62 @@ const AdminCommunity = () => {
                                                 >
                                                     <Send className="w-4 h-4" />
                                                     {submittingAnswer === question.id ? 'Posting...' : 'Post Expert Answer'}
+                                                </button>
+                                            </div>
+
+                                            {/* SEO Settings */}
+                                            <div className="mb-4 bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Search className="w-5 h-5 text-indigo-600" />
+                                                    <h4 className="font-medium text-indigo-800">SEO Settings</h4>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-indigo-700 mb-1 flex justify-between">
+                                                            <span>SEO Title Override</span>
+                                                            <span className={(seoData[question.id]?.seo_title?.length > 60 ? 'text-red-500' : 'text-slate-500')}>{seoData[question.id]?.seo_title?.length || 0}/60</span>
+                                                        </label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={seoData[question.id]?.seo_title || ''} 
+                                                            onChange={(e) => setSeoData(prev => ({...prev, [question.id]: {...prev[question.id], seo_title: e.target.value}}))}
+                                                            placeholder={question.title}
+                                                            className="w-full px-3 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-indigo-700 mb-1 flex justify-between">
+                                                            <span>URL Slug Override</span>
+                                                        </label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={seoData[question.id]?.slug || ''} 
+                                                            onChange={(e) => setSeoData(prev => ({...prev, [question.id]: {...prev[question.id], slug: e.target.value.toLowerCase().replace(/\s+/g, '-')}}))}
+                                                            placeholder={question.slug}
+                                                            className="w-full px-3 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+                                                        />
+                                                        <p className="text-[10px] text-slate-500 mt-1 truncate">Preview: /community/question/{seoData[question.id]?.slug || question.slug}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="mb-4">
+                                                    <label className="block text-xs font-medium text-indigo-700 mb-1 flex justify-between">
+                                                        <span>SEO Meta Description</span>
+                                                        <span className={(seoData[question.id]?.seo_description?.length > 155 ? 'text-red-500' : 'text-slate-500')}>{seoData[question.id]?.seo_description?.length || 0}/155</span>
+                                                    </label>
+                                                    <textarea 
+                                                        value={seoData[question.id]?.seo_description || ''} 
+                                                        onChange={(e) => setSeoData(prev => ({...prev, [question.id]: {...prev[question.id], seo_description: e.target.value}}))}
+                                                        placeholder={question.content?.substring(0, 155)}
+                                                        rows={2}
+                                                        className="w-full px-3 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={() => handleUpdateSEO(question.id)}
+                                                    disabled={savingSeo === question.id}
+                                                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors text-sm font-medium"
+                                                >
+                                                    {savingSeo === question.id ? 'Saving...' : 'Save SEO Settings'}
                                                 </button>
                                             </div>
 
@@ -255,7 +391,14 @@ const AdminCommunity = () => {
                                                                     {answer.is_best_answer && !answer.is_expert_answer && <span className="text-xs font-medium text-emerald-600 mb-1 block">Accepted Answer</span>}
                                                                     <p className="text-slate-700 text-sm">{answer.content}</p>
                                                                     <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
-                                                                        <span>{answer.is_anonymous ? 'Anonymous' : (answer.display_name || 'User')}</span>
+                                                                        {answer.is_expert_answer && answer.clinician_profile_id ? (
+                                                                            <span className="flex items-center gap-1 text-amber-700 font-medium">
+                                                                                <Stethoscope className="w-3 h-3" />
+                                                                                {answer.display_name}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span>{answer.is_anonymous ? 'Anonymous' : (answer.display_name || 'User')}</span>
+                                                                        )}
                                                                         <span>{formatDate(answer.created_at)}</span>
                                                                         <span className="flex items-center gap-1"><ThumbsUp className="w-3 h-3" />{answer.upvotes || 0}</span>
                                                                     </div>

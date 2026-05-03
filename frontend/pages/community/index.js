@@ -31,10 +31,19 @@ const AVAILABLE_TAGS = [
 
 export async function getStaticProps() {
     try {
+        const { data: featuredData } = await supabase
+            .from('community_questions')
+            .select('*')
+            .eq('status', 'published')
+            .eq('is_featured', true)
+            .order('created_at', { ascending: false })
+            .limit(5);
+
         const { data, error } = await supabase
             .from('community_questions')
             .select('*')
             .eq('status', 'published')
+            .eq('is_featured', false)
             .order('created_at', { ascending: false })
             .limit(50);
 
@@ -42,6 +51,7 @@ export async function getStaticProps() {
 
         return {
             props: {
+                featuredQuestions: featuredData || [],
                 initialQuestions: data || [],
             },
             revalidate: 300, // Revalidate every 5 minutes
@@ -57,7 +67,7 @@ export async function getStaticProps() {
     }
 }
 
-const Community = ({ initialQuestions }) => {
+const Community = ({ initialQuestions, featuredQuestions = [] }) => {
     const router = useRouter();
     const [questions, setQuestions] = useState(initialQuestions || []);
     const [loading, setLoading] = useState(false);
@@ -219,9 +229,38 @@ const Community = ({ initialQuestions }) => {
                                     <span>COMMUNITY Q&A</span>
                                 </div>
                                 <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 drop-shadow-sm">VA Benefits Questions — Answered by Medical Experts, Free</h1>
-                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Skip the Reddit speculation. Ask your VA disability claim questions and get direct, evidence-based answers from licensed clinicians. We verify every medical response to ensure you get accurate guidance.</p>
+                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Ask any question about your VA disability claim and get an answer from our clinical team — at no cost. Unlike Reddit or Facebook groups, every Expert Answer here comes from a licensed clinician with direct VA claims experience. No guesswork. No conflicting opinions. Just accurate guidance.</p>
                             </div>
                         </section>
+
+                        {/* Featured Questions */}
+                        {featuredQuestions.length > 0 && (
+                            <div className="mb-10">
+                                <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <Award className="w-6 h-6 text-amber-500" />
+                                    Featured Expert Discussions
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {featuredQuestions.map((q) => (
+                                        <Link key={q.id} href={'/community/question/' + q.slug} className="group bg-gradient-to-br from-amber-50 to-white backdrop-blur-xl rounded-2xl shadow-md border border-amber-200/50 p-6 hover:shadow-xl hover:border-amber-400 transition-all">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Expert Answer Included</span>
+                                                <div className="flex items-center gap-1 text-slate-400 text-xs">
+                                                    <ThumbsUp className="w-3 h-3" />
+                                                    {q.upvotes || 0}
+                                                </div>
+                                            </div>
+                                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-navy-700 transition-colors mb-2 line-clamp-2">{q.title}</h3>
+                                            <p className="text-slate-600 text-sm line-clamp-2 mb-4">{q.content}</p>
+                                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-amber-100">
+                                                <span className="text-xs text-slate-500 font-medium">{q.answers_count || 0} Expert Answers</span>
+                                                <span className="text-navy-600 group-hover:text-navy-800 text-xs font-bold flex items-center gap-1">Read Answer <Plus className="w-3 h-3" /></span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 p-4 mb-6 flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
