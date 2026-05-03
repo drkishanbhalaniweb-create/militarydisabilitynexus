@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ThumbsDown, Eye, Search, Plus, User, Clock, Filter } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ThumbsDown, Eye, Search, Plus, User, Clock, Filter, Award } from 'lucide-react';
 import { supabase } from '../../src/lib/supabase';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
