@@ -151,3 +151,64 @@ code {
         scrollbar-color: #e2e8f0 transparent;
     }
 }
+
+/* Blog Table Styles — for tables rendered in blog content on public pages */
+.prose-container table,
+.prose table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5rem 0;
+    table-layout: auto;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.prose-container table td,
+.prose-container table th,
+.prose table td,
+.prose table th {
+    border: 1px solid #e2e8f0;
+    padding: 0.625rem 0.875rem;
+    vertical-align: top;
+    text-align: left;
+}
+
+.prose-container table th,
+.prose table th {
+    background-color: #1e3a5f;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+}
+
+.prose-container table td,
+.prose table td {
+    color: #334155;
+}
+
+.prose-container table tbody tr:nth-child(even) td,
+.prose table tbody tr:nth-child(even) td {
+    background-color: #f8fafc;
+}
+
+.prose-container table tbody tr:hover td,
+.prose table tbody tr:hover td {
+    background-color: #f1f5f9;
+}
+
+/* Responsive: horizontal scroll wrapper for small screens */
+@media (max-width: 640px) {
+    .prose-container table,
+    .prose table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Tiptap inserts paragraphs inside table cells — remove margins */
+.prose-container table p,
+.prose table p {
+    margin: 0;
+}

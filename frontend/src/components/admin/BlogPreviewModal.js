@@ -1,12 +1,34 @@
-import { useMemo } from 'react';
-import { X } from 'lucide-react';
-import { Clock, Calendar, User } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { X, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import AttributionPanel from '../trust/AttributionPanel';
 import TableOfContents from '../blog/TableOfContents';
 import { clinicalReviewTeam, editorialTeam } from '../../lib/trust';
 import { formatBlogHTML } from '../../lib/htmlUtils';
+import { clinicalProfileApi } from '../../lib/api';
 
 const BlogPreviewModal = ({ isOpen, onClose, post }) => {
+    const [authorProfile, setAuthorProfile] = useState(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (post?.author_profile_id) {
+                try {
+                    const profile = await clinicalProfileApi.getById(post.author_profile_id);
+                    setAuthorProfile(profile);
+                } catch (error) {
+                    console.error('Error fetching profile for preview:', error);
+                    setAuthorProfile(null);
+                }
+            } else {
+                setAuthorProfile(null);
+            }
+        };
+
+        if (isOpen) {
+            fetchProfile();
+        }
+    }, [post?.author_profile_id, isOpen]);
+
     const formattedContent = useMemo(() => {
         if (!post?.content_html) return { html: '', tocItems: [], hasToc: false };
         return formatBlogHTML(post.content_html, { extractToc: true });
@@ -21,6 +43,10 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
             day: 'numeric'
         });
     };
+
+    const displayAuthorName = authorProfile 
+        ? `${authorProfile.full_name}${authorProfile.credentials ? `, ${authorProfile.credentials}` : ''}`
+        : 'Editorial Team';
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -42,8 +68,8 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                         {/* Hero */}
                         <header className="bg-gradient-to-br from-navy-700 to-navy-800 py-16">
                             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                                <span className="inline-flex items-center space-x-2 text-indigo-50 mb-6 font-semibold">
-                                    <ArrowLeftIcon /> Back to Blog
+                                <span className="inline-flex items-center space-x-2 text-indigo-50 mb-6 font-semibold cursor-default">
+                                    <ArrowLeft className="w-4 h-4" /> Back to Blog
                                 </span>
                                 <div className="block">
                                     <div className="inline-block border border-white/25 bg-white/[0.07] text-slate-200 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase mb-4 backdrop-blur-sm">
@@ -56,7 +82,7 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                                 <div className="flex flex-wrap items-center gap-6 text-indigo-50">
                                     <div className="flex items-center space-x-2">
                                         <User className="w-5 h-5" />
-                                        <span>{post.author_name || 'Author Name'}</span>
+                                        <span>{displayAuthorName}</span>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <Calendar className="w-5 h-5" />

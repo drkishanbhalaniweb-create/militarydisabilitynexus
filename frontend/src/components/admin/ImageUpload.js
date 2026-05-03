@@ -11,6 +11,8 @@ const ImageUpload = ({
   onUploadComplete,
   existingImage = null,
   existingPath = null,
+  altValue = '',
+  onAltChange = () => { },
   folder = 'blog',
   label = 'Upload Image',
   showPreview = true
@@ -192,7 +194,7 @@ const ImageUpload = ({
             </div>
 
             {/* Image info */}
-            <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+            <div className="mt-2 flex items-center justify-between text-xs text-slate-500 mb-2">
               <span className="flex items-center space-x-1">
                 <ImageIcon className="w-4 h-4" />
                 <span>Image uploaded</span>
@@ -204,6 +206,23 @@ const ImageUpload = ({
               >
                 Remove
               </button>
+            </div>
+
+            {/* Alt Tag Input */}
+            <div className="mt-3">
+              <label className="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wider">
+                Image Alt Tag (SEO)
+              </label>
+              <input
+                type="text"
+                value={altValue}
+                onChange={(e) => onAltChange(e.target.value)}
+                placeholder="Describe this image for search engines..."
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              />
+              <p className="text-[10px] text-slate-500 mt-1">
+                Crucial for SEO and accessibility. Describe what's in the image.
+              </p>
             </div>
           </div>
         )

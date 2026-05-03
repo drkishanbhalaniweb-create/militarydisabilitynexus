@@ -169,9 +169,9 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [], authorProfile = null
     return (
         <Layout>
             <SEO
-                title={caseStudy.title}
-                description={caseStudy.excerpt}
-                keywords={`case study, success story, VA disability, ${(caseStudy.tags || []).join(', ')}`}
+                title={caseStudy.seo_title || caseStudy.title}
+                description={caseStudy.seo_description || caseStudy.excerpt}
+                keywords={caseStudy.seo_keywords || `case study, success story, VA disability, ${(caseStudy.tags || []).join(', ')}`}
                 article={true}
                 publishedTime={caseStudy.published_at}
                 modifiedTime={caseStudy.updated_at || caseStudy.published_at}

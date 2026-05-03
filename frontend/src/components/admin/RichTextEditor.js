@@ -6,8 +6,13 @@ import TextAlign from '@tiptap/extension-text-align';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
+import { Table } from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import CustomTableHeader from './tiptap-extensions/CustomTableHeader';
+import TableBubbleMenu from './tiptap-extensions/TableBubbleMenu';
 import { FontSize, DropCap } from './tiptap-extensions/AdvancedTypography';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, ChevronDown, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, ChevronDown, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify, Table as TableIcon } from 'lucide-react';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { uploadBlogImage, validateImage } from '../../lib/imageUpload';
 import { GlobalWrapperDiv, GlobalInlineSpan } from './tiptap-extensions/PremiumBlocks';
@@ -33,12 +38,20 @@ const FONTS = [
     { label: 'Montserrat', value: 'Montserrat' },
     { label: 'Outfit', value: 'Outfit' },
     { label: 'Roboto', value: 'Roboto' },
+    { label: 'Open Sans', value: 'Open Sans' },
+    { label: 'Lato', value: 'Lato' },
+    { label: 'Poppins', value: 'Poppins' },
+    { label: 'Oswald', value: 'Oswald' },
+    { label: 'Source Sans 3', value: 'Source Sans 3' },
+    { label: 'Arial', value: 'Arial' },
     { label: 'System Sans', value: 'sans-serif' },
     { label: '--- Serif ---', value: 'SERIF_HEADER', disabled: true },
     { label: 'Playfair Display', value: 'Playfair Display' },
     { label: 'EB Garamond', value: 'EB Garamond' },
     { label: 'Merriweather', value: 'Merriweather' },
     { label: 'Lora', value: 'Lora' },
+    { label: 'Spectral', value: 'Spectral' },
+    { label: 'Times New Roman', value: 'Times New Roman' },
     { label: 'System Serif', value: 'serif' },
     { label: '--- Other ---', value: 'OTHER_HEADER', disabled: true },
     { label: 'Monospace', value: 'monospace' }
@@ -74,6 +87,19 @@ const MenuBar = ({ editor }) => {
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     }, [editor]);
 
+    const setAltTag = useCallback(() => {
+        if (!editor) return;
+        const currentAttributes = editor.getAttributes('image');
+        if (!currentAttributes.src) {
+            toast.error("Please select an image first");
+            return;
+        }
+        const newAlt = window.prompt('Image Alt Tag (SEO)', currentAttributes.alt || '');
+        if (newAlt !== null) {
+            editor.chain().focus().updateAttributes('image', { alt: newAlt }).run();
+        }
+    }, [editor]);
+
     const insertBlock = (htmlString) => {
         editor.chain().focus().insertContent(htmlString).run();
     };
@@ -91,7 +117,8 @@ const MenuBar = ({ editor }) => {
         setUploadingImage(true);
         try {
             const result = await uploadBlogImage(file, 'blog-inline');
-            editor.chain().focus().setImage({ src: result.url, alt: file.name }).run();
+            const altText = window.prompt('Enter Image Alt Text (SEO)', file.name) || file.name;
+            editor.chain().focus().setImage({ src: result.url, alt: altText }).run();
             toast.success('Image inserted');
         } catch (error) {
             console.error('Image upload error:', error);
@@ -202,12 +229,22 @@ const MenuBar = ({ editor }) => {
                 <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={`p-2 rounded ${editor.isActive('blockquote') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Quote"><Quote className="w-4 h-4" /></button>
                 
                 <div className="w-px h-6 bg-slate-300 mx-1"></div>
+
+                {/* Table */}
+                <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={`p-2 rounded ${editor.isActive('table') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Insert Table">
+                    <TableIcon className="w-4 h-4" />
+                </button>
+
+                <div className="w-px h-6 bg-slate-300 mx-1"></div>
                 
                 <button type="button" onClick={setLink} className={`p-2 rounded ${editor.isActive('link') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Add Link"><LinkIcon className="w-4 h-4" /></button>
                 <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="p-2 rounded text-slate-600 hover:bg-slate-200 disabled:opacity-50 flex items-center" title="Insert Image">
                     {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
                 </button>
-                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" />
+                <button type="button" onClick={setAltTag} className={`p-2 rounded ${editor.isActive('image') ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-200'}`} title="Set Image Alt Tag">
+                    <span className="text-[10px] font-bold">ALT</span>
+                </button>
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" className="hidden" />
                 
                 <div className="flex-1"></div>
                 
@@ -265,6 +302,15 @@ const RichTextEditor = ({ value, onChange }) => {
                     class: 'rounded-xl shadow-lg w-full object-cover my-8',
                 },
             }),
+            Table.configure({
+                resizable: false,
+                HTMLAttributes: {
+                    class: 'tiptap-table',
+                },
+            }),
+            TableRow,
+            TableCell,
+            CustomTableHeader,
             GlobalWrapperDiv,
             GlobalInlineSpan,
         ],
@@ -297,6 +343,7 @@ const RichTextEditor = ({ value, onChange }) => {
             <MenuBar editor={editor} />
             <div className="tiptap-wrapper" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 <EditorContent editor={editor} />
+                {editor && <TableBubbleMenu editor={editor} />}
             </div>
             
             {/* Minimal styling overrides purely for the admin panel editor view so block elements look acceptable */}
@@ -359,6 +406,52 @@ const RichTextEditor = ({ value, onChange }) => {
                   font-weight: 700;
                   font-family: 'Playfair Display', serif;
                   display: inline-block;
+                }
+
+                /* Table Styling in Editor */
+                .tiptap-wrapper .ProseMirror .tiptap-table {
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin: 1.5rem 0;
+                    table-layout: fixed;
+                    overflow: hidden;
+                }
+
+                .tiptap-wrapper .ProseMirror .tiptap-table td,
+                .tiptap-wrapper .ProseMirror .tiptap-table th {
+                    border: 1px solid #e2e8f0;
+                    padding: 0.625rem 0.75rem;
+                    vertical-align: top;
+                    position: relative;
+                    min-width: 80px;
+                }
+
+                .tiptap-wrapper .ProseMirror .tiptap-table th {
+                    background-color: #1e3a5f;
+                    color: #ffffff;
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                    text-align: left;
+                }
+
+                .tiptap-wrapper .ProseMirror .tiptap-table td {
+                    font-size: 0.875rem;
+                    color: #334155;
+                }
+
+                .tiptap-wrapper .ProseMirror .tiptap-table tr:nth-child(even) td {
+                    background-color: #f8fafc;
+                }
+
+                .tiptap-wrapper .ProseMirror .tiptap-table td.selectedCell,
+                .tiptap-wrapper .ProseMirror .tiptap-table th.selectedCell {
+                    background-color: #dbeafe;
+                    outline: 2px solid #3b82f6;
+                    outline-offset: -2px;
+                }
+
+                .tiptap-wrapper .ProseMirror .tiptap-table p {
+                    margin: 0;
                 }
             `}</style>
         </div>

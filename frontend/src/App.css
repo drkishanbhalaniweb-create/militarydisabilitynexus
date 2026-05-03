@@ -13,7 +13,7 @@
 }
 
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
 }
 
@@ -23,7 +23,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #fafafa;
   color: #1e293b;
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   position: relative;
 }
@@ -74,7 +74,7 @@ img {
   html,
   body {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* Better touch targets */

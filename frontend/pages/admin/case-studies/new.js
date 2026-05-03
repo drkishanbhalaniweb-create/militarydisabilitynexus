@@ -29,6 +29,9 @@ const CaseStudyForm = () => {
         related_post_ids: [],
         author_profile_id: null,
         reviewer_profile_id: null,
+        seo_title: '',
+        seo_keywords: '',
+        seo_description: '',
     });
 
     const availableTags = [
@@ -185,6 +188,9 @@ const CaseStudyForm = () => {
                 related_post_ids: formData.related_post_ids || [],
                 author_profile_id: formData.author_profile_id || null,
                 reviewer_profile_id: formData.reviewer_profile_id || null,
+                seo_title: formData.seo_title || '',
+                seo_keywords: formData.seo_keywords || '',
+                seo_description: formData.seo_description || '',
             };
 
             const { error } = await supabase
@@ -339,6 +345,63 @@ const CaseStudyForm = () => {
                                                 Published
                                             </span>
                                         </label>
+                                    </div>
+                                </div>
+
+                                {/* SEO Settings */}
+                                <div className="pt-4 mt-6 border-t border-slate-100">
+                                    <h3 className="text-lg font-bold text-slate-900 mb-4">SEO Settings</h3>
+                                    
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                SEO Title (Tab Title)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="seo_title"
+                                                value={formData.seo_title || ''}
+                                                onChange={handleChange}
+                                                placeholder="Custom browser tab title"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                            <p className="text-xs text-slate-500 mt-1">If left blank, the standard Title will be used. This does not change the on-page H1.</p>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                SEO Keywords
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="seo_keywords"
+                                                value={formData.seo_keywords || ''}
+                                                onChange={handleChange}
+                                                placeholder="Custom keywords separated by commas"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                            <p className="text-xs text-slate-500 mt-1">If left blank, keywords will be automatically generated from Tags.</p>
+                                        </div>
+
+                                        <div>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <label className="block text-sm font-semibold text-slate-700">
+                                                    SEO Description
+                                                </label>
+                                                <span className={`text-xs font-medium ${(formData.seo_description?.length || 0) > 160 ? 'text-red-500' : (formData.seo_description?.length || 0) >= 150 ? 'text-green-600' : 'text-slate-500'}`}>
+                                                    {formData.seo_description?.length || 0} / 160 chars
+                                                </span>
+                                            </div>
+                                            <textarea
+                                                name="seo_description"
+                                                value={formData.seo_description || ''}
+                                                onChange={handleChange}
+                                                rows="2"
+                                                placeholder="Custom SEO meta description"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                            <p className="text-xs text-slate-500 mt-1">Best practice is 150-160 characters. If left blank, the Excerpt will be used.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

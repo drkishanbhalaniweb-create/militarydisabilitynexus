@@ -167,7 +167,7 @@ const Blog = ({ initialPosts }) => {
                                                 <div className="aspect-[16/9] w-full overflow-hidden">
                                                     <img
                                                         src={post.featured_image}
-                                                        alt={post.title}
+                                                        alt={post.featured_image_alt || post.title}
                                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                         loading="lazy"
                                                     />

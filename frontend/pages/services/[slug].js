@@ -110,9 +110,9 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
     return (
         <Layout>
             <SEO
-                title={seoTitleOverrides[service.slug] || service.title}
-                description={service.short_description}
-                keywords={`${service.title}, ${service.category}, VA disability, medical documentation`}
+                title={service.seo_title || seoTitleOverrides[service.slug] || service.title}
+                description={service.seo_description || service.short_description}
+                keywords={service.seo_keywords || `${service.title}, ${service.category}, VA disability, medical documentation`}
                 structuredData={structuredData}
                 faqSchema={service.faqs}
                 canonical={`/services/${service.slug}`}
@@ -316,10 +316,11 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                         </div>
 
                         {/* Sidebar */}
-                        <aside className="lg:col-span-1 space-y-6">
-                            {/* Diagnostic Box - Only show for claim-readiness-review */}
-                            {service.slug === 'claim-readiness-review' && (
-                                <div className="sticky top-24 bg-gradient-to-br from-navy-50 to-slate-50 rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #163b63' }}>
+                        <aside className="lg:col-span-1">
+                            <div className="lg:sticky lg:top-24 space-y-6">
+                                {/* Diagnostic Box - Only show for claim-readiness-review */}
+                                {service.slug === 'claim-readiness-review' && (
+                                    <div className="bg-gradient-to-br from-navy-50 to-slate-50 rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #163b63' }}>
                                     <div className="mb-6">
                                         <div className="text-sm text-navy-600 font-semibold mb-2">Not Sure If You're Ready?</div>
                                         <div className="text-2xl font-bold text-slate-900 mb-2">
@@ -356,7 +357,7 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                             )}
 
                             {/* Payment Box */}
-                            <div className="sticky top-24 bg-white rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #B91C3C' }}>
+                            <div className="bg-white rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #B91C3C' }}>
                                 <div className="mb-6">
                                     <div className="text-sm text-slate-500 mb-2">Starting at</div>
                                     <div className="text-4xl font-bold text-slate-900 mb-1">
@@ -432,6 +433,7 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                                     <Link href="/medical-review-policy" className="block hover:text-white">Medical review policy</Link>
                                     <Link href="/editorial-policy" className="block hover:text-white">Editorial policy</Link>
                                 </div>
+                            </div>
                             </div>
                         </aside>
                     </div>

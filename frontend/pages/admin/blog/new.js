@@ -27,7 +27,7 @@ const BlogForm = () => {
         content_html: '',
         category: 'nexus-letters',
         tags: [],
-        author_name: 'Military Disability Nexus',
+        author_name: 'Editorial Team',
         read_time: '5 min read',
         is_published: false,
         published_at: new Date().toISOString().split('T')[0],
@@ -36,8 +36,10 @@ const BlogForm = () => {
         related_post_ids: [],
         author_profile_id: null,
         reviewer_profile_id: null,
+        seo_title: '',
         seo_keywords: '',
         seo_description: '',
+        featured_image_alt: '',
     });
 
     const [tagInput, setTagInput] = useState('');
@@ -257,6 +259,8 @@ const BlogForm = () => {
                                     onUploadComplete={handleFeaturedImageUpload}
                                     existingImage={formData.featured_image}
                                     existingPath={formData.featured_image_path}
+                                    altValue={formData.featured_image_alt}
+                                    onAltChange={(val) => setFormData({ ...formData, featured_image_alt: val })}
                                     folder="featured"
                                     label="Featured Image"
                                 />
@@ -377,20 +381,7 @@ const BlogForm = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                            Author Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="author_name"
-                                            value={formData.author_name}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        />
-                                    </div>
-
+                                <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-2">
                                             Publish Date
@@ -465,6 +456,21 @@ const BlogForm = () => {
                                     <h3 className="text-lg font-bold text-slate-900 mb-4">SEO Settings</h3>
                                     
                                     <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                SEO Title (Tab Title)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="seo_title"
+                                                value={formData.seo_title || ''}
+                                                onChange={handleChange}
+                                                placeholder="Custom browser tab title"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                            <p className="text-xs text-slate-500 mt-1">If left blank, the standard Title will be used. This does not change the on-page H1.</p>
+                                        </div>
+
                                         <div>
                                             <label className="block text-sm font-semibold text-slate-700 mb-2">
                                                 SEO Keywords

@@ -174,7 +174,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
             ...(authorProfile.linkedin_url ? { "sameAs": [authorProfile.linkedin_url] } : {})
         } : {
             "@type": "Organization",
-            "name": editorialTeam.name,
+            "name": 'Editorial Team',
             "url": `https://www.militarydisabilitynexus.com${editorialTeam.href}`
         },
         "datePublished": post.published_at,
@@ -199,16 +199,20 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
     const faqSchema = generateFaqSchema(post.content_html);
     const finalStructuredData = faqSchema ? [structuredData, faqSchema] : structuredData;
 
+    const displayAuthorName = authorProfile 
+        ? `${authorProfile.full_name}${authorProfile.credentials ? `, ${authorProfile.credentials}` : ''}`
+        : 'Editorial Team';
+
     return (
         <Layout>
             <SEO
-                title={post.title}
+                title={post.seo_title || post.title}
                 description={post.seo_description || post.excerpt}
                 keywords={post.seo_keywords || `${post.category}, VA disability, ${post.tags?.join(', ')}`}
                 article={true}
                 publishedTime={post.published_at}
                 modifiedTime={post.updated_at || post.published_at}
-                author={post.author_name}
+                author={displayAuthorName}
                 structuredData={finalStructuredData}
                 breadcrumbs={[
                     { name: 'Home', path: '/' },
@@ -236,7 +240,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                         <div className="flex flex-wrap items-center gap-6 text-indigo-50">
                             <div className="flex items-center space-x-2">
                                 <User className="w-5 h-5" />
-                                <span>{post.author_name}</span>
+                                <span>{displayAuthorName}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Calendar className="w-5 h-5" />
@@ -256,7 +260,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                         <div className="w-full aspect-[16/9] overflow-hidden rounded-2xl shadow-2xl">
                             <img
                                 src={post.featured_image}
-                                alt={post.title}
+                                alt={post.featured_image_alt || post.title}
                                 className="w-full h-full object-cover"
                                 loading="eager"
                             />
