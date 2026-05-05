@@ -41,6 +41,8 @@ pids
 
 # Coverage directory used by tools like istanbul
 coverage/
+playwright-report/
+test-results/
 
 # nyc test coverage
 .nyc_output
@@ -90,24 +92,33 @@ hipaa_audit.log
 # mypy
 .mypy_cache/
 .dmypy.json
-dmypy.json# Railwa
-y/Deployment configs (prevent nixpacks auto-detection)
+dmypy.json
+
+# Railway/Deployment configs (prevent nixpacks auto-detection)
 nixpacks.toml
 nixpacks.json
 .nixpacks/
 railway.toml
-.vercel
+
+# Vercel / Next.js
+.vercel/
 .next/
 out/
 **/.next/
 **/out/
+**/playwright-report/
+**/test-results/
 
-# agent
+# Agent/runtime state
 .agent/
+.agents/cache/
 
 .memory/state.json
+
 # Supabase
 supabase/.env
+
+# Environment files
 .env
 .env.*
 .gitnexus

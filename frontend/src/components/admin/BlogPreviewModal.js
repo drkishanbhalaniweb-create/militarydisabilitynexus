@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { X, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import AttributionPanel from '../trust/AttributionPanel';
 import TableOfContents from '../blog/TableOfContents';
+import LeadMagnetHydrator from '../blog/LeadMagnetHydrator';
 import { clinicalReviewTeam, editorialTeam } from '../../lib/trust';
 import { formatBlogHTML } from '../../lib/htmlUtils';
 import { clinicalProfileApi } from '../../lib/api';
@@ -130,9 +131,12 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                                 <div className="lg:col-span-7 w-full">
                                     <div className="prose-container mb-12">
                                         {post.content_html ? (
-                                            <div
-                                                dangerouslySetInnerHTML={{ __html: formattedContent.html }}
-                                            />
+                                            <>
+                                                <div
+                                                    dangerouslySetInnerHTML={{ __html: formattedContent.html }}
+                                                />
+                                                <LeadMagnetHydrator />
+                                            </>
                                         ) : (
                                             <div className="text-center py-12 text-slate-400 font-semibold italic">
                                                 No content added yet.

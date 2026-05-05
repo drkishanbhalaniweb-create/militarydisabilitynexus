@@ -6,6 +6,7 @@ import {
   FileText,
   Briefcase,
   MessageSquare,
+  Mail,
   LogOut,
   Menu,
   X,
@@ -66,6 +67,7 @@ const AdminLayout = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
+    { name: 'Captured Emails', href: '/admin/captured-emails', icon: Mail },
     { name: 'Form Submissions', href: '/admin/form-submissions', icon: ClipboardList },
     { name: 'Diagnostics', href: '/admin/diagnostics', icon: Activity },
     { name: 'Services', href: '/admin/services', icon: Briefcase },

@@ -189,10 +189,11 @@ const Contact = () => {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                             <div>
-                                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                <label htmlFor="contact-name" className="block text-sm font-semibold text-slate-700 mb-2">
                                                     Name *
                                                 </label>
                                                 <input
+                                                    id="contact-name"
                                                     type="text"
                                                     name="name"
                                                     value={formData.name}
@@ -204,10 +205,11 @@ const Contact = () => {
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                <label htmlFor="contact-email" className="block text-sm font-semibold text-slate-700 mb-2">
                                                     Email *
                                                 </label>
                                                 <input
+                                                    id="contact-email"
                                                     type="email"
                                                     name="email"
                                                     value={formData.email}
@@ -220,10 +222,11 @@ const Contact = () => {
                                         </div>
 
                                         <div className="mb-6">
-                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            <label htmlFor="contact-phone" className="block text-sm font-semibold text-slate-700 mb-2">
                                                 Phone
                                             </label>
                                             <input
+                                                id="contact-phone"
                                                 type="tel"
                                                 name="phone"
                                                 value={formData.phone}
@@ -260,10 +263,11 @@ const Contact = () => {
                                         </div>
 
                                         <div className="mb-6">
-                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            <label htmlFor="contact-message" className="block text-sm font-semibold text-slate-700 mb-2">
                                                 Message *
                                             </label>
                                             <textarea
+                                                id="contact-message"
                                                 name="message"
                                                 value={formData.message}
                                                 onChange={handleChange}

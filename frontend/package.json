@@ -81,7 +81,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test",
+    "verify": "npm run lint && npm run test:run && npm run build && npm run test:e2e:smoke",
+    "verify:ci": "npm run lint && npm run test:run && npm run build && npm run test:e2e:smoke",
+    "prepare": "cd .. && husky frontend/.husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs}": "eslint --max-warnings=0"
   },
   "reactSnap": {
     "source": "build",
@@ -133,17 +143,27 @@
     ]
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@eslint/js": "9.23.0",
+    "@playwright/test": "^1.59.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "baseline-browser-mapping": "^2.10.18",
     "eslint": "9.23.0",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.4",
-    "globals": "15.15.0"
+    "fast-check": "^4.7.0",
+    "globals": "15.15.0",
+    "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^16.4.0",
+    "msw": "^2.14.3",
+    "vitest": "^4.1.5"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

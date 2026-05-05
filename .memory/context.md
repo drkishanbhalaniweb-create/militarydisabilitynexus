@@ -28,6 +28,7 @@ Military Disability Nexus: A premium web platform helping veterans secure VA dis
 - Lawyer-drafted pages such as About, Privacy Policy, and Disclaimer are source-of-truth content and should not have substantive copy rewritten during SEO work.
 - **Blog Table of Contents Redesign**: Moved to a minimalist, technical monospace style with custom dash/arrow markers instead of numbering. Implemented internal subtle scrollbars and fixed sticky positioning tracks in the grid layout to ensure the TOC stays reachable during long-form reading flows.
 - **Relates Insights Implementation**: Added a manual internal linking system for blogs and case studies via `related_post_ids`, supported by an automated fallback scoring system based on title and tag matches.
+- Added npm-based infra verification gate with Vitest, Playwright smoke/accessibility tests, Node 22 GitHub Actions, Dependabot, secret scanning, and non-blocking npm audit; Jules setup remains deferred.
 
 ## Wall of Shame
 

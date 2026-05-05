@@ -8,6 +8,7 @@ import Layout from '../../src/components/Layout';
 import AttributionPanel from '../../src/components/trust/AttributionPanel';
 import ClinicalAuthorCard from '../../src/components/shared/ClinicalAuthorCard';
 import TableOfContents from '../../src/components/blog/TableOfContents';
+import LeadMagnetHydrator from '../../src/components/blog/LeadMagnetHydrator';
 import RelatedInsights from '../../src/components/shared/RelatedInsights';
 import { formatBlogHTML } from '../../src/lib/htmlUtils';
 import {
@@ -293,6 +294,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                                 className="prose-container"
                                 dangerouslySetInnerHTML={{ __html: formattedContent.html }}
                             />
+                            <LeadMagnetHydrator />
 
                             {/* CTA */}
                             <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">

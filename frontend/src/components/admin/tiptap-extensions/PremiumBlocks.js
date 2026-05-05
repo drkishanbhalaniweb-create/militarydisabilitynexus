@@ -16,7 +16,25 @@ export const GlobalWrapperDiv = Node.create({
       },
       style: {
         default: null,
-      }
+      },
+      'data-pdf-path': {
+        default: null,
+      },
+      'data-title': {
+        default: null,
+      },
+      'data-description': {
+        default: null,
+      },
+      'data-cta': {
+        default: null,
+      },
+      'data-thumbnail-url': {
+        default: null,
+      },
+      'data-file-name': {
+        default: null,
+      },
     };
   },
 
@@ -31,12 +49,25 @@ export const GlobalWrapperDiv = Node.create({
             'faq-section', 'faq-block', 'faq-answer', 
             'highlight-box', 'hook-block', 
             'denial-grid', 'denial-card', 'denial-header', 'denial-body', 
-            'definition-block', 'definition-content', 'toc-block', 'alert-box'
+            'definition-block', 'definition-content', 'toc-block', 'alert-box',
+            'lead-magnet-block'
           ];
           
           if (allowedWrappers.some(c => cls.includes(c))) {
             const style = element.getAttribute('style');
-            return style ? { class: cls, style } : { class: cls };
+            const attrs = style ? { class: cls, style } : { class: cls };
+            [
+              'data-pdf-path',
+              'data-title',
+              'data-description',
+              'data-cta',
+              'data-thumbnail-url',
+              'data-file-name',
+            ].forEach((attribute) => {
+              const value = element.getAttribute(attribute);
+              if (value) attrs[attribute] = value;
+            });
+            return attrs;
           }
           return false;
         },

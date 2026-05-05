@@ -12,9 +12,10 @@ import TableCell from '@tiptap/extension-table-cell';
 import CustomTableHeader from './tiptap-extensions/CustomTableHeader';
 import TableBubbleMenu from './tiptap-extensions/TableBubbleMenu';
 import { FontSize, DropCap } from './tiptap-extensions/AdvancedTypography';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, ChevronDown, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify, Table as TableIcon } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify, Table as TableIcon, FileUp, Upload, X } from 'lucide-react';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { uploadBlogImage, validateImage } from '../../lib/imageUpload';
+import { uploadLeadMagnetPdf, validatePdf } from '../../lib/pdfUpload';
 import { GlobalWrapperDiv, GlobalInlineSpan } from './tiptap-extensions/PremiumBlocks';
 import { toast } from 'sonner';
 
@@ -71,9 +72,34 @@ const FONT_SIZES = [
     { label: '72px', value: '72' },
 ];
 
+const DEFAULT_LEAD_MAGNET = {
+    title: '',
+    description: '',
+    cta: 'Email me the free template',
+    thumbnailUrl: '',
+};
+
+const escapeHtml = (value = '') => String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const escapeAttribute = escapeHtml;
+
+const normalizeLeadMagnetText = (value = '') => value.trim().replace(/\s+/g, ' ');
+
 const MenuBar = ({ editor }) => {
     const fileInputRef = useRef(null);
+    const thumbnailInputRef = useRef(null);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingPdf, setUploadingPdf] = useState(false);
+    const [isLeadMagnetOpen, setIsLeadMagnetOpen] = useState(false);
+    const [leadMagnetDraft, setLeadMagnetDraft] = useState(DEFAULT_LEAD_MAGNET);
+    const [pdfFile, setPdfFile] = useState(null);
+    const [thumbnailFile, setThumbnailFile] = useState(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState('');
 
     const setLink = useCallback(() => {
         if (!editor) return;
@@ -104,6 +130,109 @@ const MenuBar = ({ editor }) => {
         editor.chain().focus().insertContent(htmlString).run();
     };
 
+    const resetLeadMagnetModal = () => {
+        setLeadMagnetDraft(DEFAULT_LEAD_MAGNET);
+        setPdfFile(null);
+        setThumbnailFile(null);
+        setThumbnailPreview('');
+        if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+    };
+
+    const openLeadMagnetModal = () => {
+        resetLeadMagnetModal();
+        setIsLeadMagnetOpen(true);
+    };
+
+    const closeLeadMagnetModal = () => {
+        if (uploadingPdf) return;
+        setIsLeadMagnetOpen(false);
+        resetLeadMagnetModal();
+    };
+
+    const handlePdfSelect = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const validation = validatePdf(file);
+        if (!validation.valid) {
+            toast.error(validation.errors.join(', '));
+            event.target.value = '';
+            return;
+        }
+
+        setPdfFile(file);
+    };
+
+    const handleThumbnailSelect = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const validation = validateImage(file);
+        if (!validation.valid) {
+            toast.error(validation.errors.join(', '));
+            event.target.value = '';
+            return;
+        }
+
+        setThumbnailFile(file);
+        if (typeof window !== 'undefined') {
+            setThumbnailPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const insertLeadMagnetBlock = async () => {
+        const title = normalizeLeadMagnetText(leadMagnetDraft.title);
+        const description = normalizeLeadMagnetText(leadMagnetDraft.description);
+        const cta = normalizeLeadMagnetText(leadMagnetDraft.cta) || DEFAULT_LEAD_MAGNET.cta;
+
+        if (!title || !description) {
+            toast.error('Add a title and description for the PDF block.');
+            return;
+        }
+
+        if (!pdfFile) {
+            toast.error('Choose a PDF to upload.');
+            return;
+        }
+
+        setUploadingPdf(true);
+        try {
+            const pdf = await uploadLeadMagnetPdf(pdfFile);
+            let thumbnailUrl = leadMagnetDraft.thumbnailUrl.trim();
+
+            if (thumbnailFile) {
+                const thumbnail = await uploadBlogImage(thumbnailFile, 'lead-magnet-thumbnails');
+                thumbnailUrl = thumbnail.url;
+            }
+
+            const blockHtml = `
+                <div
+                    class="lead-magnet-block"
+                    data-pdf-path="${escapeAttribute(pdf.path)}"
+                    data-title="${escapeAttribute(title)}"
+                    data-description="${escapeAttribute(description)}"
+                    data-cta="${escapeAttribute(cta)}"
+                    data-thumbnail-url="${escapeAttribute(thumbnailUrl)}"
+                    data-file-name="${escapeAttribute(pdf.originalName)}"
+                >
+                    <p><strong>${escapeHtml(title)}</strong></p>
+                    <p>${escapeHtml(description)}</p>
+                    <p>${escapeHtml(cta)}</p>
+                </div><p></p>
+            `;
+
+            insertBlock(blockHtml);
+            toast.success('PDF lead magnet inserted');
+            setIsLeadMagnetOpen(false);
+            resetLeadMagnetModal();
+        } catch (error) {
+            console.error('PDF upload error:', error);
+            toast.error('Failed to upload PDF: ' + error.message);
+        } finally {
+            setUploadingPdf(false);
+        }
+    };
+
     const handleImageUpload = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -132,6 +261,7 @@ const MenuBar = ({ editor }) => {
     if (!editor) return null;
 
     return (
+        <>
         <div className="flex flex-col gap-2 p-2 border-b border-slate-300 bg-slate-50 rounded-t-lg">
             <div className="flex flex-wrap items-center gap-1">
                 {/* Text Styles */}
@@ -245,6 +375,17 @@ const MenuBar = ({ editor }) => {
                     <span className="text-[10px] font-bold">ALT</span>
                 </button>
                 <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" className="hidden" />
+
+                <button
+                    type="button"
+                    onClick={openLeadMagnetModal}
+                    disabled={uploadingPdf}
+                    className="px-2 py-1.5 rounded text-xs font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-50 flex items-center gap-1"
+                    title="Upload PDF lead magnet"
+                >
+                    {uploadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+                    PDF
+                </button>
                 
                 <div className="flex-1"></div>
                 
@@ -278,6 +419,160 @@ const MenuBar = ({ editor }) => {
                 </button>
             </div>
         </div>
+
+        {isLeadMagnetOpen && (
+            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4">
+                <div className="w-full max-w-2xl rounded-lg bg-white shadow-2xl border border-slate-200 overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900">Upload PDF Lead Magnet</h3>
+                            <p className="text-sm text-slate-500">Create a gated download block inside this post.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={closeLeadMagnetModal}
+                            className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200 rounded"
+                            aria-label="Close PDF upload modal"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div className="p-5 space-y-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                PDF File *
+                            </label>
+                            <label className="flex items-center justify-between gap-3 rounded-lg border-2 border-dashed border-slate-300 px-4 py-4 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-colors">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <Upload className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-slate-800 truncate">
+                                            {pdfFile ? pdfFile.name : 'Choose a PDF template'}
+                                        </p>
+                                        <p className="text-xs text-slate-500">PDF up to 25MB</p>
+                                    </div>
+                                </div>
+                                <span className="text-xs font-semibold text-indigo-700">Browse</span>
+                                <input
+                                    type="file"
+                                    accept="application/pdf,.pdf"
+                                    onChange={handlePdfSelect}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    Title *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={leadMagnetDraft.title}
+                                    onChange={(e) => setLeadMagnetDraft({ ...leadMagnetDraft, title: e.target.value })}
+                                    placeholder="VA Claim Checklist Template"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    CTA Text *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={leadMagnetDraft.cta}
+                                    onChange={(e) => setLeadMagnetDraft({ ...leadMagnetDraft, cta: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                Description *
+                            </label>
+                            <textarea
+                                value={leadMagnetDraft.description}
+                                onChange={(e) => setLeadMagnetDraft({ ...leadMagnetDraft, description: e.target.value })}
+                                rows="3"
+                                placeholder="A free template veterans can use to organize evidence before filing."
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    Thumbnail Image
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => thumbnailInputRef.current?.click()}
+                                    className="w-full px-4 py-3 border border-slate-300 rounded-lg text-left hover:bg-slate-50 flex items-center gap-3"
+                                >
+                                    <ImageIcon className="w-5 h-5 text-slate-400" />
+                                    <span className="text-sm text-slate-700 truncate">
+                                        {thumbnailFile ? thumbnailFile.name : 'Upload optional preview image'}
+                                    </span>
+                                </button>
+                                <input
+                                    ref={thumbnailInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                                    onChange={handleThumbnailSelect}
+                                    className="hidden"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    Or Thumbnail URL
+                                </label>
+                                <input
+                                    type="url"
+                                    value={leadMagnetDraft.thumbnailUrl}
+                                    onChange={(e) => setLeadMagnetDraft({ ...leadMagnetDraft, thumbnailUrl: e.target.value })}
+                                    placeholder="https://..."
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                        </div>
+
+                        {thumbnailPreview && (
+                            <div className="rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+                                <img
+                                    src={thumbnailPreview}
+                                    alt="Lead magnet thumbnail preview"
+                                    className="w-full h-36 object-cover"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-slate-200 bg-slate-50">
+                        <button
+                            type="button"
+                            onClick={closeLeadMagnetModal}
+                            disabled={uploadingPdf}
+                            className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-white disabled:opacity-50"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={insertLeadMagnetBlock}
+                            disabled={uploadingPdf}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {uploadingPdf && <Loader2 className="w-4 h-4 animate-spin" />}
+                            <span>{uploadingPdf ? 'Uploading...' : 'Insert PDF Block'}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
@@ -376,7 +671,8 @@ const RichTextEditor = ({ value, onChange }) => {
                 .tiptap-wrapper .ProseMirror .denial-grid,
                 .tiptap-wrapper .ProseMirror .definition-block,
                 .tiptap-wrapper .ProseMirror .alert-box,
-                .tiptap-wrapper .ProseMirror .toc-block {
+                .tiptap-wrapper .ProseMirror .toc-block,
+                .tiptap-wrapper .ProseMirror .lead-magnet-block {
                     margin: 1.5rem 0;
                     padding: 1.5rem;
                     border: 2px dashed #cbd5e1;

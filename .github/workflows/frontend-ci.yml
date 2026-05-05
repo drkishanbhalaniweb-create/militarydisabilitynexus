@@ -4,17 +4,31 @@ on:
   pull_request:
     paths:
       - 'frontend/**'
+      - 'supabase/**'
+      - '.github/dependabot.yml'
       - '.github/workflows/frontend-ci.yml'
   push:
     branches:
       - main
     paths:
       - 'frontend/**'
+      - 'supabase/**'
+      - '.github/dependabot.yml'
       - '.github/workflows/frontend-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  frontend:
+  frontend-quality:
+    name: Frontend quality
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: frontend
@@ -33,7 +47,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -43,5 +57,133 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Unit and API tests
+        run: npm run test:run
+
       - name: Build
         run: npm run build
+
+  e2e-smoke:
+    name: E2E smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' && secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'ci-placeholder-anon-key' }}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY != '' && secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_ci_placeholder' }}
+      NEXT_PUBLIC_CAL_URL_DISCOVERY: ${{ secrets.NEXT_PUBLIC_CAL_URL_DISCOVERY != '' && secrets.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus' }}
+      NEXT_PUBLIC_CAL_URL_CONSULTATION: ${{ secrets.NEXT_PUBLIC_CAL_URL_CONSULTATION != '' && secrets.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://cal.com/militarydisabilitynexus/claim-readiness-review' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright smoke tests
+        run: npm run test:e2e:smoke
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+
+  security-checks:
+    name: Security checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Dependency review
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+      - name: Secret scan
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+        uses: trufflesecurity/trufflehog@v3.94.3
+        with:
+          extra_args: --results=verified,unknown
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: npm audit
+        working-directory: frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  supabase-checks:
+    name: Supabase checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
+      - name: Supabase CLI version
+        run: supabase --version
+
+      - name: Migration inventory
+        run: |
+          set -euo pipefail
+          count=$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l)
+          echo "Found ${count} Supabase migration files."
+
+      - name: Supabase db lint status
+        run: |
+          if [ ! -f supabase/config.toml ]; then
+            echo "::warning title=Supabase db lint skipped::supabase/config.toml is missing, so local or linked db lint cannot run yet."
+          fi
+
+          if [ -z "${SUPABASE_ACCESS_TOKEN}" ] || [ -z "${SUPABASE_DB_PASSWORD}" ] || [ -z "${SUPABASE_PROJECT_ID}" ]; then
+            echo "::notice title=Supabase linked lint skipped::Set SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, and SUPABASE_PROJECT_ID repository secrets to enable linked db lint."
+          fi
+
+      - name: Supabase linked db lint
+        if: ${{ hashFiles('supabase/config.toml') != '' && env.SUPABASE_ACCESS_TOKEN != '' && env.SUPABASE_DB_PASSWORD != '' && env.SUPABASE_PROJECT_ID != '' }}
+        run: |
+          supabase link --project-ref "${SUPABASE_PROJECT_ID}"
+          supabase db lint --linked --fail-on error

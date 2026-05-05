@@ -228,8 +228,8 @@ const Community = ({ initialQuestions, featuredQuestions = [] }) => {
                                     <MessageSquare className="w-4 h-4" />
                                     <span>COMMUNITY Q&A</span>
                                 </div>
-                                <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 drop-shadow-sm">VA Benefits Questions — Answered by Medical Experts, Free</h1>
-                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Ask any question about your VA disability claim and get an answer from our clinical team — at no cost. Unlike Reddit or Facebook groups, every Expert Answer here comes from a licensed clinician with direct VA claims experience. No guesswork. No conflicting opinions. Just accurate guidance.</p>
+                                <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 drop-shadow-sm">VA Benefits Questions Answered by Medical Experts, Free</h1>
+                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Ask any question about your VA disability claim and get an answer from our clinical team at no cost. Unlike Reddit or Facebook groups, every Expert Answer here comes from a licensed clinician with direct VA claims experience. No guesswork. No conflicting opinions. Just accurate guidance.</p>
                             </div>
                         </section>
 
