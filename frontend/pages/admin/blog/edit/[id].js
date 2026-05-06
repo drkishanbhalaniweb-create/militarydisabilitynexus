@@ -411,10 +411,12 @@ const BlogForm = () => {
                                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                         >
                                             <option value="nexus-letters">Nexus Letters</option>
-                                            <option value="exam-prep">Exam Prep</option>
                                             <option value="aid-attendance">Aid & Attendance</option>
-                                            <option value="1151-claims">1151 Claims</option>
-                                            <option value="general">General</option>
+                                            <option value="tdiu">TDIU</option>
+                                            <option value="general-guidance">General Guidance</option>
+                                            <option value="dbq">DBQ</option>
+                                            <option value="1151-claim">1151 Claim</option>
+                                            <option value="cp">C&P</option>
                                         </select>
                                     </div>
 

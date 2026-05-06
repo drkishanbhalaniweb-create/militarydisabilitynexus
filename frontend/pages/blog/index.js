@@ -35,8 +35,12 @@ const Blog = ({ initialPosts }) => {
     const categories = [
         { label: 'All', value: '' },
         { label: 'Nexus Letters', value: 'nexus-letters' },
-        { label: 'Exam Prep', value: 'exam-prep' },
         { label: 'Aid & Attendance', value: 'aid-attendance' },
+        { label: 'TDIU', value: 'tdiu' },
+        { label: 'General Guidance', value: 'general-guidance' },
+        { label: 'DBQ', value: 'dbq' },
+        { label: '1151 Claim', value: '1151-claim' },
+        { label: 'C&P', value: 'cp' },
     ];
 
     useEffect(() => {

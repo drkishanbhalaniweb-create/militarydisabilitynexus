@@ -12,7 +12,9 @@ const AVAILABLE_TAGS = [
     'Secondary Service Connection',
     'Mental Health Claim',
     '1151 Claim',
-    'Claim Readiness Review'
+    'Claim Readiness Review',
+    'TDIU',
+    'DBQ'
 ];
 
 const getTagColors = (tag) => {
@@ -33,6 +35,12 @@ const getTagColors = (tag) => {
     }
     if (tag?.includes('Claim Readiness') || tag?.includes('Readiness Review')) {
         return { text: 'text-indigo-700', bg: 'bg-indigo-100', border: 'border-indigo-300', dot: 'bg-indigo-500' };
+    }
+    if (tag?.includes('TDIU')) {
+        return { text: 'text-rose-700', bg: 'bg-rose-100', border: 'border-rose-300', dot: 'bg-rose-500' };
+    }
+    if (tag?.includes('DBQ')) {
+        return { text: 'text-cyan-700', bg: 'bg-cyan-100', border: 'border-cyan-300', dot: 'bg-cyan-500' };
     }
     return { text: 'text-slate-700', bg: 'bg-slate-100', border: 'border-slate-300', dot: 'bg-slate-500' };
 };

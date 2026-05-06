@@ -106,10 +106,17 @@
       font-size: 1.05rem; color: var(--blog-navy);
       margin: 0 0 10px; font-weight: 700;
     }
-    .definition-block p {
+    .definition-block p, .definition-block ul, .definition-block ol {
       font-size: 0.93rem; color: #3a2e1a;
-      line-height: 1.7; margin: 0;
+      line-height: 1.7; margin: 0 0 16px;
     }
+    .definition-block p:last-child, .definition-block ul:last-child, .definition-block ol:last-child {
+      margin-bottom: 0;
+    }
+    .definition-block ul, .definition-block ol { padding-left: 1.5rem; }
+    .definition-block ul { list-style-type: disc; }
+    .definition-block ol { list-style-type: decimal; }
+    .definition-block li { margin-bottom: 8px; }
   
     /* ── QUOTABLE CAPSULE ── */
     .quotable {
@@ -211,7 +218,20 @@
     }
     .highlight-box .section-label { color: var(--blog-primary-lt); margin-bottom: 16px; }
     .highlight-box h2, .highlight-box h3 { color: #fff; position: relative; z-index: 10; font-family: 'Playfair Display', serif; }
-    .highlight-box p { color: rgba(244,239,230,0.82); position: relative; z-index: 10; }
+    .highlight-box p, .highlight-box ul, .highlight-box ol { 
+      color: rgba(244,239,230,0.82); 
+      position: relative; 
+      z-index: 10; 
+      margin-bottom: 1.25rem;
+      line-height: 1.7;
+    }
+    .highlight-box p:last-child, .highlight-box ul:last-child, .highlight-box ol:last-child { 
+      margin-bottom: 0; 
+    }
+    .highlight-box ul, .highlight-box ol { padding-left: 1.5rem; }
+    .highlight-box ul { list-style-type: disc; }
+    .highlight-box ol { list-style-type: decimal; }
+    .highlight-box li { margin-bottom: 8px; }
   
     /* ── READINESS CHECKLIST ── */
     .checklist { list-style: none; display: grid; gap: 8px; margin: 18px 0; padding: 0; }
@@ -280,7 +300,9 @@
       padding: 20px 24px; border-radius: 3px; margin: 24px 0;
       font-size: 0.9rem; color: #3a2e1a; line-height: 1.65;
     }
-    .note strong {
+    /* The 'strong' here is treated as a title label if it's the only child of the first paragraph or a direct child */
+    .note > p:first-child > strong:only-child,
+    .note > strong:first-child {
       font-family: 'DM Mono', monospace; font-size: 9.5px;
       letter-spacing: 0.18em; text-transform: uppercase;
       color: var(--blog-primary); display: block; margin-bottom: 7px;
@@ -311,15 +333,21 @@
       padding: 24px 28px; margin: 32px 0;
       border-radius: 2px;
     }
-    .alert-box strong {
+    /* The 'strong' here is treated as a title label if it's the only child of the first paragraph or a direct child */
+    .alert-box > p:first-child > strong:only-child,
+    .alert-box > strong:first-child {
       color: var(--blog-navy); font-size: 1.05rem; display: block; margin-bottom: 12px; font-weight: 700;
     }
-    .alert-box p {
-      font-size: 0.95rem; color: #3a2e1a; line-height: 1.65; margin: 0;
+    .alert-box p, .alert-box ul, .alert-box ol {
+      font-size: 0.95rem; color: #3a2e1a; line-height: 1.65; margin: 0 0 16px;
     }
-    .alert-box p + p {
-      margin-top: 12px;
+    .alert-box p:last-child, .alert-box ul:last-child, .alert-box ol:last-child {
+      margin-bottom: 0;
     }
+    .alert-box ul, .alert-box ol { padding-left: 1.5rem; }
+    .alert-box ul { list-style-type: disc; }
+    .alert-box ol { list-style-type: decimal; }
+    .alert-box li { margin-bottom: 8px; }
 
     /* ── DROP CAP ── */
     .drop-cap {

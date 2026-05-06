@@ -680,6 +680,47 @@ const RichTextEditor = ({ value, onChange }) => {
                     background: #f8fafc;
                     display: block;
                 }
+
+                /* Editor-specific typography for custom blocks */
+                .tiptap-wrapper .ProseMirror .highlight-box p,
+                .tiptap-wrapper .ProseMirror .definition-block p,
+                .tiptap-wrapper .ProseMirror .alert-box p {
+                    margin-bottom: 1rem;
+                }
+
+                /* Fix bold text line-break in editor */
+                .tiptap-wrapper .ProseMirror .alert-box strong,
+                .tiptap-wrapper .ProseMirror .note strong {
+                    display: inline !important;
+                }
+                
+                .tiptap-wrapper .ProseMirror .alert-box > p:first-child > strong:only-child,
+                .tiptap-wrapper .ProseMirror .note > p:first-child > strong:only-child {
+                    display: block !important;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .tiptap-wrapper .ProseMirror .highlight-box ul,
+                .tiptap-wrapper .ProseMirror .definition-block ul,
+                .tiptap-wrapper .ProseMirror .alert-box ul,
+                .tiptap-wrapper .ProseMirror .highlight-box ol,
+                .tiptap-wrapper .ProseMirror .definition-block ol,
+                .tiptap-wrapper .ProseMirror .alert-box ol {
+                    padding-left: 1.5rem;
+                    margin-bottom: 1rem;
+                }
+
+                .tiptap-wrapper .ProseMirror .highlight-box ul,
+                .tiptap-wrapper .ProseMirror .definition-block ul,
+                .tiptap-wrapper .ProseMirror .alert-box ul {
+                    list-style-type: disc;
+                }
+
+                .tiptap-wrapper .ProseMirror .highlight-box ol,
+                .tiptap-wrapper .ProseMirror .definition-block ol,
+                .tiptap-wrapper .ProseMirror .alert-box ol {
+                    list-style-type: decimal;
+                }
                 
                 /* Ensure img in tiptap can be resized naturally */
                 .tiptap-wrapper .ProseMirror img {
