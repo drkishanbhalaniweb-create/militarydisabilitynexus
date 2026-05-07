@@ -217,13 +217,40 @@
         0 10px 20px -10px rgba(0, 0, 0, 0.1);
     }
     .highlight-box .section-label { color: var(--blog-primary-lt); margin-bottom: 16px; }
-    .highlight-box h2, .highlight-box h3 { color: #fff; position: relative; z-index: 10; font-family: 'Playfair Display', serif; }
+    .highlight-box h2, .highlight-box h3 { 
+      color: #fff; 
+      position: relative; 
+      z-index: 10; 
+      font-family: 'Playfair Display', serif; 
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+    .highlight-box h3 {
+      font-size: 1.4rem;
+    }
     .highlight-box p, .highlight-box ul, .highlight-box ol { 
       color: rgba(244,239,230,0.82); 
       position: relative; 
       z-index: 10; 
+      margin-top: 0;
       margin-bottom: 1.25rem;
       line-height: 1.7;
+      font-size: 1.05rem;
+    }
+    .highlight-box a {
+      color: #eab308;
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: rgba(234, 179, 8, 0.4);
+      text-underline-offset: 4px;
+      transition: all 0.2s;
+    }
+    .highlight-box a:hover {
+      color: #fde047;
+      text-decoration-color: #fde047;
     }
     .highlight-box p:last-child, .highlight-box ul:last-child, .highlight-box ol:last-child { 
       margin-bottom: 0; 

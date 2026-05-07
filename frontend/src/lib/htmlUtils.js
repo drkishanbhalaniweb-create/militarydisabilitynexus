@@ -23,7 +23,17 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
                 .replace(/--+/g, '-')
                 .replace(/^-+/, '')
                 .replace(/-+$/, '');
-            attributes = ` id="${slug}" style="scroll-margin-top: 6rem;"${attributes}`;
+                
+            // Check if a style attribute already exists to prevent duplicate style tags
+            const styleMatch = attributes.match(/style=['"]([^'"]+)['"]/i);
+            if (styleMatch) {
+                const existingStyle = styleMatch[1];
+                const newStyle = `scroll-margin-top: 6rem; ${existingStyle}`;
+                attributes = attributes.replace(/style=['"][^'"]+['"]/i, `style="${newStyle}"`);
+                attributes = ` id="${slug}"${attributes}`;
+            } else {
+                attributes = ` id="${slug}" style="scroll-margin-top: 6rem;"${attributes}`;
+            }
         }
         
         // Only add h2 to TOC to avoid clutter
