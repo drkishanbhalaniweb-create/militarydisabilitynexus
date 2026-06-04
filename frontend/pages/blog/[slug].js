@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Clock, Calendar, User, ArrowRight } from 'lucide-react';
 import { blogApi, caseStudyApi, clinicalProfileApi } from '../../src/lib/api';
@@ -19,7 +20,7 @@ import {
 
 export async function getStaticPaths() {
     try {
-        const posts = await blogApi.getAll(10000);
+        const posts = await blogApi.getAll(100);
         const paths = posts.map((post) => ({
             params: { slug: post.slug },
         }));
@@ -258,12 +259,13 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                 {/* Featured Image */}
                 {post.featured_image && (
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-8">
-                        <div className="w-full aspect-[16/9] overflow-hidden rounded-2xl shadow-2xl">
-                            <img
+                        <div className="w-full aspect-[16/9] overflow-hidden rounded-2xl shadow-2xl relative">
+                            <Image
                                 src={post.featured_image}
                                 alt={post.featured_image_alt || post.title}
-                                className="w-full h-full object-cover"
-                                loading="eager"
+                                fill
+                                className="object-cover"
+                                priority
                             />
                         </div>
                     </div>

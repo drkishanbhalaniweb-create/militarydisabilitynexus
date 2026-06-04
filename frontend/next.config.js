@@ -21,7 +21,7 @@ const nextConfig = {
     },
 
     async redirects() {
-        return [
+        let redirects = [
             {
                 source: '/index',
                 destination: '/',
@@ -37,7 +37,56 @@ const nextConfig = {
                 destination: '/forms',
                 permanent: true,
             },
+            {
+                source: '/aid-attendance-form',
+                destination: '/forms?service=aid-and-attendance',
+                permanent: true,
+            },
         ];
+
+        try {
+            const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+            const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+            
+            if (url && key) {
+                const res = await fetch(`${url}/rest/v1/conditions?select=slug,services(slug),body_systems(slug)`, {
+                    headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+                });
+                
+                if (res.ok) {
+                    const conditions = await res.json();
+                    if (Array.isArray(conditions)) {
+                        for (const condition of conditions) {
+                            if (condition.services?.slug && condition.body_systems?.slug) {
+                                redirects.push({
+                                    source: `/conditions/${condition.slug}`,
+                                    destination: `/services/${condition.services.slug}/${condition.body_systems.slug}/${condition.slug}`,
+                                    permanent: true,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Failed to generate dynamic condition redirects during build:", e);
+        }
+
+        // Fallback catch-all for any unknown condition slugs or failed fetch
+        redirects.push({
+            source: '/conditions/:slug',
+            destination: '/services/independent-medical-opinion-nexus-letter/mental-health/:slug',
+            permanent: false,
+        });
+
+        // Redirect the old index hub page
+        redirects.push({
+            source: '/conditions',
+            destination: '/services',
+            permanent: true,
+        });
+
+        return redirects;
     },
 }
 

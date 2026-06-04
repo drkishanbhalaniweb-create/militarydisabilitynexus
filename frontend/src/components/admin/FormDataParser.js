@@ -8,6 +8,10 @@ import { parseFormData } from '../../lib/formDataParser';
  * Supports multiple form types:
  * - 'aid-attendance' or 'aid_attendance': Aid & Attendance form with specialized sections
  * - 'quick-intake' or 'quick_intake': Quick Intake form with contact and request details
+ * - 'nexus_letter': Nexus Letter form
+ * - 'dbq': DBQ form
+ * - '1151_claim': 1151 Claim form
+ * - 'claim_readiness_review': Claim Readiness Review form
  * - null or unknown: Generic form with automatic field detection and formatting
  * 
  * @param {object} props
@@ -28,11 +32,11 @@ const FormDataParser = React.memo(({ data, formType = null, className = '' }) =>
   // Parse the form data
   const parsedData = parseFormData(data, formType);
 
-  // If no sections were created, show a fallback message
+  // If no sections were created, show a friendly message
   if (!parsedData.sections || parsedData.sections.length === 0) {
     return (
-      <div className={`text-slate-500 text-sm ${className}`}>
-        Unable to parse form data
+      <div className={`text-slate-500 text-sm italic ${className}`}>
+        No additional form details were submitted
       </div>
     );
   }

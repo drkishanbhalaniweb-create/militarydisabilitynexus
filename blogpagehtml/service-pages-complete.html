@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services | Military Disability Nexus</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#29435f;--blue-dark:#1e3348;--blue-deep:#162638;--blue-light:#3a5a7a;--blue-pale:rgba(41,67,95,.06);--red:#983c44;--red-light:#a8505a;--red-pale:rgba(152,60,68,.08);--red-glow:rgba(152,60,68,.15);--cream:#f8f6f2;--cream-dark:#eee9e0;--white:#fff;--text:#2a2a2a;--muted:#6b7280;--border:#e0dbd2;--teal:#2a7a6a;--hd:'Libre Baskerville',Georgia,serif;--bd:'Source Sans 3','Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--bd);background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.fade-in{animation:fadeIn .4s ease both}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* HEADER */
+.hdr{background:var(--blue);position:sticky;top:0;z-index:100}
+.hdr-in{max-width:1160px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-family:var(--hd);font-size:17px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px;cursor:pointer}
+.logo .s{color:var(--red);font-size:20px}
+.nav{display:flex;gap:2px;align-items:center}
+.nav-btn{background:0;border:0;color:rgba(255,255,255,.78);font-size:13px;font-weight:500;padding:8px 12px;border-radius:6px;cursor:pointer;font-family:var(--bd);transition:.15s}
+.nav-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+.cta{background:var(--red);color:#fff;border:0;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--bd);margin-left:10px;transition:.2s}
+.cta:hover{background:var(--red-light)}
+
+/* LAYOUT */
+.wrap{max-width:1160px;margin:0 auto;padding:24px}
+.page-grid{display:grid;grid-template-columns:1fr 340px;gap:28px}
+@media(max-width:880px){.page-grid{grid-template-columns:1fr}.nav{display:none}.hero{padding:32px 20px !important}.hero h1{font-size:26px !important}}
+
+/* BREADCRUMB */
+.bc{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.bc span{cursor:pointer;transition:.15s}.bc span:hover{color:var(--red)}.bc .sep{color:var(--border);cursor:default}.bc .cur{color:var(--blue);font-weight:600;cursor:default}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-light) 55%,var(--blue-dark) 100%);border-radius:20px;padding:52px 48px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-60px;width:300px;height:300px;border-radius:50%;background:rgba(152,60,68,.06)}
+.hero-c{position:relative;z-index:1;max-width:720px}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(152,60,68,.2);border:1px solid rgba(152,60,68,.4);border-radius:20px;padding:4px 14px;font-size:12px;color:#e8a0a8;font-weight:600;margin-bottom:16px}
+.hero h1{font-family:var(--hd);font-size:38px;color:#fff;line-height:1.15;margin-bottom:14px}
+.hero .sub{color:rgba(255,255,255,.55);font-size:14px;margin-bottom:4px}
+.hero p{color:rgba(255,255,255,.7);font-size:15px;line-height:1.65}
+.hero-btns{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.btn-p{background:var(--red);color:#fff;border:0;border-radius:10px;padding:15px 30px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--bd);transition:.2s}
+.btn-p:hover{background:var(--red-light)}
+.btn-g{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:15px 30px;font-size:15px;cursor:pointer;font-family:var(--bd);transition:.2s}
+.btn-g:hover{background:rgba(255,255,255,.14)}
+
+/* SECTION CARD */
+.sc{background:var(--white);border-radius:16px;padding:32px;border:1px solid var(--border);margin-bottom:24px}
+.st{font-family:var(--hd);font-size:22px;color:var(--blue);margin-bottom:8px}
+.ss{font-size:14px;color:var(--muted);margin-bottom:18px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:14px;padding:24px 20px;border:1px solid var(--border);transition:.25s;cursor:pointer}
+.card:hover{border-color:var(--red);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.07)}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+
+/* STATS */
+.stat{background:var(--white);border-radius:12px;padding:18px 14px;border:1px solid var(--border);text-align:center}
+.stat-l{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px}
+.stat-v{font-size:22px;font-weight:700;color:var(--blue);font-family:var(--hd)}
+.stat-s{font-size:11px;color:var(--red);margin-top:2px}
+
+/* INCLUDED */
+.inc{padding:24px 20px;border-radius:12px;border:1px solid var(--cream-dark);background:var(--cream)}
+.inc .ic{font-size:28px;margin-bottom:12px;display:block}
+.inc h4{font-size:15px;color:var(--blue);font-weight:700;margin-bottom:8px}
+.inc p{font-size:13px;color:var(--text);line-height:1.6}
+
+/* FAQ */
+.faq-i{border-bottom:1px solid var(--border)}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:18px 0;background:0;border:0;cursor:pointer;text-align:left;font-family:var(--bd)}
+.faq-q span:first-child{font-size:15px;font-weight:600;color:var(--blue);padding-right:16px;line-height:1.4}
+.faq-q .tg{font-size:20px;color:var(--red);flex-shrink:0;transition:.2s;width:24px;text-align:center}
+.faq-q .tg.open{transform:rotate(45deg)}
+.faq-a{padding:0 0 18px;font-size:14px;color:var(--text);line-height:1.7;display:none}
+.faq-a.open{display:block;animation:fadeIn .25s}
+
+/* SIDEBAR */
+.sb-sticky{position:sticky;top:80px}
+.sb-price{background:linear-gradient(160deg,var(--blue),var(--blue-light));border-radius:16px;padding:28px 22px;margin-bottom:18px;color:#fff}
+.sb-card{background:var(--white);border-radius:14px;padding:22px 18px;border:1px solid var(--border);margin-bottom:18px}
+.sb-card h4{font-family:var(--hd);font-size:15px;color:var(--blue);margin-bottom:14px}
+.sb-link{display:flex;justify-content:space-between;align-items:center;padding:9px 6px;border-radius:6px;font-size:13px;color:var(--text);transition:.15s;cursor:pointer}
+.sb-link:hover{background:var(--blue-pale);color:var(--blue)}
+
+/* CHECKLIST */
+.chk{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--cream-dark)}
+.chk:last-child{border-bottom:0}
+.chk-dot{width:22px;height:22px;border-radius:50%;background:var(--red-pale);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
+.chk span:last-child{font-size:14px;color:var(--text);line-height:1.55}
+
+/* RATING TABLE */
+.rtbl{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+.rtbl th{background:var(--blue);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.rtbl td{padding:10px 14px;border-bottom:1px solid var(--cream-dark);color:var(--text)}
+.rtbl tr:hover td{background:var(--red-pale)}
+.rtbl .pct{font-family:var(--hd);font-weight:700;color:var(--blue);font-size:16px}
+
+/* SPECIALIST GUIDE */
+.sp-sec{background:linear-gradient(135deg,var(--blue-pale),var(--red-pale));border-radius:16px;padding:28px;border:1px solid var(--border);margin-bottom:24px;position:relative;overflow:hidden}
+.sp-sec::after{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:var(--red-glow);opacity:.3}
+.sp-badge{display:inline-block;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.sp-card{background:var(--white);border-radius:12px;padding:18px 16px;border:1px solid var(--border);transition:.2s}
+.sp-card:hover{border-color:var(--red);transform:translateY(-2px)}
+
+/* PAIRED */
+.paired{background:linear-gradient(135deg,var(--blue-pale),rgba(152,60,68,.04));border-radius:16px;padding:28px;border:1px solid var(--border);margin-bottom:24px;position:relative;overflow:hidden}
+.paired::after{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:var(--red-glow);opacity:.3}
+
+/* INTERNAL LINKS */
+.ilink{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid var(--cream-dark);cursor:pointer;transition:.15s;margin-bottom:8px}
+.ilink:hover{border-color:var(--red);background:var(--red-pale)}
+.ilink .il-icon{font-size:20px;flex-shrink:0}
+.ilink .il-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ilink .il-title{font-size:14px;color:var(--blue);font-weight:600}
+.ilink .il-arrow{margin-left:auto;color:var(--red);font-size:16px}
+
+/* DC CODE BOX */
+.dc-box{background:var(--blue);border-radius:14px;padding:22px 20px;color:#fff;margin-bottom:24px}
+.dc-box .dc-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.dc-box .dc-code{font-family:var(--hd);font-size:28px;font-weight:700;margin-bottom:6px}
+.dc-box .dc-desc{font-size:13px;color:rgba(255,255,255,.65);line-height:1.5}
+
+/* SECONDARY CONNECTIONS */
+.sec-conn{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:var(--cream);border:1px solid var(--cream-dark);margin-bottom:8px;cursor:pointer;transition:.2s}
+.sec-conn:hover{border-color:var(--red);background:var(--red-pale)}
+.sec-conn .arrow-r{font-size:14px;color:var(--red);margin:0 4px}
+
+/* PRICING MODAL */
+.modal{position:fixed;inset:0;z-index:999;background:rgba(22,38,56,.75);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex;animation:fadeIn .3s}
+.modal-c{background:var(--cream);border-radius:20px;max-width:1100px;width:100%;max-height:90vh;overflow:auto;padding:40px 32px;box-shadow:0 30px 100px rgba(0,0,0,.35)}
+.modal-x{background:0;border:0;font-size:28px;cursor:pointer;color:var(--muted);line-height:1}
+.p-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:16px}
+.tier{border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;position:relative}
+.tier.std{background:var(--white);border:1px solid var(--border)}
+.tier.feat{background:var(--blue);transform:scale(1.02)}
+.mc{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:20px;text-transform:uppercase;letter-spacing:1px}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* FOOTER */
+.ftr{background:var(--blue-deep);padding:40px 24px 24px;margin-top:48px}
+.ftr-in{max-width:1160px;margin:0 auto}
+.ftr-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px}
+.ftr-logo{font-family:var(--hd);font-size:16px;color:#fff;margin-bottom:12px}
+.ftr-d{font-size:12px;color:rgba(255,255,255,.4);line-height:1.6}
+.ftr-h{font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.ftr-l{font-size:13px;color:rgba(255,255,255,.6);padding:4px 0;display:block;transition:.15s;cursor:pointer}.ftr-l:hover{color:#fff}
+.ftr-b{margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:rgba(255,255,255,.3)}
+</style>
+</head>
+<body>
+
+<header class="hdr"><div class="hdr-in">
+  <div class="logo" onclick="go('services')"><span class="s">★</span> Military Disability Nexus</div>
+  <nav class="nav">
+    <button class="nav-btn" onclick="go('services')">Services</button>
+    <button class="nav-btn" onclick="w('case-studies')">Case Studies</button>
+    <button class="nav-btn" onclick="w('testimonials')">Testimonials</button>
+    <button class="nav-btn" onclick="w('blog')">Blog</button>
+    <button class="nav-btn" onclick="w('community')">Community</button>
+    <button class="cta" onclick="w('contact')">Book a Call</button>
+  </nav>
+</div></header>
+
+<!-- ═══ VIEW 1: SERVICES ═══ -->
+<div id="v-services" class="view active"><div class="wrap fade-in">
+  <div class="hero" style="margin-top:0"><div class="hero-c">
+    <h1>Our Services</h1>
+    <p>Clinician-led expert medical documentation for VA disability claims. Every service is designed to strengthen your case with evidence the VA takes seriously.</p>
+  </div></div>
+  <div style="margin-top:28px"><h2 class="st">Choose Your Service</h2><p class="ss">Select a service to learn more about our process, pricing, and how we can support your claim.</p></div>
+  <div class="g3" style="margin-top:16px" id="svc-grid"></div>
+</div></div>
+
+<!-- ═══ VIEW 2: NEXUS/DBQ MAIN ═══ -->
+<div id="v-main" class="view"><div class="wrap fade-in">
+  <div class="bc"><span onclick="go('services')">Services</span><span class="sep">›</span><span class="cur" id="m-bc"></span></div>
+  <div class="hero"><div class="hero-c">
+    <h1 id="m-title"></h1>
+    <p id="m-desc"></p>
+    <div class="hero-btns">
+      <button class="btn-p" onclick="openP(false)" id="m-price-btn">View Pricing — From $400</button>
+      <button class="btn-g" onclick="w('contact')">Free Consultation</button>
+    </div>
+  </div></div>
+  <div class="sc" style="margin-top:28px"><h2 class="st">Overview</h2><p style="font-size:15px;line-height:1.75;margin-top:12px" id="m-over"></p><p style="font-size:15px;line-height:1.75;margin-top:14px">While no medical opinion can guarantee a specific VA outcome, our mission is to ensure your documentation is clear, credible, and professionally prepared — giving your claim the best possible foundation for success.</p></div>
+  <div class="sc"><h2 class="st">What's Included</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:20px">
+    <div class="inc"><span class="ic">📋</span><h4>Full Record Review</h4><p>Thorough review of your VA claim file and service treatment records to identify missing evidence and strengthen your case.</p></div>
+    <div class="inc"><span class="ic">🔬</span><h4>Evidence-Based Rationale</h4><p>Detailed medical rationale written by board-certified physicians familiar with VA standards, citing relevant medical literature.</p></div>
+    <div class="inc"><span class="ic">✍️</span><h4>Physician-Signed Opinion</h4><p>Physician-signed opinion with "at least as likely as not" language connecting your condition to service.</p></div>
+    <div class="inc"><span class="ic">⚡</span><h4>7–10 Day Delivery</h4><p>Standard 7–10 business days with rush 48–72 hour options available when time is critical.</p></div>
+  </div></div>
+  <div class="sc" style="background:linear-gradient(135deg,var(--blue-pale),var(--red-pale))"><h2 class="st">Pricing at a Glance</h2><p class="ss">All claim theories (presumptive, direct, secondary) included in a single letter at internist/specialist level.</p>
+    <div class="g4" style="margin-top:8px">
+      <div class="stat"><div class="stat-l">Nurse Practitioner</div><div class="stat-v">$400</div><div class="stat-s">Single condition</div></div>
+      <div class="stat"><div class="stat-l">Additional (NP)</div><div class="stat-v">+$250</div><div class="stat-s">Per extra condition</div></div>
+      <div class="stat"><div class="stat-l">Internist / Specialist</div><div class="stat-v">$945</div><div class="stat-s">All theories included</div></div>
+      <div class="stat"><div class="stat-l">Sub-Specialist</div><div class="stat-v">$1,800</div><div class="stat-s">Complex / High-stakes</div></div>
+    </div>
+    <div style="text-align:center;margin-top:18px"><button class="btn-p" onclick="openP(false)">See Full Pricing Breakdown →</button></div>
+  </div>
+  <div style="margin-top:28px"><h2 class="st" id="sys-title"></h2><p class="ss">Select a body system to explore conditions, specialist guidance, and condition-specific pages.</p></div>
+  <div class="g3" style="margin-top:16px" id="sys-grid"></div>
+  <div style="margin-top:20px;background:var(--blue-pale);border-radius:12px;padding:18px 22px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-size:24px">🔍</span><div style="flex:1;min-width:200px"><div style="font-size:14px;font-weight:600;color:var(--blue)">Don't see your condition?</div><div style="font-size:13px;color:var(--muted)">We cover 100+ conditions. Book a free consultation and we'll match you with the right specialist.</div></div><button class="btn-p" style="white-space:nowrap;padding:10px 20px;font-size:13px" onclick="w('contact')">Book a Call</button></div>
+  <div class="sc" style="margin-top:28px"><h2 class="st">Frequently Asked Questions</h2><div id="faq-main"></div></div>
+</div></div>
+
+<!-- ═══ VIEW 3: SYSTEM PAGE ═══ -->
+<div id="v-sys" class="view"><div class="wrap fade-in">
+  <div class="bc"><span onclick="go('services')">Services</span><span class="sep">›</span><span onclick="go('main')" id="s3-bc1"></span><span class="sep">›</span><span class="cur" id="s3-bc2"></span></div>
+  <div class="hero"><div class="hero-c">
+    <div class="badge" id="s3-badge"></div>
+    <h1 id="s3-title"></h1>
+    <p class="sub" id="s3-sub"></p>
+    <p id="s3-desc"></p>
+    <div class="hero-btns"><button class="btn-p" onclick="openP(false)" id="s3-pbtn"></button><button class="btn-g" onclick="w('contact')">Free Consultation</button></div>
+  </div></div>
+  <div class="g4" style="margin:22px 0" id="s3-stats"></div>
+  <div class="page-grid"><div>
+    <div class="sc"><h2 class="st" id="s3-ov-t"></h2><p style="font-size:14px;line-height:1.7;margin-top:8px" id="s3-ov-p"></p></div>
+    <div class="sp-sec"><div style="position:relative;z-index:1"><div class="sp-badge">Specialist Guide</div><h2 class="st" style="margin-bottom:6px" id="s3-sp-t"></h2><p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:20px" id="s3-sp-i"></p><div class="g3" id="s3-sp-g" style="gap:14px"></div><div style="margin-top:16px;font-size:13px;color:var(--muted)"><a href="https://www.militarydisabilitynexus.com/blog/%20who-should-write-your-va-nexus-letter-specialist-guide" target="_blank" style="color:var(--red);font-weight:600">Read the full Specialist Guide →</a> — Learn which provider carries the most probative weight.</div></div></div>
+    <div class="sc"><h2 class="st" id="s3-c-t"></h2><p class="ss" id="s3-c-s"></p><div class="g2" id="s3-c-g" style="gap:14px"></div></div>
+    <div class="paired"><div style="position:relative;z-index:1"><div class="sp-badge">Commonly Paired</div><h2 class="st" style="margin-bottom:8px" id="s3-p-t"></h2><p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:16px" id="s3-p-p"></p><div class="g3" id="s3-p-g" style="gap:12px"></div></div></div>
+  </div><div><div class="sb-sticky">
+    <div class="sb-price"><div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:2px" id="s3-sb-l"></div><div style="font-size:12px;color:rgba(255,255,255,.5)">Starting at</div><div style="font-size:38px;font-weight:700;font-family:var(--hd);margin:4px 0" id="s3-sb-p">$400</div><p style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:18px">Nurse Practitioner · Single condition</p><button class="btn-p" style="width:100%;margin-bottom:8px" onclick="openP(false)">See All Pricing Tiers →</button><button class="btn-g" style="width:100%;border-color:rgba(255,255,255,.18)" onclick="w('contact')">Book Free Consultation</button></div>
+    <div class="sb-card"><h4>Build Trust Before Buying</h4><a href="#" class="sb-link" onclick="w('case-studies')"><span>📁 Case studies</span><span class="arrow" style="color:var(--red);font-size:12px">→</span></a><a href="#" class="sb-link" onclick="w('testimonials')"><span>💬 Testimonials</span><span style="color:var(--red);font-size:12px">→</span></a><a href="#" class="sb-link" onclick="w('medical-review-policy')"><span>🔬 Medical review policy</span><span style="color:var(--red);font-size:12px">→</span></a></div>
+    <div class="sb-card"><h4>Other Services</h4><div id="s3-sb-svc"></div></div>
+  </div></div></div>
+</div></div>
+
+<!-- ═══ VIEW 4: CONDITION DETAIL ═══ -->
+<div id="v-cond" class="view"><div class="wrap fade-in">
+  <div class="bc"><span onclick="go('services')">Services</span><span class="sep">›</span><span onclick="go('main')" id="c4-bc1"></span><span class="sep">›</span><span id="c4-bc2" style="cursor:pointer"></span><span class="sep">›</span><span class="cur" id="c4-bc3"></span></div>
+  <div class="hero"><div class="hero-c">
+    <div class="badge" id="c4-badge"></div>
+    <h1 id="c4-title"></h1>
+    <p class="sub" id="c4-slug" style="font-size:12px;font-family:monospace;opacity:.4;margin-bottom:4px"></p>
+    <p id="c4-short"></p>
+    <div class="hero-btns"><button class="btn-p" onclick="openP(false)" id="c4-pbtn"></button><button class="btn-g" onclick="w('contact')">Free Consultation</button></div>
+  </div></div>
+
+  <div class="g4" style="margin:22px 0" id="c4-stats"></div>
+
+  <div class="page-grid"><div id="c4-main">
+    <!-- DC CODE -->
+    <div class="dc-box" id="c4-dc"></div>
+    <!-- FULL DESC -->
+    <div class="sc" id="c4-fulldesc"></div>
+    <!-- WHAT'S INCLUDED -->
+    <div class="sc" id="c4-features"></div>
+    <!-- SECONDARY CONNECTIONS -->
+    <div class="paired" id="c4-secondary"></div>
+    <!-- SPECIALIST GUIDE -->
+    <div class="sp-sec" id="c4-specialist"></div>
+    <!-- FAQ -->
+    <div class="sc" id="c4-faq"></div>
+    <!-- INTERNAL LINKS -->
+    <div class="sc" id="c4-links"></div>
+    <!-- PAIRED CONDITIONS -->
+    <div class="paired" id="c4-paired"></div>
+  </div><div id="c4-sidebar"></div></div>
+</div></div>
+
+<!-- PRICING MODAL -->
+<div class="modal" id="p-modal"><div class="modal-c">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><h2 class="st" style="margin-bottom:4px">Pricing Structure</h2><p style="font-size:14px;color:var(--muted)">Three tiers — pick your comfort level, or let us recommend the right fit.</p></div><button class="modal-x" onclick="closeP()">×</button></div>
+  <div id="mh-warn" style="display:none;background:var(--red-glow);border:1px solid var(--red);border-radius:10px;padding:12px 16px;margin-bottom:20px;align-items:center;gap:10px;font-size:13px;color:var(--blue);font-weight:500"><span style="font-size:18px">⚠️</span><span>Mental Health conditions start at <strong>$1,600</strong> due to specialized DSM-5 expertise.</span></div>
+  <div style="background:var(--blue-pale);border-radius:10px;padding:14px 18px;margin-bottom:20px;border:1px solid var(--border)"><div style="font-size:13px;color:var(--blue);line-height:1.6"><strong>How pricing works:</strong> At the Internist/Specialist level, <strong>all claim theories</strong> (presumptive, direct, secondary to multiple conditions) are included in a single nexus letter. Example: veteran claiming migraine with evidence of presumptive, direct, secondary to tinnitus, PTSD, and pain — all addressed in one opinion at $945.</div></div>
+  <div class="p-grid" id="p-tiers"></div>
+</div></div>
+
+<!-- FOOTER -->
+<footer class="ftr"><div class="ftr-in"><div class="ftr-g">
+  <div><div class="ftr-logo"><span style="color:var(--red)">★</span> Military Disability Nexus</div><p class="ftr-d">Clinician-led expert medical opinions for VA disability claims.</p></div>
+  <div><div class="ftr-h">Get Started</div><a class="ftr-l" onclick="w('services/independent-medical-opinion-nexus-letter')">Nexus Letter / IMO</a><a class="ftr-l" onclick="w('services/disability-benefits-questionnaire-dbq')">DBQ</a><a class="ftr-l" onclick="w('services/claim-readiness-review')">Claim Readiness Review</a><a class="ftr-l" onclick="w('services/aid-and-attendance')">Aid & Attendance</a><a class="ftr-l" onclick="w('services/va-medical-malpractice-1151-case')">1151 Claims</a><a class="ftr-l" onclick="w('cp-exam-coaching')">C&P Exam Coaching</a></div>
+  <div><div class="ftr-h">About</div><a class="ftr-l" onclick="w('about')">About Us</a><a class="ftr-l" onclick="w('testimonials')">Testimonials</a><a class="ftr-l" onclick="w('blog')">Blog</a><a class="ftr-l" onclick="w('community')">Community Q&A</a><a class="ftr-l" onclick="w('case-studies')">Case Studies</a><a class="ftr-l" onclick="w('contact')">Contact</a></div>
+</div><div class="ftr-b"><span>© 2026 Military Disability Nexus. All Rights Reserved.</span><div style="display:flex;gap:16px"><a class="ftr-l" style="padding:0" onclick="w('terms')">Terms</a><a class="ftr-l" style="padding:0" onclick="w('privacy')">Privacy</a><a class="ftr-l" style="padding:0" onclick="w('disclaimer')">Disclaimer</a></div></div></div></footer>
+
+<script>
+/* ═══ HELPERS ═══ */
+function w(p){window.open('https://www.militarydisabilitynexus.com/'+p,'_blank')}
+function go(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('v-'+v);
+  if(el){el.classList.add('active');const c=el.querySelector('.wrap');if(c){c.classList.remove('fade-in');void c.offsetWidth;c.classList.add('fade-in')}}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══ DATA ═══ */
+const SVCS=[
+  {id:'nexus',name:'Nexus Letter / IMO',icon:'📋',desc:'Independent Medical Opinions connecting your condition to service.',sub:true},
+  {id:'dbq',name:'DBQ',icon:'📝',desc:'Disability Benefits Questionnaires completed by specialty-matched physicians.',sub:true},
+  {id:'crr',name:'Claim Readiness Review',icon:'🔍',desc:'Pre-filing analysis of your medical records to identify gaps.'},
+  {id:'aa',name:'Aid & Attendance',icon:'🤝',desc:'Medical documentation for housebound and caregiver benefits.'},
+  {id:'tdiu',name:'TDIU',icon:'📊',desc:'Total Disability based on Individual Unemployability.'},
+  {id:'ssdi',name:'SSDI / SSI',icon:'🏥',desc:'Social Security Disability medical evidence and opinions.'},
+  {id:'cp',name:'C&P Exam Coaching',icon:'🎯',desc:'Preparation and strategy for VA examinations.'},
+  {id:'1151',name:'1151 Claim',icon:'⚖️',desc:'Expert opinions for VA medical treatment injuries.'},
+  {id:'atty',name:'Attorney / VSO Support',icon:'🏛️',desc:'Coordinated medical evidence for legal representation.'},
+];
+
+const SYSTEMS=[
+  {id:'neuro',name:'Neurology',icon:'🧠',desc:'Headaches, TBI, movement disorders, nerve damage.',overview:'Neurology claims encompass conditions affecting the brain, spinal cord, and peripheral nerves. These are among the most complex VA claims because they often involve multiple rating criteria (DC 8045 for TBI, DC 8100 for migraines) and frequently intersect with mental health secondary claims.',
+    specs:[{n:'Nurse Practitioner',r:'Former C&P Examiner',b:'Straightforward migraine or tinnitus-related headache claims with clear STR documentation.',p:'From $400',t:'+$250/additional'},{n:'Internal Medicine MD',r:'Board-Certified Internist',b:'Most neurology nexus opinions once diagnosis is documented. All claim theories included in single letter.',p:'$945',t:'All theories included'},{n:'Neurologist',r:'Board-Certified',b:'TBI rating-detail (DC 8045), ALS, MS, Parkinson\'s, EMG/NCS interpretation.',p:'$1,200–$1,800',t:'Rating-detail cases'},{n:'Psychiatrist',r:'For TBI Behavioral Facets',b:'TBI claims with significant behavioral/psychological components.',p:'$1,600+',t:'MH crossover'}],
+    paired:['Mental Health','Audiology','Musculoskeletal'],pairNote:'Neurology frequently pairs with mental health (PTSD secondary to TBI), audiology (tinnitus from same blast event), and musculoskeletal (cervical spine causing radiculopathy).',
+    conditions:[
+      {id:'migraine',name:'Migraine / Headaches',icon:'⚡',slug:'/conditions/migraine-headaches',
+        shortDesc:'Expert nexus letters and DBQs for migraine and chronic headache VA disability claims, including secondary service connection through TBI, PTSD, cervical spine conditions, and toxic exposure, with documentation aligned to VA Diagnostic Code 8100 rating criteria.',
+        fullDesc:'Migraine headaches are rated under VA Diagnostic Code 8100 at 0%, 10%, 30%, or 50% based on the frequency of prostrating attacks and their economic impact. The key term is "prostrating" — meaning attacks severe enough to cause the veteran to stop all activity and lie down. Many veterans are underrated because their C&P exam does not adequately document the frequency of prostrating attacks or the resulting economic impact (missed work, reduced productivity).\n\nMigraines can be service-connected directly (from head trauma, blast exposure, or other in-service events) or secondarily through conditions like PTSD (chronic stress and autonomic dysfunction), traumatic brain injury (TBI), cervical spine injuries, tinnitus, or medication side effects from other service-connected treatments. We also support migraine claims linked to toxic exposures under the PACT Act.\n\nOur clinicians prepare nexus letters that explain the specific medical mechanism connecting migraines to service and DBQs that carefully document the frequency, duration, and severity of prostrating attacks, including their impact on employment and daily functioning.',
+        dcCode:'8100',dcName:'Migraine Headaches',
+        ratings:[{pct:'50%',criteria:'Very frequent, completely prostrating and prolonged attacks productive of severe economic inadaptability'},{pct:'30%',criteria:'Prostrating attacks occurring on average once a month over the last several months'},{pct:'10%',criteria:'Prostrating attacks averaging one in two months over the last several months'},{pct:'0%',criteria:'Less frequent attacks'}],
+        features:['Nexus letters for primary migraine service connection (head trauma, blast exposure, in-service onset)','Nexus letters for secondary migraines (PTSD, TBI, cervical spine, medication side effects, toxic exposure)','DBQ completion documenting frequency of prostrating attacks and economic impact per DC 8100','Documentation targeting the 30% and 50% rating criteria thresholds'],
+        secondary:[{from:'PTSD',mechanism:'Autonomic nervous system dysregulation and chronic stress-induced neurovascular changes'},{from:'TBI',mechanism:'Post-traumatic headaches — one of the most common TBI symptoms'},{from:'Cervical Spine',mechanism:'Cervicogenic headaches from structural neck injuries'},{from:'Tinnitus',mechanism:'Shared neural pathways and noise-induced neurological sensitization'},{from:'Medication Side Effects',mechanism:'Headaches from medications prescribed for other service-connected conditions'}],
+        faqs:[{q:'How does the VA rate migraines?',a:'Under Diagnostic Code 8100: 0% for less frequent attacks, 10% for prostrating attacks averaging one in two months, 30% for prostrating attacks averaging once per month, and 50% for very frequent, completely prostrating and prolonged attacks productive of severe economic inadaptability.'},{q:'Can I get a nexus letter for migraines secondary to PTSD?',a:'Yes. Medical literature supports the connection between chronic PTSD and migraine development through autonomic nervous system dysregulation, chronic stress-induced neurovascular changes, and medication side effects. Our nexus letters cite this research specifically.'},{q:"What does 'prostrating' mean for VA rating purposes?",a:'A prostrating migraine attack is one severe enough to force the veteran to stop all activity and lie down. It is not simply a headache that causes discomfort — it must be debilitating enough to interrupt normal functioning. Documenting the frequency and duration of these specific attacks is critical.'},{q:'Can migraines be secondary to TBI?',a:'Yes. Post-traumatic headaches are among the most common symptoms following traumatic brain injury. A nexus letter can establish the connection between an in-service TBI event and chronic migraine headaches.'},{q:'What does "all claim theories included" mean at $945?',a:'If you claim migraine and there is evidence for presumptive, direct service connection, secondary to tinnitus, secondary to PTSD, and secondary to chronic pain — all theories are addressed in a single nexus letter at $945. You don\'t pay separately for each theory.'}],
+        links:[{type:'Service',icon:'📋',label:'Related Service',title:'Nexus Letter / IMO',url:'services/independent-medical-opinion-nexus-letter'},{type:'Service',icon:'📝',label:'Related Service',title:'DBQ Evaluation',url:'services/disability-benefits-questionnaire-dbq'},{type:'Condition',icon:'🎯',label:'Related Condition',title:'PTSD Nexus Letter',url:'conditions/ptsd'},{type:'Condition',icon:'💥',label:'Related Condition',title:'TBI Nexus Letter',url:'conditions/tbi'},{type:'Service',icon:'🎯',label:'Preparation',title:'C&P Exam Coaching',url:'cp-exam-coaching'},{type:'Guide',icon:'📖',label:'Blog',title:'Who Should Write Your Nexus Letter?',url:'blog/%20who-should-write-your-va-nexus-letter-specialist-guide'}],
+        pairs:['TBI','PTSD','Tinnitus','Cervical Spine'],
+        pairNote:'Veterans claiming migraines often pair with tinnitus (same blast event), TBI (post-traumatic headaches), and PTSD (stress-induced neurovascular changes). Filing these together strengthens each individual claim.',
+        seo:['migraine nexus letter','migraine VA claim','headache VA disability','migraine DBQ','migraine secondary to PTSD','migraine secondary to TBI','VA diagnostic code 8100','prostrating migraine attacks VA'],
+        specs:[{n:'Nurse Practitioner',p:'From $400',b:'Straightforward migraine with clear in-service head trauma or documented onset.'},{n:'Internal Medicine MD',p:'$945',b:'Most migraine claims. All theories (direct, secondary to PTSD/TBI/tinnitus) in one letter.'},{n:'Neurologist',p:'$1,200–$1,800',b:'Complex post-traumatic migraine with TBI rating-detail or contested C&P.'}]
+      },
+      {id:'tbi',name:'Traumatic Brain Injury (TBI)',icon:'💥',slug:'/conditions/tbi',
+        shortDesc:'Expert nexus letters for TBI claims rated under DC 8045 across cognitive, behavioral, and somatic domains with detailed facet-level documentation.',
+        fullDesc:'Traumatic Brain Injury is rated under the specialized DC 8045 criteria across three domains: cognitive, behavioral/emotional, and physical/somatic. Each domain is rated using a facet system (0-3 or "total"), and the highest facet determines the overall rating. TBI claims are among the most complex in the VA system because they require detailed documentation across all three domains and frequently intersect with mental health, migraine, and vestibular conditions.\n\nMany TBI claims are underrated because the C&P exam fails to distinguish TBI residuals from comorbid PTSD symptoms, or because cognitive decline is not formally documented with neuropsychological testing. Our clinicians prepare opinions that clearly delineate TBI residuals from overlapping conditions and document facet-level impairment.',
+        dcCode:'8045',dcName:'Traumatic Brain Injury',
+        ratings:[{pct:'100%',criteria:'Total occupational and social impairment from TBI residuals'},{pct:'70%',criteria:'Deficiencies in most areas: work, family, thinking, mood'},{pct:'40%',criteria:'Reduced reliability in occupational and social functioning'},{pct:'10%',criteria:'Mild symptoms with occupational functioning generally satisfactory'}],
+        features:['Nexus letters establishing TBI from documented in-service head injury/blast exposure','Facet-level documentation across cognitive, behavioral, and somatic domains','Differentiation of TBI residuals from comorbid PTSD symptoms','DBQ completion targeting higher rating criteria per DC 8045'],
+        secondary:[{from:'Blast Exposure',mechanism:'Concussive and sub-concussive blast injuries during combat'},{from:'Vehicle Accidents',mechanism:'MVA during service causing closed head injury'},{from:'Physical Training',mechanism:'Head injuries during combatives, airborne operations, or contact sports'}],
+        faqs:[{q:'How is TBI rated differently from other conditions?',a:'TBI uses a unique facet system under DC 8045 rating three domains (cognitive, behavioral, somatic). The highest facet in any domain determines the minimum overall rating, making detailed documentation of each domain critical.'},{q:'Can TBI and PTSD both be rated?',a:'Yes, but the VA must differentiate symptoms. A well-written nexus letter clearly delineates which symptoms are TBI residuals vs. PTSD, preventing "pyramiding" issues that could reduce your rating.'}],
+        links:[{type:'Condition',icon:'⚡',label:'Related',title:'Migraine Nexus Letter',url:'conditions/migraine'},{type:'Condition',icon:'🎯',label:'Related',title:'PTSD Nexus Letter',url:'conditions/ptsd'}],
+        pairs:['Migraine','PTSD','Sleep Disorders'],pairNote:'TBI claims almost always pair with migraines (post-traumatic headaches) and PTSD. Filing all three with clear delineation of symptoms strengthens each claim.',
+        seo:['TBI nexus letter','traumatic brain injury VA claim','DC 8045','TBI DBQ'],
+        specs:[{n:'Neurologist',p:'$1,200–$1,800',b:'Required for TBI rating-detail under DC 8045 facet system.'},{n:'Psychiatrist',p:'$1,600+',b:'TBI behavioral domain and PTSD delineation.'},{n:'Internal Medicine MD',p:'$945',b:'TBI somatic residuals when diagnosis is documented.'}]
+      },
+      {id:'parkinsons',name:"Parkinson's Disease",icon:'🫨',slug:'/conditions/parkinsons',shortDesc:'Nexus letters for Parkinson\'s disease VA claims including Agent Orange presumptive and direct service connection.',fullDesc:'Parkinson\'s disease is a progressive neurodegenerative disorder and is presumptive for veterans exposed to Agent Orange/tactical herbicides. For qualifying veterans, the nexus question is primarily confirming diagnosis and qualifying service. For non-presumptive claims, direct causation through toxic exposure must be argued with specialist input.',dcCode:'8004',dcName:"Paralysis Agitans (Parkinson's)",ratings:[{pct:'30%–100%',criteria:'Rated based on severity of motor and cognitive impairment'}],features:['Presumptive service connection for Agent Orange veterans','Direct causation for non-presumptive toxic exposure','Documentation of progressive motor and cognitive decline'],secondary:[{from:'Agent Orange',mechanism:'Presumptive connection for qualifying herbicide-exposed veterans'},{from:'Toxic Exposure',mechanism:'Neurotoxic chemical exposure during service'}],faqs:[{q:'Is Parkinson\'s presumptive for Agent Orange?',a:'Yes. Parkinson\'s disease is on the VA\'s presumptive list for veterans exposed to Agent Orange or other tactical herbicides during qualifying service.'}],links:[],pairs:['Depression','Sleep Disorders'],pairNote:'Parkinson\'s frequently pairs with depression and sleep disorders as secondary conditions.',seo:['parkinsons nexus letter','parkinsons VA claim'],specs:[{n:'Internal Medicine MD',p:'$945',b:'Presumptive claims with documented diagnosis.'},{n:'Neurologist',p:'$1,200–$1,800',b:'Non-presumptive or contested diagnosis.'}]},
+      {id:'neuropathy',name:'Peripheral Neuropathy',icon:'🦶',slug:'/conditions/peripheral-neuropathy',shortDesc:'Nexus letters for peripheral neuropathy claims secondary to diabetes, toxic exposure, or direct nerve injury.',fullDesc:'Peripheral neuropathy involves damage to the peripheral nerves causing numbness, tingling, weakness, and pain — most commonly in the hands and feet. It is frequently filed as secondary to service-connected diabetes or as a direct result of toxic exposure (Agent Orange, solvents). The VA rates neuropathy based on the specific nerve group affected and the degree of paralysis (complete vs. incomplete).',dcCode:'8520 (Sciatic) / Various',dcName:'Peripheral Nerve Paralysis',ratings:[{pct:'10%–80%',criteria:'Based on nerve group affected and degree of incomplete/complete paralysis'}],features:['Secondary connection to diabetes or toxic exposure','Nerve-specific documentation per VA rating schedule','EMG/NCS interpretation support'],secondary:[{from:'Diabetes',mechanism:'Diabetic neuropathy from prolonged hyperglycemia'},{from:'Agent Orange',mechanism:'Direct neurotoxic effects of herbicide exposure'},{from:'Medications',mechanism:'Drug-induced neuropathy from service-connected treatment'}],faqs:[{q:'Can neuropathy be secondary to diabetes?',a:'Yes. Diabetic peripheral neuropathy is one of the most common secondary claims and is well-supported by medical literature.'}],links:[],pairs:['Diabetes','Back Pain'],pairNote:'Neuropathy pairs with diabetes (diabetic neuropathy) and spinal conditions (radiculopathy).',seo:['neuropathy nexus letter','peripheral neuropathy VA claim'],specs:[{n:'Internal Medicine MD',p:'$945',b:'Most neuropathy claims secondary to diabetes or exposure.'},{n:'Neurologist',p:'$1,200–$1,800',b:'EMG/NCS interpretation disputes or complex nerve mapping.'}]},
+      {id:'radiculopathy',name:'Radiculopathy',icon:'⚡',slug:'/conditions/radiculopathy',shortDesc:'Nexus letters for radiculopathy claims secondary to spinal conditions.',fullDesc:'Radiculopathy involves nerve root compression causing radiating pain, numbness, or weakness. It is almost always filed secondary to service-connected spinal conditions (lumbar or cervical). Proper documentation requires correlation between imaging findings and clinical symptoms.',dcCode:'8520/8515/Various',dcName:'Nerve Root Compression',ratings:[{pct:'10%–60%',criteria:'Based on affected nerve root and degree of incomplete paralysis'}],features:['Secondary connection to spinal conditions','Imaging correlation with clinical findings','Nerve-specific rating documentation'],secondary:[{from:'Lumbar Spine',mechanism:'Disc herniation or stenosis compressing nerve roots'},{from:'Cervical Spine',mechanism:'Cervical disc disease causing upper extremity radiculopathy'}],faqs:[{q:'Is radiculopathy rated separately from my back condition?',a:'Yes. Radiculopathy is rated separately from the underlying spinal condition under the peripheral nerve codes, which means you can receive ratings for both.'}],links:[],pairs:['Back Pain','Neck Pain'],pairNote:'Radiculopathy is almost always paired with the underlying spinal condition.',seo:['radiculopathy nexus letter','radiculopathy VA claim'],specs:[{n:'Internal Medicine MD',p:'$945',b:'Most radiculopathy claims with documented imaging.'},{n:'Neurologist',p:'$1,200–$1,800',b:'EMG/NCS disputes or complex nerve root involvement.'}]},
+      {id:'seizures',name:'Seizure Disorders / Epilepsy',icon:'🌩️',slug:'/conditions/seizures',shortDesc:'Nexus letters for seizure disorders and epilepsy secondary to TBI or in-service head injury.',fullDesc:'Post-traumatic seizures and epilepsy can develop after in-service TBI or head injury. The VA rates seizure disorders based on frequency and type of seizures. Documentation must establish the temporal relationship between the in-service event and seizure onset.',dcCode:'8910/8911',dcName:'Epilepsy',ratings:[{pct:'10%–100%',criteria:'Based on frequency and type of seizures'}],features:['Connection to documented in-service TBI or head injury','Seizure frequency and type documentation','Medication and functional impact assessment'],secondary:[{from:'TBI',mechanism:'Post-traumatic epilepsy from cortical scarring'},{from:'Head Injury',mechanism:'Seizure onset following in-service head trauma'}],faqs:[{q:'Can seizures be connected to TBI?',a:'Yes. Post-traumatic epilepsy is a well-documented consequence of traumatic brain injury, and nexus letters can establish this connection.'}],links:[],pairs:['TBI','Migraine'],pairNote:'Seizure disorders pair with TBI and migraines from the same in-service injury.',seo:['seizure nexus letter','epilepsy VA claim'],specs:[{n:'Neurologist',p:'$1,200–$1,800',b:'Most seizure disorder claims require neurology input.'},{n:'Internal Medicine MD',p:'$945',b:'Straightforward post-traumatic seizures with clear TBI documentation.'}]},
+      {id:'dementia',name:'Dementia / Cognitive Decline',icon:'🧩',slug:'/conditions/dementia',shortDesc:'Nexus letters for dementia and cognitive decline secondary to TBI or other service-connected conditions.',fullDesc:'Vascular dementia, Alzheimer\'s-type dementia, or cognitive disorder can be connected to service through TBI, toxic exposure, or secondary to cardiovascular conditions. Documentation must establish the cognitive decline trajectory from a baseline through current impairment.',dcCode:'8045/9326',dcName:'Cognitive Disorder',ratings:[{pct:'10%–100%',criteria:'Based on cognitive, functional, and occupational impairment'}],features:['Connection to TBI or toxic exposure','Cognitive decline trajectory documentation','Functional impact assessment'],secondary:[{from:'TBI',mechanism:'Post-traumatic cognitive decline'},{from:'Cardiovascular Disease',mechanism:'Vascular cognitive impairment from service-connected cardiac conditions'}],faqs:[{q:'Can dementia be connected to military service?',a:'Yes, through direct mechanisms (TBI, toxic exposure) or secondary to other service-connected conditions that affect cognitive function.'}],links:[],pairs:['TBI','PTSD'],pairNote:'Cognitive decline claims pair with TBI and PTSD.',seo:['dementia nexus letter','cognitive decline VA claim'],specs:[{n:'Neurologist',p:'$1,200–$1,800',b:'Neurodegenerative disease documentation.'},{n:'Psychiatrist',p:'$1,600+',b:'Cognitive/behavioral overlap with mental health.'}]}
+    ]
+  },
+  {id:'mh',name:'Mental Health',icon:'💭',desc:'PTSD, anxiety, depression, insomnia, MST.',isMH:true,overview:'Mental health is unique — the diagnosis and nexus question are inseparable. Always requires psychiatrist or Ph.D./Psy.D. psychologist.',specs:[{n:'Psychiatrist (MD)',r:'Board-Certified',b:'All mental health claims.',p:'$1,600–$2,400',t:'Required'},{n:'Psychologist (Ph.D./Psy.D.)',r:'Doctorate-Level',b:'Equal weight to psychiatrists. Often more affordable.',p:'$1,600–$2,000',t:'Equal VA weight'}],paired:['GI','Respiratory','Neurology'],pairNote:'Mental health is the most commonly paired system — GERD, IBS, sleep apnea frequently secondary to PTSD medications.',conditions:[
+    {id:'ptsd',name:'PTSD',icon:'🎯',slug:'/conditions/ptsd',shortDesc:'Expert nexus letters for PTSD VA claims including combat, MST, and non-combat stressor claims with DSM-5 diagnostic criteria documentation.',fullDesc:'PTSD is rated under VA § 4.130 at 0%, 10%, 30%, 50%, 70%, or 100% based on occupational and social impairment. The most commonly sought ratings are 70% and 100%. A proper PTSD nexus letter must include a current DSM-5 diagnosis, identified stressor event, and a clear nexus between the stressor and current symptoms.\n\nPTSD claims require a psychiatrist or doctorate-level psychologist — this is non-negotiable because the diagnosis, mental status exam, and DSM-5 criteria application are all performed by the same provider who writes the nexus opinion.',dcCode:'9411',dcName:'Post-Traumatic Stress Disorder',ratings:[{pct:'100%',criteria:'Total occupational and social impairment'},{pct:'70%',criteria:'Deficiencies in most areas'},{pct:'50%',criteria:'Reduced reliability and productivity'},{pct:'30%',criteria:'Occasional decrease in work efficiency'},{pct:'10%',criteria:'Mild symptoms controlled by medication'}],features:['DSM-5 diagnostic assessment and stressor verification','Nexus opinion connecting stressor to current PTSD symptoms','Documentation targeting 70% and 100% rating criteria','DBQ completion with detailed functional impact assessment'],secondary:[{from:'Combat',mechanism:'Direct combat exposure stressor'},{from:'MST',mechanism:'Military Sexual Trauma stressor verification'},{from:'Non-Combat',mechanism:'Accidents, training injuries, witness events'}],faqs:[{q:'Who can write a PTSD nexus letter?',a:'Only a psychiatrist (MD) or doctorate-level psychologist (Ph.D./Psy.D.). An internist or NP should never write a primary mental health nexus letter — this is the most common avoidable error.'},{q:'What rating can I get for PTSD?',a:'PTSD is rated at 0%, 10%, 30%, 50%, 70%, or 100% based on occupational and social impairment. Most veterans we work with are seeking 70% or 100% ratings.'}],links:[{type:'Condition',icon:'⚡',label:'Secondary',title:'Migraine Secondary to PTSD',url:'conditions/migraine'},{type:'Condition',icon:'🔥',label:'Secondary',title:'GERD Secondary to PTSD',url:'conditions/gerd'},{type:'Condition',icon:'😴',label:'Secondary',title:'Sleep Apnea Secondary to PTSD',url:'conditions/sleep-apnea'}],pairs:['GERD','IBS','Sleep Apnea','Migraine'],pairNote:'PTSD is the gateway condition for secondary claims — GERD, IBS, sleep apnea, and migraines are commonly connected to PTSD medications or stress mechanisms.',seo:['PTSD nexus letter','PTSD VA claim','PTSD disability rating'],specs:[{n:'Psychiatrist (MD)',p:'$1,600–$2,400',b:'All PTSD claims. Required — non-negotiable.'},{n:'Psychologist (Ph.D./Psy.D.)',p:'$1,600–$2,000',b:'Equal weight. Often more affordable.'}]},
+    {id:'anxiety',name:'Anxiety / GAD',icon:'😰',slug:'/conditions/anxiety',shortDesc:'Nexus letters for anxiety and GAD claims secondary to service or chronic pain.',fullDesc:'Generalized Anxiety Disorder is rated under the same § 4.130 criteria as PTSD. It can be directly connected to service or secondary to chronic pain, limited mobility, or other service-connected conditions. Documentation must include DSM-5 diagnostic criteria and functional impact.',dcCode:'9400',dcName:'Generalized Anxiety Disorder',ratings:[{pct:'0%–100%',criteria:'Same § 4.130 mental health rating criteria as PTSD'}],features:['DSM-5 GAD diagnosis and nexus opinion','Secondary connection to chronic pain conditions','Functional impact documentation per § 4.130'],secondary:[{from:'Chronic Pain',mechanism:'Anxiety secondary to service-connected pain conditions'},{from:'PTSD',mechanism:'Comorbid anxiety with PTSD'}],faqs:[{q:'Is anxiety rated differently from PTSD?',a:'No — both use the same § 4.130 criteria. However, the VA will only assign one rating for all mental health conditions combined.'}],links:[],pairs:['PTSD','Insomnia','IBS'],pairNote:'Anxiety pairs with PTSD and frequently triggers secondary insomnia and IBS claims.',seo:['anxiety nexus letter','GAD VA claim'],specs:[{n:'Psychiatrist (MD)',p:'$1,600–$2,400',b:'Required for all mental health claims.'},{n:'Psychologist',p:'$1,600–$2,000',b:'Equal weight, often more affordable.'}]},
+    {id:'depression',name:'Depression / MDD',icon:'🌧️',slug:'/conditions/depression',shortDesc:'Nexus letters for depression secondary to chronic pain, limited mobility, or other service-connected conditions.',fullDesc:'Major Depressive Disorder is frequently filed as secondary to chronic pain, limited mobility from musculoskeletal conditions, or as comorbid with PTSD. Rated under § 4.130.',dcCode:'9434',dcName:'Major Depressive Disorder',ratings:[{pct:'0%–100%',criteria:'Same § 4.130 mental health criteria'}],features:['DSM-5 MDD diagnosis','Secondary connection to chronic pain','Functional impact documentation'],secondary:[{from:'Chronic Pain',mechanism:'Depression from service-connected pain limiting daily function'},{from:'Limited Mobility',mechanism:'Depression from loss of physical capability'}],faqs:[{q:'Can depression be secondary to back pain?',a:'Yes. This is one of the most commonly approved secondary mental health claims.'}],links:[],pairs:['Chronic Pain','Sleep Disorders'],pairNote:'Depression pairs with chronic pain conditions and sleep disorders.',seo:['depression nexus letter','MDD VA claim'],specs:[{n:'Psychiatrist (MD)',p:'$1,600–$2,400',b:'Required.'},{n:'Psychologist',p:'$1,600–$2,000',b:'Equal weight.'}]},
+    {id:'insomnia',name:'Insomnia / Sleep Disorders',icon:'🌙',slug:'/conditions/insomnia',shortDesc:'Nexus letters for insomnia secondary to PTSD, chronic pain, or medication side effects.',fullDesc:'Chronic insomnia is rated as a mental health condition under § 4.130 or may be separately rated depending on etiology. It is most commonly secondary to PTSD, chronic pain, or as a side effect of medications for other service-connected conditions.',dcCode:'9431/Various',dcName:'Insomnia',ratings:[{pct:'0%–100%',criteria:'Based on functional impairment from sleep disruption'}],features:['Secondary connection to PTSD or chronic pain','Medication side effect documentation','Functional impact on daily living'],secondary:[{from:'PTSD',mechanism:'Hyperarousal and nightmare-disrupted sleep'},{from:'Chronic Pain',mechanism:'Pain-interrupted sleep cycles'},{from:'Medications',mechanism:'Stimulant effects from service-connected medications'}],faqs:[{q:'Is insomnia rated separately from PTSD?',a:'It depends. If insomnia is a symptom of PTSD, it\'s included in the PTSD rating. If it has a separate etiology, it may be rated independently.'}],links:[],pairs:['PTSD','Chronic Pain'],pairNote:'Insomnia pairs with PTSD and chronic pain conditions.',seo:['insomnia nexus letter','sleep disorder VA claim'],specs:[{n:'Psychiatrist',p:'$1,600+',b:'Mental health etiology.'},{n:'Psychologist',p:'$1,600+',b:'Equal weight.'}]},
+  ]},
+  {id:'gi',name:'GI (Gastrointestinal)',icon:'🔥',desc:'GERD, IBS, Crohn\'s, ulcerative colitis.',overview:'GI conditions are the most commonly filed secondary claims. Once diagnosis is confirmed, the nexus question is causation analysis — core internal medicine competency.',specs:[{n:'Nurse Practitioner',r:'Former C&P Examiner',b:'Straightforward GERD or IBS with clear medication connection.',p:'From $400',t:'+$250/additional'},{n:'Internal Medicine MD',r:'Board-Certified',b:'Most GI nexus opinions. All theories included.',p:'$945',t:'All theories included'},{n:'Gastroenterologist',r:'Board-Certified',b:'Contested diagnosis or biopsy interpretation.',p:'$1,200–$1,800',t:'Contested'}],paired:['Mental Health','Respiratory','Musculoskeletal'],pairNote:'GI claims almost always pair with mental health — GERD and IBS commonly secondary to PTSD medications.',conditions:[
+    {id:'gerd',name:'GERD',icon:'🔥',slug:'/conditions/gerd',shortDesc:'Expert nexus letters for GERD VA claims secondary to PTSD medications, direct stress mechanism, or in-service onset.',fullDesc:'GERD is rated under DC 7346 based on severity of symptoms including substernal pain, regurgitation, and dysphagia. It is one of the most commonly filed secondary conditions — typically connected to PTSD medication side effects (SSRIs, SNRIs cause increased gastric acid production) or direct stress mechanisms.\n\nMany GERD claims are underrated because the C&P exam fails to document the full range of symptoms or their frequency. Our clinicians prepare nexus letters explaining the pharmacological mechanism connecting PTSD medications to GERD and DBQs that thoroughly document symptom severity.',dcCode:'7346',dcName:'Hiatal Hernia / GERD',ratings:[{pct:'60%',criteria:'Pain, vomiting, material weight loss, hematemesis or melena with moderate anemia; or other symptom combinations productive of severe impairment of health'},{pct:'30%',criteria:'Persistently recurrent epigastric distress with dysphagia, pyrosis, and regurgitation accompanied by substernal, arm, or shoulder pain productive of considerable impairment of health'},{pct:'10%',criteria:'Two or more of the symptoms for the 30% evaluation of less severity'}],features:['Nexus letters for GERD secondary to PTSD medications (SSRIs/SNRIs)','Direct stress mechanism nexus opinions','DBQ completion documenting symptom severity per DC 7346','Documentation targeting 30% and 60% rating thresholds'],secondary:[{from:'PTSD Medications',mechanism:'SSRIs and SNRIs increase gastric acid production and reduce lower esophageal sphincter tone'},{from:'Chronic Stress',mechanism:'HPA axis dysregulation affecting gastric motility and acid secretion'},{from:'NSAIDs',mechanism:'NSAID use for service-connected pain conditions causing gastric damage'}],faqs:[{q:'Can GERD be secondary to PTSD?',a:'Yes — one of the most commonly approved secondary claims. The mechanism involves PTSD medications (SSRIs/SNRIs) increasing gastric acid and chronic stress affecting the digestive system.'},{q:'What rating can I get for GERD?',a:'GERD is rated at 10%, 30%, or 60% under DC 7346 based on symptom severity and health impairment.'}],links:[{type:'Condition',icon:'🎯',label:'Primary Condition',title:'PTSD Nexus Letter',url:'conditions/ptsd'},{type:'Condition',icon:'💊',label:'Often Paired',title:'IBS Nexus Letter',url:'conditions/ibs'}],pairs:['IBS','PTSD','Sleep Apnea'],pairNote:'GERD and IBS are the most commonly paired GI conditions — veterans frequently file both secondary to PTSD medications.',seo:['GERD nexus letter','GERD VA claim','GERD secondary to PTSD','GERD DBQ','DC 7346'],specs:[{n:'Nurse Practitioner',p:'From $400',b:'Straightforward GERD with clear medication connection.'},{n:'Internal Medicine MD',p:'$945',b:'Most GERD claims. All theories in one letter.'},{n:'Gastroenterologist',p:'$1,200–$1,800',b:'Contested diagnosis or endoscopy interpretation.'}]},
+    {id:'ibs',name:'IBS',icon:'💊',slug:'/conditions/ibs',shortDesc:'Nexus letters for IBS VA claims secondary to PTSD, Gulf War service, or environmental exposure.',fullDesc:'IBS is rated under DC 7319 based on frequency and severity of episodes. It is commonly connected to PTSD, Gulf War presumptive service, or environmental exposure. Gulf War veterans can establish IBS as a presumptive condition under 38 CFR § 3.317.',dcCode:'7319',dcName:'Irritable Colon Syndrome',ratings:[{pct:'30%',criteria:'Diarrhea, or alternating diarrhea and constipation, with more or less constant abdominal distress'},{pct:'10%',criteria:'Frequent episodes of bowel disturbance with abdominal distress'},{pct:'0%',criteria:'Mild disturbances, infrequent episodes'}],features:['Secondary connection to PTSD and medication side effects','Gulf War presumptive documentation per 38 CFR § 3.317','Symptom frequency and severity documentation per DC 7319'],secondary:[{from:'PTSD',mechanism:'Gut-brain axis dysregulation from chronic stress'},{from:'Gulf War Service',mechanism:'Presumptive condition for qualifying Gulf War veterans'},{from:'Medications',mechanism:'GI side effects from service-connected medication'}],faqs:[{q:'Is IBS presumptive for Gulf War veterans?',a:'Yes — IBS is a qualifying undiagnosed illness under 38 CFR § 3.317 for veterans with qualifying Gulf War service.'}],links:[{type:'Condition',icon:'🔥',label:'Often Paired',title:'GERD Nexus Letter',url:'conditions/gerd'}],pairs:['GERD','PTSD','Crohn\'s'],pairNote:'IBS and GERD are almost always filed together when secondary to PTSD medications.',seo:['IBS nexus letter','IBS VA claim','IBS Gulf War'],specs:[{n:'Nurse Practitioner',p:'From $400',b:'Straightforward IBS with documented onset.'},{n:'Internal Medicine MD',p:'$945',b:'Most IBS claims with all theories.'},{n:'Gastroenterologist',p:'$1,200–$1,800',b:'Contested diagnosis.'}]},
+  ]},
+  {id:'resp',name:'Respiratory',icon:'🫁',desc:'Sleep apnea, asthma, COPD, burn pit conditions.',overview:'Respiratory claims surged after the PACT Act. Most handled by internist once PFTs or polysomnogram exist.',specs:[{n:'NP',r:'Former C&P',b:'Straightforward sleep apnea or asthma.',p:'From $400',t:'+$250/add'},{n:'Internist',r:'Board-Certified',b:'Most respiratory nexus opinions.',p:'$945',t:'All theories'},{n:'Pulmonologist',r:'Board-Certified',b:'Constrictive bronchiolitis, complex cases.',p:'$1,200–$1,800',t:'Complex'}],paired:['Mental Health','GI','Cardiovascular'],pairNote:'Sleep apnea commonly paired with PTSD. Burn pit veterans often file respiratory + cancer.',conditions:[]},
+  {id:'msk',name:'Musculoskeletal',icon:'🦴',desc:'Back, knee, shoulder, neck, joint disorders.',overview:'The most commonly filed VA claims. NP or internist for non-surgical; orthopedist for surgical cases.',specs:[{n:'NP',r:'Former C&P',b:'Single-joint claims.',p:'From $400',t:'+$250/add'},{n:'Internist',r:'Board-Certified',b:'Multi-joint, secondary chains.',p:'$945',t:'All theories'},{n:'Orthopedist',r:'Board-Certified',b:'Surgical residuals.',p:'$1,500–$2,500',t:'Surgical'}],paired:['Neurology','Mental Health','GI'],pairNote:'Back conditions almost always pair with radiculopathy and secondary mental health.',conditions:[]},
+  {id:'derm',name:'Dermatology',icon:'🧴',desc:'Eczema, psoriasis, chloracne, burn scars.',overview:'Often toxic-exposure-driven. Internist handles exposure causation effectively.',specs:[{n:'NP',r:'Former C&P',b:'Straightforward skin claims.',p:'From $400',t:'+$250/add'},{n:'Internist',r:'Board-Certified',b:'Toxic exposure skin claims.',p:'$945',t:'All theories'},{n:'Dermatologist',r:'Board-Certified',b:'Contested biopsy.',p:'$1,200–$1,800',t:'Contested'}],paired:['Cancer/Oncology','Respiratory','Mental Health'],pairNote:'Skin conditions pair with other toxic exposure claims.',conditions:[]},
+  {id:'audio',name:'Audiology',icon:'👂',desc:'Hearing loss, tinnitus, ear conditions.',overview:'Tinnitus is #1 VA condition. Once audiogram exists, internist writes effective nexus.',specs:[{n:'NP',r:'Former C&P',b:'Straightforward tinnitus/hearing loss.',p:'From $400',t:'+$250/add'},{n:'Internist',r:'Board-Certified',b:'Most hearing claims.',p:'$945',t:'All theories'},{n:'Audiologist',r:'Licensed',b:'Contested audiogram interpretation.',p:'$500–$1,200',t:'Disputes'}],paired:['Neurology','Mental Health'],pairNote:'Tinnitus is the gateway — builds secondary migraines and mental health.',conditions:[]},
+  {id:'onco',name:'Cancer / Oncology',icon:'🎗️',desc:'Agent Orange, burn pit, radiation cancers.',overview:'Presumptive cancers: internist confirms diagnosis and service. Non-presumptive: oncologist argues causation.',specs:[{n:'Internist',r:'Board-Certified',b:'Presumptive cancer claims.',p:'$945',t:'Presumptive'},{n:'Oncologist',r:'Board-Certified',b:'Non-presumptive, contested staging.',p:'$1,800–$3,000',t:'Contested'}],paired:['Dermatology','Respiratory','Nephrology'],pairNote:'Cancer claims involve treatment residuals creating secondary conditions.',conditions:[]},
+  {id:'neph',name:'Nephrology',icon:'🫘',desc:'Kidney disease, ESRD, dialysis.',overview:'CKD stages 1–3: internist. Advanced disease: nephrologist for rating precision.',specs:[{n:'Internist',r:'Board-Certified',b:'CKD stages 1-3.',p:'$945',t:'Most claims'},{n:'Nephrologist',r:'Board-Certified',b:'ESRD, advanced disease.',p:'$1,500–$2,800',t:'Advanced'}],paired:['Cardiovascular','Cancer/Oncology'],pairNote:'Kidney disease often in cardiometabolic chain.',conditions:[]},
+  {id:'obgyn',name:'OB-GYN',icon:'♀️',desc:'Endometriosis, fibroids, PCOS, reproductive conditions.',overview:'Many gynecologic VA claims are toxic-exposure-medicine questions. Internist often writes more compelling causation.',specs:[{n:'Internist',r:'Board-Certified',b:'Toxic exposure gynecologic conditions.',p:'$945',t:'Exposure'},{n:'OB-GYN',r:'Board-Certified',b:'Surgical staging documentation.',p:'$1,200–$2,000',t:'Surgical'}],paired:['Cancer/Oncology','Mental Health'],pairNote:'Gynecologic exposure claims pair with other Camp Lejeune or burn pit conditions.',conditions:[]},
+  {id:'male',name:'Male Reproductive',icon:'♂️',desc:'ED, prostate, testosterone deficiency.',overview:'Most male reproductive claims are secondary — ED to PTSD meds, prostate cancer presumptive for Agent Orange.',specs:[{n:'NP',r:'Former C&P',b:'Straightforward ED with clear medication connection.',p:'From $400',t:'+$250/add'},{n:'Internist',r:'Board-Certified',b:'Most male reproductive claims.',p:'$945',t:'All theories'},{n:'Urologist',r:'Board-Certified',b:'Contested prostate diagnosis.',p:'$1,200–$1,800',t:'Contested'}],paired:['Mental Health','Cancer/Oncology','Cardiovascular'],pairNote:'Male reproductive claims are almost always secondary to PTSD medications or diabetes.',conditions:[]},
+];
+
+const FAQS=[
+  {q:'What is a Nexus Letter?',a:'A medical document establishing a connection between your condition and military service, using the "at least as likely as not" standard.'},
+  {q:'How much does it cost?',a:'NP: $400 single condition + $250 additional. Internist: $945 with all claim theories. Specialist: $945–$1,800. Mental health: $1,600+.'},
+  {q:'What does "all claim theories" mean?',a:'At the internist level, if you claim migraine with evidence for direct, presumptive, secondary to tinnitus, PTSD, and pain — all theories are in one letter at $945.'},
+  {q:'How long does it take?',a:'7–10 business days. Rush 48–72 hours available.'},
+  {q:'Who writes the letter?',a:'Board-certified physicians specialty-matched to your condition. Mental health always requires psychiatrist or Ph.D./Psy.D. psychologist.'},
+  {q:'Do you guarantee approval?',a:'No provider can guarantee VA outcomes. We guarantee thorough, clinically accurate documentation giving your claim the strongest foundation.'},
+];
+const TIERS=[
+  {n:'Nurse Practitioner',prov:'Former C&P Examiner',p:'$400',mp:'N/A',note:'+ $250 per additional condition',best:'Straightforward claims with strong service records.',feats:['Former VA C&P examining experience','Full record review + clinical rationale','"At least as likely as not" opinion','7–10 business day turnaround','One-on-one consultation','$250 per additional condition'],feat:false},
+  {n:'Internist / Specialist',prov:'Board-Certified (Specialty-Matched)',p:'$945–$1,800',mp:'$1,600–$2,400',note:'All claim theories included',best:'Secondary, denied, complex claims. All theories (presumptive, direct, secondary) in one letter.',feats:['Board-certified physician matched to condition','All claim theories in single letter','Detailed medical literature citations','Addresses counterarguments & denials','Rush 48–72hrs available','One-on-one specialist consultation'],feat:true},
+  {n:'Complex / High-Stakes',prov:'Sub-Specialist or Multi-Specialist',p:'$2,000+',mp:'$2,000+',note:'Custom quote',best:'1151, oncology, multi-condition TDIU, BVA appeals.',feats:['Sub-specialist or multi-specialist team','Forensic-level record analysis','Multi-condition combined opinions','Rebuttal of negative C&P opinions','BVA hearing-ready documentation','Attorney coordination'],feat:false},
+];
+
+/* ═══ RENDER ═══ */
+let svcType='nexus',curSys=null,curCond=null;
+
+function renderSvcs(){document.getElementById('svc-grid').innerHTML=SVCS.map(s=>`<div class="card" onclick="${s.sub?`pickSvc('${s.id}')`:`w('services')`}"><div style="font-size:28px;margin-bottom:12px">${s.icon}</div><div style="font-family:var(--hd);font-size:17px;color:var(--blue);font-weight:600;margin-bottom:6px">${s.name}</div><div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">${s.desc}</div><div style="font-size:13px;color:var(--red);font-weight:600">${s.sub?'Explore Conditions →':'Learn More →'}</div></div>`).join('')}
+
+function pickSvc(id){
+  svcType=id;const isDBQ=id==='dbq',lbl=isDBQ?'DBQ':'Nexus Letter / IMO';
+  document.getElementById('m-bc').textContent=lbl;
+  document.getElementById('m-title').textContent=isDBQ?'Disability Benefits Questionnaire (DBQ)':'Independent Medical Opinion / Nexus Letter';
+  document.getElementById('m-desc').textContent=isDBQ?'Comprehensive DBQ evaluations completed by specialty-matched physicians for VA claims.':'Expert Nexus Letters and Independent Medical Opinions that link your condition to your service.';
+  document.getElementById('m-over').textContent='At Military Disability Nexus, we collaborate with board-certified physicians who understand the standards and language the VA looks for in medical evidence. Each opinion is based on a thorough review of your service treatment records, medical history, and VA decision documents — and includes a detailed medical rationale written in VA-compliant language.';
+  document.getElementById('sys-title').textContent=isDBQ?'DBQ Evaluations by Medical System':'Nexus Letters by Medical System';
+  renderSys();renderFAQ('faq-main',FAQS);go('main');
+}
+
+function renderSys(){
+  const lbl=svcType==='dbq'?'DBQ':'Nexus Letter';
+  document.getElementById('sys-grid').innerHTML=SYSTEMS.map(s=>`<div class="card" style="position:relative;overflow:hidden" onclick="pickSys('${s.id}')"><span style="font-size:32px;display:block;margin-bottom:10px">${s.icon}</span><div style="font-family:var(--hd);font-size:18px;color:var(--blue);font-weight:600;margin-bottom:4px">${s.name}</div><div style="font-size:12px;color:var(--muted);margin-bottom:10px">${s.conditions.length} conditions · ${lbl}s</div><div style="font-size:12px;color:var(--muted);line-height:1.5">${s.conditions.slice(0,4).map(c=>c.name).join(' · ')}${s.conditions.length>4?' · ...':''}</div><span style="position:absolute;bottom:20px;right:20px;color:var(--red);font-size:18px;font-weight:700">→</span></div>`).join('');
+}
+
+function renderFAQ(id,faqs){document.getElementById(id).innerHTML=faqs.map((f,i)=>`<div class="faq-i"><button class="faq-q" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tg').classList.toggle('open')"><span>${f.q}</span><span class="tg">+</span></button><div class="faq-a">${f.a}</div></div>`).join('')}
+
+function pickSys(id){
+  curSys=SYSTEMS.find(s=>s.id===id);if(!curSys)return;
+  const lbl=svcType==='dbq'?'DBQ':'Nexus Letter',svcLbl=svcType==='dbq'?'DBQ':'Nexus Letter / IMO',mh=curSys.isMH;
+  document.getElementById('s3-bc1').textContent=svcLbl;document.getElementById('s3-bc2').textContent=curSys.name;
+  document.getElementById('s3-badge').textContent=curSys.name+' Claims';document.getElementById('s3-title').textContent=curSys.name+' '+lbl+'s';
+  document.getElementById('s3-sub').textContent=curSys.desc;document.getElementById('s3-desc').textContent=curSys.overview;
+  document.getElementById('s3-pbtn').textContent=mh?'View Pricing — From $1,600':'View Pricing — From $400';
+  document.getElementById('s3-pbtn').onclick=()=>openP(mh);
+  document.getElementById('s3-stats').innerHTML=[{l:'Conditions',v:curSys.conditions.length+'',s:'Covered'},{l:'Starting At',v:mh?'$1,600':'$400',s:mh?'Psychiatrist/Psychologist':'Nurse Practitioner'},{l:'Turnaround',v:'7–10 Days',s:'Rush available'},{l:'Consultation',v:'Free',s:'No obligation'}].map(s=>`<div class="stat"><div class="stat-l">${s.l}</div><div class="stat-v">${s.v}</div><div class="stat-s">${s.s}</div></div>`).join('');
+  document.getElementById('s3-ov-t').textContent='About '+curSys.name+' Claims';document.getElementById('s3-ov-p').textContent=curSys.overview;
+  document.getElementById('s3-sp-t').textContent='Who Should Write Your '+curSys.name+' '+lbl+'?';
+  document.getElementById('s3-sp-i').textContent='Choosing the right provider is as important as the letter itself:';
+  document.getElementById('s3-sp-g').innerHTML=curSys.specs.map(sp=>`<div class="sp-card"><div style="font-family:var(--hd);font-size:15px;color:var(--blue);font-weight:600;margin-bottom:4px">${sp.n}</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">${sp.r||''}</div><div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:10px">${sp.b}</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--red);font-weight:600">${sp.p}</span><span style="font-size:11px;color:var(--muted)">${sp.t||''}</span></div></div>`).join('');
+  document.getElementById('s3-c-t').textContent=lbl+'s by Condition — '+curSys.name;document.getElementById('s3-c-s').textContent='Click any condition to view its dedicated page with DC codes, rating criteria, secondary connections, and specialist guidance.';
+  document.getElementById('s3-c-g').innerHTML=curSys.conditions.map(c=>`<div class="card" style="padding:18px 16px" onclick="pickCond('${curSys.id}','${c.id}')"><div style="display:flex;align-items:center"><span style="font-size:20px;margin-right:8px">${c.icon}</span><span style="font-weight:600;color:var(--blue);font-size:14px">${c.name} ${lbl}</span></div><div style="font-size:12px;color:var(--muted);line-height:1.4;margin-top:6px">${c.shortDesc.substring(0,120)}...</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--red);font-weight:600">From ${mh?'$1,600':'$400'}</span><span style="font-size:12px;color:var(--blue);font-weight:600">View Details →</span></div>${c.pairs&&c.pairs.length?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--cream-dark);font-size:11px;color:var(--muted)"><span style="color:var(--red);font-weight:600">Usually paired with:</span> ${c.pairs.join(', ')}</div>`:''}</div>`).join('');
+  document.getElementById('s3-p-t').textContent='Veterans Usually Pair '+curSys.name+' With These Systems';document.getElementById('s3-p-p').textContent=curSys.pairNote;
+  document.getElementById('s3-p-g').innerHTML=(curSys.paired||[]).map(pn=>{const ps=SYSTEMS.find(s=>s.name===pn||s.name.includes(pn));if(!ps)return'';return`<div class="card" style="padding:16px" onclick="pickSys('${ps.id}')"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">${ps.icon}</span><div><div style="font-weight:600;color:var(--blue);font-size:14px">${ps.name}</div><div style="font-size:11px;color:var(--muted)">${ps.conditions.length} conditions</div></div></div><div style="font-size:12px;color:var(--red);font-weight:600;margin-top:8px">Explore →</div></div>`}).join('');
+  document.getElementById('s3-sb-l').textContent=curSys.name+' '+lbl;document.getElementById('s3-sb-p').textContent=mh?'$1,600':'$400';
+  document.getElementById('s3-sb-svc').innerHTML=['Nexus Letter / IMO','DBQ','Claim Readiness Review','Aid & Attendance','1151 Claims','TDIU','C&P Exam Coaching'].filter(s=>s!==svcLbl).map(s=>`<div class="sb-link"><span>${s}</span><span style="color:var(--red);font-size:12px">→</span></div>`).join('');
+  go('sys');
+}
+
+/* ═══ CONDITION DETAIL (LEVEL 4) ═══ */
+function pickCond(sysId,condId){
+  const sys=SYSTEMS.find(s=>s.id===sysId);if(!sys)return;
+  const c=sys.conditions.find(co=>co.id===condId);if(!c)return;
+  curCond=c;const lbl=svcType==='dbq'?'DBQ':'Nexus Letter',svcLbl=svcType==='dbq'?'DBQ':'Nexus Letter / IMO',mh=sys.isMH;
+
+  // Breadcrumb
+  document.getElementById('c4-bc1').textContent=svcLbl;
+  const bc2=document.getElementById('c4-bc2');bc2.textContent=sys.name;bc2.onclick=()=>pickSys(sysId);
+  document.getElementById('c4-bc3').textContent=c.name;
+
+  // Hero
+  document.getElementById('c4-badge').innerHTML=`${sys.icon} ${sys.name} &middot; ${lbl}`;
+  document.getElementById('c4-title').textContent=c.name+' '+lbl;
+  document.getElementById('c4-slug').textContent=c.slug;
+  document.getElementById('c4-short').textContent=c.shortDesc;
+  document.getElementById('c4-pbtn').textContent=mh?'View Pricing — From $1,600':'View Pricing — From $400';
+  document.getElementById('c4-pbtn').onclick=()=>openP(mh);
+
+  // Stats
+  document.getElementById('c4-stats').innerHTML=[
+    {l:'Diagnostic Code',v:'DC '+c.dcCode,s:c.dcName},
+    {l:'Starting At',v:mh?'$1,600':'$400',s:mh?'Psychiatrist/Psychologist':'Nurse Practitioner'},
+    {l:'Turnaround',v:'7–10 Days',s:'Rush 48–72hrs'},
+    {l:'Consultation',v:'Free',s:'No obligation'},
+  ].map(s=>`<div class="stat"><div class="stat-l">${s.l}</div><div class="stat-v">${s.v}</div><div class="stat-s">${s.s}</div></div>`).join('');
+
+  // DC Code Box
+  document.getElementById('c4-dc').innerHTML=`<div class="dc-label">VA Diagnostic Code</div><div class="dc-code">DC ${c.dcCode}</div><div class="dc-desc">${c.dcName}</div>${c.ratings?`<table class="rtbl" style="margin-top:16px"><thead><tr><th>Rating</th><th>Criteria</th></tr></thead><tbody>${c.ratings.map(r=>`<tr><td class="pct">${r.pct}</td><td>${r.criteria}</td></tr>`).join('')}</tbody></table>`:''}`;
+
+  // Full Description
+  document.getElementById('c4-fulldesc').innerHTML=`<h2 class="st">About ${c.name} VA Claims</h2><div style="margin-top:12px">${c.fullDesc.split('\n\n').map(p=>`<p style="font-size:14px;line-height:1.75;margin-bottom:14px">${p}</p>`).join('')}</div>`;
+
+  // Features
+  document.getElementById('c4-features').innerHTML=`<h2 class="st">What's Included</h2><div style="margin-top:16px">${c.features.map(f=>`<div class="chk"><span class="chk-dot">✓</span><span>${f}</span></div>`).join('')}</div>`;
+
+  // Secondary Connections
+  document.getElementById('c4-secondary').innerHTML=`<div style="position:relative;z-index:1"><div class="sp-badge">Secondary Service Connections</div><h2 class="st" style="margin-bottom:8px">How ${c.name} Connects to Service</h2><p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:16px">These are the medical pathways our clinicians use to establish nexus between ${c.name.toLowerCase()} and military service:</p>${c.secondary.map(s=>`<div class="sec-conn"><span style="font-size:16px">🔗</span><div style="flex:1"><div style="font-weight:600;color:var(--blue);font-size:14px">${s.from} <span class="arrow-r">→</span> ${c.name}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${s.mechanism}</div></div></div>`).join('')}</div>`;
+
+  // Specialist Guide
+  document.getElementById('c4-specialist').innerHTML=`<div style="position:relative;z-index:1"><div class="sp-badge">Specialist Guide</div><h2 class="st" style="margin-bottom:6px">Who Should Write Your ${c.name} ${lbl}?</h2><p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:16px">Match the writer to the medical question for maximum probative weight:</p><div class="g3" style="gap:14px">${c.specs.map(sp=>`<div class="sp-card"><div style="font-family:var(--hd);font-size:15px;color:var(--blue);font-weight:600;margin-bottom:8px">${sp.n}</div><div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:10px">${sp.b}</div><div style="font-size:14px;color:var(--red);font-weight:700">${sp.p}</div></div>`).join('')}</div><div style="margin-top:16px;font-size:13px"><a href="https://www.militarydisabilitynexus.com/blog/%20who-should-write-your-va-nexus-letter-specialist-guide" target="_blank" style="color:var(--red);font-weight:600">Read the full Specialist Guide →</a></div></div>`;
+
+  // FAQ
+  document.getElementById('c4-faq').innerHTML=`<h2 class="st">Frequently Asked Questions</h2><p class="ss">About ${c.name} ${lbl}s</p><div id="c4-faq-inner"></div>`;
+  setTimeout(()=>renderFAQ('c4-faq-inner',c.faqs),10);
+
+  // Internal Links
+  document.getElementById('c4-links').innerHTML=`<h2 class="st">Related Pages</h2><p class="ss">Explore related services, conditions, and resources</p><div style="margin-top:12px">${(c.links||[]).map(l=>`<div class="ilink" onclick="w('${l.url}')"><span class="il-icon">${l.icon}</span><div><div class="il-label">${l.label}</div><div class="il-title">${l.title}</div></div><span class="il-arrow">→</span></div>`).join('')}</div>`;
+
+  // Paired Conditions
+  document.getElementById('c4-paired').innerHTML=`<div style="position:relative;z-index:1"><div class="sp-badge">Commonly Paired</div><h2 class="st" style="margin-bottom:8px">Veterans Usually Pair ${c.name} With These Conditions</h2><p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:16px">${c.pairNote||''}</p><div style="display:flex;flex-wrap:wrap;gap:10px">${(c.pairs||[]).map(p=>`<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">${p} ${lbl} →</div>`).join('')}</div></div>`;
+
+  // Sidebar
+  document.getElementById('c4-sidebar').innerHTML=`<div class="sb-sticky">
+    <div class="sb-price"><div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:2px">${c.name} ${lbl}</div><div style="font-size:12px;color:rgba(255,255,255,.5)">Starting at</div><div style="font-size:38px;font-weight:700;font-family:var(--hd);margin:4px 0">${mh?'$1,600':'$400'}</div><p style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:4px">${mh?'Psychiatrist/Psychologist required':'Nurse Practitioner · Single condition'}</p>${mh?`<div style="background:rgba(152,60,68,.25);border:1px solid rgba(152,60,68,.4);border-radius:6px;padding:6px 10px;margin-bottom:12px;font-size:11px;color:#e8a0a8">⚠️ Mental Health minimum — specialized DSM-5 documentation</div>`:''}<button class="btn-p" style="width:100%;margin-bottom:8px" onclick="openP(${mh})">See All Pricing Tiers →</button><button class="btn-g" style="width:100%;border-color:rgba(255,255,255,.18)" onclick="w('contact')">Book Free Consultation</button></div>
+    <div class="sb-card"><h4>DC ${c.dcCode} — Quick Reference</h4><div style="font-size:13px;color:var(--text);line-height:1.6">${c.dcName}<br><span style="color:var(--muted);font-size:12px">Rating range: ${c.ratings?c.ratings[c.ratings.length-1].pct+' – '+c.ratings[0].pct:'Varies'}</span></div></div>
+    <div class="sb-card"><h4>SEO Target Keywords</h4>${c.seo.map(k=>`<div style="display:inline-block;background:var(--blue-pale);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px;color:var(--blue);margin:2px 4px 2px 0">${k}</div>`).join('')}</div>
+    <div class="sb-card"><h4>Other ${sys.name} Conditions</h4>${sys.conditions.filter(co=>co.id!==condId).map(co=>`<div class="sb-link" onclick="pickCond('${sysId}','${co.id}')"><span>${co.icon} ${co.name}</span><span style="color:var(--red);font-size:12px">→</span></div>`).join('')}</div>
+    <div class="sb-card"><h4>Other Services</h4>${['Nexus Letter / IMO','DBQ','Claim Readiness Review','C&P Exam Coaching','Aid & Attendance','1151 Claims','TDIU'].filter(s=>s!==svcLbl).map(s=>`<div class="sb-link"><span>${s}</span><span style="color:var(--red);font-size:12px">→</span></div>`).join('')}</div>
+  </div>`;
+
+  go('cond');
+}
+
+/* ═══ PRICING MODAL ═══ */
+function openP(mh){
+  document.getElementById('mh-warn').style.display=mh?'flex':'none';
+  document.getElementById('p-tiers').innerHTML=TIERS.map(t=>`<div class="tier ${t.feat?'feat':'std'}">${t.feat?'<div class="mc">Most Chosen</div>':''}<div style="font-family:var(--hd);font-size:22px;color:${t.feat?'#fff':'var(--blue)'};margin-bottom:4px">${t.n}</div><div style="font-size:12px;color:${t.feat?'rgba(255,255,255,.55)':'var(--muted)'};margin-bottom:16px">${t.prov}</div><div style="font-size:32px;font-weight:700;font-family:var(--hd);color:${t.feat?'#fff':'var(--blue)'};margin-bottom:4px">${mh?t.mp:t.p}</div><div style="font-size:12px;color:${t.feat?'rgba(255,255,255,.45)':'var(--muted)'};margin-bottom:16px">${t.note}</div><div style="border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5;margin-bottom:20px;background:${t.feat?'rgba(152,60,68,.2)':'var(--red-pale)'};color:${t.feat?'#e8a0a8':'var(--blue)'}"><strong>Best for:</strong> ${t.best}</div><div style="flex:1">${t.feats.map(f=>`<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;font-size:13px;color:${t.feat?'rgba(255,255,255,.85)':'var(--text)'}"><span style="color:${t.feat?'#e8a0a8':'var(--red)'};font-weight:700;font-size:14px;flex-shrink:0">✓</span><span>${f}</span></div>`).join('')}</div><div style="margin-top:auto;padding-top:20px"><button style="width:100%;padding:14px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--bd);background:${t.feat?'var(--red)':'transparent'};color:${t.feat?'#fff':'var(--blue)'};border:${t.feat?'none':'2px solid var(--blue)'}" onclick="w('contact')">Free Consultation →</button></div></div>`).join('');
+  document.getElementById('p-modal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeP(){document.getElementById('p-modal').classList.remove('open');document.body.style.overflow=''}
+document.getElementById('p-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeP()});
+
+/* ═══ INIT ═══ */
+renderSvcs();renderSys();renderFAQ('faq-main',FAQS);
+</script>
+</body>
+</html>

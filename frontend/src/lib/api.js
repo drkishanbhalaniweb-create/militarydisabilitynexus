@@ -794,14 +794,18 @@ export const clinicalProfileApi = {
 // ============================================
 
 export const conditionApi = {
-  async getAll(includeUnpublished = false) {
+  async getAll(includeUnpublished = false, serviceId = null) {
     let query = supabase
       .from('conditions')
-      .select('*')
+      .select('*, service:services(*)')
       .order('created_at', { ascending: false });
 
     if (!includeUnpublished) {
       query = query.eq('is_published', true);
+    }
+    
+    if (serviceId) {
+      query = query.eq('service_id', serviceId);
     }
 
     const { data, error } = await query;
@@ -809,13 +813,18 @@ export const conditionApi = {
     return data;
   },
 
-  async getBySlug(slug) {
-    const { data, error } = await supabase
+  async getBySlug(slug, serviceId = null) {
+    let query = supabase
       .from('conditions')
-      .select('*')
+      .select('*, service:services(*), body_system:body_systems(*)')
       .eq('slug', slug)
-      .eq('is_published', true)
-      .single();
+      .eq('is_published', true);
+      
+    if (serviceId) {
+      query = query.eq('service_id', serviceId);
+    }
+    
+    const { data, error } = await query.single();
 
     if (error) throw error;
     return data;
@@ -824,12 +833,29 @@ export const conditionApi = {
   async getById(id) {
     const { data, error } = await supabase
       .from('conditions')
-      .select('*')
+      .select('*, service:services(*), body_system:body_systems(*)')
       .eq('id', id)
       .single();
 
     if (error) throw error;
     return data;
+  },
+
+  async getByBodySystem(systemId, serviceId = null) {
+    let query = supabase
+      .from('conditions')
+      .select('*')
+      .eq('body_system_id', systemId)
+      .eq('is_published', true)
+      .order('display_order', { ascending: true });
+      
+    if (serviceId) {
+      query = query.eq('service_id', serviceId);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
   },
 
   async create(conditionData) {
@@ -838,10 +864,16 @@ export const conditionApi = {
     let uniqueSlug = slug;
     let counter = 1;
     while (true) {
-      const { data } = await supabase
+      let q = supabase
         .from('conditions')
         .select('id')
         .eq('slug', uniqueSlug);
+        
+      if (conditionData.service_id) {
+        q = q.eq('service_id', conditionData.service_id);
+      }
+      
+      const { data } = await q;
 
       if (!data || data.length === 0) break;
       counter++;
@@ -857,8 +889,28 @@ export const conditionApi = {
         hero_heading: conditionData.hero_heading,
         content_html: conditionData.content_html,
         faqs: conditionData.faqs || [],
-        related_service_ids: conditionData.related_service_ids || [],
+        service_id: conditionData.service_id || null,
         is_published: conditionData.is_published !== undefined ? conditionData.is_published : true,
+        body_system_id: conditionData.body_system_id || null,
+        icon: conditionData.icon || '📋',
+        short_description: conditionData.short_description || null,
+        display_order: conditionData.display_order || 0,
+        dc_code: conditionData.dc_code || null,
+        dc_name: conditionData.dc_name || null,
+        ratings: conditionData.ratings || [],
+        features: conditionData.features || [],
+        secondary_connections: conditionData.secondary_connections || [],
+        specialist_guide: conditionData.specialist_guide || [],
+        paired_conditions: conditionData.paired_conditions || [],
+        pair_note: conditionData.pair_note || null,
+        seo_keywords: conditionData.seo_keywords || [],
+        internal_links: conditionData.internal_links || [],
+        stat_turnaround_time: conditionData.stat_turnaround_time || null,
+        stat_turnaround_note: conditionData.stat_turnaround_note || null,
+        stat_consultation_type: conditionData.stat_consultation_type || null,
+        stat_consultation_note: conditionData.stat_consultation_note || null,
+        stat_starting_price: conditionData.stat_starting_price || null,
+        stat_provider: conditionData.stat_provider || null,
       }])
       .select()
       .single();
@@ -874,20 +926,49 @@ export const conditionApi = {
       hero_heading: conditionData.hero_heading,
       content_html: conditionData.content_html,
       faqs: conditionData.faqs || [],
-      related_service_ids: conditionData.related_service_ids || [],
+      service_id: conditionData.service_id || null,
       is_published: conditionData.is_published,
+      body_system_id: conditionData.body_system_id || null,
+      icon: conditionData.icon || '📋',
+      short_description: conditionData.short_description || null,
+      display_order: conditionData.display_order || 0,
+      dc_code: conditionData.dc_code || null,
+      dc_name: conditionData.dc_name || null,
+      ratings: conditionData.ratings || [],
+      features: conditionData.features || [],
+      secondary_connections: conditionData.secondary_connections || [],
+      specialist_guide: conditionData.specialist_guide || [],
+      paired_conditions: conditionData.paired_conditions || [],
+      pair_note: conditionData.pair_note || null,
+      seo_keywords: conditionData.seo_keywords || [],
+      internal_links: conditionData.internal_links || [],
+      stat_turnaround_time: conditionData.stat_turnaround_time || null,
+      stat_turnaround_note: conditionData.stat_turnaround_note || null,
+      stat_consultation_type: conditionData.stat_consultation_type || null,
+      stat_consultation_note: conditionData.stat_consultation_note || null,
+      stat_starting_price: conditionData.stat_starting_price || null,
+      stat_provider: conditionData.stat_provider || null,
     };
 
     if (conditionData.slug) {
       const slug = generateSlug(conditionData.slug);
-      const { data } = await supabase
+      
+      // If we are checking uniqueness, we need to know the service_id.
+      // If it's not in conditionData, we'll let the database throw a unique constraint error if it collides.
+      let q = supabase
         .from('conditions')
         .select('id')
         .eq('slug', slug)
         .neq('id', id);
         
+      if (conditionData.service_id) {
+        q = q.eq('service_id', conditionData.service_id);
+      }
+        
+      const { data } = await q;
+        
       if (data && data.length > 0) {
-        throw new Error('A condition with this slug already exists.');
+        throw new Error('A condition with this slug already exists for the selected service.');
       }
       updateData.slug = slug;
     }
@@ -914,6 +995,277 @@ export const conditionApi = {
   },
 };
 
+// ============================================
+// PRICING TIERS
+// ============================================
+
+export const pricingTierApi = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('pricing_tiers')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getById(id) {
+    const { data, error } = await supabase
+      .from('pricing_tiers')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(tierData) {
+    let slug = tierData.slug || generateSlug(tierData.name);
+
+    let uniqueSlug = slug;
+    let counter = 1;
+    while (true) {
+      const { data } = await supabase
+        .from('pricing_tiers')
+        .select('id')
+        .eq('slug', uniqueSlug);
+
+      if (!data || data.length === 0) break;
+      counter++;
+      uniqueSlug = `${slug}-${counter}`;
+    }
+
+    const { data, error } = await supabase
+      .from('pricing_tiers')
+      .insert([{
+        slug: uniqueSlug,
+        name: tierData.name,
+        provider_description: tierData.provider_description || null,
+        base_price: tierData.base_price,
+        mental_health_price: tierData.mental_health_price || null,
+        note: tierData.note || null,
+        best_for: tierData.best_for || null,
+        features: tierData.features || [],
+        is_featured: tierData.is_featured || false,
+        display_order: tierData.display_order || 0,
+        is_active: tierData.is_active !== undefined ? tierData.is_active : true,
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id, tierData) {
+    const updateData = {
+      name: tierData.name,
+      provider_description: tierData.provider_description || null,
+      base_price: tierData.base_price,
+      mental_health_price: tierData.mental_health_price || null,
+      note: tierData.note || null,
+      best_for: tierData.best_for || null,
+      features: tierData.features || [],
+      is_featured: tierData.is_featured || false,
+      display_order: tierData.display_order || 0,
+      is_active: tierData.is_active,
+    };
+
+    if (tierData.slug) {
+      const slug = generateSlug(tierData.slug);
+      const { data: existing } = await supabase
+        .from('pricing_tiers')
+        .select('id')
+        .eq('slug', slug)
+        .neq('id', id);
+
+      if (existing && existing.length > 0) {
+        throw new Error('A pricing tier with this slug already exists.');
+      }
+      updateData.slug = slug;
+    }
+
+    const { data, error } = await supabase
+      .from('pricing_tiers')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('pricing_tiers')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  },
+
+  async toggleActive(id, currentStatus) {
+    const { data, error } = await supabase
+      .from('pricing_tiers')
+      .update({ is_active: !currentStatus })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+};
+
+// ============================================
+// BODY SYSTEMS
+// ============================================
+
+export const bodySystemApi = {
+  async getAll(includeUnpublished = false) {
+    let query = supabase
+      .from('body_systems')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (!includeUnpublished) {
+      query = query.eq('is_published', true);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getBySlug(slug) {
+    const { data, error } = await supabase
+      .from('body_systems')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getById(id) {
+    if (!id) return null;
+    const { data, error } = await supabase
+      .from('body_systems')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(systemData) {
+    let slug = systemData.slug || generateSlug(systemData.name);
+
+    let uniqueSlug = slug;
+    let counter = 1;
+    while (true) {
+      const { data } = await supabase
+        .from('body_systems')
+        .select('id')
+        .eq('slug', uniqueSlug);
+
+      if (!data || data.length === 0) break;
+      counter++;
+      uniqueSlug = `${slug}-${counter}`;
+    }
+
+    const { data, error } = await supabase
+      .from('body_systems')
+      .insert([{
+        slug: uniqueSlug,
+        name: systemData.name,
+        icon: systemData.icon,
+        description: systemData.description,
+        overview: systemData.overview,
+        is_mental_health: systemData.is_mental_health || false,
+        specialist_guide: systemData.specialist_guide || [],
+        paired_systems: systemData.paired_systems || [],
+        pair_note: systemData.pair_note || null,
+        display_order: systemData.display_order || 0,
+        is_published: systemData.is_published !== undefined ? systemData.is_published : true,
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id, systemData) {
+    const updateData = {
+      name: systemData.name,
+      icon: systemData.icon,
+      description: systemData.description,
+      overview: systemData.overview,
+      is_mental_health: systemData.is_mental_health || false,
+      specialist_guide: systemData.specialist_guide || [],
+      paired_systems: systemData.paired_systems || [],
+      pair_note: systemData.pair_note || null,
+      display_order: systemData.display_order || 0,
+      is_published: systemData.is_published,
+    };
+
+    if (systemData.slug) {
+      const slug = generateSlug(systemData.slug);
+      const { data: existing } = await supabase
+        .from('body_systems')
+        .select('id')
+        .eq('slug', slug)
+        .neq('id', id);
+
+      if (existing && existing.length > 0) {
+        throw new Error('A body system with this slug already exists.');
+      }
+      updateData.slug = slug;
+    }
+
+    const { data, error } = await supabase
+      .from('body_systems')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('body_systems')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  },
+
+  async togglePublished(id, currentStatus) {
+    const { data, error } = await supabase
+      .from('body_systems')
+      .update({ is_published: !currentStatus })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+};
+
 export default {
   services: servicesApi,
   blog: blogApi,
@@ -924,4 +1276,6 @@ export default {
   caseStudy: caseStudyApi,
   clinicalProfile: clinicalProfileApi,
   condition: conditionApi,
+  pricingTier: pricingTierApi,
+  bodySystem: bodySystemApi,
 };

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { CheckCircle, ArrowLeft, Clock, ArrowRight, FileText } from 'lucide-react';
-import { servicesApi, blogApi, caseStudyApi, testimonialApi } from '../../src/lib/api';
+import { CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { servicesApi, blogApi, caseStudyApi, testimonialApi, bodySystemApi, conditionApi } from '../../src/lib/api';
+import DynamicIcon from '../../src/components/ui/dynamic-icon';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import TestimonialCard from '../../src/components/testimonials/TestimonialCard';
@@ -14,15 +15,7 @@ import {
 import { buildOrganizationReference, serviceTagMap } from '../../src/lib/trust';
 
 // SEO-optimized title overrides — ensures high-value keywords appear in the <title> tag
-const seoTitleOverrides = {
-    'independent-medical-opinion-nexus-letter': 'VA Nexus Letter & Independent Medical Opinion (IMO) | Expert Clinician Review',
-    'disability-benefits-questionnaire-dbq': 'VA DBQ Evaluation | Disability Benefits Questionnaire Service',
-    'aid-and-attendance': 'VA Aid & Attendance Medical Documentation | Housebound Benefits',
-    'claim-readiness-review': 'VA Claim Readiness Review | Pre-Filing Medical Record Analysis',
-    'va-medical-malpractice-1151-case': 'VA 1151 Claim (Medical Malpractice) | Expert IMO for § 1151 Cases',
-};
-
-const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [] }) => {
+const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [], bodySystemsWithCounts = [] }) => {
     const router = useRouter();
 
     // Fallback for when the page is being generated (if fallback: true was used, but we use blocking so this might not render)
@@ -54,31 +47,7 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
         );
     }
 
-    // Map service slugs to medical conditions for schema
-    const medicalConditionMap = {
-        'independent-medical-opinion-nexus-letter': [
-            { "@type": "MedicalCondition", "name": "Post-Traumatic Stress Disorder (PTSD)" },
-            { "@type": "MedicalCondition", "name": "Sleep Apnea" },
-            { "@type": "MedicalCondition", "name": "Tinnitus" }
-        ],
-        'disability-benefits-questionnaire-dbq': [
-            { "@type": "MedicalCondition", "name": "Migraine" },
-            { "@type": "MedicalCondition", "name": "Cervical Radiculopathy" },
-            { "@type": "MedicalCondition", "name": "Mental Health Disorders" }
-        ],
-        'aid-and-attendance': [
-            { "@type": "MedicalCondition", "name": "Chronic Illness" },
-            { "@type": "MedicalCondition", "name": "Mobility Impairment" }
-        ],
-        'va-medical-malpractice-1151-case': [
-            { "@type": "MedicalCondition", "name": "Medical Malpractice Injury" },
-            { "@type": "MedicalCondition", "name": "Iatrogenic Injury" },
-            { "@type": "MedicalCondition", "name": "Surgical Complication" },
-            { "@type": "MedicalCondition", "name": "Medication Error" }
-        ]
-    };
-
-    const conditionForSchema = medicalConditionMap[service.slug] || [];
+    const conditionForSchema = [];
 
     // Structured data for service
     const structuredData = {
@@ -110,7 +79,7 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
     return (
         <Layout>
             <SEO
-                title={service.seo_title || seoTitleOverrides[service.slug] || service.title}
+                title={service.seo_title || service.title}
                 description={service.seo_description || service.short_description}
                 keywords={service.seo_keywords || `${service.title}, ${service.category}, VA disability, medical documentation`}
                 structuredData={structuredData}
@@ -123,20 +92,29 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                 ]}
             />
             <div className="bg-slate-50 min-h-screen">
-                {/* Header */}
-                <section className="bg-gradient-to-br from-navy-700 to-navy-800 py-16">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <Link
-                            href="/services"
-                            className="inline-flex items-center space-x-2 text-navy-100 hover:text-white mb-6 transition-colors"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            <span>Back to Services</span>
+                {/* Breadcrumbs & Hero Container */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+                    {/* Breadcrumbs */}
+                    <nav className="flex items-center space-x-2 mb-6 text-sm font-medium text-slate-500" aria-label="Breadcrumb">
+                        <Link href="/" className="hover:text-navy-700 transition-colors">
+                            Home
                         </Link>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">{service.title}</h1>
-                        <p className="text-xl text-navy-100">{service.short_description}</p>
-                    </div>
-                </section>
+                        <span className="text-slate-400">›</span>
+                        <Link href="/services" className="hover:text-navy-700 transition-colors">
+                            Services
+                        </Link>
+                        <span className="text-slate-400">›</span>
+                        <span className="text-slate-950 font-semibold">{service.title}</span>
+                    </nav>
+
+                    {/* Hero Card */}
+                    <section className="bg-slate-900 text-white rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                        <div className="max-w-3xl relative z-10">
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4">{service.title}</h1>
+                            <p className="text-lg md:text-xl text-slate-300 leading-relaxed">{service.short_description}</p>
+                        </div>
+                    </section>
+                </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -202,6 +180,46 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                                     ))}
                                 </div>
                             </section>
+
+                            {/* Body Systems Grid (Level 3 Drill-Down) */}
+                            {bodySystemsWithCounts && bodySystemsWithCounts.length > 0 && (
+                                <section className="bg-white rounded-2xl p-8" aria-labelledby="systems-heading">
+                                    <h2 id="systems-heading" className="text-2xl font-bold text-slate-900 mb-2">Browse by Medical Category</h2>
+                                    <p className="text-slate-600 mb-6">Select a category to view conditions eligible for {service.title}.</p>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {bodySystemsWithCounts.map((system) => (
+                                            <Link 
+                                                href={`/services/${slug}/${system.slug}`} 
+                                                key={system.id}
+                                                className="bg-slate-50 rounded-xl border border-slate-200 p-6 hover:shadow-md hover:border-navy-300 transition-all group flex flex-col h-full"
+                                            >
+                                                <div className="flex items-start gap-4 mb-3">
+                                                    {system.icon && (
+                                                        <span className="text-3xl flex-shrink-0 bg-white w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm">
+                                                            <DynamicIcon name={system.icon} className="w-6 h-6 text-indigo-600" />
+                                                        </span>
+                                                    )}
+                                                    <div>
+                                                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-navy-700 transition-colors">
+                                                            {system.name}
+                                                        </h3>
+                                                        <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full mt-1 inline-block">
+                                                            {system.conditionCount} {system.conditionCount === 1 ? 'Condition' : 'Conditions'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <p className="text-slate-600 line-clamp-2 text-sm mt-2 flex-grow">
+                                                    {system.description}
+                                                </p>
+                                                <div className="flex items-center text-sm text-navy-600 font-semibold group-hover:translate-x-1 transition-transform mt-4">
+                                                    View Conditions <ArrowRight className="w-4 h-4 ml-1" />
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
 
                             {/* FAQ */}
                             {service.faqs && service.faqs.length > 0 && (
@@ -385,10 +403,10 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                                     >
                                         Book Now - ${service.base_price_usd}
                                     </Link>
-                                ) : service.slug === 'aid-attendance' ? (
+                                ) : service.slug === 'aid-and-attendance' ? (
                                     <div className="space-y-3">
                                         <Link
-                                            href="/aid-attendance-form"
+                                            href="/forms?service=aid-and-attendance"
                                             data-testid="aid-attendance-form-button"
                                             className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
                                             style={{ backgroundColor: '#B91C3C' }}
@@ -405,7 +423,7 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                                     </div>
                                 ) : (
                                     <Link
-                                        href="/contact"
+                                        href={`/forms?service=${slug}`}
                                         data-testid="book-now-button"
                                         className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
                                         style={{ backgroundColor: '#B91C3C' }}
@@ -414,7 +432,7 @@ const ServiceDetail = ({ service, allServices = [], relatedBlogs = [], relatedCa
                                     </Link>
                                 )}
 
-                                {(service.slug === 'claim-readiness-review' || service.slug === 'aid-attendance') && (
+                                {(service.slug === 'claim-readiness-review' || service.slug === 'aid-and-attendance') && (
                                     <p className="text-sm text-slate-500 mt-4 text-center">
                                         {service.slug === 'claim-readiness-review'
                                             ? 'Pay now and get your comprehensive review in 5-7 days'
@@ -601,6 +619,24 @@ export async function getStaticProps({ params }) {
             console.error('Error fetching all services for cross-links:', e);
         }
 
+        // Fetch body systems and conditions to build the 4-level drill down grid
+        let bodySystemsWithCounts = [];
+        try {
+            const [allSystems, serviceConditions] = await Promise.all([
+                bodySystemApi.getAll(true),
+                conditionApi.getAll(false, service.id)
+            ]);
+
+            bodySystemsWithCounts = allSystems.map(system => {
+                const count = serviceConditions.filter(c => c.body_system_id === system.id).length;
+                return { ...system, conditionCount: count };
+            }).filter(system => system.conditionCount > 0) // Only show systems that have conditions for this service
+              .sort((a, b) => a.display_order - b.display_order);
+              
+        } catch (e) {
+            console.error('Error fetching body systems:', e);
+        }
+
         return {
             props: {
                 service,
@@ -609,6 +645,7 @@ export async function getStaticProps({ params }) {
                 relatedBlogs: relatedBlogs,
                 relatedCaseStudies: relatedCaseStudies,
                 relatedTestimonials,
+                bodySystemsWithCounts,
             },
             revalidate: 3600, // Revalidate every hour
         };

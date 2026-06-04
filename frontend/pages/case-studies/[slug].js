@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ArrowLeft, Calendar, Eye, Target, Lightbulb, TrendingUp, Star, ArrowRight } from 'lucide-react';
 import { caseStudyApi, blogApi, clinicalProfileApi } from '../../src/lib/api';
@@ -16,7 +17,7 @@ import {
 
 export async function getStaticPaths() {
     try {
-        const caseStudies = await caseStudyApi.getAll();
+        const caseStudies = await caseStudyApi.getAll(100);
         const paths = caseStudies.map((cs) => ({
             params: { slug: cs.slug },
         }));
@@ -222,12 +223,13 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [], authorProfile = null
                 {/* Featured Image */}
                 {caseStudy.featured_image && (
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-8">
-                        <div className="w-full h-96 overflow-hidden rounded-2xl shadow-2xl">
-                            <img
+                        <div className="w-full h-96 overflow-hidden rounded-2xl shadow-2xl relative">
+                            <Image
                                 src={caseStudy.featured_image}
                                 alt={caseStudy.title}
-                                className="w-full h-full object-cover"
-                                loading="eager"
+                                fill
+                                className="object-cover"
+                                priority
                             />
                         </div>
                     </div>

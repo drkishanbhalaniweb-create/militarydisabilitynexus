@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { conditionApi, servicesApi } from '../../../src/lib/api';
+import { conditionApi, servicesApi, bodySystemApi } from '../../../src/lib/api';
 import AdminLayout from '../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../src/components/SEO';
 import Link from 'next/link';
+import InternalLinkSearchPicker from '../../../src/components/admin/InternalLinkSearchPicker';
+import IconPicker from '../../../src/components/admin/IconPicker';
 
 const ConditionForm = () => {
     const router = useRouter();
@@ -17,7 +19,15 @@ const ConditionForm = () => {
     const [saving, setSaving] = useState(false);
     const [loadError, setLoadError] = useState(false);
     const [allServices, setAllServices] = useState([]);
-    
+    const [allBodySystems, setAllBodySystems] = useState([]);
+
+    // Collapsible section toggles (expanded by default when data exists)
+    const [showClinical, setShowClinical] = useState(false);
+    const [showConnections, setShowConnections] = useState(false);
+    const [showSpecialist, setShowSpecialist] = useState(false);
+    const [showRelated, setShowRelated] = useState(false);
+    const [showStats, setShowStats] = useState(true);
+
     const [formData, setFormData] = useState({
         page_title: '',
         slug: '',
@@ -26,7 +36,28 @@ const ConditionForm = () => {
         content_html: '',
         is_published: true,
         faqs: [],
-        related_service_ids: []
+        service_id: '',
+        // Phase 1 fields
+        body_system_id: '',
+        icon: '',
+        short_description: '',
+        display_order: 0,
+        dc_code: '',
+        dc_name: '',
+        ratings: [],
+        features: [],
+        secondary_connections: [],
+        specialist_guide: [],
+        paired_conditions: [],
+        pair_note: '',
+        seo_keywords: '',
+        internal_links: [],
+        stat_turnaround_time: '',
+        stat_turnaround_note: '',
+        stat_consultation_type: '',
+        stat_consultation_note: '',
+        stat_starting_price: '',
+        stat_provider: '',
     });
 
     useEffect(() => {
@@ -38,13 +69,17 @@ const ConditionForm = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Fetch available services for the selector
-            const services = await servicesApi.getAll();
+            const [services, bodySystems] = await Promise.all([
+                servicesApi.getAll(),
+                bodySystemApi.getAll(true),
+            ]);
             setAllServices(services || []);
+            setAllBodySystems(bodySystems || []);
 
             if (!isNew) {
                 const condition = await conditionApi.getById(id);
                 if (condition) {
+                    const keywords = (condition.seo_keywords || []).join(', ');
                     setFormData({
                         page_title: condition.page_title || '',
                         slug: condition.slug || '',
@@ -53,8 +88,34 @@ const ConditionForm = () => {
                         content_html: condition.content_html || '',
                         is_published: condition.is_published ?? true,
                         faqs: condition.faqs || [],
-                        related_service_ids: condition.related_service_ids || []
+                        service_id: condition.service_id || '',
+                        body_system_id: condition.body_system_id || '',
+                        icon: condition.icon || '',
+                        short_description: condition.short_description || '',
+                        display_order: condition.display_order ?? 0,
+                        dc_code: condition.dc_code || '',
+                        dc_name: condition.dc_name || '',
+                        ratings: condition.ratings || [],
+                        features: condition.features || [],
+                        secondary_connections: condition.secondary_connections || [],
+                        specialist_guide: condition.specialist_guide || [],
+                        paired_conditions: condition.paired_conditions || [],
+                        pair_note: condition.pair_note || '',
+                        seo_keywords: keywords,
+                        internal_links: condition.internal_links || [],
+                        stat_turnaround_time: condition.stat_turnaround_time || '',
+                        stat_turnaround_note: condition.stat_turnaround_note || '',
+                        stat_consultation_type: condition.stat_consultation_type || '',
+                        stat_consultation_note: condition.stat_consultation_note || '',
+                        stat_starting_price: condition.stat_starting_price || '',
+                        stat_provider: condition.stat_provider || '',
                     });
+
+                    // Auto-expand sections that have data
+                    if (condition.dc_code || condition.ratings?.length || condition.features?.length) setShowClinical(true);
+                    if (condition.secondary_connections?.length) setShowConnections(true);
+                    if (condition.specialist_guide?.length) setShowSpecialist(true);
+                    if (condition.paired_conditions?.length || condition.internal_links?.length) setShowRelated(true);
                 }
             }
         } catch (error) {
@@ -74,16 +135,7 @@ const ConditionForm = () => {
         }));
     };
 
-    const handleServiceToggle = (serviceId) => {
-        setFormData(prev => {
-            const current = prev.related_service_ids || [];
-            if (current.includes(serviceId)) {
-                return { ...prev, related_service_ids: current.filter(id => id !== serviceId) };
-            } else {
-                return { ...prev, related_service_ids: [...current, serviceId] };
-            }
-        });
-    };
+
 
     const addFaq = () => {
         setFormData(prev => ({
@@ -107,6 +159,32 @@ const ConditionForm = () => {
         });
     };
 
+    // --- Generic dynamic list helpers ---
+    const addListItem = (field, template) => {
+        setFormData(prev => ({ ...prev, [field]: [...(prev[field] || []), template] }));
+    };
+    const removeListItem = (field, index) => {
+        setFormData(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
+    };
+    const updateListItem = (field, index, key, value) => {
+        setFormData(prev => {
+            const updated = [...prev[field]];
+            if (typeof updated[index] === 'string') {
+                updated[index] = value;
+            } else {
+                updated[index] = { ...updated[index], [key]: value };
+            }
+            return { ...prev, [field]: updated };
+        });
+    };
+    const updateStringListItem = (field, index, value) => {
+        setFormData(prev => {
+            const updated = [...prev[field]];
+            updated[index] = value;
+            return { ...prev, [field]: updated };
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -118,12 +196,28 @@ const ConditionForm = () => {
         setSaving(true);
 
         try {
+            // Prepare payload — convert seo_keywords string to array, clean empty entries
+            const payload = {
+                ...formData,
+                display_order: parseInt(formData.display_order, 10) || 0,
+                body_system_id: formData.body_system_id || null,
+                seo_keywords: formData.seo_keywords
+                    ? formData.seo_keywords.split(',').map(k => k.trim()).filter(Boolean)
+                    : [],
+                features: (formData.features || []).filter(f => f.trim() !== ''),
+                paired_conditions: (formData.paired_conditions || []).filter(p => p.trim() !== ''),
+                ratings: (formData.ratings || []).filter(r => r.pct || r.criteria),
+                secondary_connections: (formData.secondary_connections || []).filter(c => c.from),
+                specialist_guide: (formData.specialist_guide || []).filter(s => s.name),
+                internal_links: (formData.internal_links || []).filter(l => l.label || l.url),
+            };
+
             if (isNew) {
-                await conditionApi.create(formData);
+                await conditionApi.create(payload);
                 toast.success('Condition created successfully');
                 router.push('/admin/conditions');
             } else {
-                await conditionApi.update(id, formData);
+                await conditionApi.update(id, payload);
                 toast.success('Condition updated successfully');
             }
         } catch (error) {
@@ -289,10 +383,342 @@ const ConditionForm = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Clinical Details (Collapsible) */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <button type="button" onClick={() => setShowClinical(!showClinical)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                                    <h2 className="text-xl font-semibold text-slate-900">Clinical Details</h2>
+                                    {showClinical ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                                </button>
+                                {showClinical && (
+                                    <div className="space-y-4 pt-2">
+                                        <div className="mb-4">
+                                            <IconPicker
+                                                label="Condition Icon"
+                                                value={formData.icon}
+                                                onChange={(val) => setFormData(prev => ({ ...prev, icon: val }))}
+                                                helpText="Select a visual icon representing this condition."
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">DC Code</label>
+                                                <input type="text" name="dc_code" value={formData.dc_code} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="8100" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">DC Name</label>
+                                                <input type="text" name="dc_name" value={formData.dc_name} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Migraine Headaches" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Short Description</label>
+                                            <textarea name="short_description" value={formData.short_description} onChange={handleInputChange} rows={3} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="Brief description for card views" />
+                                        </div>
+
+                                        {/* Ratings */}
+                                        <div className="border-t border-slate-100 pt-4">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <label className="text-sm font-medium text-slate-700">Rating Criteria</label>
+                                                <button type="button" onClick={() => addListItem('ratings', { pct: '', criteria: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
+                                                    <Plus className="w-3 h-3 mr-1" /> Add Rating
+                                                </button>
+                                            </div>
+                                            {(formData.ratings || []).map((r, i) => (
+                                                <div key={i} className="flex items-start gap-2 mb-2">
+                                                    <input type="text" value={r.pct} onChange={(e) => updateListItem('ratings', i, 'pct', e.target.value)} className="w-20 p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="50%" />
+                                                    <textarea value={r.criteria} onChange={(e) => updateListItem('ratings', i, 'criteria', e.target.value)} rows={1} className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Rating criteria description" />
+                                                    <button type="button" onClick={() => removeListItem('ratings', i)} className="text-slate-400 hover:text-red-600 mt-2"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Features */}
+                                        <div className="border-t border-slate-100 pt-4">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <label className="text-sm font-medium text-slate-700">Features Checklist</label>
+                                                <button type="button" onClick={() => addListItem('features', '')} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
+                                                    <Plus className="w-3 h-3 mr-1" /> Add Feature
+                                                </button>
+                                            </div>
+                                            {(formData.features || []).map((f, i) => (
+                                                <div key={i} className="flex items-center gap-2 mb-2">
+                                                    <input type="text" value={f} onChange={(e) => updateStringListItem('features', i, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Feature description" />
+                                                    <button type="button" onClick={() => removeListItem('features', i)} className="text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Stat Cards (Hero Section) */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <button type="button" onClick={() => setShowStats(!showStats)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                                    <h2 className="text-xl font-semibold text-slate-900">Hero Stat Cards</h2>
+                                    {showStats ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                                </button>
+                                {showStats && (
+                                    <div className="space-y-4 pt-2">
+                                        <p className="text-sm text-slate-500 mb-4">Leave fields blank to use default values. The "Diagnostic Code" card uses the DC Code/Name from the Clinical Details section above.</p>
+                                        
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            {/* Turnaround Card */}
+                                            <div className="p-4 border border-slate-200 rounded-lg bg-slate-50 space-y-3">
+                                                <h3 className="font-semibold text-slate-800 text-sm">Turnaround Time</h3>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Main Text (e.g. 7-10 Days)</label>
+                                                    <input type="text" name="stat_turnaround_time" value={formData.stat_turnaround_time} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="7-10 Days" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Subtext (e.g. Rush 48-72hrs)</label>
+                                                    <input type="text" name="stat_turnaround_note" value={formData.stat_turnaround_note} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Rush 48-72hrs" />
+                                                </div>
+                                            </div>
+
+                                            {/* Consultation Card */}
+                                            <div className="p-4 border border-slate-200 rounded-lg bg-slate-50 space-y-3">
+                                                <h3 className="font-semibold text-slate-800 text-sm">Consultation</h3>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Main Text (e.g. Free)</label>
+                                                    <input type="text" name="stat_consultation_type" value={formData.stat_consultation_type} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Free" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Subtext (e.g. No obligation)</label>
+                                                    <input type="text" name="stat_consultation_note" value={formData.stat_consultation_note} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="No obligation" />
+                                                </div>
+                                            </div>
+
+                                            {/* Starting Price Card */}
+                                            <div className="p-4 border border-slate-200 rounded-lg bg-slate-50 space-y-3 sm:col-span-2">
+                                                <h3 className="font-semibold text-slate-800 text-sm">Starting Price (Overrides Specialist Guide)</h3>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Price (e.g. $400)</label>
+                                                        <input type="text" name="stat_starting_price" value={formData.stat_starting_price} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="$400" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Provider Level (e.g. Nurse Practitioner)</label>
+                                                        <input type="text" name="stat_provider" value={formData.stat_provider} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nurse Practitioner" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Secondary Connections (Collapsible) */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <button type="button" onClick={() => setShowConnections(!showConnections)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                                    <h2 className="text-xl font-semibold text-slate-900">Secondary Connections</h2>
+                                    {showConnections ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                                </button>
+                                {showConnections && (
+                                    <div className="space-y-4 pt-2">
+                                        <button type="button" onClick={() => addListItem('secondary_connections', { from: '', mechanism: '', url: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
+                                            <Plus className="w-4 h-4 mr-1" /> Add Connection
+                                        </button>
+                                        {(formData.secondary_connections || []).map((c, i) => (
+                                            <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button type="button" onClick={() => removeListItem('secondary_connections', i)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">From Condition (Name)</label>
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={c.from}
+                                                                onChange={(e) => updateListItem('secondary_connections', i, 'from', e.target.value)}
+                                                                className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none"
+                                                                placeholder="e.g. PTSD"
+                                                            />
+                                                            {c.url && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => updateListItem('secondary_connections', i, 'url', '')}
+                                                                    className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors"
+                                                                    title="Remove Link"
+                                                                >
+                                                                    Unlink
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    {c.url ? (
+                                                        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5 flex items-center justify-between text-xs">
+                                                            <span className="text-indigo-800 font-medium truncate">
+                                                                🔗 Linked to: <span className="font-mono">{c.url}</span>
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <label className="block text-[10px] font-semibold text-slate-500 mb-1">Link to existing page (optional)</label>
+                                                            <InternalLinkSearchPicker
+                                                                onSelect={(selected) => {
+                                                                    updateListItem('secondary_connections', i, 'from', selected.title);
+                                                                    updateListItem('secondary_connections', i, 'url', selected.url);
+                                                                }}
+                                                                placeholder="Search for conditions, services, blogs, etc. to link..."
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Mechanism</label>
+                                                        <textarea value={c.mechanism} onChange={(e) => updateListItem('secondary_connections', i, 'mechanism', e.target.value)} rows={2} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="How does this connection work..." />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Specialist Guide (Collapsible) */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <button type="button" onClick={() => setShowSpecialist(!showSpecialist)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                                    <h2 className="text-xl font-semibold text-slate-900">Specialist Guide</h2>
+                                    {showSpecialist ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                                </button>
+                                {showSpecialist && (
+                                    <div className="space-y-4 pt-2">
+                                        <button type="button" onClick={() => addListItem('specialist_guide', { name: '', price: '', best_for: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
+                                            <Plus className="w-4 h-4 mr-1" /> Add Specialist
+                                        </button>
+                                        {(formData.specialist_guide || []).map((s, i) => (
+                                            <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button type="button" onClick={() => removeListItem('specialist_guide', i)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Name</label>
+                                                            <input type="text" value={s.name} onChange={(e) => updateListItem('specialist_guide', i, 'name', e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Neurologist" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Price</label>
+                                                            <input type="text" value={s.price} onChange={(e) => updateListItem('specialist_guide', i, 'price', e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="$1,200–$1,800" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Best For</label>
+                                                        <textarea value={s.best_for} onChange={(e) => updateListItem('specialist_guide', i, 'best_for', e.target.value)} rows={2} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="When to choose this specialist..." />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Related Conditions (Collapsible) */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <button type="button" onClick={() => setShowRelated(!showRelated)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                                    <h2 className="text-xl font-semibold text-slate-900">Related Conditions</h2>
+                                    {showRelated ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                                </button>
+                                {showRelated && (
+                                    <div className="space-y-4 pt-2">
+                                        {/* Paired Conditions */}
+                                        <div>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <label className="text-sm font-medium text-slate-700">Paired Conditions</label>
+                                                <button type="button" onClick={() => addListItem('paired_conditions', '')} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
+                                                    <Plus className="w-3 h-3 mr-1" /> Add
+                                                </button>
+                                            </div>
+                                            {(formData.paired_conditions || []).map((p, i) => (
+                                                <div key={i} className="flex items-center gap-2 mb-2">
+                                                    <input type="text" value={p} onChange={(e) => updateStringListItem('paired_conditions', i, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="e.g. Sleep Apnea" />
+                                                    <button type="button" onClick={() => removeListItem('paired_conditions', i)} className="text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Pair Note</label>
+                                            <textarea name="pair_note" value={formData.pair_note} onChange={handleInputChange} rows={2} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="Why are these conditions commonly paired..." />
+                                        </div>
+
+                                        {/* Internal Links */}
+                                        <div className="border-t border-slate-100 pt-4">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <label className="text-sm font-medium text-slate-700">Internal Links</label>
+                                                <button type="button" onClick={() => addListItem('internal_links', { type: 'Service', icon: '', label: '', title: '', url: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
+                                                    <Plus className="w-3 h-3 mr-1" /> Add Link
+                                                </button>
+                                            </div>
+                                            {(formData.internal_links || []).map((link, i) => (
+                                                <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-2 relative">
+                                                    <button type="button" onClick={() => removeListItem('internal_links', i)} className="absolute top-3 right-3 text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                                    <div className="grid grid-cols-3 gap-2 pr-8">
+                                                        <select value={link.type} onChange={(e) => updateListItem('internal_links', i, 'type', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none">
+                                                            <option value="Service">Service</option>
+                                                            <option value="Condition">Condition</option>
+                                                            <option value="Guide">Guide</option>
+                                                        </select>
+                                                        <select
+                                                            value={link.icon || ''}
+                                                            onChange={(e) => updateListItem('internal_links', i, 'icon', e.target.value)}
+                                                            className="p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white font-medium"
+                                                        >
+                                                            <option value="">No Icon</option>
+                                                            <option value="Brain">Brain</option>
+                                                            <option value="HeartPulse">Heart Pulse</option>
+                                                            <option value="Activity">Activity</option>
+                                                            <option value="Wind">Wind / Lungs</option>
+                                                            <option value="Bone">Bone</option>
+                                                            <option value="Sparkles">Sparkles</option>
+                                                            <option value="Ear">Ear</option>
+                                                            <option value="Ribbon">Ribbon</option>
+                                                            <option value="Venus">Venus</option>
+                                                            <option value="Mars">Mars</option>
+                                                            <option value="Zap">Zap</option>
+                                                            <option value="Moon">Moon</option>
+                                                            <option value="Flame">Flame</option>
+                                                            <option value="Pill">Pill</option>
+                                                            <option value="FileText">File Text</option>
+                                                        </select>
+                                                        <input type="text" value={link.label} onChange={(e) => updateListItem('internal_links', i, 'label', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Label" />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-2 mt-2 pr-8">
+                                                        <input type="text" value={link.title} onChange={(e) => updateListItem('internal_links', i, 'title', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Link title" />
+                                                        <input type="text" value={link.url} onChange={(e) => updateListItem('internal_links', i, 'url', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="/conditions/..." />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Sidebar Column */}
                         <div className="space-y-6">
+                            {/* Body System */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Body System</h2>
+                                <select name="body_system_id" value={formData.body_system_id} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                    <option value="">— No body system —</option>
+                                    {allBodySystems.map(sys => (
+                                        <option key={sys.id} value={sys.id}>{sys.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Display & SEO */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Display &amp; SEO</h2>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Display Order</label>
+                                    <input type="number" name="display_order" value={formData.display_order} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                                    <p className="text-xs text-slate-500 mt-1">Lower numbers appear first</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">SEO Keywords</label>
+                                    <textarea name="seo_keywords" value={formData.seo_keywords} onChange={handleInputChange} rows={2} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="nexus letter, sleep apnea, VA disability" />
+                                    <p className="text-xs text-slate-500 mt-1">Comma-separated</p>
+                                </div>
+                            </div>
+
                             {/* SEO Metadata */}
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">SEO Metadata</h2>
@@ -323,23 +749,26 @@ const ConditionForm = () => {
                                 </div>
                             </div>
 
-                            {/* Related Services */}
+                            {/* Target Service */}
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Related Services</h2>
-                                <p className="text-xs text-slate-500 mb-2">Select which services to link in the sidebar funnel.</p>
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Target Service</h2>
+                                <p className="text-xs text-slate-500 mb-2">Select which service this condition content belongs to. (Required)</p>
                                 
-                                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                                    {allServices.map(service => (
-                                        <label key={service.id} className="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-                                            <input
-                                                type="checkbox"
-                                                checked={(formData.related_service_ids || []).includes(service.id)}
-                                                onChange={() => handleServiceToggle(service.id)}
-                                                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-                                            />
-                                            <span className="text-sm font-medium text-slate-700">{service.title}</span>
-                                        </label>
-                                    ))}
+                                <div>
+                                    <select
+                                        name="service_id"
+                                        value={formData.service_id}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                                    >
+                                        <option value="">-- Select a Service --</option>
+                                        {allServices.map(service => (
+                                            <option key={service.id} value={service.id}>
+                                                {service.title}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 

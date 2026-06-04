@@ -166,18 +166,37 @@ const QUICK_INTAKE_FIELD_MAP = {
 };
 
 /**
+ * Field mapping for service-specific forms (Nexus Letter, DBQ, 1151 Claim, Claim Readiness Review)
+ * These forms share the same data shape from QuickIntakeForm
+ */
+const SERVICE_FORM_FIELD_MAP = {
+  briefSummary: { label: 'Brief Summary', section: 'Request Details' },
+  selectedServices: { label: 'Selected Services', section: 'Request Details' },
+  rushService: { label: 'Rush Service', section: 'Service Options' },
+  fullName: { label: 'Full Name', section: 'Contact Information' },
+  email: { label: 'Email', section: 'Contact Information' },
+  phone: { label: 'Phone', section: 'Contact Information' },
+  formType: { label: 'Form Type', section: 'Request Details' },
+};
+
+/**
  * Get field mapping based on form type
  * @param {string} formType - Type of form
  * @returns {object} - Field mapping
  */
 const getFieldMap = (formType) => {
-  switch (formType) {
-    case 'aid-attendance':
+  if (!formType) return null;
+
+  switch (formType.toLowerCase().replace('-', '_')) {
     case 'aid_attendance':
       return AID_ATTENDANCE_FIELD_MAP;
-    case 'quick-intake':
     case 'quick_intake':
       return QUICK_INTAKE_FIELD_MAP;
+    case 'nexus_letter':
+    case 'dbq':
+    case '1151_claim':
+    case 'claim_readiness_review':
+      return SERVICE_FORM_FIELD_MAP;
     default:
       return null;
   }
@@ -194,8 +213,11 @@ export const groupFieldsIntoSections = (data, formType = null) => {
   const sections = {};
 
   Object.entries(data).forEach(([key, value]) => {
-    // Skip empty values
+    // Skip empty values and empty arrays
     if (value === null || value === undefined || value === '') {
+      return;
+    }
+    if (Array.isArray(value) && value.length === 0) {
       return;
     }
 

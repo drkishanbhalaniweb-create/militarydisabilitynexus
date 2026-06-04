@@ -16,12 +16,24 @@ const FORM_TYPES = [
     { value: 'unsure', label: "I'm not sure what I need" },
 ];
 
+// Maps CMS service slugs to FORM_TYPES values for ?service= URL param auto-selection
+const SERVICE_SLUG_MAP = {
+    'independent-medical-opinion-nexus-letter': 'nexus_letter',
+    'nexus-letter': 'nexus_letter',
+    'disability-benefits-questionnaire-dbq': 'dbq',
+    'dbq': 'dbq',
+    'va-medical-malpractice-1151-case': '1151_claim',
+    '1151-claim': '1151_claim',
+    'aid-attendance': 'aid_attendance',
+    'aid-and-attendance': 'aid_attendance',
+};
+
 const Forms = () => {
     const router = useRouter();
     const formStartedAt = useRef(Date.now());
 
-    // Check URL parameter to determine initial view
-    const { view } = router.query;
+    // Check URL parameters to determine initial view and pre-selected service
+    const { view, service } = router.query;
     const initialView = view === 'schedule';
 
     const [formData, setFormData] = useState({
@@ -41,8 +53,16 @@ const Forms = () => {
     useEffect(() => {
         if (router.isReady) {
             setShowCal(initialView);
+
+            // Auto-select service from URL parameter (e.g., ?service=disability-benefits-questionnaire-dbq)
+            if (service) {
+                const formType = SERVICE_SLUG_MAP[service];
+                if (formType) {
+                    setFormData(prev => ({ ...prev, formType }));
+                }
+            }
         }
-    }, [router.isReady, initialView]);
+    }, [router.isReady, initialView, service]);
 
     // Load Cal.com inline embed
     useEffect(() => {
@@ -321,17 +341,18 @@ const Forms = () => {
 
                                 <div>
                                     <label htmlFor="additionalDetails" className="block text-sm font-medium text-slate-700 mb-2">
-                                        Additional Details
+                                        Additional Details <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
                                         id="additionalDetails"
                                         name="additionalDetails"
                                         value={formData.additionalDetails}
                                         onChange={handleChange}
+                                        required
                                         rows={6}
                                         maxLength={maxWords * 6}
                                         className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all resize-none text-slate-900 placeholder:text-slate-600"
-                                        placeholder="Tell us more about your needs..."
+                                        placeholder="Briefly describe your case or what you need help with"
                                     />
                                     <div className="mt-2 text-sm text-slate-500 text-right">
                                         {wordCount} / {maxWords} words

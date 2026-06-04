@@ -18,7 +18,9 @@ import {
   Settings,
   Quote,
   Stethoscope,
-  HeartPulse
+  HeartPulse,
+  DollarSign,
+  Layers
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -71,6 +73,8 @@ const AdminLayout = ({ children }) => {
     { name: 'Form Submissions', href: '/admin/form-submissions', icon: ClipboardList },
     { name: 'Diagnostics', href: '/admin/diagnostics', icon: Activity },
     { name: 'Services', href: '/admin/services', icon: Briefcase },
+    { name: 'Pricing Tiers', href: '/admin/pricing-tiers', icon: DollarSign },
+    { name: 'Body Systems', href: '/admin/body-systems', icon: Layers },
     { name: 'Conditions', href: '/admin/conditions', icon: HeartPulse },
     { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Quote },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../src/lib/supabase';
+import { conditionApi } from '../../../src/lib/api';
 import AdminLayout from '../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
@@ -17,12 +18,7 @@ const AdminConditions = () => {
 
     const fetchConditions = async () => {
         try {
-            const { data, error } = await supabase
-                .from('conditions')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
+            const data = await conditionApi.getAll(true);
             setConditions(data || []);
         } catch (error) {
             console.error('Error fetching conditions:', error);
@@ -121,10 +117,16 @@ const AdminConditions = () => {
                                         </span>
                                     </div>
 
+                                    <div className="mb-3">
+                                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                            {condition.service?.title || 'No Service Assigned'}
+                                        </span>
+                                    </div>
+
                                     <p className="text-sm text-slate-600 mb-4 line-clamp-3 flex-grow">{condition.meta_description || 'No description provided'}</p>
 
                                     <div className="flex items-center justify-between text-xs text-slate-500 mb-4 border-t border-slate-100 pt-4">
-                                        <span>/{condition.slug}</span>
+                                        <span className="truncate max-w-[150px]" title={condition.slug}>/{condition.slug}</span>
                                         <span>{condition.faqs?.length || 0} FAQs</span>
                                     </div>
 

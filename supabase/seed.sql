@@ -10,8 +10,8 @@ TRUNCATE services, blog_posts, testimonials CASCADE;
 INSERT INTO services (id, slug, title, short_description, full_description, features, base_price_usd, duration, category, icon, faqs, display_order) VALUES
 (
     '00000000-0000-0000-0000-000000000001',
-    'nexus-rebuttal-letters',
-    'Nexus & Rebuttal Letters',
+    'independent-medical-opinion-nexus-letter',
+    'Independent Medical Opinion (IMO) / Nexus Letter',
     'Comprehensive medical opinions for claims and appeals',
     'Professional nexus and rebuttal letters that establish clear connections between your military service and medical conditions, or challenge unfavorable VA decisions. Our expert medical opinions provide the crucial evidence needed for both initial claims and appeals processes.',
     '["Nexus opinion letters", "Rebuttal to VA denials", "Direct/secondary/aggravation analysis", "Clear medical rationale", "Rush service: +$500 USD (36-48 hours)"]'::jsonb,
@@ -28,8 +28,8 @@ INSERT INTO services (id, slug, title, short_description, full_description, feat
 ),
 (
     '00000000-0000-0000-0000-000000000002',
-    'public-dbqs',
-    'DBQs',
+    'disability-benefits-questionnaire-dbq',
+    'Disability Benefits Questionnaire (DBQ)',
     'Standardized disability questionnaires for VA claims',
     'Disability Benefits Questionnaires (DBQs) are standardized medical examination forms used by the VA to evaluate disability claims. Our licensed physicians complete these forms based on current VA guidelines and your medical condition.',
     '["Latest public VA DBQs", "Objective findings", "Functional impact", "Rush service: +$50 USD (36-48 hours)"]'::jsonb,
@@ -42,7 +42,7 @@ INSERT INTO services (id, slug, title, short_description, full_description, feat
 ),
 (
     '00000000-0000-0000-0000-000000000003',
-    'aid-attendance',
+    'aid-and-attendance',
     'Aid & Attendance (21-2680)',
     'Enhanced pension benefits for veterans needing assistance',
     'Aid and Attendance is a benefit available to veterans and surviving spouses who require the regular assistance of another person. We provide comprehensive physician evaluations to support your A&A benefit claim.',
@@ -56,8 +56,8 @@ INSERT INTO services (id, slug, title, short_description, full_description, feat
 ),
 (
     '00000000-0000-0000-0000-000000000004',
-    'cp-coaching',
-    'C&P Coaching',
+    'cp-exam-coaching',
+    'C&P Exam Coaching',
     'Preparation for compensation and pension examinations',
     'Prepare for your C&P exam with expert coaching. We help you understand what to expect, how to accurately report your symptoms, and provide tips to ensure your disabilities are properly documented.',
     '["What to expect", "Accurate symptom reporting", "Logbooks & lay tips"]'::jsonb,
@@ -88,8 +88,8 @@ INSERT INTO services (id, slug, title, short_description, full_description, feat
 ),
 (
     '00000000-0000-0000-0000-000000000006',
-    'record-review',
-    'Record Review',
+    'claim-readiness-review',
+    'Claim Readiness Review',
     'Professional analysis of your medical documentation',
     'Our medical professionals review your service and medical records to identify conditions eligible for VA compensation, build a comprehensive timeline, and prepare targeted questions for your providers.',
     '["Service/med records synthesis", "Timeline build", "Provider question set"]'::jsonb,
@@ -102,7 +102,7 @@ INSERT INTO services (id, slug, title, short_description, full_description, feat
 ),
 (
     '00000000-0000-0000-0000-000000000007',
-    '1151-claim',
+    'va-medical-malpractice-1151-case',
     '1151 Claim (VA Medical Malpractice)',
     'Expert medical opinions for VA medical negligence claims',
     'Specialized medical documentation for 38 U.S.C. § 1151 claims when veterans are injured or their conditions worsen due to VA medical care. Our expert analysis helps establish negligence and causation for these complex claims requiring higher burden of proof.',

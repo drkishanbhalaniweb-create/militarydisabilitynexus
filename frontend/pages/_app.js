@@ -56,6 +56,21 @@ function MyApp({ Component, pageProps }) {
                 `}
             </Script>
 
+            {/* Global Google Tag (Google Ads + GA4) */}
+            <Script
+                src="https://www.googletagmanager.com/gtag/js?id=AW-17752607391"
+                strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'AW-17752607391');
+                    gtag('config', 'G-QHR9W0GZ8R');
+                `}
+            </Script>
+
             <Script id="meta-pixel" strategy="afterInteractive">
                 {`
                 !function(f,b,e,v,n,t,s)

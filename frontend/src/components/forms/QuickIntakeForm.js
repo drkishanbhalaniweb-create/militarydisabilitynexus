@@ -241,9 +241,10 @@ const QuickIntakeForm = ({ onSuccess }) => {
             name="briefSummary"
             value={formData.briefSummary}
             onChange={handleChange}
+            required
             rows="3"
             className="w-full px-4 py-2.5 rounded-lg border border-white/30 bg-white/50 backdrop-blur-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200/50 focus:outline-none text-sm resize-none text-slate-900 placeholder:text-slate-600"
-            placeholder="Brief summary (optional)"
+            placeholder="Briefly describe your case or what you need help with"
           />
         </div>
 

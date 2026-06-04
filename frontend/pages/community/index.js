@@ -1,485 +1,403 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ThumbsDown, Eye, Search, Plus, User, Clock, Filter, Award } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Search, Plus, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import { supabase } from '../../src/lib/supabase';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import { toast } from 'sonner';
-
-const AVAILABLE_TAGS = [
-    'Nexus Letter',
-    '1151 Claim',
-    'Aid & Attendance/SMC',
-    'Primary Connection',
-    'Secondary Connection',
-    'Migraine/Headaches',
-    'Tinnitus',
-    'Obstructive Sleep Apnea',
-    'IBS',
-    'GERD',
-    'PACT Act',
-    'Mental Health',
-    'Orthopedic/Chronic Pain',
-    'Evidence & Documentation',
-    'C&P Exam',
-    'Heart Condition/Hypertension',
-    'Kidney Claims',
-    'Cancer',
-    'Others'
-];
+import { useDebounce } from '../../src/hooks/useDebounce';
+import { useCommunityUser } from '../../src/hooks/useCommunityUser';
+import {
+  QuestionCard,
+  SortTabs,
+  TagSidebar,
+  Pagination,
+  AskQuestionModal,
+} from '../../src/components/community';
 
 export async function getStaticProps() {
-    try {
-        const { data: featuredData } = await supabase
-            .from('community_questions')
-            .select('*')
-            .eq('status', 'published')
-            .eq('is_featured', true)
-            .order('created_at', { ascending: false });
+  try {
+    const { data: featuredData } = await supabase
+      .from('community_questions')
+      .select('*')
+      .eq('status', 'published')
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
+      .limit(6);
 
-        const { data, error } = await supabase
-            .from('community_questions')
-            .select('*')
-            .eq('status', 'published')
-            .eq('is_featured', false)
-            .order('created_at', { ascending: false })
-            .limit(50);
+    const { data, count } = await supabase
+      .from('community_questions')
+      .select('*', { count: 'exact' })
+      .eq('status', 'published')
+      .eq('is_featured', false)
+      .order('hot_score', { ascending: false })
+      .range(0, 4);
 
-        if (error) throw error;
+    // Community stats
+    const { count: totalQuestions } = await supabase
+      .from('community_questions')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'published');
 
-        return {
-            props: {
-                featuredQuestions: featuredData || [],
-                initialQuestions: data || [],
-            },
-            revalidate: 300, // Revalidate every 5 minutes
-        };
-    } catch (error) {
-        console.error('Error fetching questions for static props:', error);
-        return {
-            props: {
-                initialQuestions: [],
-            },
-            revalidate: 300, // Retry in 5 minutes on error
-        };
-    }
+    const { count: totalAnswers } = await supabase
+      .from('community_answers')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'published');
+
+    const { count: totalMembers } = await supabase
+      .from('community_users')
+      .select('*', { count: 'exact', head: true });
+
+    return {
+      props: {
+        featuredQuestions: featuredData || [],
+        initialQuestions: data || [],
+        initialTotal: count || 0,
+        stats: {
+          totalQuestions: totalQuestions || 0,
+          totalAnswers: totalAnswers || 0,
+          totalMembers: totalMembers || 0,
+        },
+      },
+      revalidate: 120,
+    };
+  } catch (error) {
+    console.error('Error fetching community data:', error);
+    return {
+      props: {
+        featuredQuestions: [],
+        initialQuestions: [],
+        initialTotal: 0,
+        stats: { totalQuestions: 0, totalAnswers: 0, totalMembers: 0 },
+      },
+      revalidate: 120,
+    };
+  }
 }
 
-const Community = ({ initialQuestions, featuredQuestions = [] }) => {
-    const router = useRouter();
-    const [questions, setQuestions] = useState(initialQuestions || []);
-    const [loading, setLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('recent');
-    const [selectedTags, setSelectedTags] = useState([]);
-    const [showAllFeatured, setShowAllFeatured] = useState(false);
-    const [user, setUser] = useState(null);
-    const [showAskForm, setShowAskForm] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
-    const [newQuestion, setNewQuestion] = useState({ title: '', content: '', is_anonymous: false, display_name: '', user_email: '', tags: [] });
+const PER_PAGE = 5;
 
-    useEffect(() => {
-        checkUser();
-    }, []);
+const Community = ({ initialQuestions, featuredQuestions = [], initialTotal, stats }) => {
+  const router = useRouter();
+  const { communityUser, login } = useCommunityUser();
 
-    useEffect(() => {
-        if (sortBy !== 'recent' || searchTerm || selectedTags.length > 0) {
-            fetchQuestions();
-        } else {
-            if (questions !== initialQuestions && questions.length === 0) {
-                setQuestions(initialQuestions);
-            }
-        }
-    }, [sortBy]);
+  const [questions, setQuestions] = useState(initialQuestions || []);
+  const [total, setTotal] = useState(initialTotal || 0);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('hot');
+  const [selectedTag, setSelectedTag] = useState(null);
+  const [page, setPage] = useState(1);
+  const [showAskForm, setShowAskForm] = useState(false);
 
+  const scrollRef = useRef(null);
 
-    const checkUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-    };
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
 
-    const fetchQuestions = async () => {
-        setLoading(true);
-        try {
-            let query = supabase.from('community_questions').select('*').eq('status', 'published');
-            if (sortBy === 'recent') query = query.order('created_at', { ascending: false });
-            else if (sortBy === 'popular') query = query.order('upvotes', { ascending: false });
-            else if (sortBy === 'unanswered') query = query.eq('answers_count', 0).order('created_at', { ascending: false });
-            const { data, error } = await query.limit(50);
-            if (error) throw error;
-            setQuestions(data || []);
-        } catch (error) {
-            console.error('Error fetching questions:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
 
-    const getWordCount = (text) => {
-        return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-    };
+  const debouncedSearch = useDebounce(searchTerm, 300);
+  const totalPages = Math.ceil(total / PER_PAGE);
 
-    const handleAskQuestion = async (e) => {
-        e.preventDefault();
-        if (!newQuestion.title.trim()) { toast.error('Please fill in the title'); return; }
-        if (!newQuestion.user_email.trim()) { toast.error('Please provide an email for notifications'); return; }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(newQuestion.user_email)) { toast.error('Please provide a valid email address'); return; }
+  const isFiltered = sortBy !== 'hot' || debouncedSearch || selectedTag || page > 1;
 
-        if (newQuestion.content.trim()) {
-            const wordCount = getWordCount(newQuestion.content);
-            if (wordCount > 200) {
-                toast.error('Details must be 200 words or less');
-                return;
-            }
-        }
+  const fetchQuestions = useCallback(async (params = {}) => {
+    const {
+      sort = sortBy,
+      search = debouncedSearch,
+      tag = selectedTag,
+      pg = page,
+    } = params;
 
-        setSubmitting(true);
-        try {
-            const { data, error } = await supabase.from('community_questions').insert({
-                user_id: user?.id || '00000000-0000-0000-0000-000000000000',
-                title: newQuestion.title.trim(),
-                content: newQuestion.content.trim(),
-                is_anonymous: newQuestion.is_anonymous,
-                display_name: newQuestion.is_anonymous ? null : (newQuestion.display_name || 'Anonymous'),
-                user_email: newQuestion.user_email.trim(),
-                tags: newQuestion.tags || [],
-            }).select().single();
-            if (error) throw error;
-            toast.success('Question posted! You\'ll receive an email when someone answers.');
-            setNewQuestion({ title: '', content: '', is_anonymous: false, display_name: '', user_email: '', tags: [] });
-            setShowAskForm(false);
-            fetchQuestions();
-            if (data?.slug) router.push('/community/question/' + data.slug);
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('Failed to post question');
-        } finally {
-            setSubmitting(false);
-        }
-    };
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams({
+        sort,
+        page: pg.toString(),
+        per_page: PER_PAGE.toString(),
+      });
+      if (search) queryParams.set('search', search);
+      if (tag) queryParams.set('tag', tag);
 
-    const handleTagToggle = (tag) => {
-        const currentTags = newQuestion.tags || [];
-        const newTags = currentTags.includes(tag)
-            ? currentTags.filter(t => t !== tag)
-            : [...currentTags, tag];
-        setNewQuestion({ ...newQuestion, tags: newTags });
-    };
+      const res = await fetch(`/api/community/questions?${queryParams}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const data = await res.json();
 
-    const handleFilterTagToggle = (tag) => {
-        setSelectedTags(prev =>
-            prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-        );
-    };
+      setQuestions(data.questions || []);
+      setTotal(data.total || 0);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      toast.error('Failed to load questions');
+    } finally {
+      setLoading(false);
+    }
+  }, [sortBy, debouncedSearch, selectedTag, page]);
 
-    const filteredQuestions = questions.filter(q => {
-        const matchesSearch = q.title.toLowerCase().includes(searchTerm.toLowerCase()) || q.content.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesTags = selectedTags.length === 0 || (q.tags && q.tags.some(tag => selectedTags.includes(tag)));
-        return matchesSearch && matchesTags;
+  // Re-fetch when filters/sort/search/page change
+  useEffect(() => {
+    if (isFiltered) {
+      fetchQuestions();
+    } else {
+      setQuestions(initialQuestions || []);
+      setTotal(initialTotal || 0);
+    }
+  }, [sortBy, debouncedSearch, selectedTag, page]);
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort);
+    setPage(1);
+  };
+
+  const handleTagSelect = (tag) => {
+    setSelectedTag(tag);
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleVote = async (targetType, targetId, voteType) => {
+    if (!communityUser) {
+      toast.error('Enter your name and email to vote');
+      return;
+    }
+    const res = await fetch('/api/community/vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_type: targetType,
+        target_id: targetId,
+        vote_type: voteType || 'upvote',
+      }),
     });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Vote failed');
+    }
+    return res.json();
+  };
 
-    const handleVote = async (e, questionId, type, currentVotes) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!user) { toast.error('Please sign in to vote'); return; }
-        const field = type === 'up' ? 'upvotes' : 'downvotes';
-        const newValue = (currentVotes || 0) + 1;
-        try {
-            await supabase.from('community_questions').update({ [field]: newValue }).eq('id', questionId);
-            setQuestions(questions.map(q => q.id === questionId ? { ...q, [field]: newValue } : q));
-            toast.success('Vote recorded!');
-        } catch (error) {
-            toast.error('Failed to vote');
-        }
-    };
+  const handleQuestionSuccess = (newQuestion) => {
+    if (newQuestion?.slug) {
+      router.push('/community/question/' + newQuestion.slug);
+    } else {
+      fetchQuestions();
+    }
+  };
 
-    return (
-        <Layout>
-            <SEO
-                title="VA Benefits Q&A Forum — Expert Answers for Veterans | Military Disability Nexus"
-                description="Free expert answers to VA disability claim questions — from clinicians, not Reddit. Search by condition: PTSD, tinnitus, sleep apnea, migraines, nexus letters and more."
-                breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }]}
-            />
-            <div className="relative min-h-screen overflow-hidden">
-                {/* Fixed Background */}
-                <div className="fixed inset-0 z-0 overflow-hidden">
-                    <img
-                        src="/blogimg.webp"
-                        alt="Background pattern"
-                        className="absolute inset-0 w-full h-full object-cover"
-                        style={{
-                            filter: 'blur(4px)',
-                            transform: 'scale(1.1)'
-                        }}
-                        role="presentation"
-                        aria-hidden="true"
-                    />
-                    <div className="absolute inset-0 bg-white/50"></div>
-                </div>
+  return (
+    <Layout>
+      <SEO
+        title="VA Benefits Q&A Forum — Expert Answers for Veterans | Military Disability Nexus"
+        description="Free expert answers to VA disability claim questions — from clinicians, not Reddit. Search by condition: PTSD, tinnitus, sleep apnea, migraines, nexus letters and more."
+        breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Community', path: '/community' }]}
+      />
 
-                <div className="relative z-10 py-12">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                        {/* Header */}
-                        <section className="py-8 mb-6">
-                            <div className="text-center">
-                                <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-navy-600 to-navy-800 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg">
-                                    <MessageSquare className="w-4 h-4" />
-                                    <span>COMMUNITY Q&A</span>
-                                </div>
-                                <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 drop-shadow-sm">VA Benefits Questions Answered by Medical Experts, Free</h1>
-                                <p className="text-lg text-slate-700 max-w-2xl mx-auto">Ask any question about your VA disability claim and get an answer from our clinical team at no cost. Unlike Reddit or Facebook groups, every Expert Answer here comes from a licensed clinician with direct VA claims experience. No guesswork. No conflicting opinions. Just accurate guidance.</p>
-                            </div>
-                        </section>
-
-                        {/* Featured Questions */}
-                        {featuredQuestions.length > 0 && (
-                            <div className="mb-10">
-                                <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                    <Award className="w-6 h-6 text-amber-500" />
-                                    Featured Expert Discussions
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {(showAllFeatured ? featuredQuestions : featuredQuestions.slice(0, 6)).map((q) => (
-                                        <Link key={q.id} href={'/community/question/' + q.slug} className="group bg-gradient-to-br from-amber-50 to-white backdrop-blur-xl rounded-2xl shadow-md border border-amber-200/50 p-6 hover:shadow-xl hover:border-amber-400 transition-all">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Expert Answer Included</span>
-                                                <div className="flex items-center gap-1 text-slate-400 text-xs">
-                                                    <ThumbsUp className="w-3 h-3" />
-                                                    {q.upvotes || 0}
-                                                </div>
-                                            </div>
-                                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-navy-700 transition-colors mb-2 line-clamp-2">{q.title}</h3>
-                                            <p className="text-slate-600 text-sm line-clamp-2 mb-4">{q.content}</p>
-                                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-amber-100">
-                                                <span className="text-xs text-slate-500 font-medium">{q.answers_count || 0} Expert Answers</span>
-                                                <span className="text-navy-600 group-hover:text-navy-800 text-xs font-bold flex items-center gap-1">Read Answer <Plus className="w-3 h-3" /></span>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                                {featuredQuestions.length > 6 && (
-                                    <div className="text-center mt-4">
-                                        <button
-                                            onClick={() => setShowAllFeatured(!showAllFeatured)}
-                                            className="text-sm font-medium text-amber-700 hover:text-amber-900 transition-colors"
-                                        >
-                                            {showAllFeatured ? 'Show Less' : 'Show All'}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 p-4 mb-6 flex flex-col sm:flex-row gap-4">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <input type="text" placeholder="Search questions..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none" />
-                            </div>
-                            <div className="flex gap-2">
-                                <div className="relative">
-                                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="pl-9 pr-8 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none appearance-none bg-white">
-                                        <option value="recent">Most Recent</option>
-                                        <option value="popular">Most Popular</option>
-                                        <option value="unanswered">Unanswered</option>
-                                    </select>
-                                </div>
-                                <button onClick={() => setShowAskForm(true)} className="flex items-center gap-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity shadow-lg" style={{ backgroundColor: '#B91C3C' }}>
-                                    <Plus className="w-4 h-4" />Ask Question
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Tag Filter */}
-                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 p-4 mb-6">
-                            <h3 className="text-sm font-semibold text-slate-700 mb-3">Filter by Tags</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {AVAILABLE_TAGS.map((tag) => (
-                                    <button
-                                        key={tag}
-                                        onClick={() => handleFilterTagToggle(tag)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${selectedTags.includes(tag)
-                                            ? 'bg-navy-600 text-white'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                            }`}
-                                    >
-                                        {tag}
-                                    </button>
-                                ))}
-                            </div>
-                            {selectedTags.length > 0 && (
-                                <button
-                                    onClick={() => setSelectedTags([])}
-                                    className="mt-3 text-sm text-navy-600 hover:text-navy-800 font-medium"
-                                >
-                                    Clear all filters
-                                </button>
-                            )}
-                        </div>
-
-                        {showAskForm && (
-                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                                <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                                    <div className="p-6">
-                                        <h2 className="text-2xl font-bold text-slate-900 mb-4">Ask a Question</h2>
-                                        <form onSubmit={handleAskQuestion}>
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-slate-700 mb-1">Question Title</label>
-                                                <input type="text" value={newQuestion.title} onChange={(e) => setNewQuestion({ ...newQuestion, title: e.target.value })} placeholder="What would you like to know?" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none" required />
-                                            </div>
-                                            <div className="mb-4">
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <label className="block text-sm font-medium text-slate-700">
-                                                        Details <span className="text-slate-500 font-normal">(optional)</span>
-                                                    </label>
-                                                    <span className={`text-xs font-medium ${getWordCount(newQuestion.content) > 200 ? 'text-red-600' : 'text-slate-500'}`}>
-                                                        {getWordCount(newQuestion.content)}/200 words
-                                                    </span>
-                                                </div>
-                                                <textarea
-                                                    value={newQuestion.content}
-                                                    onChange={(e) => setNewQuestion({ ...newQuestion, content: e.target.value })}
-                                                    placeholder="Provide more details..."
-                                                    rows={5}
-                                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none ${getWordCount(newQuestion.content) > 200 ? 'border-red-300' : 'border-slate-200'
-                                                        }`}
-                                                />
-                                            </div>
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-slate-700 mb-1">Display Name (optional)</label>
-                                                <input type="text" value={newQuestion.display_name} onChange={(e) => setNewQuestion({ ...newQuestion, display_name: e.target.value })} placeholder="Your display name" className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none" disabled={newQuestion.is_anonymous} />
-                                            </div>
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-slate-700 mb-1">
-                                                    Email <span className="text-red-600">*</span>
-                                                    <span className="text-xs text-slate-500 ml-2">(for notifications only, not displayed publicly)</span>
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    value={newQuestion.user_email}
-                                                    onChange={(e) => setNewQuestion({ ...newQuestion, user_email: e.target.value })}
-                                                    placeholder="your@email.com"
-                                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-600 focus:outline-none"
-                                                    required
-                                                />
-                                                <p className="text-xs text-slate-500 mt-1">We'll notify you when someone answers your question</p>
-                                            </div>
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">Tags (select relevant topics)</label>
-                                                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-slate-200 rounded-lg">
-                                                    {AVAILABLE_TAGS.map((tag) => (
-                                                        <button
-                                                            key={tag}
-                                                            type="button"
-                                                            onClick={() => handleTagToggle(tag)}
-                                                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${(newQuestion.tags || []).includes(tag)
-                                                                ? 'bg-navy-600 text-white'
-                                                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                                                }`}
-                                                        >
-                                                            {tag}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="mb-6">
-                                                <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="checkbox" checked={newQuestion.is_anonymous} onChange={(e) => setNewQuestion({ ...newQuestion, is_anonymous: e.target.checked })} className="w-4 h-4 rounded" style={{ accentColor: '#B91C3C' }} />
-                                                    <span className="text-sm text-slate-600">Post anonymously</span>
-                                                </label>
-                                            </div>
-                                            <div className="flex gap-3 justify-end">
-                                                <button type="button" onClick={() => setShowAskForm(false)} className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors">Cancel</button>
-                                                <button type="submit" disabled={submitting} className="px-6 py-2 text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity shadow-lg" style={{ backgroundColor: '#B91C3C' }}>{submitting ? 'Posting...' : 'Post Question'}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {loading ? (
-                            <div className="text-center py-12"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-navy-700 mx-auto"></div><p className="mt-4 text-slate-600">Loading questions...</p></div>
-                        ) : filteredQuestions.length === 0 ? (
-                            <div className="text-center py-12 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40">
-                                <MessageSquare className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                                <h3 className="text-xl font-semibold text-slate-700 mb-2">No questions yet</h3>
-                                <p className="text-slate-500 mb-4">Be the first to ask a question!</p>
-                                <button onClick={() => setShowAskForm(true)} className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity shadow-lg" style={{ backgroundColor: '#B91C3C' }}><Plus className="w-4 h-4" />Ask Question</button>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <h2 className="sr-only">Recent Discussions</h2>
-                                {filteredQuestions.map((question) => (
-                                    <article key={question.id} className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 hover:shadow-2xl transition-all p-6">
-                                        <div className="flex gap-4">
-                                            {/* Vote buttons - Left side (Desktop) */}
-                                            <div className="hidden sm:flex flex-col items-center gap-1 text-center min-w-[50px]">
-                                                <button
-                                                    onClick={(e) => handleVote(e, question.id, 'up', question.upvotes)}
-                                                    className="p-1 text-slate-400 hover:text-emerald-600 transition-colors rounded hover:bg-emerald-50"
-                                                >
-                                                    <ThumbsUp className="w-5 h-5" />
-                                                </button>
-                                                <span className="text-lg font-semibold text-slate-700">{(question.upvotes || 0) - (question.downvotes || 0)}</span>
-                                                <button
-                                                    onClick={(e) => handleVote(e, question.id, 'down', question.downvotes)}
-                                                    className="p-1 text-slate-400 hover:text-red-600 transition-colors rounded hover:bg-red-50"
-                                                >
-                                                    <ThumbsDown className="w-5 h-5" />
-                                                </button>
-                                                <span className="text-xs text-slate-500">votes</span>
-                                            </div>
-                                            {/* Question content - Middle */}
-                                            <div className="flex-1 min-w-0">
-                                                <Link href={'/community/question/' + question.slug} className="block group">
-                                                    <h3 className="text-lg font-semibold text-slate-900 group-hover:text-navy-700 mb-2 line-clamp-2 transition-colors">{question.title}</h3>
-                                                    <p className="text-slate-600 text-sm line-clamp-2 mb-3">{question.content}</p>
-                                                    {question.tags && question.tags.length > 0 && (
-                                                        <div className="flex flex-wrap gap-1.5 mb-3">
-                                                            {question.tags.map((tag, index) => (
-                                                                <span
-                                                                    key={index}
-                                                                    className="inline-block bg-navy-100 text-navy-700 px-2 py-0.5 rounded text-xs font-medium"
-                                                                >
-                                                                    {tag}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </Link>
-                                                <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                                                    <span className="flex items-center gap-1"><User className="w-4 h-4" />{question.is_anonymous ? 'Anonymous' : (question.display_name || 'User')}</span>
-                                                    {/* <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{formatDate(question.created_at)}</span> */}
-                                                    <span className="flex items-center gap-1"><Eye className="w-4 h-4" />{question.views_count || 0} views</span>
-                                                    {/* Mobile vote buttons */}
-                                                    <div className="sm:hidden flex items-center gap-2">
-                                                        <button onClick={(e) => handleVote(e, question.id, 'up', question.upvotes)} className="flex items-center gap-1 text-slate-500 hover:text-emerald-600 transition-colors">
-                                                            <ThumbsUp className="w-4 h-4" />{question.upvotes || 0}
-                                                        </button>
-                                                        <button onClick={(e) => handleVote(e, question.id, 'down', question.downvotes)} className="flex items-center gap-1 text-slate-500 hover:text-red-600 transition-colors">
-                                                            <ThumbsDown className="w-4 h-4" />{question.downvotes || 0}
-                                                        </button>
-                                                    </div>
-                                                    <span className="sm:hidden flex items-center gap-1"><MessageSquare className="w-4 h-4" />{question.answers_count || 0}</span>
-                                                </div>
-                                            </div>
-                                            {/* Answers count - Right side (Desktop) */}
-                                            <div className={'hidden sm:flex flex-col items-center justify-center px-3 py-2 rounded-lg min-w-[60px] ' + (question.answers_count > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500')}>
-                                                <span className="text-lg font-semibold">{question.answers_count || 0}</span>
-                                                <span className="text-xs">answers</span>
-                                            </div>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+        {/* Main Content Wrapper */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          
+          {/* Hero Banner Box */}
+          <div className="bg-gradient-to-r from-navy-800 to-navy-700 text-white rounded-2xl shadow-sm px-6 py-10 sm:px-12 sm:py-12 mb-8 text-center relative overflow-hidden">
+            {/* Subtle decorative elements for a premium feel similar to conditions page */}
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-48 h-48 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div className="relative z-10">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-3">
+                VA Benefits Q&A — Expert Answers, Free
+              </h1>
+              <p className="text-navy-200 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+                Ask any question about your VA disability claim and get answers from our clinical team.
+                Every Expert Answer comes from a licensed clinician with direct VA claims experience.
+              </p>
             </div>
-        </Layout>
-    );
+          </div>
+          {/* Featured Questions - Compact Horizontal */}
+          {featuredQuestions.length > 0 && !isFiltered && (
+            <div className="mb-6 relative group/slider">
+              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Award className="w-4 h-4 text-amber-500" />
+                Featured Expert Discussions
+              </h2>
+              <div className="relative">
+                <button
+                  onClick={scrollLeft}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 bg-white p-1.5 rounded-full shadow-md border border-slate-200 text-slate-600 hover:text-navy-700 hover:bg-slate-50 opacity-0 group-hover/slider:opacity-100 transition-opacity focus:opacity-100 hidden sm:block"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <div 
+                  ref={scrollRef}
+                  className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 scroll-smooth"
+                >
+                  {featuredQuestions.map((q) => (
+                    <Link
+                      key={q.id}
+                      href={'/community/question/' + q.slug}
+                      className="flex-shrink-0 w-72 bg-white rounded-lg border border-amber-200 hover:border-amber-400 hover:shadow-md transition-all p-4 group"
+                    >
+                      <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">
+                        Expert Answer
+                      </span>
+                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-navy-700 line-clamp-2 mt-1 transition-colors">
+                        {q.title}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                        <span>{q.answers_count || 0} answers</span>
+                        <span>{q.upvotes || 0} votes</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                <button
+                  onClick={scrollRight}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 bg-white p-1.5 rounded-full shadow-md border border-slate-200 text-slate-600 hover:text-navy-700 hover:bg-slate-50 opacity-0 group-hover/slider:opacity-100 transition-opacity focus:opacity-100 hidden sm:block"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-6">
+            {/* Left Column - Feed */}
+            <div className="flex-1 min-w-0">
+              {/* Search + Sort + Ask */}
+              <div className="bg-white rounded-lg border border-slate-200 p-3 mb-4">
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      id="community-search"
+                      type="text"
+                      placeholder="Search questions..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(1);
+                      }}
+                      className="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 outline-none"
+                    />
+                  </div>
+                  <button
+                    id="ask-question-button"
+                    onClick={() => setShowAskForm(true)}
+                    className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
+                    style={{ backgroundColor: '#B91C3C' }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Ask Question
+                  </button>
+                </div>
+              </div>
+
+              {/* Sort Tabs */}
+              <div className="mb-4">
+                <SortTabs activeSort={sortBy} onSortChange={handleSortChange} />
+              </div>
+
+              {/* Mobile Tag Filter */}
+              <div className="lg:hidden mb-4">
+                <TagSidebar
+                  selectedTag={selectedTag}
+                  onTagSelect={handleTagSelect}
+                  onAskQuestion={() => setShowAskForm(true)}
+                />
+              </div>
+
+              {/* Question Feed */}
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-navy-700 border-t-transparent mx-auto" />
+                  <p className="mt-3 text-sm text-slate-500">Loading questions...</p>
+                </div>
+              ) : questions.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
+                  <div className="text-slate-300 mb-3">
+                    <Search className="w-12 h-12 mx-auto" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-700 mb-1">No questions found</h3>
+                  <p className="text-sm text-slate-500 mb-4">
+                    {debouncedSearch || selectedTag
+                      ? 'Try adjusting your filters or search terms.'
+                      : 'Be the first to ask a question!'}
+                  </p>
+                  <button
+                    onClick={() => setShowAskForm(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: '#B91C3C' }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Ask Question
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h2 className="sr-only">Community Questions</h2>
+                  <div className="space-y-3">
+                    {questions.map((question) => (
+                      <QuestionCard
+                        key={question.id}
+                        question={question}
+                        onVote={handleVote}
+                      />
+                    ))}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={page}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      total={total}
+                      perPage={PER_PAGE}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Right Column - Sidebar (Desktop) */}
+            <div className="hidden lg:block w-72 flex-shrink-0">
+              <div className="sticky top-24">
+                <TagSidebar
+                  selectedTag={selectedTag}
+                  onTagSelect={handleTagSelect}
+                  stats={stats}
+                  onAskQuestion={() => setShowAskForm(true)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ask Question Modal */}
+      <AskQuestionModal
+        isOpen={showAskForm}
+        onClose={() => setShowAskForm(false)}
+        communityUser={communityUser}
+        onLogin={login}
+        onSuccess={handleQuestionSuccess}
+      />
+    </Layout>
+  );
 };
 
 export default Community;
