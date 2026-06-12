@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ArrowRight, CheckCircle, Activity, FileText, Link2 } from 'lucide-react';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 import { conditionApi, servicesApi, bodySystemApi, blogApi, caseStudyApi } from '../../../../src/lib/api';
 import DynamicIcon from '../../../../src/components/ui/dynamic-icon';
 import SEO from '../../../../src/components/SEO';
@@ -15,7 +15,7 @@ import {
 } from '../../../../src/components/ui/accordion';
 import { buildOrganizationReference } from '../../../../src/lib/trust';
 
-const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = [], relatedCaseStudies = [] }) => {
+const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = [], relatedCaseStudies = [], allServices = [], siblingConditions = [] }) => {
     const router = useRouter();
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
@@ -45,6 +45,15 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
         );
     }
 
+    const statCards = condition.stat_cards || [];
+    const specialistGuide = condition.specialist_guide || [];
+    const secondaryConnections = condition.secondary_connections || [];
+    const pairedConditions = condition.paired_conditions || [];
+    const internalLinks = condition.internal_links || [];
+    const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
+    const otherConditions = (siblingConditions || []).filter(c => c.id !== condition.id);
+    const isMH = bodySystem?.is_mental_health || false;
+
     // Structured data for condition page
     const structuredData = {
         "@context": "https://schema.org",
@@ -62,6 +71,11 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
 
     return (
         <Layout>
+            <PricingModal 
+                isOpen={isPricingModalOpen} 
+                onClose={() => setIsPricingModalOpen(false)} 
+                service={service}
+            />
             <SEO
                 title={condition.page_title}
                 description={condition.meta_description}
@@ -82,21 +96,13 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
                     {/* Breadcrumbs */}
                     <nav className="flex items-center space-x-2 mb-6 text-sm font-medium text-slate-500" aria-label="Breadcrumb">
-                        <Link href="/" className="hover:text-navy-700 transition-colors">
-                            Home
-                        </Link>
+                        <Link href="/" className="hover:text-navy-700 transition-colors">Home</Link>
                         <span className="text-slate-400">›</span>
-                        <Link href="/services" className="hover:text-navy-700 transition-colors">
-                            Services
-                        </Link>
+                        <Link href="/services" className="hover:text-navy-700 transition-colors">Services</Link>
                         <span className="text-slate-400">›</span>
-                        <Link href={`/services/${service.slug}`} className="hover:text-navy-700 transition-colors">
-                            {service.title}
-                        </Link>
+                        <Link href={`/services/${service.slug}`} className="hover:text-navy-700 transition-colors">{service.title}</Link>
                         <span className="text-slate-400">›</span>
-                        <Link href={`/services/${service.slug}/${bodySystem.slug}`} className="hover:text-navy-700 transition-colors">
-                            {bodySystem.name}
-                        </Link>
+                        <Link href={`/services/${service.slug}/${bodySystem.slug}`} className="hover:text-navy-700 transition-colors">{bodySystem.name}</Link>
                         <span className="text-slate-400">›</span>
                         <span className="text-slate-950 font-semibold">{condition.hero_heading}</span>
                     </nav>
@@ -107,71 +113,59 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                             <div className="w-96 h-96 bg-white rounded-full absolute -right-20 -top-20 blur-3xl"></div>
                         </div>
                         <div className="max-w-3xl relative z-10">
-                            <div className="flex flex-wrap items-center gap-2 mb-6">
-                                <span className="inline-flex items-center px-3 py-1 bg-red-700 text-white text-xs font-bold rounded-full uppercase tracking-wider shadow-sm">
-                                    {bodySystem.name} · {service.title}
-                                </span>
+                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/80 mb-4">
+                                {bodySystem.icon && <DynamicIcon name={bodySystem.icon} className="w-3.5 h-3.5" />}
+                                {bodySystem.name} · {service.title}
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">{condition.hero_heading}</h1>
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                {condition.hero_heading}
+                            </h1>
                             {condition.meta_description && (
-                                <p className="text-lg md:text-xl text-slate-200 leading-relaxed mb-8">{condition.meta_description}</p>
+                                <p className="text-lg md:text-xl text-slate-300 leading-relaxed">{condition.meta_description}</p>
                             )}
-                            <div className="flex flex-wrap gap-4">
-                                <button 
+                            <div className="flex flex-wrap gap-3 mt-8">
+                                <button
                                     onClick={() => setIsPricingModalOpen(true)}
-                                    className="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg"
+                                    className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
+                                    style={{ backgroundColor: '#B91C3C' }}
                                 >
-                                    View Pricing — From {condition.stat_starting_price || condition.specialist_guide?.[0]?.price || '$400'}
+                                    View Pricing — From {isMH ? '$1,600' : '$400'}
                                 </button>
-                                <Link 
-                                    href={`/forms?service=${service.slug}`}
-                                    className="bg-transparent hover:bg-white/5 border border-slate-400 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                                <Link
+                                    href="/contact"
+                                    className="bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-center hover:bg-white/15 transition-all"
                                 >
                                     Free Consultation
                                 </Link>
                             </div>
                         </div>
                     </section>
-
-                    {/* 4 Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
-                            <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">DIAGNOSTIC CODE</span>
-                            <div className="text-2xl font-serif text-slate-900 mb-1">
-                                {condition.dc_code ? `DC ${condition.dc_code}` : 'Varies'}
-                            </div>
-                            <div className="text-xs text-red-700 font-medium">
-                                {condition.dc_name || 'Based on affected nerve/area'}
-                            </div>
-                        </div>
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
-                            <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">STARTING AT</span>
-                            <div className="text-2xl font-serif text-slate-900 mb-1">{condition.stat_starting_price || condition.specialist_guide?.[0]?.price || '$400'}</div>
-                            <div className="text-xs text-red-700 font-medium">{condition.stat_provider || condition.specialist_guide?.[0]?.name || 'Nurse Practitioner'}</div>
-                        </div>
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
-                            <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">TURNAROUND</span>
-                            <div className="text-2xl font-serif text-slate-900 mb-1">{condition.stat_turnaround_time || '7–10 Days'}</div>
-                            <div className="text-xs text-red-700 font-medium">{condition.stat_turnaround_note || 'Rush 48–72hrs'}</div>
-                        </div>
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
-                            <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">CONSULTATION</span>
-                            <div className="text-2xl font-serif text-slate-900 mb-1">{condition.stat_consultation_type || 'Free'}</div>
-                            <div className="text-xs text-red-700 font-medium">{condition.stat_consultation_note || 'No obligation'}</div>
-                        </div>
-                    </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Stat Cards */}
+                {statCards.length > 0 && (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+                        <div className={`grid gap-4 ${statCards.length === 4 ? 'grid-cols-2 md:grid-cols-4' : statCards.length === 3 ? 'grid-cols-3' : statCards.length === 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                            {statCards.map((stat, i) => (
+                                <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 font-medium">{stat.label}</div>
+                                    <div className="text-2xl font-bold text-slate-900" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>{stat.value}</div>
+                                    {stat.subtext && <div className="text-xs mt-1" style={{ color: '#B91C3C' }}>{stat.subtext}</div>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
                             
-                            {/* Dark VA Diagnostic Code Section */}
+                            {/* DC Code Box with Rating Table */}
                             <section className="bg-navy-800 rounded-2xl p-8 shadow-xl text-white">
                                 <div className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">VA DIAGNOSTIC CODE</div>
-                                <h2 className="text-3xl md:text-4xl font-serif font-bold mb-2">
+                                <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                     {condition.dc_code ? `DC ${condition.dc_code}` : 'Varies'}
                                 </h2>
                                 <div className="text-sm text-slate-300 mb-8 pb-8 border-b border-slate-700/60">
@@ -198,90 +192,91 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 )}
                             </section>
                             
-                            {/* Rich Text Overview */}
-                            <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="overview-heading">
-                                <div className="flex items-start justify-between mb-6">
-                                    <div>
-                                        <h2 id="overview-heading" className="text-2xl font-bold text-slate-900">VA Disability Requirements for {service.title}</h2>
-                                        {condition.dc_code && (
-                                            <p className="text-sm font-semibold text-slate-500 mt-1">
-                                                Diagnostic Code (DC) {condition.dc_code} {condition.dc_name ? `- ${condition.dc_name}` : ''}
-                                            </p>
-                                        )}
-                                    </div>
-                                    {condition.icon && (
-                                        <div className="text-4xl">
-                                            <DynamicIcon name={condition.icon} className="w-10 h-10 text-indigo-600" />
-                                        </div>
-                                    )}
-                                </div>
+                            {/* Full Description */}
+                            <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                                <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                    About {condition.hero_heading} VA Claims
+                                </h2>
                                 <div 
                                     className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
                                     dangerouslySetInnerHTML={{ __html: condition.content_html }}
                                 />
                             </section>
 
-                            {/* Features */}
+                            {/* What's Included / Features */}
                             {condition.features?.length > 0 && (
-                                <div className="grid grid-cols-1 gap-8">
-                                    <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                                        <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                                            <FileText className="w-5 h-5 mr-2 text-indigo-600" /> Evidence Checklist
-                                        </h3>
-                                        <ul className="space-y-3">
-                                            {condition.features.map((feature, idx) => (
-                                                <li key={idx} className="flex items-start gap-3">
-                                                    <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                                                    <span className="text-slate-700 text-sm leading-relaxed">{feature}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </section>
-                                </div>
-                            )}
-
-                            {/* Secondary Connections */}
-                            {condition.secondary_connections?.length > 0 && (
-                                <section className="bg-slate-100/60 rounded-[2rem] p-8 md:p-10 border border-slate-200/50 relative overflow-hidden">
-                                    {/* Decorative subtle background circle */}
-                                    <div className="absolute -top-10 -right-10 w-28 h-28 bg-slate-200/40 rounded-full pointer-events-none"></div>
-                                    
-                                    <div className="mb-6 relative z-10">
-                                        <span className="inline-flex items-center px-3 py-1 bg-red-700 text-white text-[10px] font-bold rounded-md uppercase tracking-wider mb-3">
-                                            Secondary Service Connections
-                                        </span>
-                                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-                                            How {condition.hero_heading || condition.page_title} Connects to Service
-                                        </h2>
-                                        <p className="text-sm text-slate-600">
-                                            These are the medical pathways our clinicians use to establish nexus between {(condition.hero_heading || condition.page_title || '').toLowerCase()} and military service:
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-3 relative z-10">
-                                        {condition.secondary_connections.map((conn, idx) => (
-                                            <div key={idx} className="flex gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                                                <div className="flex-shrink-0 mt-0.5">
-                                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
-                                                        <Link2 className="w-5 h-5 text-indigo-600" />
-                                                    </div>
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <h4 className="font-bold text-slate-900 text-base mb-1">
-                                                        {conn.url ? (
-                                                            <Link href={conn.url} className="text-indigo-600 hover:text-indigo-800 hover:underline">
-                                                                {conn.from}
-                                                            </Link>
-                                                        ) : (
-                                                            conn.from
-                                                        )}
-                                                        <span className="text-slate-400 mx-2">→</span>
-                                                        <span className="text-slate-700">{condition.hero_heading || condition.page_title}</span>
-                                                    </h4>
-                                                    <p className="text-sm text-slate-600 leading-relaxed">{conn.mechanism}</p>
-                                                </div>
+                                <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                                    <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>What&apos;s Included</h2>
+                                    <div className="space-y-3 mt-4">
+                                        {condition.features.map((feature, idx) => (
+                                            <div key={idx} className="flex items-start gap-3">
+                                                <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#B91C3C' }} />
+                                                <span className="text-slate-700 text-sm leading-relaxed">{feature}</span>
                                             </div>
                                         ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Secondary Service Connections */}
+                            {secondaryConnections.length > 0 && (
+                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
+                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                                    <div className="relative z-10">
+                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                            Secondary Service Connections
+                                        </span>
+                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                            How {condition.hero_heading} Connects to Service
+                                        </h2>
+                                        <p className="text-sm text-slate-600 leading-relaxed mb-5">
+                                            These are the medical pathways our clinicians use to establish nexus between {(condition.hero_heading || '').toLowerCase()} and military service:
+                                        </p>
+                                        <div className="space-y-3">
+                                            {secondaryConnections.map((conn, idx) => (
+                                                <div key={idx} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                                    <span className="text-base flex-shrink-0 mt-0.5">🔗</span>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="font-semibold text-sm" style={{ color: '#29435f' }}>
+                                                            {conn.from} <span className="text-slate-400 mx-1">→</span> {condition.hero_heading}
+                                                        </div>
+                                                        <div className="text-xs text-slate-500 mt-1">{conn.mechanism}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Specialist Guide */}
+                            {specialistGuide.length > 0 && (
+                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
+                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                                    <div className="relative z-10">
+                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                            Specialist Guide
+                                        </span>
+                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                            Who Should Write Your {condition.hero_heading} {service.title}?
+                                        </h2>
+                                        <p className="text-sm text-slate-600 mb-5">Match the writer to the medical question for maximum probative weight:</p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {specialistGuide.map((spec, i) => (
+                                                <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all">
+                                                    <div className="font-bold text-slate-900 text-sm mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>{spec.name}</div>
+                                                    <div className="text-xs text-slate-600 leading-relaxed mb-3">{spec.best_for}</div>
+                                                    <div className="text-sm font-bold" style={{ color: '#983c44' }}>{spec.price}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="mt-4 text-sm text-slate-500">
+                                            <Link href="/blog/who-should-write-your-va-nexus-letter-specialist-guide" className="font-semibold hover:underline" style={{ color: '#983c44' }}>
+                                                Read the full Specialist Guide →
+                                            </Link>
+                                        </div>
                                     </div>
                                 </section>
                             )}
@@ -289,7 +284,8 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                             {/* FAQ Section */}
                             {condition.faqs && condition.faqs.length > 0 && (
                                 <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="faq-heading">
-                                    <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
+                                    <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Frequently Asked Questions</h2>
+                                    <p className="text-sm text-slate-500 mb-6">About {condition.hero_heading} {service.title}s</p>
                                     <Accordion type="single" collapsible className="w-full">
                                         {condition.faqs.map((faq, idx) => (
                                             <AccordionItem key={idx} value={`item-${idx}`}>
@@ -305,18 +301,76 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 </section>
                             )}
 
+                            {/* Related Pages / Internal Links */}
+                            {internalLinks.length > 0 && (
+                                <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Related Pages</h2>
+                                    <p className="text-sm text-slate-500 mb-4">Explore related services, conditions, and resources</p>
+                                    <div className="space-y-2 mt-4">
+                                        {internalLinks.map((link, idx) => (
+                                            <Link
+                                                key={idx}
+                                                href={link.url || '#'}
+                                                className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-sm transition-all group"
+                                            >
+                                                {link.icon && (
+                                                    <span className="text-xl flex-shrink-0">
+                                                        <DynamicIcon name={link.icon} className="w-5 h-5 text-slate-600" />
+                                                    </span>
+                                                )}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#983c44' }}>{link.label}</div>
+                                                    <div className="font-semibold text-slate-900 text-sm">{link.title}</div>
+                                                </div>
+                                                <span className="text-sm font-semibold flex-shrink-0" style={{ color: '#983c44' }}>→</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Commonly Paired Conditions */}
+                            {pairedConditions.length > 0 && (
+                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.04))' }}>
+                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                                    <div className="relative z-10">
+                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                            Commonly Paired
+                                        </span>
+                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                            Veterans Usually Pair {condition.hero_heading} With These Conditions
+                                        </h2>
+                                        {condition.pair_note && (
+                                            <p className="text-sm text-slate-600 leading-relaxed mb-5">{condition.pair_note}</p>
+                                        )}
+                                        <div className="flex flex-wrap gap-3">
+                                            {pairedConditions.map((pc, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold hover:border-red-300 transition-colors cursor-pointer"
+                                                    style={{ color: '#29435f' }}
+                                                >
+                                                    {pc} {service.title} →
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
                             {/* Related Insights */}
                             {(relatedBlogs.length > 0 || relatedCaseStudies.length > 0) && (
                                 <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="insights-heading">
-                                    <h2 id="insights-heading" className="text-2xl font-bold text-slate-900 mb-6">Related Insights & Proof</h2>
+                                    <h2 id="insights-heading" className="text-2xl font-bold text-slate-900 mb-6" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Related Insights & Proof</h2>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {relatedBlogs.map(blog => (
                                             <Link href={`/blog/${blog.slug}`} key={blog.id} className="group block">
-                                                <div className="border border-slate-200 rounded-xl p-5 hover:border-navy-500 hover:shadow-md transition-all h-full bg-slate-50">
-                                                    <span className="text-xs font-bold text-navy-600 uppercase tracking-wider mb-2 block">Blog</span>
+                                                <div className="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:shadow-md transition-all h-full bg-slate-50">
+                                                    <span className="text-xs font-bold uppercase tracking-wider mb-2 block" style={{ color: '#29435f' }}>Blog</span>
                                                     <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-navy-700">{blog.title}</h3>
                                                     <div className="text-sm text-slate-600 line-clamp-2">{blog.excerpt}</div>
-                                                    <div className="mt-4 flex items-center text-navy-600 text-sm font-medium">
+                                                    <div className="mt-4 flex items-center text-sm font-medium" style={{ color: '#983c44' }}>
                                                         Read Article <ArrowRight className="w-4 h-4 ml-1" />
                                                     </div>
                                                 </div>
@@ -324,11 +378,11 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                         ))}
                                         {relatedCaseStudies.map(study => (
                                             <Link href={`/case-studies/${study.slug}`} key={study.id} className="group block">
-                                                <div className="border border-slate-200 rounded-xl p-5 hover:border-red-500 hover:shadow-md transition-all h-full bg-slate-50">
-                                                    <span className="text-xs font-bold text-red-600 uppercase tracking-wider mb-2 block">Case Study</span>
+                                                <div className="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:shadow-md transition-all h-full bg-slate-50">
+                                                    <span className="text-xs font-bold uppercase tracking-wider mb-2 block" style={{ color: '#983c44' }}>Case Study</span>
                                                     <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-red-700">{study.title}</h3>
                                                     <div className="text-sm text-slate-600 line-clamp-2">{study.excerpt}</div>
-                                                    <div className="mt-4 flex items-center text-red-600 text-sm font-medium">
+                                                    <div className="mt-4 flex items-center text-sm font-medium" style={{ color: '#983c44' }}>
                                                         View Case Study <ArrowRight className="w-4 h-4 ml-1" />
                                                     </div>
                                                 </div>
@@ -337,95 +391,107 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                     </div>
                                 </section>
                             )}
-
-                            {/* Additional Relationships */}
-                            {(condition.paired_conditions?.length > 0 || condition.internal_links?.length > 0) && (
-                                <section className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                                        <Activity className="w-6 h-6 mr-2 text-indigo-600" /> Additional Clinical Context
-                                    </h2>
-                                    <div className="space-y-6">
-                                        {condition.paired_conditions?.length > 0 && (
-                                            <div>
-                                                <h3 className="text-lg font-bold text-slate-900 mb-3">Often Filed With</h3>
-                                                <ul className="space-y-2 mb-2">
-                                                    {condition.paired_conditions.map((pc, idx) => (
-                                                        <li key={idx} className="flex items-center text-slate-700">
-                                                            <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2" />
-                                                            {pc}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                                {condition.pair_note && (
-                                                    <p className="text-sm text-slate-600 italic border-l-2 border-indigo-200 pl-3">
-                                                        {condition.pair_note}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {condition.internal_links?.length > 0 && (
-                                            <div>
-                                                <h3 className="text-lg font-bold text-slate-900 mb-3">Related Guides</h3>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {condition.internal_links.map((link, idx) => (
-                                                        <Link key={idx} href={link.url} className="flex items-center p-4 rounded-xl border border-slate-200 hover:border-indigo-400 bg-slate-50 transition-colors">
-                                                            {link.icon && (
-                                                                <span className="text-2xl mr-3 flex-shrink-0">
-                                                                    <DynamicIcon name={link.icon} className="w-6 h-6 text-indigo-600" />
-                                                                </span>
-                                                            )}
-                                                            <div>
-                                                                <div className="text-xs font-bold text-indigo-600 uppercase tracking-wide">{link.label}</div>
-                                                                <div className="font-semibold text-slate-900">{link.title}</div>
-                                                            </div>
-                                                        </Link>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </section>
-                            )}
                         </div>
 
                         {/* Sidebar */}
                         <aside className="lg:col-span-1">
-                            <div className="lg:sticky lg:top-24 space-y-6">
-                                <div className="bg-navy-700 rounded-2xl p-6 shadow-xl text-white border border-navy-600">
-                                    <div className="text-sm text-slate-300 mb-2 font-medium">{condition.hero_heading || `${bodySystem.name} Nexus Letter`}</div>
-                                    <div className="text-xs text-slate-400 mb-1 uppercase tracking-wider font-bold">Starting at</div>
-                                    <div className="text-5xl font-serif font-bold mb-2">
-                                        {condition.specialist_guide?.[0]?.price || '$400'}
+                            <div className="lg:sticky lg:top-24 space-y-5">
+                                {/* Pricing Box */}
+                                <div className="rounded-2xl p-7 shadow-xl text-white" style={{ background: 'linear-gradient(160deg, #29435f, #3a5a7a)' }}>
+                                    <div className="mb-5">
+                                        <div className="text-xs text-white/50 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
+                                        <div className="text-xs text-white/50">Starting at</div>
+                                        <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                            {isMH ? '$1,600' : '$400'}
+                                        </div>
+                                        <p className="text-xs text-white/45 mt-1">
+                                            {isMH ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
+                                        </p>
                                     </div>
-                                    <div className="text-sm text-slate-300 mb-8 border-b border-navy-600 pb-6">
-                                        {condition.specialist_guide?.[0]?.name || 'Nurse Practitioner'} · Single condition
-                                    </div>
-                                    
+
+                                    {isMH && (
+                                        <div className="border rounded-lg px-3 py-2 mb-4 text-[11px]" style={{ background: 'rgba(152,60,68,.25)', borderColor: 'rgba(152,60,68,.4)', color: '#e8a0a8' }}>
+                                            ⚠️ Mental Health minimum — specialized DSM-5 documentation
+                                        </div>
+                                    )}
+
                                     <button 
                                         onClick={() => setIsPricingModalOpen(true)}
-                                        className="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center transition-colors shadow-lg"
+                                        className="w-full text-white border border-white/20 px-6 py-3 rounded-xl font-semibold text-center transition-all mb-3 text-sm hover:bg-white/10"
+                                        style={{ backgroundColor: '#B91C3C' }}
                                     >
-                                        See All Pricing Tiers <ArrowRight className="w-4 h-4 ml-2"/>
+                                        See All Pricing Tiers →
                                     </button>
-                                    <Link 
+
+                                    <Link
                                         href={`/forms?service=${service.slug}`}
-                                        className="w-full bg-transparent hover:bg-navy-600 border border-slate-500 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center transition-colors"
+                                        className="w-full bg-white/10 text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:bg-white/15 border border-white/18 block text-sm"
                                     >
                                         Book Free Consultation
                                     </Link>
                                 </div>
+
+                                {/* DC Quick Reference */}
+                                {condition.dc_code && (
+                                    <div className="bg-white rounded-xl border border-slate-200 p-5">
+                                        <h4 className="font-bold text-slate-900 text-sm mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                            DC {condition.dc_code} — Quick Reference
+                                        </h4>
+                                        <div className="text-sm text-slate-700 leading-relaxed">
+                                            {condition.dc_name}
+                                            {condition.ratings?.length > 0 && (
+                                                <div className="text-xs text-slate-500 mt-1">
+                                                    Rating range: {condition.ratings[condition.ratings.length - 1]?.pct} – {condition.ratings[0]?.pct}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Other Conditions in this System */}
+                                {otherConditions.length > 0 && (
+                                    <div className="bg-white rounded-xl border border-slate-200 p-5">
+                                        <h4 className="font-bold text-slate-900 text-sm mb-3" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                            Other {bodySystem.name} Conditions
+                                        </h4>
+                                        <div className="space-y-1">
+                                            {otherConditions.map((c) => (
+                                                <Link
+                                                    key={c.id}
+                                                    href={`/services/${service.slug}/${bodySystem.slug}/${c.slug}`}
+                                                    className="flex items-center justify-between px-2 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                                >
+                                                    <span>{c.icon && <DynamicIcon name={c.icon} className="w-3.5 h-3.5 inline mr-1.5 text-slate-500" />}{c.page_title || c.hero_heading}</span>
+                                                    <span className="text-xs" style={{ color: '#983c44' }}>→</span>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Other Services */}
+                                {otherServices.length > 0 && (
+                                    <div className="bg-white rounded-xl border border-slate-200 p-5">
+                                        <h4 className="font-bold text-slate-900 text-sm mb-3" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Other Services</h4>
+                                        <div className="space-y-1">
+                                            {otherServices.map((s) => (
+                                                <Link
+                                                    key={s.id}
+                                                    href={`/services/${s.slug}`}
+                                                    className="flex items-center justify-between px-2 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                                                >
+                                                    <span>{s.title}</span>
+                                                    <span className="text-xs" style={{ color: '#983c44' }}>→</span>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </aside>
                     </div>
                 </div>
             </div>
-
-            <PricingModal 
-                isOpen={isPricingModalOpen} 
-                onClose={() => setIsPricingModalOpen(false)} 
-                isMentalHealth={bodySystem?.is_mental_health || false}
-            />
         </Layout>
     );
 };
@@ -441,16 +507,20 @@ export async function getStaticProps({ params }) {
     const { slug, system_slug, condition_slug } = params;
 
     try {
-        const [service, bodySystem] = await Promise.all([
+        const [service, bodySystem, allServices] = await Promise.all([
             servicesApi.getBySlug(slug),
-            bodySystemApi.getBySlug(system_slug)
+            bodySystemApi.getBySlug(system_slug),
+            servicesApi.getAll()
         ]);
 
         if (!service || !bodySystem) {
             return { notFound: true };
         }
 
-        const condition = await conditionApi.getBySlug(condition_slug, service.id);
+        const [condition, siblingConditions] = await Promise.all([
+            conditionApi.getBySlug(condition_slug, service.id),
+            conditionApi.getByBodySystem(bodySystem.id, service.id)
+        ]);
 
         if (!condition) {
             return { notFound: true };
@@ -494,8 +564,10 @@ export async function getStaticProps({ params }) {
                 service,
                 relatedBlogs,
                 relatedCaseStudies,
+                allServices: allServices || [],
+                siblingConditions: siblingConditions || [],
             },
-            revalidate: 3600, // Revalidate every hour
+            revalidate: 3600,
         };
     } catch (error) {
         console.error(`Error in getStaticProps for condition ${condition_slug}:`, error);

@@ -11,6 +11,8 @@ import Link from 'next/link';
 import IconPicker from '../../../src/components/admin/IconPicker';
 
 const EMPTY_SPECIALIST = { name: '', role: '', best_for: '', price: '', note: '' };
+const EMPTY_STAT_CARD = { label: '', value: '', subtext: '' };
+const EMPTY_TRUST_LINK = { label: '', url: '' };
 
 const BodySystemForm = () => {
     const router = useRouter();
@@ -32,6 +34,8 @@ const BodySystemForm = () => {
         specialist_guide: [],
         paired_systems: [],
         pair_note: '',
+        stat_cards: [],
+        build_trust_links: [],
         display_order: 0,
         is_published: true,
     });
@@ -65,6 +69,8 @@ const BodySystemForm = () => {
                         specialist_guide: system.specialist_guide || [],
                         paired_systems: system.paired_systems || [],
                         pair_note: system.pair_note || '',
+                        stat_cards: system.stat_cards || [],
+                        build_trust_links: system.build_trust_links || [],
                         display_order: system.display_order ?? 0,
                         is_published: system.is_published ?? true,
                     });
@@ -121,6 +127,52 @@ const BodySystemForm = () => {
         });
     };
 
+    // --- Stat Cards ---
+    const addStatCard = () => {
+        setFormData(prev => ({
+            ...prev,
+            stat_cards: [...prev.stat_cards, { ...EMPTY_STAT_CARD }],
+        }));
+    };
+
+    const removeStatCard = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            stat_cards: prev.stat_cards.filter((_, i) => i !== index),
+        }));
+    };
+
+    const updateStatCard = (index, field, value) => {
+        setFormData(prev => {
+            const updated = [...prev.stat_cards];
+            updated[index] = { ...updated[index], [field]: value };
+            return { ...prev, stat_cards: updated };
+        });
+    };
+
+    // --- Build Trust Links ---
+    const addTrustLink = () => {
+        setFormData(prev => ({
+            ...prev,
+            build_trust_links: [...prev.build_trust_links, { ...EMPTY_TRUST_LINK }],
+        }));
+    };
+
+    const removeTrustLink = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            build_trust_links: prev.build_trust_links.filter((_, i) => i !== index),
+        }));
+    };
+
+    const updateTrustLink = (index, field, value) => {
+        setFormData(prev => {
+            const updated = [...prev.build_trust_links];
+            updated[index] = { ...updated[index], [field]: value };
+            return { ...prev, build_trust_links: updated };
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -135,7 +187,7 @@ const BodySystemForm = () => {
             const payload = {
                 ...formData,
                 display_order: parseInt(formData.display_order, 10) || 0,
-                specialist_guide: (formData.specialist_guide || []).filter(s => s.name.trim() !== ''),
+                specialist_guide: (formData.specialist_guide || []).filter(s => (s.name ?? '').trim() !== ''),
             };
 
             if (isNew) {
@@ -319,7 +371,7 @@ const BodySystemForm = () => {
                                                             <label className="block text-xs font-semibold text-slate-700 mb-1">Provider Name *</label>
                                                             <input
                                                                 type="text"
-                                                                value={spec.name}
+                                                                value={spec.name || ''}
                                                                 onChange={(e) => updateSpecialist(index, 'name', e.target.value)}
                                                                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
                                                                 placeholder='e.g. "Nurse Practitioner"'
@@ -329,7 +381,7 @@ const BodySystemForm = () => {
                                                             <label className="block text-xs font-semibold text-slate-700 mb-1">Role</label>
                                                             <input
                                                                 type="text"
-                                                                value={spec.role}
+                                                                value={spec.role || ''}
                                                                 onChange={(e) => updateSpecialist(index, 'role', e.target.value)}
                                                                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
                                                                 placeholder='e.g. "Former C&P Examiner"'
@@ -341,7 +393,7 @@ const BodySystemForm = () => {
                                                             <label className="block text-xs font-semibold text-slate-700 mb-1">Price</label>
                                                             <input
                                                                 type="text"
-                                                                value={spec.price}
+                                                                value={spec.price || ''}
                                                                 onChange={(e) => updateSpecialist(index, 'price', e.target.value)}
                                                                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
                                                                 placeholder='e.g. "From $400"'
@@ -351,7 +403,7 @@ const BodySystemForm = () => {
                                                             <label className="block text-xs font-semibold text-slate-700 mb-1">Note</label>
                                                             <input
                                                                 type="text"
-                                                                value={spec.note}
+                                                                value={spec.note || ''}
                                                                 onChange={(e) => updateSpecialist(index, 'note', e.target.value)}
                                                                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
                                                                 placeholder='e.g. "+$250/additional"'
@@ -361,7 +413,7 @@ const BodySystemForm = () => {
                                                     <div>
                                                         <label className="block text-xs font-semibold text-slate-700 mb-1">Best For</label>
                                                         <textarea
-                                                            value={spec.best_for}
+                                                            value={spec.best_for || ''}
                                                             onChange={(e) => updateSpecialist(index, 'best_for', e.target.value)}
                                                             rows={2}
                                                             className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
@@ -409,6 +461,131 @@ const BodySystemForm = () => {
                                         placeholder='e.g. "Veterans with neurological conditions often also have mental health claims"'
                                     />
                                 </div>
+                            </div>
+
+                            {/* Stat Cards */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Stat Cards</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Up to 4 key metrics shown in a grid on the system page (e.g. &quot;Conditions: 7&quot;, &quot;Starting At: $400&quot;).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addStatCard}
+                                        disabled={(formData.stat_cards || []).length >= 4}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Stat
+                                    </button>
+                                </div>
+
+                                {(formData.stat_cards || []).length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">No stat cards added yet. Add up to 4 key metrics.</p>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {formData.stat_cards.map((stat, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeStatCard(index)}
+                                                    className="absolute top-3 right-3 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-2 pr-6">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Label *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={stat.label || ''}
+                                                            onChange={(e) => updateStatCard(index, 'label', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "Conditions" or "Starting At"'
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Value *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={stat.value || ''}
+                                                            onChange={(e) => updateStatCard(index, 'value', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "7" or "$400"'
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Subtext</label>
+                                                        <input
+                                                            type="text"
+                                                            value={stat.subtext || ''}
+                                                            onChange={(e) => updateStatCard(index, 'subtext', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "Covered" or "Rush available"'
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Build Trust Before Buying */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Build Trust Before Buying</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Sidebar links for social proof (case studies, testimonials, medical review policy, etc.).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addTrustLink}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Link
+                                    </button>
+                                </div>
+
+                                {(formData.build_trust_links || []).length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">No trust links added yet. These appear in the sidebar to build credibility.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {formData.build_trust_links.map((link, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeTrustLink(index)}
+                                                    className="absolute top-3 right-3 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-6">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Label *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={link.label || ''}
+                                                            onChange={(e) => updateTrustLink(index, 'label', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "Case studies"'
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">URL *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={link.url || ''}
+                                                            onChange={(e) => updateTrustLink(index, 'url', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "/case-studies" or "https://..."'
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

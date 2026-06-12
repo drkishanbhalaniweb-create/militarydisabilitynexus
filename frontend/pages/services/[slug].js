@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { CheckCircle, Clock, ArrowRight, Search } from 'lucide-react';
 import { servicesApi, blogApi, caseStudyApi, testimonialApi, bodySystemApi, conditionApi } from '../../src/lib/api';
 import DynamicIcon from '../../src/components/ui/dynamic-icon';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import TestimonialCard from '../../src/components/testimonials/TestimonialCard';
+import PricingModal from '../../src/components/services/PricingModal';
 import {
     Accordion,
     AccordionContent,
@@ -17,6 +19,7 @@ import { buildOrganizationReference, serviceTagMap } from '../../src/lib/trust';
 // SEO-optimized title overrides — ensures high-value keywords appear in the <title> tag
 const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [], bodySystemsWithCounts = [] }) => {
     const router = useRouter();
+    const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
     // Fallback for when the page is being generated (if fallback: true was used, but we use blocking so this might not render)
     if (router.isFallback) {
@@ -111,7 +114,22 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                     <section className="bg-slate-900 text-white rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
                         <div className="max-w-3xl relative z-10">
                             <h1 className="text-4xl md:text-5xl font-bold mb-4">{service.title}</h1>
-                            <p className="text-lg md:text-xl text-slate-300 leading-relaxed">{service.short_description}</p>
+                            <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-8">{service.short_description}</p>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button 
+                                    onClick={() => setIsPricingModalOpen(true)}
+                                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all"
+                                >
+                                    View Pricing &mdash; From $400
+                                </button>
+                                <Link 
+                                    href={`/forms?service=${slug}`}
+                                    className="bg-transparent border border-slate-600 hover:border-slate-400 text-white font-semibold py-3 px-8 rounded-xl transition-all text-center"
+                                >
+                                    Free Consultation
+                                </Link>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -166,18 +184,57 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                         return line.trim() ? <p key={i} className="mb-3">{processLinks(line)}</p> : <br key={i} />;
                                     })}
                                 </div>
+                                <p className="text-slate-600 italic mt-6 border-t border-slate-100 pt-6">
+                                    While no medical opinion can guarantee a specific VA outcome, our mission is to ensure your documentation is clear, credible, and professionally prepared — giving your claim the best possible foundation for success.
+                                </p>
                             </section>
 
                             {/* What's Included */}
                             <section className="bg-white rounded-2xl p-8" aria-labelledby="included-heading">
                                 <h2 id="included-heading" className="text-2xl font-bold text-slate-900 mb-6">What's Included</h2>
-                                <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {service.features && service.features.map((feature, idx) => (
-                                        <div key={idx} className="flex items-start space-x-3">
-                                            <CheckCircle className="w-6 h-6 text-navy-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
-                                            <span className="text-slate-700">{feature}</span>
+                                        <div key={idx} className="bg-slate-50 border border-slate-200 rounded-lg p-5">
+                                            <p className="text-slate-700 font-medium leading-relaxed">{feature}</p>
                                         </div>
                                     ))}
+                                </div>
+                            </section>
+
+                            {/* Pricing at a Glance */}
+                            <section className="bg-gradient-to-br from-slate-50 to-indigo-50 border border-slate-200 rounded-2xl p-8" aria-labelledby="pricing-heading">
+                                <h2 id="pricing-heading" className="text-2xl font-bold text-slate-900 mb-2">Pricing at a Glance</h2>
+                                <p className="text-slate-600 mb-6 text-sm">All claim theories (presumptive, direct, secondary) included in a single letter at internist/specialist level.</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
+                                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nurse Practitioner</div>
+                                        <div className="text-2xl font-bold text-slate-900 mb-2">$400</div>
+                                        <div className="text-[12px] font-semibold text-[#B91C3C]">Single condition</div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
+                                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Additional (NP)</div>
+                                        <div className="text-2xl font-bold text-slate-900 mb-2">+$250</div>
+                                        <div className="text-[12px] font-semibold text-slate-500">Per extra condition</div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-xl border-2 border-indigo-200 shadow-md flex flex-col justify-center items-center text-center h-full relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
+                                        <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Internist / Specialist</div>
+                                        <div className="text-2xl font-bold text-slate-900 mb-2">$945</div>
+                                        <div className="text-[12px] font-semibold text-slate-600">All theories included</div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
+                                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Specialist</div>
+                                        <div className="text-2xl font-bold text-slate-900 mb-2">$1,800</div>
+                                        <div className="text-[12px] font-semibold text-slate-500">Complex / High-stakes</div>
+                                    </div>
+                                </div>
+                                <div className="text-center">
+                                    <button 
+                                        onClick={() => setIsPricingModalOpen(true)}
+                                        className="text-indigo-600 text-sm font-semibold hover:text-indigo-700 flex items-center justify-center mx-auto transition-colors"
+                                    >
+                                        See Full Pricing Breakdown <ArrowRight className="w-4 h-4 ml-1" />
+                                    </button>
                                 </div>
                             </section>
 
@@ -205,18 +262,45 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                             {system.name}
                                                         </h3>
                                                         <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full mt-1 inline-block">
-                                                            {system.conditionCount} {system.conditionCount === 1 ? 'Condition' : 'Conditions'}
+                                                            {system.conditionCount} {service.title.includes('Nexus') ? 'Nexus Letters' : service.title.includes('DBQ') ? 'DBQs' : 'Conditions'}
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <p className="text-slate-600 line-clamp-2 text-sm mt-2 flex-grow">
                                                     {system.description}
                                                 </p>
+                                                {system.conditionsPreview && system.conditionsPreview.length > 0 && (
+                                                    <div className="mt-3 flex flex-wrap gap-1">
+                                                        {system.conditionsPreview.map((cond, i) => (
+                                                            <span key={i} className="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-sm border border-slate-200">
+                                                                {cond}
+                                                            </span>
+                                                        ))}
+                                                        {system.conditionCount > 4 && (
+                                                            <span className="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-sm border border-slate-200">
+                                                                +{system.conditionCount - 4} more
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
                                                 <div className="flex items-center text-sm text-navy-600 font-semibold group-hover:translate-x-1 transition-transform mt-4">
                                                     View Conditions <ArrowRight className="w-4 h-4 ml-1" />
                                                 </div>
                                             </Link>
                                         ))}
+                                    </div>
+                                    
+                                    <div className="mt-8 bg-indigo-50 rounded-xl p-5 border border-indigo-100 flex flex-col sm:flex-row items-center gap-4">
+                                        <div className="flex-shrink-0 bg-white p-3 rounded-full shadow-sm border border-indigo-100">
+                                            <Search className="w-6 h-6 text-indigo-600" />
+                                        </div>
+                                        <div className="flex-1 text-center sm:text-left">
+                                            <div className="font-bold text-navy-800">Don't see your condition?</div>
+                                            <div className="text-sm text-slate-600 mt-1">We cover 100+ conditions. Book a free consultation and we'll match you with the right specialist.</div>
+                                        </div>
+                                        <Link href={`/forms?service=${slug}`} className="bg-navy-600 hover:bg-navy-700 text-white text-sm font-semibold py-2 px-6 rounded-lg transition-colors whitespace-nowrap">
+                                            Book a Call
+                                        </Link>
                                     </div>
                                 </section>
                             )}
@@ -375,30 +459,28 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             )}
 
                             {/* Payment Box */}
-                            <div className="bg-white rounded-2xl p-8 shadow-xl" style={{ border: '2px solid #B91C3C' }}>
+                            <div className="bg-slate-900 rounded-2xl p-8 shadow-xl text-white">
                                 <div className="mb-6">
-                                    <div className="text-sm text-slate-500 mb-2">Starting at</div>
-                                    <div className="text-4xl font-bold text-slate-900 mb-1">
-                                        ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                    <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Nurse Practitioner</div>
+                                    <div className="text-sm text-slate-400 mb-1">Starting at</div>
+                                    <div className="text-4xl font-bold mb-1">
+                                        $400
                                     </div>
+                                    <p className="text-xs text-slate-400 mt-2">Single condition</p>
                                 </div>
 
-                                <div className="space-y-4 mb-6">
-                                    <div className="flex items-center space-x-3 text-slate-700">
-                                        <Clock className="w-5 h-5 text-navy-600" />
-                                        <span>{service.duration}</span>
-                                    </div>
-                                    <div className="flex items-center space-x-3 text-slate-700">
-                                        <CheckCircle className="w-5 h-5 text-navy-600" />
-                                        <span>One on One consultation with Expert</span>
-                                    </div>
-                                </div>
+                                <button 
+                                    onClick={() => setIsPricingModalOpen(true)}
+                                    className="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-6 py-3 rounded-xl font-semibold text-center transition-all mb-4"
+                                >
+                                    See All Pricing Tiers &rarr;
+                                </button>
 
                                 {service.slug === 'claim-readiness-review' ? (
                                     <Link
                                         href="/claim-readiness-review"
                                         data-testid="book-now-button"
-                                        className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
+                                        className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
                                         style={{ backgroundColor: '#B91C3C' }}
                                     >
                                         Book Now - ${service.base_price_usd}
@@ -408,7 +490,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                         <Link
                                             href="/forms?service=aid-and-attendance"
                                             data-testid="aid-attendance-form-button"
-                                            className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
+                                            className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
                                             style={{ backgroundColor: '#B91C3C' }}
                                         >
                                             Complete Aid & Attendance Form
@@ -416,7 +498,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                         <Link
                                             href="/contact"
                                             data-testid="book-now-button"
-                                            className="w-full bg-white text-navy-600 px-6 py-4 rounded-full font-semibold text-center hover:bg-slate-50 transition-all border-2 border-navy-600 block"
+                                            className="w-full bg-transparent text-white px-6 py-4 rounded-xl font-semibold text-center hover:bg-slate-800 transition-all border border-slate-600 block"
                                         >
                                             General Inquiry
                                         </Link>
@@ -425,20 +507,11 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                     <Link
                                         href={`/forms?service=${slug}`}
                                         data-testid="book-now-button"
-                                        className="w-full text-white px-6 py-4 rounded-full font-semibold text-center transition-all hover:shadow-lg block"
+                                        className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
                                         style={{ backgroundColor: '#B91C3C' }}
                                     >
-                                        Get a Free Consultation
+                                        Book Free Consultation
                                     </Link>
-                                )}
-
-                                {(service.slug === 'claim-readiness-review' || service.slug === 'aid-and-attendance') && (
-                                    <p className="text-sm text-slate-500 mt-4 text-center">
-                                        {service.slug === 'claim-readiness-review'
-                                            ? 'Pay now and get your comprehensive review in 5-7 days'
-                                            : 'Complete our specialized form for faster processing'
-                                        }
-                                    </p>
                                 )}
                             </div>
 
@@ -489,6 +562,12 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                     </section>
                 )}
             </div >
+            
+            <PricingModal 
+                isOpen={isPricingModalOpen} 
+                onClose={() => setIsPricingModalOpen(false)} 
+                isMentalHealth={false}
+            />
         </Layout>
     );
 };
@@ -628,8 +707,10 @@ export async function getStaticProps({ params }) {
             ]);
 
             bodySystemsWithCounts = allSystems.map(system => {
-                const count = serviceConditions.filter(c => c.body_system_id === system.id).length;
-                return { ...system, conditionCount: count };
+                const sysConditions = serviceConditions.filter(c => c.body_system_id === system.id);
+                const count = sysConditions.length;
+                const conditionsPreview = sysConditions.slice(0, 4).map(c => c.page_title || c.dc_name || c.slug);
+                return { ...system, conditionCount: count, conditionsPreview };
             }).filter(system => system.conditionCount > 0) // Only show systems that have conditions for this service
               .sort((a, b) => a.display_order - b.display_order);
               

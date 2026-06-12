@@ -905,12 +905,7 @@ export const conditionApi = {
         pair_note: conditionData.pair_note || null,
         seo_keywords: conditionData.seo_keywords || [],
         internal_links: conditionData.internal_links || [],
-        stat_turnaround_time: conditionData.stat_turnaround_time || null,
-        stat_turnaround_note: conditionData.stat_turnaround_note || null,
-        stat_consultation_type: conditionData.stat_consultation_type || null,
-        stat_consultation_note: conditionData.stat_consultation_note || null,
-        stat_starting_price: conditionData.stat_starting_price || null,
-        stat_provider: conditionData.stat_provider || null,
+        stat_cards: conditionData.stat_cards || [],
       }])
       .select()
       .single();
@@ -942,12 +937,7 @@ export const conditionApi = {
       pair_note: conditionData.pair_note || null,
       seo_keywords: conditionData.seo_keywords || [],
       internal_links: conditionData.internal_links || [],
-      stat_turnaround_time: conditionData.stat_turnaround_time || null,
-      stat_turnaround_note: conditionData.stat_turnaround_note || null,
-      stat_consultation_type: conditionData.stat_consultation_type || null,
-      stat_consultation_note: conditionData.stat_consultation_note || null,
-      stat_starting_price: conditionData.stat_starting_price || null,
-      stat_provider: conditionData.stat_provider || null,
+      stat_cards: conditionData.stat_cards || [],
     };
 
     if (conditionData.slug) {
@@ -1194,6 +1184,8 @@ export const bodySystemApi = {
         specialist_guide: systemData.specialist_guide || [],
         paired_systems: systemData.paired_systems || [],
         pair_note: systemData.pair_note || null,
+        stat_cards: systemData.stat_cards || [],
+        build_trust_links: systemData.build_trust_links || [],
         display_order: systemData.display_order || 0,
         is_published: systemData.is_published !== undefined ? systemData.is_published : true,
       }])
@@ -1214,6 +1206,8 @@ export const bodySystemApi = {
       specialist_guide: systemData.specialist_guide || [],
       paired_systems: systemData.paired_systems || [],
       pair_note: systemData.pair_note || null,
+      stat_cards: systemData.stat_cards || [],
+      build_trust_links: systemData.build_trust_links || [],
       display_order: systemData.display_order || 0,
       is_published: systemData.is_published,
     };

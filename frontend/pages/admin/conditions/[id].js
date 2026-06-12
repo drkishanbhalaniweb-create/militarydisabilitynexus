@@ -52,12 +52,7 @@ const ConditionForm = () => {
         pair_note: '',
         seo_keywords: '',
         internal_links: [],
-        stat_turnaround_time: '',
-        stat_turnaround_note: '',
-        stat_consultation_type: '',
-        stat_consultation_note: '',
-        stat_starting_price: '',
-        stat_provider: '',
+        stat_cards: [],
     });
 
     useEffect(() => {
@@ -103,12 +98,7 @@ const ConditionForm = () => {
                         pair_note: condition.pair_note || '',
                         seo_keywords: keywords,
                         internal_links: condition.internal_links || [],
-                        stat_turnaround_time: condition.stat_turnaround_time || '',
-                        stat_turnaround_note: condition.stat_turnaround_note || '',
-                        stat_consultation_type: condition.stat_consultation_type || '',
-                        stat_consultation_note: condition.stat_consultation_note || '',
-                        stat_starting_price: condition.stat_starting_price || '',
-                        stat_provider: condition.stat_provider || '',
+                        stat_cards: condition.stat_cards || [],
                     });
 
                     // Auto-expand sections that have data
@@ -455,55 +445,74 @@ const ConditionForm = () => {
                             {/* Stat Cards (Hero Section) */}
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <button type="button" onClick={() => setShowStats(!showStats)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
-                                    <h2 className="text-xl font-semibold text-slate-900">Hero Stat Cards</h2>
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Hero Stat Cards</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Up to 4 key metrics shown in a grid below the hero (e.g. "DC 8045", "Starting At: $400").</p>
+                                    </div>
                                     {showStats ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
                                 </button>
                                 {showStats && (
                                     <div className="space-y-4 pt-2">
-                                        <p className="text-sm text-slate-500 mb-4">Leave fields blank to use default values. The "Diagnostic Code" card uses the DC Code/Name from the Clinical Details section above.</p>
-                                        
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                            {/* Turnaround Card */}
-                                            <div className="p-4 border border-slate-200 rounded-lg bg-slate-50 space-y-3">
-                                                <h3 className="font-semibold text-slate-800 text-sm">Turnaround Time</h3>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Main Text (e.g. 7-10 Days)</label>
-                                                    <input type="text" name="stat_turnaround_time" value={formData.stat_turnaround_time} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="7-10 Days" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Subtext (e.g. Rush 48-72hrs)</label>
-                                                    <input type="text" name="stat_turnaround_note" value={formData.stat_turnaround_note} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Rush 48-72hrs" />
-                                                </div>
-                                            </div>
-
-                                            {/* Consultation Card */}
-                                            <div className="p-4 border border-slate-200 rounded-lg bg-slate-50 space-y-3">
-                                                <h3 className="font-semibold text-slate-800 text-sm">Consultation</h3>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Main Text (e.g. Free)</label>
-                                                    <input type="text" name="stat_consultation_type" value={formData.stat_consultation_type} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Free" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-700 mb-1">Subtext (e.g. No obligation)</label>
-                                                    <input type="text" name="stat_consultation_note" value={formData.stat_consultation_note} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="No obligation" />
-                                                </div>
-                                            </div>
-
-                                            {/* Starting Price Card */}
-                                            <div className="p-4 border border-slate-200 rounded-lg bg-slate-50 space-y-3 sm:col-span-2">
-                                                <h3 className="font-semibold text-slate-800 text-sm">Starting Price (Overrides Specialist Guide)</h3>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Price (e.g. $400)</label>
-                                                        <input type="text" name="stat_starting_price" value={formData.stat_starting_price} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="$400" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Provider Level (e.g. Nurse Practitioner)</label>
-                                                        <input type="text" name="stat_provider" value={formData.stat_provider} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nurse Practitioner" />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <div className="flex justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => addListItem('stat_cards', { label: '', value: '', subtext: '' })}
+                                                disabled={(formData.stat_cards || []).length >= 4}
+                                                className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                                            >
+                                                <Plus className="w-4 h-4 mr-1" /> Add Stat Card
+                                            </button>
                                         </div>
+
+                                        {(formData.stat_cards || []).length === 0 ? (
+                                            <p className="text-sm text-slate-500 italic">No stat cards added yet. Add up to 4 key metrics.</p>
+                                        ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {formData.stat_cards.map((stat, index) => (
+                                                    <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeListItem('stat_cards', index)}
+                                                            className="absolute top-3 right-3 text-slate-400 hover:text-red-600 transition-colors"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                        <div className="space-y-2 pr-6">
+                                                            <div>
+                                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Label *</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={stat.label || ''}
+                                                                    onChange={(e) => updateListItem('stat_cards', index, 'label', e.target.value)}
+                                                                    className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                    placeholder='e.g. "Diagnostic Code" or "Starting At"'
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Value *</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={stat.value || ''}
+                                                                    onChange={(e) => updateListItem('stat_cards', index, 'value', e.target.value)}
+                                                                    className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                    placeholder='e.g. "DC 8045" or "$400"'
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Subtext</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={stat.subtext || ''}
+                                                                    onChange={(e) => updateListItem('stat_cards', index, 'subtext', e.target.value)}
+                                                                    className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                    placeholder='e.g. "Rush 48-72hrs" or "No obligation"'
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
