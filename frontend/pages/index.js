@@ -94,7 +94,7 @@ const Home = ({ services, blogPosts, testimonials }) => {
                             </h1>
 
                             <p className="text-base sm:text-lg text-white/90 leading-relaxed drop-shadow">
-                                Our licensed clinicians provide evidence-based{" "}
+                                Our USA licensed clinicians provide evidence-based{" "}
                                 <Link
                                     href="/services/independent-medical-opinion-nexus-letter"
                                     className="underline hover:text-white"
