@@ -8,7 +8,7 @@ const publicPages = [
   },
   {
     path: '/services',
-    heading: /VA Disability Services/i,
+    heading: /insufficient medical evidence/i,
   },
   {
     path: '/blog',
