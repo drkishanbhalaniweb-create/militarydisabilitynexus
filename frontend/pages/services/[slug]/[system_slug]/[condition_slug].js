@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
 import { conditionApi, servicesApi, bodySystemApi, blogApi, caseStudyApi } from '../../../../src/lib/api';
 import DynamicIcon from '../../../../src/components/ui/dynamic-icon';
 import SEO from '../../../../src/components/SEO';
@@ -124,13 +124,27 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 <p className="text-lg md:text-xl text-slate-300 leading-relaxed">{condition.meta_description}</p>
                             )}
                             <div className="flex flex-wrap gap-3 mt-8">
-                                <button
-                                    onClick={() => setIsPricingModalOpen(true)}
-                                    className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
-                                    style={{ backgroundColor: '#B91C3C' }}
-                                >
-                                    View Pricing — From {isMH ? '$1,600' : '$400'}
-                                </button>
+                                {service.slug === 'independent-medical-opinion-nexus-letter' ? (
+                                    <button
+                                        onClick={() => setIsPricingModalOpen(true)}
+                                        className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
+                                        style={{ backgroundColor: '#B91C3C' }}
+                                    >
+                                        View Pricing — From {isMH ? '$1,600' : '$400'}
+                                    </button>
+                                ) : (
+                                    <Link
+                                        href={
+                                            service.slug === 'claim-readiness-review'
+                                                ? '/claim-readiness-review'
+                                                : `/forms?service=${service.slug}`
+                                        }
+                                        className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110 flex items-center justify-center"
+                                        style={{ backgroundColor: '#B91C3C' }}
+                                    >
+                                        Book Now — ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                    </Link>
+                                )}
                                 <Link
                                     href="/contact"
                                     className="bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-center hover:bg-white/15 transition-all"
@@ -251,7 +265,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                             )}
 
                             {/* Specialist Guide */}
-                            {specialistGuide.length > 0 && (
+                            {service.slug === 'independent-medical-opinion-nexus-letter' && specialistGuide.length > 0 && (
                                 <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
                                     style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
                                     <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
@@ -396,40 +410,97 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                         {/* Sidebar */}
                         <aside className="lg:col-span-1">
                             <div className="lg:sticky lg:top-24 space-y-5">
-                                {/* Pricing Box */}
-                                <div className="rounded-2xl p-7 shadow-xl text-white" style={{ background: 'linear-gradient(160deg, #29435f, #3a5a7a)' }}>
-                                    <div className="mb-5">
-                                        <div className="text-xs text-white/50 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
-                                        <div className="text-xs text-white/50">Starting at</div>
-                                        <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            {isMH ? '$1,600' : '$400'}
+                                 {/* Pricing Box */}
+                                {service.slug === 'independent-medical-opinion-nexus-letter' ? (
+                                    <div className="rounded-2xl p-7 shadow-xl text-white" style={{ background: 'linear-gradient(160deg, #29435f, #3a5a7a)' }}>
+                                        <div className="mb-5">
+                                            <div className="text-xs text-white/50 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
+                                            <div className="text-xs text-white/50">Starting at</div>
+                                            <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                {isMH ? '$1,600' : '$400'}
+                                            </div>
+                                            <p className="text-xs text-white/45 mt-1">
+                                                {isMH ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
+                                            </p>
                                         </div>
-                                        <p className="text-xs text-white/45 mt-1">
-                                            {isMH ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
-                                        </p>
+
+                                        {isMH && (
+                                            <div className="border rounded-lg px-3 py-2 mb-4 text-[11px]" style={{ background: 'rgba(152,60,68,.25)', borderColor: 'rgba(152,60,68,.4)', color: '#e8a0a8' }}>
+                                                ⚠️ Mental Health minimum — specialized DSM-5 documentation
+                                            </div>
+                                        )}
+
+                                        <button 
+                                            onClick={() => setIsPricingModalOpen(true)}
+                                            className="w-full text-white border border-white/20 px-6 py-3 rounded-xl font-semibold text-center transition-all mb-3 text-sm hover:bg-white/10"
+                                            style={{ backgroundColor: '#B91C3C' }}
+                                        >
+                                            See All Pricing Tiers →
+                                        </button>
+
+                                        <Link
+                                            href={`/forms?service=${service.slug}`}
+                                            className="w-full bg-white/10 text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:bg-white/15 border border-white/18 block text-sm"
+                                        >
+                                            Book Free Consultation
+                                        </Link>
                                     </div>
-
-                                    {isMH && (
-                                        <div className="border rounded-lg px-3 py-2 mb-4 text-[11px]" style={{ background: 'rgba(152,60,68,.25)', borderColor: 'rgba(152,60,68,.4)', color: '#e8a0a8' }}>
-                                            ⚠️ Mental Health minimum — specialized DSM-5 documentation
+                                ) : (
+                                    <div className="bg-white rounded-2xl p-7 shadow-xl border border-slate-200 text-slate-900">
+                                        <div className="mb-5">
+                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
+                                            <div className="text-sm text-slate-500 mb-1">Starting at</div>
+                                            <div className="text-4xl font-bold text-slate-900 my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                            </div>
                                         </div>
-                                    )}
 
-                                    <button 
-                                        onClick={() => setIsPricingModalOpen(true)}
-                                        className="w-full text-white border border-white/20 px-6 py-3 rounded-xl font-semibold text-center transition-all mb-3 text-sm hover:bg-white/10"
-                                        style={{ backgroundColor: '#B91C3C' }}
-                                    >
-                                        See All Pricing Tiers →
-                                    </button>
+                                        <div className="space-y-4 mb-6 text-slate-700">
+                                            <div className="flex items-center space-x-3 text-sm">
+                                                <Clock className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                                <span>{service.duration}</span>
+                                            </div>
+                                            <div className="flex items-center space-x-3 text-sm">
+                                                <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                                <span>One on One consultation with Expert</span>
+                                            </div>
+                                        </div>
 
-                                    <Link
-                                        href={`/forms?service=${service.slug}`}
-                                        className="w-full bg-white/10 text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:bg-white/15 border border-white/18 block text-sm"
-                                    >
-                                        Book Free Consultation
-                                    </Link>
-                                </div>
+                                        {service.slug === 'claim-readiness-review' ? (
+                                            <Link
+                                                href="/claim-readiness-review"
+                                                className="w-full text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110 block text-sm"
+                                                style={{ backgroundColor: '#B91C3C' }}
+                                            >
+                                                Book Now - ${service.base_price_usd}
+                                            </Link>
+                                        ) : service.slug === 'aid-and-attendance' ? (
+                                            <div className="space-y-2">
+                                                <Link
+                                                    href="/forms?service=aid-and-attendance"
+                                                    className="w-full text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110 block text-sm"
+                                                    style={{ backgroundColor: '#B91C3C' }}
+                                                >
+                                                    Complete Aid & Attendance Form
+                                                </Link>
+                                                <Link
+                                                    href="/contact"
+                                                    className="w-full bg-white text-navy-600 px-6 py-3 rounded-xl font-semibold text-center hover:bg-slate-50 transition-all border border-slate-350 block text-sm"
+                                                >
+                                                    General Inquiry
+                                                </Link>
+                                            </div>
+                                        ) : (
+                                            <Link
+                                                href={`/forms?service=${service.slug}`}
+                                                className="w-full text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110 block text-sm"
+                                                style={{ backgroundColor: '#B91C3C' }}
+                                            >
+                                                Book Free Consultation
+                                            </Link>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* DC Quick Reference */}
                                 {condition.dc_code && (

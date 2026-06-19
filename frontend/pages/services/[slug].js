@@ -117,12 +117,27 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-8">{service.short_description}</p>
                             
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <button 
-                                    onClick={() => setIsPricingModalOpen(true)}
-                                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all"
-                                >
-                                    View Pricing &mdash; From $400
-                                </button>
+                                {service.slug === 'independent-medical-opinion-nexus-letter' ? (
+                                    <button 
+                                        onClick={() => setIsPricingModalOpen(true)}
+                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all"
+                                    >
+                                        View Pricing &mdash; From $400
+                                    </button>
+                                ) : (
+                                    <Link 
+                                        href={
+                                            service.slug === 'claim-readiness-review'
+                                                ? '/claim-readiness-review'
+                                                : service.slug === 'aid-and-attendance'
+                                                ? '/forms?service=aid-and-attendance'
+                                                : `/forms?service=${slug}`
+                                        }
+                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all text-center flex items-center justify-center"
+                                    >
+                                        Book Now &mdash; ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                    </Link>
+                                )}
                                 <Link 
                                     href={`/forms?service=${slug}`}
                                     className="bg-transparent border border-slate-600 hover:border-slate-400 text-white font-semibold py-3 px-8 rounded-xl transition-all text-center"
@@ -202,41 +217,43 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             </section>
 
                             {/* Pricing at a Glance */}
-                            <section className="bg-gradient-to-br from-slate-50 to-indigo-50 border border-slate-200 rounded-2xl p-8" aria-labelledby="pricing-heading">
-                                <h2 id="pricing-heading" className="text-2xl font-bold text-slate-900 mb-2">Pricing at a Glance</h2>
-                                <p className="text-slate-600 mb-6 text-sm">All claim theories (presumptive, direct, secondary) included in a single letter at internist/specialist level.</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
-                                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nurse Practitioner</div>
-                                        <div className="text-2xl font-bold text-slate-900 mb-2">$400</div>
-                                        <div className="text-[12px] font-semibold text-[#B91C3C]">Single condition</div>
+                            {service.slug === 'independent-medical-opinion-nexus-letter' && (
+                                <section className="bg-gradient-to-br from-slate-50 to-indigo-50 border border-slate-200 rounded-2xl p-8" aria-labelledby="pricing-heading">
+                                    <h2 id="pricing-heading" className="text-2xl font-bold text-slate-900 mb-2">Pricing at a Glance</h2>
+                                    <p className="text-slate-600 mb-6 text-sm">All claim theories (presumptive, direct, secondary) included in a single letter at internist/specialist level.</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
+                                            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nurse Practitioner</div>
+                                            <div className="text-2xl font-bold text-slate-900 mb-2">$400</div>
+                                            <div className="text-[12px] font-semibold text-[#B91C3C]">Single condition</div>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
+                                            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Additional (NP)</div>
+                                            <div className="text-2xl font-bold text-slate-900 mb-2">+$250</div>
+                                            <div className="text-[12px] font-semibold text-slate-500">Per extra condition</div>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-xl border-2 border-indigo-200 shadow-md flex flex-col justify-center items-center text-center h-full relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
+                                            <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Internist / Specialist</div>
+                                            <div className="text-2xl font-bold text-slate-900 mb-2">$945</div>
+                                            <div className="text-[12px] font-semibold text-slate-600">All theories included</div>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
+                                            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Specialist</div>
+                                            <div className="text-2xl font-bold text-slate-900 mb-2">$1,800</div>
+                                            <div className="text-[12px] font-semibold text-slate-500">Complex / High-stakes</div>
+                                        </div>
                                     </div>
-                                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
-                                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Additional (NP)</div>
-                                        <div className="text-2xl font-bold text-slate-900 mb-2">+$250</div>
-                                        <div className="text-[12px] font-semibold text-slate-500">Per extra condition</div>
+                                    <div className="text-center">
+                                        <button 
+                                            onClick={() => setIsPricingModalOpen(true)}
+                                            className="text-indigo-600 text-sm font-semibold hover:text-indigo-700 flex items-center justify-center mx-auto transition-colors"
+                                        >
+                                            See Full Pricing Breakdown <ArrowRight className="w-4 h-4 ml-1" />
+                                        </button>
                                     </div>
-                                    <div className="bg-white p-6 rounded-xl border-2 border-indigo-200 shadow-md flex flex-col justify-center items-center text-center h-full relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
-                                        <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Internist / Specialist</div>
-                                        <div className="text-2xl font-bold text-slate-900 mb-2">$945</div>
-                                        <div className="text-[12px] font-semibold text-slate-600">All theories included</div>
-                                    </div>
-                                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
-                                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Specialist</div>
-                                        <div className="text-2xl font-bold text-slate-900 mb-2">$1,800</div>
-                                        <div className="text-[12px] font-semibold text-slate-500">Complex / High-stakes</div>
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <button 
-                                        onClick={() => setIsPricingModalOpen(true)}
-                                        className="text-indigo-600 text-sm font-semibold hover:text-indigo-700 flex items-center justify-center mx-auto transition-colors"
-                                    >
-                                        See Full Pricing Breakdown <ArrowRight className="w-4 h-4 ml-1" />
-                                    </button>
-                                </div>
-                            </section>
+                                </section>
+                            )}
 
                             {/* Body Systems Grid (Level 3 Drill-Down) */}
                             {bodySystemsWithCounts && bodySystemsWithCounts.length > 0 && (
@@ -459,51 +476,24 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             )}
 
                             {/* Payment Box */}
-                            <div className="bg-slate-900 rounded-2xl p-8 shadow-xl text-white">
-                                <div className="mb-6">
-                                    <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Nurse Practitioner</div>
-                                    <div className="text-sm text-slate-400 mb-1">Starting at</div>
-                                    <div className="text-4xl font-bold mb-1">
-                                        $400
+                            {service.slug === 'independent-medical-opinion-nexus-letter' ? (
+                                <div className="bg-slate-900 rounded-2xl p-8 shadow-xl text-white">
+                                    <div className="mb-6">
+                                        <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Nurse Practitioner</div>
+                                        <div className="text-sm text-slate-400 mb-1">Starting at</div>
+                                        <div className="text-4xl font-bold mb-1">
+                                            $400
+                                        </div>
+                                        <p className="text-xs text-slate-400 mt-2">Single condition</p>
                                     </div>
-                                    <p className="text-xs text-slate-400 mt-2">Single condition</p>
-                                </div>
 
-                                <button 
-                                    onClick={() => setIsPricingModalOpen(true)}
-                                    className="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-6 py-3 rounded-xl font-semibold text-center transition-all mb-4"
-                                >
-                                    See All Pricing Tiers &rarr;
-                                </button>
-
-                                {service.slug === 'claim-readiness-review' ? (
-                                    <Link
-                                        href="/claim-readiness-review"
-                                        data-testid="book-now-button"
-                                        className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
-                                        style={{ backgroundColor: '#B91C3C' }}
+                                    <button 
+                                        onClick={() => setIsPricingModalOpen(true)}
+                                        className="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-6 py-3 rounded-xl font-semibold text-center transition-all mb-4"
                                     >
-                                        Book Now - ${service.base_price_usd}
-                                    </Link>
-                                ) : service.slug === 'aid-and-attendance' ? (
-                                    <div className="space-y-3">
-                                        <Link
-                                            href="/forms?service=aid-and-attendance"
-                                            data-testid="aid-attendance-form-button"
-                                            className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
-                                            style={{ backgroundColor: '#B91C3C' }}
-                                        >
-                                            Complete Aid & Attendance Form
-                                        </Link>
-                                        <Link
-                                            href="/contact"
-                                            data-testid="book-now-button"
-                                            className="w-full bg-transparent text-white px-6 py-4 rounded-xl font-semibold text-center hover:bg-slate-800 transition-all border border-slate-600 block"
-                                        >
-                                            General Inquiry
-                                        </Link>
-                                    </div>
-                                ) : (
+                                        See All Pricing Tiers &rarr;
+                                    </button>
+
                                     <Link
                                         href={`/forms?service=${slug}`}
                                         data-testid="book-now-button"
@@ -512,8 +502,66 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                     >
                                         Book Free Consultation
                                     </Link>
-                                )}
-                            </div>
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-2xl p-8 shadow-xl border border-slate-200 text-slate-900">
+                                    <div className="mb-6">
+                                        <div className="text-sm text-slate-500 mb-2">Starting at</div>
+                                        <div className="text-4xl font-bold text-slate-900 mb-1">
+                                            ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 mb-6 text-slate-700">
+                                        <div className="flex items-center space-x-3 text-sm">
+                                            <Clock className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                            <span>{service.duration}</span>
+                                        </div>
+                                        <div className="flex items-center space-x-3 text-sm">
+                                            <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                            <span>One on One consultation with Expert</span>
+                                        </div>
+                                    </div>
+
+                                    {service.slug === 'claim-readiness-review' ? (
+                                        <Link
+                                            href="/claim-readiness-review"
+                                            data-testid="book-now-button"
+                                            className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
+                                            style={{ backgroundColor: '#B91C3C' }}
+                                        >
+                                            Book Now - ${service.base_price_usd}
+                                        </Link>
+                                    ) : service.slug === 'aid-and-attendance' ? (
+                                        <div className="space-y-3">
+                                            <Link
+                                                href="/forms?service=aid-and-attendance"
+                                                data-testid="aid-attendance-form-button"
+                                                className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
+                                                style={{ backgroundColor: '#B91C3C' }}
+                                            >
+                                                Complete Aid & Attendance Form
+                                            </Link>
+                                            <Link
+                                                href="/contact"
+                                                data-testid="book-now-button"
+                                                className="w-full bg-white text-navy-600 px-6 py-4 rounded-xl font-semibold text-center hover:bg-slate-50 transition-all border border-slate-300 block"
+                                            >
+                                                General Inquiry
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <Link
+                                            href={`/forms?service=${slug}`}
+                                            data-testid="book-now-button"
+                                            className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
+                                            style={{ backgroundColor: '#B91C3C' }}
+                                        >
+                                            Book Free Consultation
+                                        </Link>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-xl">
                                 <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/65">Build Trust Before Buying</div>
