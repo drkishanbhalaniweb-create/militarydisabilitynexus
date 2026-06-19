@@ -130,7 +130,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                         className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
                                         style={{ backgroundColor: '#B91C3C' }}
                                     >
-                                        View Pricing — From {isMH ? '$1,600' : '$400'}
+                                        View Pricing — From {isMH ? '$1,600+' : '$400+'}
                                     </button>
                                 ) : (
                                     <Link
@@ -417,7 +417,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                             <div className="text-xs text-white/50 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
                                             <div className="text-xs text-white/50">Starting at</div>
                                             <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                {isMH ? '$1,600' : '$400'}
+                                                {isMH ? '$1,600+' : '$400+'}
                                             </div>
                                             <p className="text-xs text-white/45 mt-1">
                                                 {isMH ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}

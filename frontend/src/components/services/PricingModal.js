@@ -36,10 +36,18 @@ const PricingModal = ({ isOpen, onClose, isMentalHealth = false }) => {
     }, [isOpen, hasFetched, fetchTiers]);
 
     const getDisplayPrice = (tier) => {
+        let price = tier.base_price;
         if (isMentalHealth && tier.mental_health_price) {
-            return tier.mental_health_price;
+            price = tier.mental_health_price;
         }
-        return tier.base_price;
+        if (price && typeof price === 'string') {
+            if (tier.slug === 'nurse-practitioner') {
+                return price.replace(/(\$\d[\d,]*)(?!\+)/g, '$1+');
+            } else {
+                return price.replace(/\+/g, '');
+            }
+        }
+        return price;
     };
 
     return (
@@ -76,7 +84,7 @@ const PricingModal = ({ isOpen, onClose, isMentalHealth = false }) => {
                     <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                         <p className="text-sm font-bold text-slate-900 mb-1">How pricing works</p>
                         <p className="text-sm text-slate-600">
-                            Pricing varies by provider qualification and claim complexity. All tiers include a thorough records review, medical opinion letter, and direct provider communication. Additional conditions can be bundled for savings.
+                            Pricing varies by provider qualification and claim complexity. At the Internist/Specialist level, all claim theories (presumptive, direct, secondary to multiple conditions) are included in a single nexus letter. Example: veteran claiming migraine with evidence of presumptive, direct, secondary to tinnitus, PTSD, and pain from an Internist— all addressed in one opinion at $945.
                         </p>
                     </div>
 

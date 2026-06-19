@@ -122,3 +122,8 @@ supabase/.env
 .env
 .env.*
 .gitnexus
+
+# Prototypes and blog page HTML
+prototypes/
+blogpagehtml/
+

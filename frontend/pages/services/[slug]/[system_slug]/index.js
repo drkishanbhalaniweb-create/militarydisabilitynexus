@@ -112,7 +112,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices }) => {
                                         className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
                                         style={{ backgroundColor: '#B91C3C' }}
                                     >
-                                        View Pricing — From {system.is_mental_health ? '$1,600' : '$400'}
+                                        View Pricing — From {system.is_mental_health ? '$1,600+' : '$400+'}
                                     </button>
                                 ) : (
                                     <Link
@@ -238,7 +238,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices }) => {
                                                 </p>
                                                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                                                     <span className="text-xs font-semibold" style={{ color: '#983c44' }}>
-                                                        From {system.is_mental_health ? '$1,600' : '$400'}
+                                                        From {system.is_mental_health ? '$1,600+' : '$400+'}
                                                     </span>
                                                     <span className="text-xs font-semibold text-slate-700 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
                                                         View Details <ArrowRight className="w-3 h-3" />
@@ -294,7 +294,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices }) => {
                                             <div className="text-xs text-white/50 font-medium mb-0.5">{system.name} {service.title}</div>
                                             <div className="text-xs text-white/50">Starting at</div>
                                             <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                {system.is_mental_health ? '$1,600' : '$400'}
+                                                {system.is_mental_health ? '$1,600+' : '$400+'}
                                             </div>
                                             <p className="text-xs text-white/45 mt-1">
                                                 {system.is_mental_health ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
