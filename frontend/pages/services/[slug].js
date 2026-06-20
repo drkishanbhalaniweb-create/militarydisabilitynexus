@@ -117,7 +117,14 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-8">{service.short_description}</p>
                             
                             <div className="flex flex-col sm:flex-row gap-4">
-                                {service.slug === 'independent-medical-opinion-nexus-letter' ? (
+                                {service.slug === 'attorney-advocate-partnership' ? (
+                                    <Link 
+                                        href={`/forms?service=${slug}`}
+                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all text-center flex items-center justify-center"
+                                    >
+                                        Drop us a message
+                                    </Link>
+                                ) : service.slug === 'independent-medical-opinion-nexus-letter' ? (
                                     <button 
                                         onClick={() => setIsPricingModalOpen(true)}
                                         className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all"
@@ -138,12 +145,14 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                         Book Now &mdash; ${service.base_price_usd?.toLocaleString() || 'N/A'}
                                     </Link>
                                 )}
-                                <Link 
-                                    href={`/forms?service=${slug}`}
-                                    className="bg-transparent border border-slate-600 hover:border-slate-400 text-white font-semibold py-3 px-8 rounded-xl transition-all text-center"
-                                >
-                                    Free Consultation
-                                </Link>
+                                {service.slug !== 'attorney-advocate-partnership' && (
+                                    <Link 
+                                        href={`/forms?service=${slug}`}
+                                        className="bg-transparent border border-slate-600 hover:border-slate-400 text-white font-semibold py-3 px-8 rounded-xl transition-all text-center"
+                                    >
+                                        Free Consultation
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -501,60 +510,93 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                 </div>
                             ) : (
                                 <div className="bg-white rounded-2xl p-8 shadow-xl border border-slate-200 text-slate-900">
-                                    <div className="mb-6">
-                                        <div className="text-sm text-slate-500 mb-2">Starting at</div>
-                                        <div className="text-4xl font-bold text-slate-900 mb-1">
-                                            ${service.base_price_usd?.toLocaleString() || 'N/A'}
-                                        </div>
-                                    </div>
+                                    {service.slug === 'attorney-advocate-partnership' ? (
+                                        <>
+                                            <div className="mb-6">
+                                                <div className="text-xl font-bold text-slate-900 mb-2">Partner Program</div>
+                                                <p className="text-sm text-slate-600 leading-relaxed">
+                                                    We provide custom pricing and dedicated support channels for attorney and advocate firms. Contact us to learn how we can support your cases.
+                                                </p>
+                                            </div>
 
-                                    <div className="space-y-4 mb-6 text-slate-700">
-                                        <div className="flex items-center space-x-3 text-sm">
-                                            <Clock className="w-5 h-5 text-navy-600 flex-shrink-0" />
-                                            <span>{service.duration}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-3 text-sm">
-                                            <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
-                                            <span>One on One consultation with Expert</span>
-                                        </div>
-                                    </div>
+                                            <div className="space-y-4 mb-6 text-slate-700">
+                                                <div className="flex items-center space-x-3 text-sm">
+                                                    <Clock className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                                    <span>{service.duration || 'Custom priority timeline'}</span>
+                                                </div>
+                                                <div className="flex items-center space-x-3 text-sm">
+                                                    <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                                    <span>Dedicated firm portal & coordinator</span>
+                                                </div>
+                                            </div>
 
-                                    {service.slug === 'claim-readiness-review' ? (
-                                        <Link
-                                            href="/claim-readiness-review"
-                                            data-testid="book-now-button"
-                                            className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
-                                            style={{ backgroundColor: '#B91C3C' }}
-                                        >
-                                            Book Now - ${service.base_price_usd}
-                                        </Link>
-                                    ) : service.slug === 'aid-and-attendance' ? (
-                                        <div className="space-y-3">
                                             <Link
-                                                href="/forms?service=aid-and-attendance"
-                                                data-testid="aid-attendance-form-button"
+                                                href={`/forms?service=${slug}`}
+                                                data-testid="book-now-button"
                                                 className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
                                                 style={{ backgroundColor: '#B91C3C' }}
                                             >
-                                                Complete Aid & Attendance Form
+                                                Drop us a message
                                             </Link>
-                                            <Link
-                                                href="/contact"
-                                                data-testid="book-now-button"
-                                                className="w-full bg-white text-navy-600 px-6 py-4 rounded-xl font-semibold text-center hover:bg-slate-50 transition-all border border-slate-300 block"
-                                            >
-                                                General Inquiry
-                                            </Link>
-                                        </div>
+                                        </>
                                     ) : (
-                                        <Link
-                                            href={`/forms?service=${slug}`}
-                                            data-testid="book-now-button"
-                                            className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
-                                            style={{ backgroundColor: '#B91C3C' }}
-                                        >
-                                            Book Free Consultation
-                                        </Link>
+                                        <>
+                                            <div className="mb-6">
+                                                <div className="text-sm text-slate-500 mb-2">Starting at</div>
+                                                <div className="text-4xl font-bold text-slate-900 mb-1">
+                                                    ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-4 mb-6 text-slate-700">
+                                                <div className="flex items-center space-x-3 text-sm">
+                                                    <Clock className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                                    <span>{service.duration}</span>
+                                                </div>
+                                                <div className="flex items-center space-x-3 text-sm">
+                                                    <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
+                                                    <span>One on One consultation with Expert</span>
+                                                </div>
+                                            </div>
+
+                                            {service.slug === 'claim-readiness-review' ? (
+                                                <Link
+                                                    href="/claim-readiness-review"
+                                                    data-testid="book-now-button"
+                                                    className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
+                                                    style={{ backgroundColor: '#B91C3C' }}
+                                                >
+                                                    Book Now - ${service.base_price_usd}
+                                                </Link>
+                                            ) : service.slug === 'aid-and-attendance' ? (
+                                                <div className="space-y-3">
+                                                    <Link
+                                                        href="/forms?service=aid-and-attendance"
+                                                        data-testid="aid-attendance-form-button"
+                                                        className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
+                                                        style={{ backgroundColor: '#B91C3C' }}
+                                                    >
+                                                        Complete Aid & Attendance Form
+                                                    </Link>
+                                                    <Link
+                                                        href="/contact"
+                                                        data-testid="book-now-button"
+                                                        className="w-full bg-white text-navy-600 px-6 py-4 rounded-xl font-semibold text-center hover:bg-slate-50 transition-all border border-slate-300 block"
+                                                    >
+                                                        General Inquiry
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                <Link
+                                                    href={`/forms?service=${slug}`}
+                                                    data-testid="book-now-button"
+                                                    className="w-full text-white px-6 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:bg-red-700 block"
+                                                    style={{ backgroundColor: '#B91C3C' }}
+                                                >
+                                                    Book Free Consultation
+                                                </Link>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             )}

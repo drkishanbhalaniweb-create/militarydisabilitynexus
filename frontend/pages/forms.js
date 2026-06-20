@@ -4,28 +4,23 @@ import { Send, Upload, X, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../src/components/SEO';
 import SuccessModal from '../src/components/SuccessModal';
-import { fileUploadApi, formSubmissionsApi } from '../src/lib/api';
+import { fileUploadApi, formSubmissionsApi, servicesApi, pricingTierApi } from '../src/lib/api';
 import Layout from '../src/components/Layout';
 import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
 
-const FORM_TYPES = [
-    { value: 'nexus_letter', label: 'Nexus Letter' },
-    { value: 'dbq', label: 'Disability Benefits Questionnaires (DBQs)' },
-    { value: '1151_claim', label: '1151 Claim (VA Medical Malpractice)' },
-    { value: 'aid_attendance', label: 'Aid & Attendance' },
-    { value: 'unsure', label: "I'm not sure what I need" },
-];
-
-// Maps CMS service slugs to FORM_TYPES values for ?service= URL param auto-selection
+// Maps CMS service slugs to canonical values for ?service= URL param auto-selection
 const SERVICE_SLUG_MAP = {
-    'independent-medical-opinion-nexus-letter': 'nexus_letter',
-    'nexus-letter': 'nexus_letter',
-    'disability-benefits-questionnaire-dbq': 'dbq',
-    'dbq': 'dbq',
-    'va-medical-malpractice-1151-case': '1151_claim',
-    '1151-claim': '1151_claim',
-    'aid-attendance': 'aid_attendance',
-    'aid-and-attendance': 'aid_attendance',
+    'independent-medical-opinion-nexus-letter': 'independent-medical-opinion-nexus-letter',
+    'nexus-letter': 'independent-medical-opinion-nexus-letter',
+    'nexus_letter': 'independent-medical-opinion-nexus-letter',
+    'disability-benefits-questionnaire-dbq': 'disability-benefits-questionnaire-dbq',
+    'dbq': 'disability-benefits-questionnaire-dbq',
+    'va-medical-malpractice-1151-case': 'va-medical-malpractice-1151-case',
+    '1151-claim': 'va-medical-malpractice-1151-case',
+    '1151_claim': 'va-medical-malpractice-1151-case',
+    'aid-attendance': 'aid-and-attendance',
+    'aid-and-attendance': 'aid-and-attendance',
+    'aid_attendance': 'aid-and-attendance',
 };
 
 const Forms = () => {
@@ -33,7 +28,7 @@ const Forms = () => {
     const formStartedAt = useRef(Date.now());
 
     // Check URL parameters to determine initial view and pre-selected service
-    const { view, service } = router.query;
+    const { view, service, tier } = router.query;
     const initialView = view === 'schedule';
 
     const [formData, setFormData] = useState({
@@ -45,10 +40,47 @@ const Forms = () => {
         rushService: false,
         website: '',
     });
+    const [services, setServices] = useState([]);
+    const [pricingTiers, setPricingTiers] = useState([]);
+    const [selectedPricingTier, setSelectedPricingTier] = useState('');
+    
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showCal, setShowCal] = useState(false);
+
+    useEffect(() => {
+        const loadInitialData = async () => {
+            try {
+                const [dbServices, dbTiers] = await Promise.all([
+                    servicesApi.getAll(),
+                    pricingTierApi.getAll()
+                ]);
+                
+                const formatted = dbServices.map(s => ({
+                    value: s.slug,
+                    label: s.title
+                }));
+                formatted.push({
+                    value: 'unsure',
+                    label: "I'm not sure what I need"
+                });
+                
+                setServices(formatted);
+                setPricingTiers(dbTiers);
+            } catch (error) {
+                console.error('Failed to load services or pricing tiers:', error);
+                setServices([
+                    { value: 'independent-medical-opinion-nexus-letter', label: 'Independent Medical Opinion (IMO) / Nexus Letter' },
+                    { value: 'disability-benefits-questionnaire-dbq', label: 'Disability Benefits Questionnaire (DBQ)' },
+                    { value: 'va-medical-malpractice-1151-case', label: '1151 Claim (VA Medical Malpractice)' },
+                    { value: 'aid-and-attendance', label: 'Aid & Attendance (21-2680)' },
+                    { value: 'unsure', label: "I'm not sure what I need" }
+                ]);
+            }
+        };
+        loadInitialData();
+    }, []);
 
     useEffect(() => {
         if (router.isReady) {
@@ -56,13 +88,20 @@ const Forms = () => {
 
             // Auto-select service from URL parameter (e.g., ?service=disability-benefits-questionnaire-dbq)
             if (service) {
-                const formType = SERVICE_SLUG_MAP[service];
-                if (formType) {
-                    setFormData(prev => ({ ...prev, formType }));
+                const mappedService = SERVICE_SLUG_MAP[service] || service;
+                const finalService = mappedService === 'nexus_letter' ? 'independent-medical-opinion-nexus-letter' :
+                                      mappedService === 'dbq' ? 'disability-benefits-questionnaire-dbq' :
+                                      mappedService === '1151_claim' ? 'va-medical-malpractice-1151-case' :
+                                      mappedService === 'aid_attendance' ? 'aid-and-attendance' : mappedService;
+                setFormData(prev => ({ ...prev, formType: finalService }));
+                
+                // If it's a nexus letter and tier is provided, select it!
+                if ((finalService === 'independent-medical-opinion-nexus-letter' || finalService === 'nexus-letter') && tier) {
+                    setSelectedPricingTier(tier);
                 }
             }
         }
-    }, [router.isReady, initialView, service]);
+    }, [router.isReady, initialView, service, tier]);
 
     // Load Cal.com inline embed
     useEffect(() => {
@@ -104,6 +143,11 @@ const Forms = () => {
             ...prev,
             [name]: value
         }));
+        
+        // Clear pricing tier if service changes
+        if (name === 'formType') {
+            setSelectedPricingTier('');
+        }
     };
 
     const handleFileSelect = (e) => {
@@ -117,7 +161,32 @@ const Forms = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Check pricing tier selection for Nexus Letter
+        if ((formData.formType === 'independent-medical-opinion-nexus-letter' || formData.formType === 'nexus-letter') && !selectedPricingTier) {
+            toast.error('Please select a pricing tier.');
+            return;
+        }
+
         setIsSubmitting(true);
+
+        // Helper to map dynamic service slug to DB-compatible form_type
+        const getDbFormType = (val) => {
+            const map = {
+                'independent-medical-opinion-nexus-letter': 'nexus_letter',
+                'nexus_letter': 'nexus_letter',
+                'disability-benefits-questionnaire-dbq': 'dbq',
+                'dbq': 'dbq',
+                'va-medical-malpractice-1151-case': '1151_claim',
+                '1151_claim': '1151_claim',
+                'aid-and-attendance': 'aid_attendance',
+                'aid_attendance': 'aid_attendance',
+                'claim-readiness-review': 'claim_readiness_review',
+                'claim_readiness_review': 'claim_readiness_review',
+                'unsure': 'unsure'
+            };
+            return map[val] || 'general';
+        };
 
         try {
             const submissionMeta = createSubmissionMeta({
@@ -128,12 +197,14 @@ const Forms = () => {
 
             // Submit form data first
             const submission = await formSubmissionsApi.submit({
-                formType: formData.formType,
+                formType: getDbFormType(formData.formType),
                 fullName: formData.name,
                 email: formData.email,
                 phone: formData.phone,
                 formData: {
                     additionalDetails: formData.additionalDetails,
+                    selectedServiceSlug: formData.formType,
+                    selectedPricingTier: (formData.formType === 'independent-medical-opinion-nexus-letter' || formData.formType === 'nexus-letter') ? selectedPricingTier : undefined
                 },
                 requiresUpload: false,
             }, submissionMeta);
@@ -158,6 +229,7 @@ const Forms = () => {
                 website: '',
             });
             setSelectedFiles([]);
+            setSelectedPricingTier('');
             formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Form submission error:', error);
@@ -283,12 +355,102 @@ const Forms = () => {
                                         required
                                         className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900"
                                     >
-                                        {FORM_TYPES.map(type => (
+                                        {services.map(type => (
                                             <option key={type.value} value={type.value}>
                                                 {type.label}
                                             </option>
                                         ))}
                                     </select>
+
+                                    {/* Pricing Tier Selection for Nexus Letter */}
+                                    {(formData.formType === 'independent-medical-opinion-nexus-letter' || formData.formType === 'nexus-letter') && (
+                                        <div className="mt-6 border-t border-slate-200/50 pt-6 animate-fadeIn">
+                                            <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                                Choose Provider Tier / Pricing Option <span className="text-red-500">*</span>
+                                            </label>
+                                            
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                {pricingTiers.map((tier) => {
+                                                    const isSelected = selectedPricingTier === tier.slug;
+                                                    return (
+                                                        <button
+                                                            key={tier.id}
+                                                            type="button"
+                                                            onClick={() => setSelectedPricingTier(tier.slug)}
+                                                            className={`text-left p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] hover:shadow-md flex flex-col h-full relative overflow-hidden ${
+                                                                isSelected
+                                                                    ? 'border-navy-600 bg-navy-50/20 ring-1 ring-navy-600'
+                                                                    : 'border-slate-200/60 bg-white hover:border-slate-300'
+                                                            }`}
+                                                        >
+                                                            {/* Selected Checkmark Indicator */}
+                                                            {isSelected && (
+                                                                <div className="absolute top-0 right-0 bg-navy-600 text-white p-1 rounded-bl-lg">
+                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                </div>
+                                                            )}
+                                                            
+                                                            <div className="mb-2 pr-4">
+                                                                <span className="text-xs font-bold text-slate-900 block leading-tight">
+                                                                    {tier.name}
+                                                                </span>
+                                                                {tier.provider_description && (
+                                                                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                                                                        {tier.provider_description}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            <div className="mb-2">
+                                                                <span className="text-lg font-black text-navy-800">
+                                                                    {tier.base_price}
+                                                                </span>
+                                                                {tier.note && (
+                                                                    <span className="text-[9px] text-slate-500 block leading-normal">
+                                                                        {tier.note}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {tier.best_for && (
+                                                                <div className="mt-auto pt-2 border-t border-slate-100 w-full">
+                                                                    <p className="text-[10px] text-slate-600 leading-tight">
+                                                                        <span className="font-semibold text-slate-700">Best for: </span>
+                                                                        {tier.best_for}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                            
+                                            {/* Tier features list for the selected tier */}
+                                            {selectedPricingTier && (
+                                                <div className="mt-4 p-4 bg-slate-50 border border-slate-200/60 rounded-xl animate-fadeIn">
+                                                    {pricingTiers.find(t => t.slug === selectedPricingTier)?.features && (
+                                                        <>
+                                                            <h4 className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Included Features:</h4>
+                                                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5">
+                                                                {pricingTiers.find(t => t.slug === selectedPricingTier).features.map((feature, i) => (
+                                                                    <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                                                                        <span className="leading-tight">{feature}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                            
+                                            {!selectedPricingTier && (
+                                                <p className="text-xs text-amber-600 mt-2 font-medium">Please select a pricing tier/option to complete your request.</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
@@ -422,7 +584,7 @@ const Forms = () => {
 
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || wordCount > maxWords}
+                                    disabled={isSubmitting || wordCount > maxWords || ((formData.formType === 'independent-medical-opinion-nexus-letter' || formData.formType === 'nexus-letter') && !selectedPricingTier)}
                                     className="w-full text-white py-4 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 hover:scale-105"
                                     style={{ backgroundColor: '#B91C3C' }}
                                 >

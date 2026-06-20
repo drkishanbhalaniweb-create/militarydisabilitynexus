@@ -3,7 +3,7 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
         return options.extractToc ? { html: '', tocItems: [], hasToc: false } : '';
     }
 
-    const customBlocks = ['stat-strip', 'faq-section', 'highlight-box', 'hook-block', 'denial-grid', 'definition-block', 'author-block', 'toc-block', 'alert-box', 'lead-magnet-block'];
+    const customBlocks = ['stat-strip', 'faq-section', 'highlight-box', 'hook-block', 'denial-grid', 'definition-block', 'author-block', 'toc-block', 'alert-box', 'lead-magnet-block', 'custom-box'];
 
     // 1. Parse Headings & Inject IDs
     let headings = [];
@@ -176,4 +176,49 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
     }
 
     return processedHtml;
+};
+
+export const formatConditionHTML = (htmlString) => {
+    if (!htmlString) return '';
+    
+    // Split the html string by custom-box divs
+    // Capture the custom-box div block to keep it in the split array
+    const parts = htmlString.split(/(<div class="custom-box">.*?<\/div>)/gs);
+    
+    let result = '';
+    let currentRun = [];
+    
+    const isSeparator = (str) => {
+        return !str.trim() || /^(?:<p>\s*(?:<br\s*\/?>)?\s*<\/p>|\s)+$/i.test(str);
+    };
+    
+    const flushRun = () => {
+        if (currentRun.length === 0) return;
+        result += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">`;
+        for (const box of currentRun) {
+            result += `<div class="col-span-1">${box}</div>`;
+        }
+        result += `</div>`;
+        currentRun = [];
+    };
+    
+    for (const part of parts) {
+        if (part.startsWith('<div class="custom-box"')) {
+            currentRun.push(part);
+        } else if (isSeparator(part)) {
+            // If we are currently in a run of custom-boxes, we ignore/skip the separator 
+            // to allow grouping consecutive custom-boxes together.
+            // If we are not in a run, we just append it to result.
+            if (currentRun.length === 0) {
+                result += part;
+            }
+        } else {
+            // Actual text/content, so end the current run of custom-boxes
+            flushRun();
+            result += part;
+        }
+    }
+    
+    flushRun();
+    return result;
 };

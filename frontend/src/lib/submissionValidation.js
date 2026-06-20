@@ -9,6 +9,13 @@ const CONTACT_SERVICE_TYPES = new Set([
   '1151_claim',
   'aid_attendance',
   'unsure',
+  'independent-medical-opinion-nexus-letter',
+  'disability-benefits-questionnaire-dbq',
+  'aid-and-attendance',
+  'cp-exam-coaching',
+  'expert-consultation',
+  'claim-readiness-review',
+  'va-medical-malpractice-1151-case',
 ]);
 
 const ALLOWED_FORM_TYPES = new Set([
@@ -20,6 +27,12 @@ const ALLOWED_FORM_TYPES = new Set([
   'nexus_letter',
   'dbq',
   '1151_claim',
+  'independent-medical-opinion-nexus-letter',
+  'disability-benefits-questionnaire-dbq',
+  'aid-and-attendance',
+  'cp-exam-coaching',
+  'expert-consultation',
+  'va-medical-malpractice-1151-case',
 ]);
 
 const MULTILINE_FIELD_HINTS = [
@@ -172,6 +185,12 @@ function getFormTypeLabel(type) {
     nexus_letter: 'Nexus Letter',
     dbq: 'DBQ',
     '1151_claim': '1151 Claim',
+    'independent-medical-opinion-nexus-letter': 'Independent Medical Opinion (IMO) / Nexus Letter',
+    'disability-benefits-questionnaire-dbq': 'Disability Benefits Questionnaire (DBQ)',
+    'aid-and-attendance': 'Aid & Attendance (21-2680)',
+    'cp-exam-coaching': 'C&P Exam Coaching',
+    'expert-consultation': 'One-on-One Consultation with Expert',
+    'va-medical-malpractice-1151-case': '1151 Claim (VA Medical Malpractice)',
   };
 
   return labels[type] || sanitizeInlineText(type, 50) || 'Form Submission';

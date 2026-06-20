@@ -14,6 +14,7 @@ import {
     AccordionTrigger,
 } from '../../../../src/components/ui/accordion';
 import { buildOrganizationReference } from '../../../../src/lib/trust';
+import { formatConditionHTML } from '../../../../src/lib/htmlUtils';
 
 const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = [], relatedCaseStudies = [], allServices = [], siblingConditions = [] }) => {
     const router = useRouter();
@@ -120,8 +121,10 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                             <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                 {condition.hero_heading}
                             </h1>
-                            {condition.meta_description && (
-                                <p className="text-lg md:text-xl text-slate-300 leading-relaxed">{condition.meta_description}</p>
+                            {(condition.hero_description || condition.meta_description) && (
+                                <p className="text-lg md:text-xl text-slate-300 leading-relaxed">
+                                    {condition.hero_description || condition.meta_description}
+                                </p>
                             )}
                             <div className="flex flex-wrap gap-3 mt-8">
                                 {service.slug === 'independent-medical-opinion-nexus-letter' ? (
@@ -213,7 +216,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 </h2>
                                 <div 
                                     className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
-                                    dangerouslySetInnerHTML={{ __html: condition.content_html }}
+                                    dangerouslySetInnerHTML={{ __html: formatConditionHTML(condition.content_html) }}
                                 />
                             </section>
 

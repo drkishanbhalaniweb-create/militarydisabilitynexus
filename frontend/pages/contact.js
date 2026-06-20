@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Mail, Phone, Send, Upload, Calendar } from 'lucide-react';
+import { Mail, Phone, Send, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { contactsApi } from '../src/lib/api';
+import { contactsApi, servicesApi } from '../src/lib/api';
+import { useEffect } from 'react';
 import FileUpload from '../src/components/FileUpload';
 import FileList from '../src/components/FileList';
 import SuccessModal from '../src/components/SuccessModal';
@@ -22,13 +23,34 @@ const Contact = () => {
         website: '',
     });
 
-    const SERVICE_TYPES = [
-        { value: 'nexus_letter', label: 'Nexus Letter' },
-        { value: 'dbq', label: 'Disability Benefits Questionnaires (DBQs)' },
-        { value: '1151_claim', label: '1151 Claim (VA Medical Malpractice)' },
-        { value: 'aid_attendance', label: 'Aid & Attendance' },
-        { value: 'unsure', label: "I'm not sure what I need" },
-    ];
+    const [services, setServices] = useState([]);
+    useEffect(() => {
+        const loadServices = async () => {
+            try {
+                const dbServices = await servicesApi.getAll();
+                const formatted = dbServices.map(s => ({
+                    value: s.slug,
+                    label: s.title
+                }));
+                formatted.push({
+                    value: 'unsure',
+                    label: "I'm not sure what I need"
+                });
+                setServices(formatted);
+            } catch (error) {
+                console.error('Failed to load services:', error);
+                setServices([
+                    { value: 'independent-medical-opinion-nexus-letter', label: 'Independent Medical Opinion (IMO) / Nexus Letter' },
+                    { value: 'disability-benefits-questionnaire-dbq', label: 'Disability Benefits Questionnaire (DBQ)' },
+                    { value: 'va-medical-malpractice-1151-case', label: '1151 Claim (VA Medical Malpractice)' },
+                    { value: 'aid-and-attendance', label: 'Aid & Attendance (21-2680)' },
+                    { value: 'unsure', label: "I'm not sure what I need" }
+                ]);
+            }
+        };
+        loadServices();
+    }, []);
+
     const [loading, setLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [contactId, setContactId] = useState(null);
@@ -242,7 +264,7 @@ const Contact = () => {
                                                 What services are you interested in? * (Select all that apply)
                                             </label>
                                             <div className="space-y-2">
-                                                {SERVICE_TYPES.map((type) => (
+                                                {services.map((type) => (
                                                     <label
                                                         key={type.value}
                                                         className="flex items-center cursor-pointer p-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg hover:bg-navy-50/60 transition-colors"

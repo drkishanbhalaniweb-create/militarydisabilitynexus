@@ -173,7 +173,7 @@ const PricingModal = ({ isOpen, onClose, isMentalHealth = false }) => {
 
                                         {/* CTA */}
                                         <Link
-                                            href="/contact"
+                                            href={`/forms?service=independent-medical-opinion-nexus-letter&tier=${tier.slug}`}
                                             onClick={onClose}
                                             className={`mt-auto w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm transition-colors ${
                                                 featured

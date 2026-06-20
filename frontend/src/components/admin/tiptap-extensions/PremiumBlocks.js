@@ -50,7 +50,7 @@ export const GlobalWrapperDiv = Node.create({
             'highlight-box', 'hook-block', 
             'denial-grid', 'denial-card', 'denial-header', 'denial-body', 
             'definition-block', 'definition-content', 'toc-block', 'alert-box',
-            'lead-magnet-block'
+            'lead-magnet-block', 'custom-box'
           ];
           
           if (allowedWrappers.some(c => cls.includes(c))) {

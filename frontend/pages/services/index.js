@@ -410,7 +410,10 @@ const Services = ({ services }) => {
                                                     {service.base_price_usd > 0 && (
                                                         <div className="mb-6 p-4 bg-navy-50/80 backdrop-blur-sm rounded-lg border border-navy-100/50">
                                                             <div className="text-xs text-slate-500 mb-0.5">Starting at</div>
-                                                            <div className="text-2xl font-bold text-navy-800">${service.base_price_usd}</div>
+                                                            <div className="text-2xl font-bold text-navy-800">
+                                                                ${service.base_price_usd}
+                                                                {service.slug === 'independent-medical-opinion-nexus-letter' && '+'}
+                                                            </div>
                                                         </div>
                                                     )}
 

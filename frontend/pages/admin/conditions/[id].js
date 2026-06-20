@@ -9,6 +9,7 @@ import SEO from '../../../src/components/SEO';
 import Link from 'next/link';
 import InternalLinkSearchPicker from '../../../src/components/admin/InternalLinkSearchPicker';
 import IconPicker from '../../../src/components/admin/IconPicker';
+import RichTextEditor from '../../../src/components/admin/RichTextEditor';
 
 const ConditionForm = () => {
     const router = useRouter();
@@ -32,6 +33,7 @@ const ConditionForm = () => {
         page_title: '',
         slug: '',
         meta_description: '',
+        hero_description: '',
         hero_heading: '',
         content_html: '',
         is_published: true,
@@ -79,6 +81,7 @@ const ConditionForm = () => {
                         page_title: condition.page_title || '',
                         slug: condition.slug || '',
                         meta_description: condition.meta_description || '',
+                        hero_description: condition.hero_description || '',
                         hero_heading: condition.hero_heading || '',
                         content_html: condition.content_html || '',
                         is_published: condition.is_published ?? true,
@@ -266,7 +269,7 @@ const ConditionForm = () => {
                         <button
                             type="submit"
                             disabled={saving || (loadError && !isNew)}
-                            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2 disabled:opacity-50 transition-colors"
+                            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2 disabled:opacity-50 transition-colors font-semibold text-sm"
                         >
                             <Save className="w-5 h-5" />
                             <span>{saving ? 'Saving...' : 'Save Condition'}</span>
@@ -294,6 +297,18 @@ const ConditionForm = () => {
                                 </div>
 
                                 <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hero Description (Displays on Hero Card)</label>
+                                    <textarea
+                                        name="hero_description"
+                                        value={formData.hero_description}
+                                        onChange={handleInputChange}
+                                        rows={3}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-sm"
+                                        placeholder="Enter a descriptive summary for the hero card (differs from page meta description and body overview)"
+                                    />
+                                </div>
+
+                                <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">URL Slug</label>
                                     <input
                                         type="text"
@@ -306,16 +321,11 @@ const ConditionForm = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Content / Requirements (HTML)</label>
-                                    <p className="text-xs text-slate-500 mb-2">You can use basic HTML like &lt;p&gt;, &lt;h3&gt;, &lt;ul&gt; &lt;li&gt;</p>
-                                    <textarea
-                                        name="content_html"
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Content / Requirements (Overview Section)</label>
+                                    <p className="text-xs text-slate-500 mb-2">Write the main condition overview. Use the "Custom Box" component from the toolbar to insert connection boxes.</p>
+                                    <RichTextEditor
                                         value={formData.content_html}
-                                        onChange={handleInputChange}
-                                        required
-                                        rows={12}
-                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow font-mono text-sm"
-                                        placeholder="<p>To establish direct service connection for...</p>"
+                                        onChange={(html) => setFormData(prev => ({ ...prev, content_html: html }))}
                                     />
                                 </div>
                             </div>

@@ -30,7 +30,8 @@ const TEMPLATES = {
     QUOTABLE: `<p class="quotable">A denial from the VA is not a verdict on whether your condition is real. <strong>Understanding why claims fail is the first step.</strong></p><p></p>`,
     CHECKLIST: `<ul class="checklist"><li>I have a current, formal diagnosis.</li><li>I can clearly identify my in-service stressor.</li></ul><p></p>`,
     TOC_BLOCK: `<div class="toc-block"><p class="text-slate-500 text-sm font-semibold italic text-center">Table of contents will automatically generate here when viewed.</p></div><p></p>`,
-    ALERT_BOX: `<div class="alert-box"><p><strong>⚠️ Warning or Pattern Title</strong></p><p>Describe the specific issue, pattern, or warning here in a couple of sentences.</p></div><p></p>`
+    ALERT_BOX: `<div class="alert-box"><p><strong>⚠️ Warning or Pattern Title</strong></p><p>Describe the specific issue, pattern, or warning here in a couple of sentences.</p></div><p></p>`,
+    CUSTOM_BOX: `<div class="custom-box"><h3>Heading</h3><p>Body</p></div><p></p>`
 };
 
 const FONTS = [
@@ -417,6 +418,9 @@ const MenuBar = ({ editor }) => {
                 <button type="button" onClick={() => insertBlock(TEMPLATES.ALERT_BOX)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" /> Alert Box
                 </button>
+                <button type="button" onClick={() => insertBlock(TEMPLATES.CUSTOM_BOX)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1">
+                    <LayoutGrid className="w-3 h-3" /> Custom Box
+                </button>
             </div>
         </div>
 
@@ -679,6 +683,34 @@ const RichTextEditor = ({ value, onChange }) => {
                     border-radius: 0.5rem;
                     background: #f8fafc;
                     display: block;
+                }
+
+                .tiptap-wrapper .ProseMirror .custom-box {
+                    margin: 1.5rem 0;
+                    padding: 2rem;
+                    border: 1px solid #EAE5DA;
+                    border-radius: 1rem;
+                    background: #FAF6F0;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    justify-content: center !important;
+                    aspect-ratio: 1 / 1 !important;
+                    box-sizing: border-box !important;
+                    max-width: 350px;
+                }
+                .tiptap-wrapper .ProseMirror .custom-box h3 {
+                    color: #29435f !important;
+                    font-family: 'Inter', sans-serif !important;
+                    font-size: 1.125rem !important;
+                    font-weight: 700 !important;
+                    margin-top: 0 !important;
+                    margin-bottom: 0.75rem !important;
+                }
+                .tiptap-wrapper .ProseMirror .custom-box p {
+                    color: #475569 !important;
+                    font-size: 0.9375rem !important;
+                    line-height: 1.625 !important;
+                    margin-bottom: 0 !important;
                 }
 
                 /* Editor-specific typography for custom blocks */

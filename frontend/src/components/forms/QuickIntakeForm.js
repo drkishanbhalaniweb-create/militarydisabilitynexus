@@ -1,19 +1,41 @@
 import { useState, useEffect, useRef } from 'react';
 import { Upload, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import { formSubmissionsApi, fileUploadApi } from '../../lib/api';
+import { formSubmissionsApi, fileUploadApi, servicesApi } from '../../lib/api';
 import SuccessModal from '../SuccessModal';
 import { createSubmissionMeta, validateSubmissionMeta } from '../../lib/submissionValidation';
 
-const FORM_TYPES = [
-  { value: 'nexus_letter', label: 'Nexus Letter', requiresUpload: false },
-  { value: 'dbq', label: 'Disability Benefits Questionnaires (DBQs)', requiresUpload: false },
-  { value: '1151_claim', label: '1151 Claim (VA Medical Malpractice)', requiresUpload: false },
-  { value: 'aid_attendance', label: 'Aid & Attendance', requiresUpload: false },
-  { value: 'unsure', label: "I'm not sure what I need", requiresUpload: false },
-];
-
 const QuickIntakeForm = ({ onSuccess }) => {
+  const [formTypes, setFormTypes] = useState([]);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const dbServices = await servicesApi.getAll();
+        const formatted = dbServices.map(s => ({
+          value: s.slug,
+          label: s.title,
+          requiresUpload: false
+        }));
+        formatted.push({
+          value: 'unsure',
+          label: "I'm not sure what I need",
+          requiresUpload: false
+        });
+        setFormTypes(formatted);
+      } catch (error) {
+        console.error('Failed to load services:', error);
+        setFormTypes([
+          { value: 'independent-medical-opinion-nexus-letter', label: 'Independent Medical Opinion (IMO) / Nexus Letter', requiresUpload: false },
+          { value: 'disability-benefits-questionnaire-dbq', label: 'Disability Benefits Questionnaire (DBQ)', requiresUpload: false },
+          { value: 'va-medical-malpractice-1151-case', label: '1151 Claim (VA Medical Malpractice)', requiresUpload: false },
+          { value: 'aid-and-attendance', label: 'Aid & Attendance (21-2680)', requiresUpload: false },
+          { value: 'unsure', label: "I'm not sure what I need", requiresUpload: false }
+        ]);
+      }
+    };
+    loadServices();
+  }, []);
   const formStartedAt = useRef(Date.now());
   const [formData, setFormData] = useState({
     fullName: '',
@@ -65,7 +87,7 @@ const QuickIntakeForm = ({ onSuccess }) => {
   const getSelectedLabel = () => {
     if (formData.formTypes.length === 0) return 'Select services...';
     if (formData.formTypes.length === 1) {
-      return FORM_TYPES.find(t => t.value === formData.formTypes[0])?.label || 'Select services...';
+      return formTypes.find(t => t.value === formData.formTypes[0])?.label || 'Select services...';
     }
     return `${formData.formTypes.length} services selected`;
   };
@@ -217,7 +239,7 @@ const QuickIntakeForm = ({ onSuccess }) => {
 
           {isDropdownOpen && (
             <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-slate-200 max-h-60 overflow-y-auto">
-              {FORM_TYPES.map((type) => (
+              {formTypes.map((type) => (
                 <label
                   key={type.value}
                   className="flex items-center px-4 py-2.5 hover:bg-indigo-50 cursor-pointer transition-colors"

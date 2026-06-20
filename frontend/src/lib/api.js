@@ -886,6 +886,7 @@ export const conditionApi = {
         slug: uniqueSlug,
         page_title: conditionData.page_title,
         meta_description: conditionData.meta_description,
+        hero_description: conditionData.hero_description || null,
         hero_heading: conditionData.hero_heading,
         content_html: conditionData.content_html,
         faqs: conditionData.faqs || [],
@@ -918,6 +919,7 @@ export const conditionApi = {
     const updateData = {
       page_title: conditionData.page_title,
       meta_description: conditionData.meta_description,
+      hero_description: conditionData.hero_description || null,
       hero_heading: conditionData.hero_heading,
       content_html: conditionData.content_html,
       faqs: conditionData.faqs || [],
