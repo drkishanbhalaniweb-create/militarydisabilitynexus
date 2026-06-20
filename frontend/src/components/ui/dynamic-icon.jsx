@@ -15,7 +15,12 @@ import {
   Flame,
   Pill,
   HelpCircle,
-  FileText
+  FileText,
+  Compass,
+  Hourglass,
+  Shuffle,
+  Link,
+  Scale
 } from 'lucide-react';
 
 const iconMap = {
@@ -64,6 +69,11 @@ const iconMap = {
   'pill': Pill,
   'filetext': FileText,
   'file-text': FileText,
+  'compass': Compass,
+  'hourglass': Hourglass,
+  'shuffle': Shuffle,
+  'link': Link,
+  'scale': Scale,
 
   // PascalCase options
   'Brain': Brain,
@@ -82,6 +92,11 @@ const iconMap = {
   'Flame': Flame,
   'Pill': Pill,
   'FileText': FileText,
+  'Compass': Compass,
+  'Hourglass': Hourglass,
+  'Shuffle': Shuffle,
+  'Link': Link,
+  'Scale': Scale,
 };
 
 export default function DynamicIcon({ name, className = '', ...props }) {

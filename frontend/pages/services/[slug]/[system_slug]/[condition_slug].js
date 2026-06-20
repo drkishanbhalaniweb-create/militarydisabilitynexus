@@ -564,6 +564,38 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                             </div>
                         </aside>
                     </div>
+
+                    {/* DBQ / Nexus Letter cross-link note above footer */}
+                    <div 
+                        className="mt-12 p-6 bg-slate-100 border-l-4 rounded-r-xl text-slate-700 text-sm md:text-base leading-relaxed" 
+                        style={{ borderColor: '#B91C3C' }}
+                    >
+                        {service.slug === 'disability-benefits-questionnaire-dbq' ? (
+                            <>
+                                Looking for a Nexus Letter instead? Nexus Letters (medical connection opinions) are handled within our separate{' '}
+                                <Link 
+                                    href="/services/independent-medical-opinion-nexus-letter" 
+                                    className="font-semibold hover:underline" 
+                                    style={{ color: '#B91C3C' }}
+                                >
+                                    Nexus Letter service
+                                </Link>
+                                . This page covers the {condition.page_title || condition.hero_heading} {service.title.includes('Nexus') ? 'Nexus Letter' : service.title.includes('DBQ') ? 'DBQ' : service.title}.
+                            </>
+                        ) : (
+                            <>
+                                Looking for a DBQ instead? Disability Benefits Questionnaires are handled within our separate{' '}
+                                <Link 
+                                    href="/services/disability-benefits-questionnaire-dbq" 
+                                    className="font-semibold hover:underline" 
+                                    style={{ color: '#B91C3C' }}
+                                >
+                                    DBQ service
+                                </Link>
+                                . This page covers the {condition.page_title || condition.hero_heading} {service.title.includes('Nexus') ? 'Nexus Letter' : service.title.includes('DBQ') ? 'DBQ' : service.title}.
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </Layout>

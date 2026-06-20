@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import SEO from '../../../src/components/SEO';
 import Link from 'next/link';
 import IconPicker from '../../../src/components/admin/IconPicker';
+import RichTextEditor from '../../../src/components/admin/RichTextEditor';
 
 const EMPTY_SPECIALIST = { name: '', role: '', best_for: '', price: '', note: '' };
 const EMPTY_STAT_CARD = { label: '', value: '', subtext: '' };
@@ -23,6 +24,7 @@ const BodySystemForm = () => {
     const [saving, setSaving] = useState(false);
     const [loadError, setLoadError] = useState(false);
     const [allSystems, setAllSystems] = useState([]);
+    const [services, setServices] = useState([]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -30,12 +32,17 @@ const BodySystemForm = () => {
         icon: '',
         description: '',
         overview: '',
+        hero_description: '',
         is_mental_health: false,
         specialist_guide: [],
         paired_systems: [],
         pair_note: '',
         stat_cards: [],
         build_trust_links: [],
+        faqs: [],
+        pathways: [],
+        challenges: [],
+        service_descriptions: [],
         display_order: 0,
         is_published: true,
     });
@@ -56,25 +63,59 @@ const BodySystemForm = () => {
             if (systemsError) throw systemsError;
             setAllSystems(systemsData || []);
 
+            // Fetch all active services
+            const { data: servicesData, error: servicesError } = await supabase
+                .from('services')
+                .select('id, title, slug')
+                .eq('is_active', true)
+                .order('display_order', { ascending: true });
+
+            if (servicesError) throw servicesError;
+            const activeServicesList = servicesData || [];
+            setServices(activeServicesList);
+
             if (!isNew) {
                 const system = await bodySystemApi.getById(id);
                 if (system) {
+                    // Populate service descriptions with defaults if empty
+                    const existingDescriptions = system.service_descriptions || [];
+                    const mappedServiceDescriptions = activeServicesList.map(s => {
+                        const existing = existingDescriptions.find(d => d.service_slug === s.slug);
+                        return {
+                            service_slug: s.slug,
+                            text: existing ? existing.text : ''
+                        };
+                    });
+
                     setFormData({
                         name: system.name || '',
                         slug: system.slug || '',
                         icon: system.icon || '',
                         description: system.description || '',
                         overview: system.overview || '',
+                        hero_description: system.hero_description || '',
                         is_mental_health: system.is_mental_health ?? false,
                         specialist_guide: system.specialist_guide || [],
                         paired_systems: system.paired_systems || [],
                         pair_note: system.pair_note || '',
                         stat_cards: system.stat_cards || [],
                         build_trust_links: system.build_trust_links || [],
+                        faqs: system.faqs || [],
+                        pathways: system.pathways || [],
+                        challenges: system.challenges || [],
+                        service_descriptions: mappedServiceDescriptions,
                         display_order: system.display_order ?? 0,
                         is_published: system.is_published ?? true,
                     });
                 }
+            } else {
+                setFormData(prev => ({
+                    ...prev,
+                    service_descriptions: activeServicesList.map(s => ({
+                        service_slug: s.slug,
+                        text: ''
+                    }))
+                }));
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -150,6 +191,97 @@ const BodySystemForm = () => {
         });
     };
 
+    const updateStringListItem = (field, index, value) => {
+        setFormData(prev => {
+            const updated = [...prev[field]];
+            updated[index] = value;
+            return { ...prev, [field]: updated };
+        });
+    };
+
+    // --- FAQs ---
+    const addFaq = () => {
+        setFormData(prev => ({
+            ...prev,
+            faqs: [...(prev.faqs || []), { question: '', answer: '' }]
+        }));
+    };
+
+    const removeFaq = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            faqs: (prev.faqs || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const updateFaq = (index, field, value) => {
+        setFormData(prev => {
+            const newFaqs = [...(prev.faqs || [])];
+            newFaqs[index] = { ...newFaqs[index], [field]: value };
+            return { ...prev, faqs: newFaqs };
+        });
+    };
+
+    // --- Signature Pathways ---
+    const addPathway = () => {
+        setFormData(prev => ({
+            ...prev,
+            pathways: [...(prev.pathways || []), { from: '', to: '', mechanism: '' }]
+        }));
+    };
+
+    const removePathway = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            pathways: (prev.pathways || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const updatePathway = (index, field, value) => {
+        setFormData(prev => {
+            const updated = [...(prev.pathways || [])];
+            updated[index] = { ...updated[index], [field]: value };
+            return { ...prev, pathways: updated };
+        });
+    };
+
+    // --- Challenges ---
+    const addChallenge = () => {
+        setFormData(prev => ({
+            ...prev,
+            challenges: [...(prev.challenges || []), { icon: 'HelpCircle', title: '', description: '' }]
+        }));
+    };
+
+    const removeChallenge = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            challenges: (prev.challenges || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const updateChallenge = (index, field, value) => {
+        setFormData(prev => {
+            const updated = [...(prev.challenges || [])];
+            updated[index] = { ...updated[index], [field]: value };
+            return { ...prev, challenges: updated };
+        });
+    };
+
+    // --- Service Descriptions ---
+    const updateServiceDescription = (serviceSlug, text) => {
+        setFormData(prev => {
+            const updated = [...(prev.service_descriptions || [])];
+            const idx = updated.findIndex(d => d.service_slug === serviceSlug);
+            if (idx !== -1) {
+                updated[idx] = { ...updated[idx], text };
+            } else {
+                updated.push({ service_slug: serviceSlug, text });
+            }
+            return { ...prev, service_descriptions: updated };
+        });
+    };
+
     // --- Build Trust Links ---
     const addTrustLink = () => {
         setFormData(prev => ({
@@ -181,6 +313,11 @@ const BodySystemForm = () => {
             return;
         }
 
+        if (!formData.overview || formData.overview.trim() === '' || formData.overview === '<p></p>') {
+            toast.error('Overview content is required.');
+            return;
+        }
+
         setSaving(true);
 
         try {
@@ -188,6 +325,10 @@ const BodySystemForm = () => {
                 ...formData,
                 display_order: parseInt(formData.display_order, 10) || 0,
                 specialist_guide: (formData.specialist_guide || []).filter(s => (s.name ?? '').trim() !== ''),
+                faqs: (formData.faqs || []).filter(f => (f.question ?? '').trim() !== '' || (f.answer ?? '').trim() !== ''),
+                pathways: (formData.pathways || []).filter(p => (p.from ?? '').trim() !== '' && (p.to ?? '').trim() !== ''),
+                challenges: (formData.challenges || []).filter(c => (c.title ?? '').trim() !== ''),
+                service_descriptions: (formData.service_descriptions || []).filter(d => (d.text ?? '').trim() !== ''),
             };
 
             if (isNew) {
@@ -299,7 +440,7 @@ const BodySystemForm = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Short Description *</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Short Description (SEO & List Previews) *</label>
                                     <input
                                         type="text"
                                         name="description"
@@ -312,15 +453,24 @@ const BodySystemForm = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Overview *</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hero Card Description</label>
+                                    <p className="text-xs text-slate-500 mb-2">Distinct plain text description displayed on the hero card of the public-facing page.</p>
                                     <textarea
-                                        name="overview"
-                                        value={formData.overview}
+                                        name="hero_description"
+                                        value={formData.hero_description}
                                         onChange={handleInputChange}
-                                        required
-                                        rows={5}
+                                        rows={3}
                                         className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-                                        placeholder="Longer description explaining this body system category for the public-facing page..."
+                                        placeholder="Explain this body system category for the hero card (optional, falls back to overview plain text if left blank)..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Overview *</label>
+                                    <p className="text-xs text-slate-500 mb-2">Longer description explaining this body system category. You can use full-suite formatting tools.</p>
+                                    <RichTextEditor
+                                        value={formData.overview}
+                                        onChange={(html) => setFormData(prev => ({ ...prev, overview: html }))}
                                     />
                                 </div>
 
@@ -584,6 +734,232 @@ const BodySystemForm = () => {
                                                 </div>
                                             </div>
                                         ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* FAQs */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Frequently Asked Questions</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Add FAQs specific to this body system to improve SEO and user understanding.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addFaq}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add FAQ
+                                    </button>
+                                </div>
+
+                                {(!formData.faqs || formData.faqs.length === 0) ? (
+                                    <p className="text-sm text-slate-500 italic">No FAQs added yet. FAQs are highly recommended for GEO/AI citation.</p>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {formData.faqs.map((faq, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeFaq(index)}
+                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Question {index + 1} *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={faq.question || ''}
+                                                            onChange={(e) => updateFaq(index, 'question', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="e.g. What is the VA rating for Neurology conditions?"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Answer *</label>
+                                                        <textarea
+                                                            value={faq.answer || ''}
+                                                            onChange={(e) => updateFaq(index, 'answer', e.target.value)}
+                                                            rows={3}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="Enter answer..."
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Signature Pathways */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Signature Pathways</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Causation relationships shown as flowcharts (e.g. PTSD → Migraine).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addPathway}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Pathway
+                                    </button>
+                                </div>
+
+                                {(!formData.pathways || formData.pathways.length === 0) ? (
+                                    <p className="text-sm text-slate-500 italic">No signature pathways added yet. Section will be hidden on public page if empty.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {formData.pathways.map((path, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePathway(index)}
+                                                    className="absolute top-3 right-3 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-6">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Source Node (From) *</label>
+                                                            <input
+                                                                type="text"
+                                                                value={path.from || ''}
+                                                                onChange={(e) => updatePathway(index, 'from', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "PTSD" or "TBI"'
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Target Node (To) *</label>
+                                                            <input
+                                                                type="text"
+                                                                value={path.to || ''}
+                                                                onChange={(e) => updatePathway(index, 'to', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "Migraine Headaches"'
+                                                                required
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Biological Mechanism *</label>
+                                                        <textarea
+                                                            value={path.mechanism || ''}
+                                                            onChange={(e) => updatePathway(index, 'mechanism', e.target.value)}
+                                                            rows={2}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="Explain the connection mechanism..."
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Complexity / Challenges */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Why Claims Are Challenging</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Cards highlighting why these specific claims are complex (typically 6 items).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addChallenge}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Challenge
+                                    </button>
+                                </div>
+
+                                {(!formData.challenges || formData.challenges.length === 0) ? (
+                                    <p className="text-sm text-slate-500 italic">No challenges added yet. Section will be hidden on public page if empty.</p>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {formData.challenges.map((chal, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative border-l-4 border-l-indigo-500">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeChallenge(index)}
+                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div className="pt-2">
+                                                        <IconPicker
+                                                            label="Challenge Card Icon"
+                                                            value={chal.icon}
+                                                            onChange={(val) => updateChallenge(index, 'icon', val)}
+                                                            helpText="Select an icon representing this challenge."
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Title *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={chal.title || ''}
+                                                            onChange={(e) => updateChallenge(index, 'title', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "Multiple Possible Causes"'
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Description *</label>
+                                                        <textarea
+                                                            value={chal.description || ''}
+                                                            onChange={(e) => updateChallenge(index, 'description', e.target.value)}
+                                                            rows={2}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="Explain why this is a challenge..."
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Service-Specific Descriptions */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Service Comparison Descriptions</h2>
+                                <p className="text-xs text-slate-500">Provide a description explaining what each service does specifically for this body system category.</p>
+
+                                {services.length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">No active services found.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {services.map(svc => {
+                                            const descObj = (formData.service_descriptions || []).find(d => d.service_slug === svc.slug) || { text: '' };
+                                            return (
+                                                <div key={svc.id} className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                                                    <label className="block text-sm font-semibold text-slate-800 mb-1">{svc.title}</label>
+                                                    <textarea
+                                                        value={descObj.text || ''}
+                                                        onChange={(e) => updateServiceDescription(svc.slug, e.target.value)}
+                                                        rows={3}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-white"
+                                                        placeholder={`Describe how ${svc.title} applies specifically to this body system (falls back to service description if empty)...`}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
