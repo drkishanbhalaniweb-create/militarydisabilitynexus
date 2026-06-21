@@ -1195,6 +1195,11 @@ export const bodySystemApi = {
         service_descriptions: systemData.service_descriptions || [],
         display_order: systemData.display_order || 0,
         is_published: systemData.is_published !== undefined ? systemData.is_published : true,
+        pathways_intro: systemData.pathways_intro || null,
+        challenges_title: systemData.challenges_title || null,
+        services_title: systemData.services_title || null,
+        services_intro: systemData.services_intro || null,
+        paired_title: systemData.paired_title || null,
       }])
       .select()
       .single();
@@ -1222,6 +1227,11 @@ export const bodySystemApi = {
       service_descriptions: systemData.service_descriptions || [],
       display_order: systemData.display_order || 0,
       is_published: systemData.is_published,
+      pathways_intro: systemData.pathways_intro || null,
+      challenges_title: systemData.challenges_title || null,
+      services_title: systemData.services_title || null,
+      services_intro: systemData.services_intro || null,
+      paired_title: systemData.paired_title || null,
     };
 
     if (systemData.slug) {

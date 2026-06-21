@@ -156,13 +156,15 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                     {/* Hero Card */}
                     <section className="bg-slate-900 text-white rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
                         <div className="max-w-3xl relative z-10">
-                            {system.icon && (
-                                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 text-2xl mb-4">
-                                    <DynamicIcon name={system.icon} className="w-6 h-6 text-white" />
+                            <div className="flex items-center gap-3 mb-4">
+                                {system.icon && (
+                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 text-2xl flex-shrink-0">
+                                        <DynamicIcon name={system.icon} className="w-6 h-6 text-white" />
+                                    </div>
+                                )}
+                                <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/80">
+                                    {system.name} Claims
                                 </div>
-                            )}
-                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/80 mb-4">
-                                {system.name} Claims
                             </div>
                             <h1 className="text-4xl md:text-5xl font-bold mb-4">
                                 {system.name} {service.title}s
@@ -331,26 +333,42 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                             Common {system.name} Service-Connection Pathways
                                         </h2>
                                         <p className="text-sm text-slate-500 mb-6">
-                                            Many {system.name.toLowerCase()} claims succeed not as standalone conditions, but as part of a chain — one diagnosis medically explaining another. These are the relationships we most often document in plain medical terms.
+                                            {system.pathways_intro || `Many ${system.name.toLowerCase()} claims succeed not as standalone conditions, but as part of a chain — one diagnosis medically explaining another. These are the relationships we most often document in plain medical terms.`}
                                         </p>
-                                        
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {system.pathways.map((path, idx) => (
-                                                <div key={idx} className="bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all shadow-sm">
-                                                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                                                        <span className="text-xs font-semibold bg-slate-900 text-white px-2.5 py-1 rounded-lg">
-                                                            {path.from}
-                                                        </span>
-                                                        <span className="text-red-700 font-bold">→</span>
-                                                        <span className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200/60" style={{ backgroundColor: 'rgba(152,60,68,0.05)', color: '#983c44' }}>
-                                                            {path.to}
-                                                        </span>
+                                            {system.pathways.map((path, idx) => {
+                                                const cardContent = (
+                                                    <>
+                                                        <div className="flex items-center gap-2 flex-wrap mb-3">
+                                                            <span className="text-xs font-semibold bg-slate-900 text-white px-2.5 py-1 rounded-lg">
+                                                                {path.from}
+                                                            </span>
+                                                            <span className="text-red-700 font-bold">→</span>
+                                                            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200/60" style={{ backgroundColor: 'rgba(152,60,68,0.05)', color: '#983c44' }}>
+                                                                {path.to}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-slate-600 text-xs leading-relaxed">
+                                                            {path.mechanism}
+                                                        </p>
+                                                    </>
+                                                );
+                                                const cardClass = "block bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all shadow-sm text-left";
+
+                                                if (path.url) {
+                                                    return (
+                                                        <Link key={idx} href={path.url} className={cardClass}>
+                                                            {cardContent}
+                                                        </Link>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div key={idx} className={cardClass}>
+                                                        {cardContent}
                                                     </div>
-                                                    <p className="text-slate-600 text-xs leading-relaxed">
-                                                        {path.mechanism}
-                                                    </p>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </section>
@@ -363,7 +381,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                         What Makes Them Hard
                                     </span>
                                     <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        Why {system.name} Claims Can Be Challenging
+                                        {system.challenges_title || `Why ${system.name} Claims Can Be Challenging`}
                                     </h2>
                                     <p className="text-sm text-slate-500 mb-6">
                                         Understanding these challenges in advance is the first step toward building a clearer medical record — and knowing where additional evidence may help.
@@ -392,10 +410,10 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                         How We Help
                                     </span>
                                     <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        Medical Evidence Services for {system.name} Claims
+                                        {system.services_title || `Medical Evidence Services for ${system.name} Claims`}
                                     </h2>
                                     <p className="text-sm text-slate-500 mb-6">
-                                        Clinician-led services support {system.name.toLowerCase()} claims at different stages. Each focuses on the medical evidence — clear diagnoses, sound causation reasoning, and well-documented severity.
+                                        {system.services_intro || `Clinician-led services support ${system.name.toLowerCase()} claims at different stages. Each focuses on the medical evidence — clear diagnoses, sound causation reasoning, and well-documented severity.`}
                                     </p>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -504,7 +522,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                             Commonly Paired
                                         </span>
                                         <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            Veterans Usually Pair {system.name} With These Systems
+                                            {system.paired_title || `Veterans Usually Pair ${system.name} With These Systems`}
                                         </h2>
                                         {system.pair_note && (
                                             <p className="text-sm text-slate-600 leading-relaxed mb-5">{system.pair_note}</p>
@@ -618,7 +636,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                             <div className="lg:sticky lg:top-24 space-y-5">
                                 {/* Payment Box */}
                                 {service.slug === 'independent-medical-opinion-nexus-letter' ? (
-                                    <div className="rounded-2xl p-7 shadow-xl text-white" style={{ background: 'linear-gradient(160deg, #29435f, #3a5a7a)' }}>
+                                    <div className="bg-slate-900 rounded-2xl p-7 shadow-xl text-white">
                                         <div className="mb-5">
                                             <div className="text-xs text-white/50 font-medium mb-0.5">{system.name} {service.title}</div>
                                             <div className="text-xs text-white/50">Starting at</div>

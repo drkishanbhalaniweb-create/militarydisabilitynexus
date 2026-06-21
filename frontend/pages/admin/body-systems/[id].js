@@ -10,6 +10,7 @@ import SEO from '../../../src/components/SEO';
 import Link from 'next/link';
 import IconPicker from '../../../src/components/admin/IconPicker';
 import RichTextEditor from '../../../src/components/admin/RichTextEditor';
+import InternalLinkSearchPicker from '../../../src/components/admin/InternalLinkSearchPicker';
 
 const EMPTY_SPECIALIST = { name: '', role: '', best_for: '', price: '', note: '' };
 const EMPTY_STAT_CARD = { label: '', value: '', subtext: '' };
@@ -45,6 +46,11 @@ const BodySystemForm = () => {
         service_descriptions: [],
         display_order: 0,
         is_published: true,
+        pathways_intro: '',
+        challenges_title: '',
+        services_title: '',
+        services_intro: '',
+        paired_title: '',
     });
 
     useEffect(() => {
@@ -106,6 +112,11 @@ const BodySystemForm = () => {
                         service_descriptions: mappedServiceDescriptions,
                         display_order: system.display_order ?? 0,
                         is_published: system.is_published ?? true,
+                        pathways_intro: system.pathways_intro || '',
+                        challenges_title: system.challenges_title || '',
+                        services_title: system.services_title || '',
+                        services_intro: system.services_intro || '',
+                        paired_title: system.paired_title || '',
                     });
                 }
             } else {
@@ -329,6 +340,11 @@ const BodySystemForm = () => {
                 pathways: (formData.pathways || []).filter(p => (p.from ?? '').trim() !== '' && (p.to ?? '').trim() !== ''),
                 challenges: (formData.challenges || []).filter(c => (c.title ?? '').trim() !== ''),
                 service_descriptions: (formData.service_descriptions || []).filter(d => (d.text ?? '').trim() !== ''),
+                pathways_intro: (formData.pathways_intro || '').trim(),
+                challenges_title: (formData.challenges_title || '').trim(),
+                services_title: (formData.services_title || '').trim(),
+                services_intro: (formData.services_intro || '').trim(),
+                paired_title: (formData.paired_title || '').trim(),
             };
 
             if (isNew) {
@@ -487,6 +503,72 @@ const BodySystemForm = () => {
                                         <p className="text-xs text-slate-500">Triggers mental health pricing in the pricing modal</p>
                                     </div>
                                 </label>
+                            </div>
+
+                             {/* Section Content Overrides */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Custom Section Content Overrides</h2>
+                                <p className="text-xs text-slate-500 mb-2">Optional overrides for heading and introduction texts on the public-facing body system page.</p>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Pathways Section Intro</label>
+                                    <textarea
+                                        name="pathways_intro"
+                                        value={formData.pathways_intro || ''}
+                                        onChange={handleInputChange}
+                                        rows={3}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-slate-900 text-sm"
+                                        placeholder='Fallback: "Many claims succeed not as standalone conditions, but as part of a chain..."'
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Challenges Section Title</label>
+                                    <input
+                                        type="text"
+                                        name="challenges_title"
+                                        value={formData.challenges_title || ''}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-slate-900 text-sm"
+                                        placeholder='Fallback: "Why [System Name] Claims Can Be Challenging"'
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Medical Evidence Services Section Title</label>
+                                    <input
+                                        type="text"
+                                        name="services_title"
+                                        value={formData.services_title || ''}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-slate-900 text-sm"
+                                        placeholder='Fallback: "Medical Evidence Services for [System Name] Claims"'
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Medical Evidence Services Section Intro</label>
+                                    <textarea
+                                        name="services_intro"
+                                        value={formData.services_intro || ''}
+                                        onChange={handleInputChange}
+                                        rows={3}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-slate-900 text-sm"
+                                        placeholder='Fallback: "Clinician-led services support [system name] claims at different stages. Each focuses on the medical evidence..."'
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Commonly Paired Section Title</label>
+                                    <input
+                                        type="text"
+                                        name="paired_title"
+                                        value={formData.paired_title || ''}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-slate-900 text-sm"
+                                        placeholder='Fallback: "Veterans Usually Pair [System Name] With These Systems"'
+                                    />
+                                </div>
                             </div>
 
                             {/* Specialist Guide */}
@@ -851,6 +933,33 @@ const BodySystemForm = () => {
                                                             />
                                                         </div>
                                                     </div>
+
+                                                    {path.url ? (
+                                                        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5 flex items-center justify-between text-xs">
+                                                            <span className="text-indigo-800 font-medium truncate">
+                                                                🔗 Linked to: <span className="font-mono">{path.url}</span>
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => updatePathway(index, 'url', '')}
+                                                                className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors"
+                                                                title="Remove Link"
+                                                            >
+                                                                Unlink
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Link to existing page (optional)</label>
+                                                            <InternalLinkSearchPicker
+                                                                onSelect={(selected) => {
+                                                                    updatePathway(index, 'url', selected.url);
+                                                                }}
+                                                                placeholder="Search for conditions, services, blogs, etc. to link this pathway..."
+                                                            />
+                                                        </div>
+                                                    )}
+
                                                     <div>
                                                         <label className="block text-xs font-semibold text-slate-700 mb-1">Biological Mechanism *</label>
                                                         <textarea
