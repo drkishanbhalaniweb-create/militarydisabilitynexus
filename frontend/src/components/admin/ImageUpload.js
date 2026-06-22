@@ -174,23 +174,26 @@ const ImageUpload = ({
       ) : (
         // Preview area
         showPreview && (
-          <div className="relative group">
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-full h-64 object-cover rounded-lg border-2 border-slate-200"
-            />
+          <div>
+            {/* Image container with overlay */}
+            <div className="relative group overflow-hidden rounded-lg">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-full h-64 object-cover border-2 border-slate-200 rounded-lg"
+              />
 
-            {/* Overlay with remove button */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center">
-              <button
-                type="button"
-                onClick={handleRemove}
-                className="opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center space-x-2"
-              >
-                <X className="w-4 h-4" />
-                <span>Remove Image</span>
-              </button>
+              {/* Overlay with remove button */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={handleRemove}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center space-x-2"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Remove Image</span>
+                </button>
+              </div>
             </div>
 
             {/* Image info */}

@@ -49,7 +49,17 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const statCards = condition.stat_cards || [];
     const specialistGuide = condition.specialist_guide || [];
     const secondaryConnections = condition.secondary_connections || [];
-    const pairedConditions = condition.paired_conditions || [];
+    const pairedConditions = (condition.paired_conditions || []).map(pc => {
+        try {
+            const parsed = JSON.parse(pc);
+            if (typeof parsed === 'object' && parsed !== null && 'name' in parsed) {
+                return { name: parsed.name || '', url: parsed.url || '' };
+            }
+        } catch (e) {
+            // Fallback for plain strings
+        }
+        return { name: pc || '', url: '' };
+    }).filter(pc => pc.name.trim() !== '');
     const internalLinks = condition.internal_links || [];
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
     const otherConditions = (siblingConditions || []).filter(c => c.id !== condition.id);
@@ -373,15 +383,29 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                             <p className="text-sm text-slate-600 leading-relaxed mb-5">{condition.pair_note}</p>
                                         )}
                                         <div className="flex flex-wrap gap-3">
-                                            {pairedConditions.map((pc, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold hover:border-red-300 transition-colors cursor-pointer"
-                                                    style={{ color: '#29435f' }}
-                                                >
-                                                    {pc} {service.title} →
-                                                </div>
-                                            ))}
+                                            {pairedConditions.map((pc, i) => {
+                                                if (pc.url) {
+                                                    return (
+                                                        <Link
+                                                            key={i}
+                                                            href={pc.url}
+                                                            className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold hover:border-red-300 transition-all cursor-pointer block"
+                                                            style={{ color: '#29435f' }}
+                                                        >
+                                                            {pc.name} →
+                                                        </Link>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 cursor-default"
+                                                    >
+                                                        {pc.name}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </section>

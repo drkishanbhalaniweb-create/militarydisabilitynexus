@@ -97,7 +97,17 @@ const ConditionForm = () => {
                         features: condition.features || [],
                         secondary_connections: condition.secondary_connections || [],
                         specialist_guide: condition.specialist_guide || [],
-                        paired_conditions: condition.paired_conditions || [],
+                        paired_conditions: (condition.paired_conditions || []).map(p => {
+                            try {
+                                const parsed = JSON.parse(p);
+                                if (typeof parsed === 'object' && parsed !== null && 'name' in parsed) {
+                                    return { name: parsed.name || '', url: parsed.url || '' };
+                                }
+                            } catch (e) {
+                                // fallback for plain string
+                            }
+                            return { name: p || '', url: '' };
+                        }),
                         pair_note: condition.pair_note || '',
                         seo_keywords: keywords,
                         internal_links: condition.internal_links || [],
@@ -198,7 +208,9 @@ const ConditionForm = () => {
                     ? formData.seo_keywords.split(',').map(k => k.trim()).filter(Boolean)
                     : [],
                 features: (formData.features || []).filter(f => f.trim() !== ''),
-                paired_conditions: (formData.paired_conditions || []).filter(p => p.trim() !== ''),
+                paired_conditions: (formData.paired_conditions || [])
+                    .filter(p => p && p.name && p.name.trim() !== '')
+                    .map(p => JSON.stringify({ name: p.name.trim(), url: p.url ? p.url.trim() : '' })),
                 ratings: (formData.ratings || []).filter(r => r.pct || r.criteria),
                 secondary_connections: (formData.secondary_connections || []).filter(c => c.from),
                 specialist_guide: (formData.specialist_guide || []).filter(s => s.name),
@@ -640,70 +652,44 @@ const ConditionForm = () => {
                                         {/* Paired Conditions */}
                                         <div>
                                             <div className="flex items-center justify-between mb-3">
-                                                <label className="text-sm font-medium text-slate-700">Paired Conditions</label>
-                                                <button type="button" onClick={() => addListItem('paired_conditions', '')} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
-                                                    <Plus className="w-3 h-3 mr-1" /> Add
+                                                <label className="text-sm font-medium text-slate-700 font-semibold">Paired Conditions</label>
+                                                <button type="button" onClick={() => addListItem('paired_conditions', { name: '', url: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
+                                                    <Plus className="w-3 h-3 mr-1" /> Add Condition
                                                 </button>
                                             </div>
                                             {(formData.paired_conditions || []).map((p, i) => (
-                                                <div key={i} className="flex items-center gap-2 mb-2">
-                                                    <input type="text" value={p} onChange={(e) => updateStringListItem('paired_conditions', i, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="e.g. Sleep Apnea" />
-                                                    <button type="button" onClick={() => removeListItem('paired_conditions', i)} className="text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Pair Note</label>
-                                            <textarea name="pair_note" value={formData.pair_note} onChange={handleInputChange} rows={2} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="Why are these conditions commonly paired..." />
-                                        </div>
-
-                                        {/* Internal Links */}
-                                        <div className="border-t border-slate-100 pt-4">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <label className="text-sm font-medium text-slate-700">Internal Links</label>
-                                                <button type="button" onClick={() => addListItem('internal_links', { type: 'Service', icon: '', label: '', title: '', url: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
-                                                    <Plus className="w-3 h-3 mr-1" /> Add Link
-                                                </button>
-                                            </div>
-                                            {(formData.internal_links || []).map((link, i) => (
-                                                <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-2 relative">
-                                                    <button type="button" onClick={() => removeListItem('internal_links', i)} className="absolute top-3 right-3 text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
-                                                    <div className="grid grid-cols-3 gap-2 pr-8">
-                                                        <select value={link.type} onChange={(e) => updateListItem('internal_links', i, 'type', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none">
-                                                            <option value="Service">Service</option>
-                                                            <option value="Condition">Condition</option>
-                                                            <option value="Guide">Guide</option>
-                                                        </select>
-                                                        <select
-                                                            value={link.icon || ''}
-                                                            onChange={(e) => updateListItem('internal_links', i, 'icon', e.target.value)}
-                                                            className="p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white font-medium"
-                                                        >
-                                                            <option value="">No Icon</option>
-                                                            <option value="Brain">Brain</option>
-                                                            <option value="HeartPulse">Heart Pulse</option>
-                                                            <option value="Activity">Activity</option>
-                                                            <option value="Wind">Wind / Lungs</option>
-                                                            <option value="Bone">Bone</option>
-                                                            <option value="Sparkles">Sparkles</option>
-                                                            <option value="Ear">Ear</option>
-                                                            <option value="Ribbon">Ribbon</option>
-                                                            <option value="Venus">Venus</option>
-                                                            <option value="Mars">Mars</option>
-                                                            <option value="Zap">Zap</option>
-                                                            <option value="Moon">Moon</option>
-                                                            <option value="Flame">Flame</option>
-                                                            <option value="Pill">Pill</option>
-                                                            <option value="FileText">File Text</option>
-                                                        </select>
-                                                        <input type="text" value={link.label} onChange={(e) => updateListItem('internal_links', i, 'label', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Label" />
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-2 mt-2 pr-8">
-                                                        <input type="text" value={link.title} onChange={(e) => updateListItem('internal_links', i, 'title', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Link title" />
-                                                        <input type="text" value={link.url} onChange={(e) => updateListItem('internal_links', i, 'url', e.target.value)} className="p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="/conditions/..." />
+                                                <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-3 relative">
+                                                    <button type="button" onClick={() => removeListItem('paired_conditions', i)} className="absolute top-3 right-3 text-slate-400 hover:text-red-600">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-8">
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Condition Name</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={p.name || ''} 
+                                                                onChange={(e) => updateListItem('paired_conditions', i, 'name', e.target.value)} 
+                                                                className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white font-normal" 
+                                                                placeholder="e.g. Sleep Apnea" 
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Link / URL</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={p.url || ''} 
+                                                                onChange={(e) => updateListItem('paired_conditions', i, 'url', e.target.value)} 
+                                                                className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white font-normal" 
+                                                                placeholder="e.g. /services/independent-medical-opinion-nexus-letter/respiratory-system/sleep-apnea" 
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
+                                        </div>
+                                        <div className="border-t border-slate-100 pt-3">
+                                            <label className="block text-sm font-medium text-slate-700 mb-1 font-semibold">Pair Note</label>
+                                            <textarea name="pair_note" value={formData.pair_note} onChange={handleInputChange} rows={2} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-white font-normal" placeholder="Why are these conditions commonly paired..." />
                                         </div>
                                     </div>
                                 )}
