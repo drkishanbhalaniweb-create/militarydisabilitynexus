@@ -48,7 +48,8 @@ test('forms intake submits through the API contract', async ({ page }) => {
   await page.goto('/forms', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(3_100);
 
-  await page.getByLabel(/What service do you need/i).selectOption('nexus_letter');
+  await page.getByLabel(/What service do you need/i).selectOption('independent-medical-opinion-nexus-letter');
+  await page.getByRole('button', { name: /Nurse Practitioner/i }).click();
   await page.getByLabel(/Full Name/i).fill('Pat Veteran');
   await page.getByLabel(/Phone Number/i).fill('+1 888 215 9785');
   await page.getByLabel(/Email Address/i).fill('pat@example.com');

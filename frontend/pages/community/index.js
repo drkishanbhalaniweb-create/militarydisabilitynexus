@@ -385,6 +385,13 @@ const Community = ({ initialQuestions, featuredQuestions = [], initialTotal, sta
               </div>
             </div>
           </div>
+
+          {/* Community Disclaimer */}
+          <div className="border-t border-slate-200 mt-12 pt-6">
+            <p className="text-slate-500 text-[11px] sm:text-xs leading-relaxed text-left sm:text-center max-w-5xl mx-auto">
+              <strong>About this community.</strong> The Military Disability Nexus Q&A is a free, public forum for general education about VA disability claims. Expert Answers are general information only — they are based solely on the limited facts in a posted question, are not individualized medical or legal advice, and do not create a clinician–patient or attorney–client relationship. They are not a substitute for a personal evaluation by a licensed clinician or for consultation with an accredited representative. Questions and comments posted by community members are their own; we do not verify, endorse, or guarantee the accuracy of member posts, and we may moderate, edit, or remove content. The VA decides every claim on its own facts — no rating or outcome is promised or guaranteed. Military Disability Nexus is an independent medical-evidence provider and is not affiliated with, endorsed by, or acting on behalf of the U.S. Department of Veterans Affairs or any government agency. Free claims help is available from VA-accredited Veterans Service Organizations and county Veterans Service Officers; verify accreditation through the VA Office of General Counsel.
+            </p>
+          </div>
         </div>
       </div>
 

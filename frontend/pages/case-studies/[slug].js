@@ -354,6 +354,13 @@ const CaseStudyDetail = ({ caseStudy, relatedInsights = [], authorProfile = null
                     <div className="mt-12">
                         <RelatedInsights insights={relatedInsights} />
                     </div>
+
+                    {/* Disclaimer */}
+                    <div className="border-t border-slate-200 mt-16 pt-8 max-w-4xl mx-auto">
+                        <p className="text-slate-500 text-[11px] sm:text-xs leading-relaxed text-left sm:text-center">
+                            <strong className="font-bold">About this case study:</strong> <span className="italic">This case study is general educational and medical information published by the Military Disability Nexus clinical team. It is not legal advice, not individualized medical advice, and not a substitute for a personal evaluation by a licensed clinician or a consultation with an accredited representative. Reading it does not create a doctor-patient or attorney-client relationship. VA law and rating criteria change; some details may not reflect the most recent updates, and every claim is decided by the VA on its own facts – no outcome is promised or guaranteed. Military Disability Nexus is an independent medical-evidence provider and is not affiliated with, endorsed by, or acting on behalf of the U.S. Department of Veterans Affairs or any government agency. Free claims assistance is available from VA-accredited Veterans Service Organizations and county Veterans Service Officers; you can verify any representative's accreditation through the <span className="underline">VA Office of General Counsel</span>.</span>
+                        </p>
+                    </div>
                 </article>
             </div>
         </Layout>

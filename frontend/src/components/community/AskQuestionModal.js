@@ -321,6 +321,11 @@ export function AskQuestionModal({ isOpen, onClose, communityUser, onLogin, onSu
               </div>
             </form>
           )}
+
+          {/* Forum Disclaimer */}
+          <div className="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 leading-relaxed">
+            This is a public forum. Anything you post can be seen by anyone and may appear in search results. Keep your question general, and never post personal identifiers — full name, Social Security number, date of birth, address, VA file or claim number, or copies of your records or decision letters. Describe your situation in general terms instead (e.g., &quot;I'm rated 30% for PTSD and my symptoms have worsened&quot;). By posting, you allow Military Disability Nexus to display, moderate, and respond to your content.
+          </div>
         </div>
       </div>
     </div>
