@@ -251,17 +251,28 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                             These are the medical pathways our clinicians use to establish nexus between {(condition.hero_heading || '').toLowerCase()} and military service:
                                         </p>
                                         <div className="space-y-3">
-                                            {secondaryConnections.map((conn, idx) => (
-                                                <div key={idx} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                                    <span className="text-base flex-shrink-0 mt-0.5">🔗</span>
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="font-semibold text-sm" style={{ color: '#29435f' }}>
-                                                            {conn.from} <span className="text-slate-400 mx-1">→</span> {condition.hero_heading}
+                                            {secondaryConnections.map((conn, idx) => {
+                                                const cardContent = (
+                                                    <>
+                                                        <span className="text-base flex-shrink-0 mt-0.5">🔗</span>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="font-semibold text-sm" style={{ color: '#29435f' }}>
+                                                                {conn.from} <span className="text-slate-400 mx-1">→</span> {condition.hero_heading}
+                                                            </div>
+                                                            <div className="text-xs text-slate-500 mt-1">{conn.mechanism}</div>
                                                         </div>
-                                                        <div className="text-xs text-slate-500 mt-1">{conn.mechanism}</div>
+                                                    </>
+                                                );
+                                                return conn.url ? (
+                                                    <Link key={idx} href={conn.url} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-indigo-300 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
+                                                        {cardContent}
+                                                    </Link>
+                                                ) : (
+                                                    <div key={idx} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                                        {cardContent}
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </section>
