@@ -195,6 +195,21 @@ export function AskQuestionModal({ isOpen, onClose, communityUser, onLogin, onSu
             </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* "Before You Post" Notice Callout Box */}
+              <div className="bg-[#FCF9F5] border border-slate-200 border-l-4 border-l-[#B91C3C] rounded-r-lg p-4 mb-4">
+                <div className="flex items-center gap-1.5 text-[#B91C3C] font-bold text-xs tracking-wider uppercase mb-2">
+                  <span className="text-sm">⚠️</span> THIS IS A PUBLIC FORUM
+                </div>
+                <div className="text-xs text-slate-600 space-y-2 leading-relaxed">
+                  <p>
+                    Anything you post can be seen by anyone and may appear in search results. Keep your question general, and <strong className="text-[#B91C3C] font-semibold">never post personal identifiers</strong> — full name, SSN, date of birth, address, VA file or claim number, or copies of your records or decision letters.
+                  </p>
+                  <p>
+                    Describe your situation generally (e.g., &quot;I&apos;m rated 30% for PTSD and my symptoms have worsened&quot;). By posting, you allow Military Disability Nexus to display, moderate, and respond to your content.
+                  </p>
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="question-title" className="block text-sm font-medium text-slate-700 mb-1">
                   Title <span className="text-red-500">*</span>
@@ -321,11 +336,6 @@ export function AskQuestionModal({ isOpen, onClose, communityUser, onLogin, onSu
               </div>
             </form>
           )}
-
-          {/* Forum Disclaimer */}
-          <div className="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 leading-relaxed">
-            This is a public forum. Anything you post can be seen by anyone and may appear in search results. Keep your question general, and never post personal identifiers — full name, Social Security number, date of birth, address, VA file or claim number, or copies of your records or decision letters. Describe your situation in general terms instead (e.g., &quot;I'm rated 30% for PTSD and my symptoms have worsened&quot;). By posting, you allow Military Disability Nexus to display, moderate, and respond to your content.
-          </div>
         </div>
       </div>
     </div>

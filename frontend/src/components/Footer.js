@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Linkedin, Facebook, Instagram, Mail } from 'lucide-react';
+import { Linkedin, Facebook, Instagram } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -76,11 +76,6 @@ const Footer = () => {
                   1151 Claims
                 </Link>
               </li>
-              <li>
-                <Link href="/cp-exam-coaching" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
-                  C&P Exam Coaching
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -116,6 +111,11 @@ const Footer = () => {
               <li>
                 <Link href="/community" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
                   Community Q&A
+                </Link>
+              </li>
+              <li>
+                <Link href="/community-guidelines" onClick={handleLinkClick} className="text-white/80 hover:text-white transition-colors">
+                  Community Guidelines
                 </Link>
               </li>
               <li>

@@ -472,6 +472,13 @@ const QuestionDetail = ({ initialQuestion, initialAnswers, relatedQuestions = []
                           {answer.content}
                         </p>
 
+                        {/* Per-Expert Answer Microline */}
+                        {answer.is_expert_answer && (
+                          <div className="mt-4 pt-3 border-t border-dashed border-slate-200 text-[11px] sm:text-xs text-slate-500 leading-relaxed">
+                            <strong className="font-semibold text-slate-700">Expert Answers are general educational information</strong> from a licensed clinician, based only on the details in the question above. They are not individualized medical or legal advice and do not create a clinician-patient relationship. For advice on your specific claim, request a personal review.
+                          </div>
+                        )}
+
                         {/* Footer */}
                         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                           <div className="sm:hidden">
@@ -584,6 +591,57 @@ const QuestionDetail = ({ initialQuestion, initialAnswers, relatedQuestions = []
               </div>
             </div>
           )}
+
+          {/* Standing Disclaimer */}
+          <div className="bg-[#FAF7F2] border border-amber-200/60 rounded-xl p-5 mt-8 mb-6 text-left">
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <strong className="font-semibold text-slate-900">About this community.</strong> The Military Disability Nexus Q&A is a free, public forum for general education about VA disability claims. <strong className="font-semibold text-slate-800">Expert Answers are general information only</strong> – based solely on the limited facts in a posted question, not individualized medical or legal advice, and they do <strong className="font-semibold text-slate-800">not</strong> create a clinician-patient or attorney-client relationship. Member posts are their own; we don&apos;t verify or endorse them and may moderate or remove content. The VA decides every claim on its own facts – <strong className="font-semibold text-slate-800">no outcome is promised or guaranteed</strong>. We are an independent medical-evidence provider, <strong className="font-semibold text-slate-800">not affiliated with or endorsed by the VA</strong>. Free help is available from VA-accredited VSOs; see our{' '}
+              <Link href="/terms" className="underline text-amber-800 hover:text-amber-950 font-medium">
+                Community Guidelines
+              </Link>{' '}
+              and{' '}
+              <Link href="/disclaimer" className="underline text-amber-800 hover:text-amber-950 font-medium">
+                Disclaimer
+              </Link>.
+            </p>
+          </div>
+
+          {/* Community Disclaimers & Crisis Line Box */}
+          <div className="border-t border-slate-200 mt-6 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Crisis Line (Left) */}
+              <div className="flex items-start gap-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm text-left h-full">
+                <div className="w-8 h-8 rounded-full bg-[#B91C3C] text-white flex items-center justify-center flex-shrink-0 font-bold text-lg leading-none select-none">
+                  +
+                </div>
+                <div className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <span className="font-semibold text-slate-800">Veterans Crisis Line</span> —{' '}
+                  <strong className="font-semibold text-slate-900">988 then press 1</strong>,{' '}
+                  text <strong className="font-semibold text-slate-900">838255</strong>, or chat at{' '}
+                  <a
+                    href="https://www.veteranscrisisline.net/get-help-now/chat/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-[#B91C3C] hover:text-red-800 font-medium"
+                  >
+                    VeteransCrisisLine.net/Chat
+                  </a>.
+                </div>
+              </div>
+
+              {/* Disclaimer Box (Right) */}
+              <div className="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl shadow-sm text-left h-full">
+                <div className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <strong className="font-semibold text-slate-850">Community disclaimer.</strong>{' '}
+                  Expert Answers are general education only and don&apos;t create a clinician–patient relationship;
+                  the VA decides every claim. Not affiliated with the VA.{' '}
+                  <Link href="/disclaimer" className="underline text-navy-700 hover:text-navy-900 font-medium">
+                    Full disclaimer
+                  </Link>.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

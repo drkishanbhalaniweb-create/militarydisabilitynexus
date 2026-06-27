@@ -293,7 +293,7 @@ const PrivacyPolicy = () => {
                                     <div className="bg-slate-50 rounded-lg p-6 mb-6">
                                         <p className="text-slate-800 font-semibold mb-2">MAGLINC CONSULTANCY LLC d/b/a Military Disability Nexus</p>
                                         <p className="text-slate-700">30 N Gould St Ste R, Sheridan, WY 82801</p>
-                                        <p className="text-slate-700">Email: admin@maglincconsultancy.com</p>
+                                        <p className="text-slate-700">Email: admin@militarydisabilitynexus.com</p>
                                     </div>
                                     <p className="text-slate-700 leading-relaxed">
                                         If you believe your privacy rights have been violated, you have the right to file a complaint with our Privacy Officer or with the Secretary of the U.S. Department of Health and Human Services. We will not retaliate against you for filing a complaint.

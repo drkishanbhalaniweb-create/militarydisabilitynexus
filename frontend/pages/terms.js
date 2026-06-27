@@ -224,7 +224,7 @@ const TermsAndConditions = () => {
                                         This website is operated by MAGLINC CONSULTANCY LLC d/b/a Military Disability Nexus, 30 N Gould St Ste R, Sheridan, WY 82801.
                                     </p>
                                     <p className="text-slate-700 leading-relaxed">
-                                        All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: <a href="mailto:admin@maglincconsultancy.com" className="text-navy-600 hover:text-navy-700 underline">admin@maglincconsultancy.com</a>
+                                        All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: <a href="mailto:admin@militarydisabilitynexus.com" className="text-navy-600 hover:text-navy-700 underline">admin@militarydisabilitynexus.com</a>
                                     </p>
 
                                 </div>

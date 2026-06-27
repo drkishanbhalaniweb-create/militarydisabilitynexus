@@ -27,6 +27,26 @@ export function TagSidebar({ selectedTag, onTagSelect, stats, onAskQuestion }) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:block space-y-4">
+        {/* Veterans Crisis Line Card */}
+        <div className="bg-[#FCF9F5] border border-slate-200 border-l-4 border-l-[#B91C3C] rounded-r-lg p-4 flex items-start gap-3">
+          <div className="w-6 h-6 rounded-full bg-[#B91C3C] text-white flex items-center justify-center flex-shrink-0 font-bold text-sm leading-none select-none">
+            +
+          </div>
+          <div className="text-xs text-slate-600 leading-relaxed">
+            <span className="font-semibold text-slate-850">Veterans Crisis Line</span> —{' '}
+            <strong className="font-semibold text-slate-900">988 then press 1</strong>,{' '}
+            text <strong className="font-semibold text-slate-900">838255</strong>, or chat at{' '}
+            <a
+              href="https://www.veteranscrisisline.net/get-help-now/chat/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-[#B91C3C] hover:text-red-800 font-semibold"
+            >
+              VeteransCrisisLine.net/Chat
+            </a>.
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg border border-slate-200 p-4">
           <h3 className="flex items-center gap-2 font-semibold text-slate-800 mb-3">
             <Tag className="w-4 h-4" />

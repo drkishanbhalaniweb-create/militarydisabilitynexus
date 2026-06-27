@@ -65,7 +65,9 @@ const faqServiceLinks = {
 };
 
 const Services = ({ services }) => {
-    const standardServices = (services || []).filter(s => s.slug !== 'attorney-advocate-partnership');
+    const standardServices = (services || []).filter(
+        s => s.slug !== 'attorney-advocate-partnership' && s.slug !== 'cp-exam-coaching'
+    );
     const partnershipService = (services || []).find(s => s.slug === 'attorney-advocate-partnership');
 
     const getIconComponent = (iconName) => {
@@ -113,7 +115,7 @@ const Services = ({ services }) => {
             <SEO
                 title="VA Disability Documentation Services | Nexus Letters, DBQs & More"
                 description="Expert medical documentation for VA disability claims — Nexus Letters, DBQs, Aid & Attendance evaluations, Claim Readiness Reviews, and 1151 case opinions from licensed clinicians."
-                keywords="VA nexus letter, DBQ evaluation, aid and attendance, C&P exam coaching, 1151 claim, veteran medical services, VA disability documentation"
+                keywords="VA nexus letter, DBQ evaluation, aid and attendance, 1151 claim, veteran medical services, VA disability documentation"
                 canonical="/services"
                 structuredData={services && services.length > 0 ? {
                     "@context": "https://schema.org",

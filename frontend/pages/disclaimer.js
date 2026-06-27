@@ -127,7 +127,7 @@ const Disclaimer = () => {
                                     <div className="bg-slate-50 rounded-lg p-6 mb-6">
                                         <p className="text-slate-800 font-semibold mb-2">MAGLINC CONSULTANCY LLC d/b/a Military Disability Nexus</p>
                                         <p className="text-black">30 N Gould St Ste R, Sheridan, WY 82801</p>
-                                        <p className="text-black">Email: <a href="mailto:admin@maglincconsultancy.com" className="text-navy-600 hover:text-navy-700 underline">admin@maglincconsultancy.com</a></p>
+                                        <p className="text-black">Email: <a href="mailto:admin@militarydisabilitynexus.com" className="text-navy-600 hover:text-navy-700 underline">admin@militarydisabilitynexus.com</a></p>
                                     </div>
 
                                     <p className="text-black text-center font-semibold mt-8">

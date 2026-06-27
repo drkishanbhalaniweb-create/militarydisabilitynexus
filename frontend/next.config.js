@@ -4,6 +4,7 @@ const nextConfig = {
     // We will strictly migrate to NEXT_PUBLIC_, so we don't need env mappings here unless strictly necessary.
 
     images: {
+        qualities: [75, 90],
         remotePatterns: [
             {
                 protocol: 'https',
@@ -41,6 +42,11 @@ const nextConfig = {
                 source: '/aid-attendance-form',
                 destination: '/forms?service=aid-and-attendance',
                 permanent: true,
+            },
+            {
+                source: '/cp-exam-coaching',
+                destination: '/services',
+                permanent: false,
             },
         ];
 

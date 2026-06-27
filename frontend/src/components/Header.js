@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Menu, X, ChevronDown, FileText, ClipboardCheck, Heart, Search, AlertTriangle, MessageCircle } from 'lucide-react';
+import { Menu, X, ChevronDown, FileText, ClipboardCheck, Heart, Search, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Logo from './Logo';
 
@@ -34,12 +34,6 @@ const serviceLinks = [
         description: 'Expert opinions for VA medical negligence cases',
         href: '/services/va-medical-malpractice-1151-case',
         icon: AlertTriangle,
-    },
-    {
-        name: 'C&P Exam Coaching',
-        description: 'Preparation and strategy for VA examinations',
-        href: '/cp-exam-coaching',
-        icon: MessageCircle,
     },
 ];
 

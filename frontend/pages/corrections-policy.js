@@ -44,7 +44,7 @@ export default function CorrectionsPolicy() {
                                 If you believe you have found an error, an outdated reference, or a medical inaccuracy in our content, we welcome your feedback. Please contact our editorial team:
                             </p>
                             <p>
-                                <strong>Email:</strong> <a href="mailto:contact@militarydisabilitynexus.com">contact@militarydisabilitynexus.com</a><br/>
+                                <strong>Email:</strong> <a href="mailto:admin@militarydisabilitynexus.com">admin@militarydisabilitynexus.com</a><br/>
                             </p>
                             <p>
                                 Please include the URL of the page in question and a brief description of the suspected error. Our clinical review team will investigate the claim and implement necessary changes within 3-5 business days.

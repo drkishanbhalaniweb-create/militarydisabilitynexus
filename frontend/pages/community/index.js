@@ -224,6 +224,21 @@ const Community = ({ initialQuestions, featuredQuestions = [], initialTotal, sta
               </p>
             </div>
           </div>
+
+          {/* Standing Disclaimer */}
+          <div className="bg-[#FAF7F2] border border-amber-200/60 rounded-xl p-5 mb-6 text-left">
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <strong className="font-semibold text-slate-900">About this community.</strong> The Military Disability Nexus Q&A is a free, public forum for general education about VA disability claims. <strong className="font-semibold text-slate-800">Expert Answers are general information only</strong> – based solely on the limited facts in a posted question, not individualized medical or legal advice, and they do <strong className="font-semibold text-slate-800">not</strong> create a clinician-patient or attorney-client relationship. Member posts are their own; we don&apos;t verify or endorse them and may moderate or remove content. The VA decides every claim on its own facts – <strong className="font-semibold text-slate-800">no outcome is promised or guaranteed</strong>. We are an independent medical-evidence provider, <strong className="font-semibold text-slate-800">not affiliated with or endorsed by the VA</strong>. Free help is available from VA-accredited VSOs; see our{' '}
+              <Link href="/terms" className="underline text-amber-800 hover:text-amber-950 font-medium">
+                Community Guidelines
+              </Link>{' '}
+              and{' '}
+              <Link href="/disclaimer" className="underline text-amber-800 hover:text-amber-950 font-medium">
+                Disclaimer
+              </Link>.
+            </p>
+          </div>
+
           {/* Featured Questions - Compact Horizontal */}
           {featuredQuestions.length > 0 && !isFiltered && (
             <div className="mb-6 relative group/slider">
@@ -386,11 +401,41 @@ const Community = ({ initialQuestions, featuredQuestions = [], initialTotal, sta
             </div>
           </div>
 
-          {/* Community Disclaimer */}
+          {/* Community Disclaimers & Crisis Line Box */}
           <div className="border-t border-slate-200 mt-12 pt-6">
-            <p className="text-slate-500 text-[11px] sm:text-xs leading-relaxed text-left sm:text-center max-w-5xl mx-auto">
-              <strong>About this community.</strong> The Military Disability Nexus Q&A is a free, public forum for general education about VA disability claims. Expert Answers are general information only — they are based solely on the limited facts in a posted question, are not individualized medical or legal advice, and do not create a clinician–patient or attorney–client relationship. They are not a substitute for a personal evaluation by a licensed clinician or for consultation with an accredited representative. Questions and comments posted by community members are their own; we do not verify, endorse, or guarantee the accuracy of member posts, and we may moderate, edit, or remove content. The VA decides every claim on its own facts — no rating or outcome is promised or guaranteed. Military Disability Nexus is an independent medical-evidence provider and is not affiliated with, endorsed by, or acting on behalf of the U.S. Department of Veterans Affairs or any government agency. Free claims help is available from VA-accredited Veterans Service Organizations and county Veterans Service Officers; verify accreditation through the VA Office of General Counsel.
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {/* Crisis Line (Left) */}
+              <div className="flex items-start gap-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm text-left h-full">
+                <div className="w-8 h-8 rounded-full bg-[#B91C3C] text-white flex items-center justify-center flex-shrink-0 font-bold text-lg leading-none select-none">
+                  +
+                </div>
+                <div className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <span className="font-semibold text-slate-800">Veterans Crisis Line</span> —{' '}
+                  <strong className="font-semibold text-slate-900">988 then press 1</strong>,{' '}
+                  text <strong className="font-semibold text-slate-900">838255</strong>, or chat at{' '}
+                  <a
+                    href="https://www.veteranscrisisline.net/get-help-now/chat/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-[#B91C3C] hover:text-red-800 font-medium"
+                  >
+                    VeteransCrisisLine.net/Chat
+                  </a>.
+                </div>
+              </div>
+
+              {/* Disclaimer Box (Right) */}
+              <div className="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl shadow-sm text-left h-full">
+                <div className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <strong className="font-semibold text-slate-850">Community disclaimer.</strong>{' '}
+                  Expert Answers are general education only and don&apos;t create a clinician–patient relationship;
+                  the VA decides every claim. Not affiliated with the VA.{' '}
+                  <Link href="/disclaimer" className="underline text-navy-700 hover:text-navy-900 font-medium">
+                    Full disclaimer
+                  </Link>.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
