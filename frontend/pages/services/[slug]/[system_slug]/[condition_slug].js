@@ -65,6 +65,281 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const otherConditions = (siblingConditions || []).filter(c => c.id !== condition.id);
     const isMH = bodySystem?.is_mental_health || false;
 
+    const layoutSections = condition.layout_sections || [
+        { id: 'ratings', type: 'standard', is_visible: true },
+        { id: 'about', type: 'standard', is_visible: true },
+        { id: 'features', type: 'standard', is_visible: true },
+        { id: 'connections', type: 'standard', is_visible: true },
+        { id: 'specialist', type: 'standard', is_visible: true },
+        { id: 'faqs', type: 'standard', is_visible: true },
+        { id: 'related_pages', type: 'standard', is_visible: true },
+        { id: 'paired_conditions', type: 'standard', is_visible: true },
+        { id: 'insights', type: 'standard', is_visible: true },
+    ];
+
+    const renderSection = (sectionId) => {
+        switch (sectionId) {
+            case 'ratings':
+                return (
+                    <section key="ratings" className="bg-navy-800 rounded-2xl p-8 shadow-xl text-white">
+                        <div className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">VA DIAGNOSTIC CODE</div>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                            {condition.dc_code ? `DC ${condition.dc_code}` : 'Varies'}
+                        </h2>
+                        <div className="text-sm text-slate-300 mb-8 pb-8 border-b border-slate-700/60">
+                            {condition.dc_name || 'Based on affected nerve root and degree of incomplete paralysis'}
+                        </div>
+                        
+                        {condition.ratings?.length > 0 ? (
+                            <>
+                                <div className="grid grid-cols-4 md:grid-cols-5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+                                    <div className="col-span-1">RATING</div>
+                                    <div className="col-span-3 md:col-span-4">CRITERIA</div>
+                                </div>
+                                <div className="space-y-4">
+                                    {condition.ratings.map((rating, idx) => (
+                                        <div key={idx} className="grid grid-cols-4 md:grid-cols-5 items-start text-sm border-t border-slate-700/40 pt-4 mt-4 first:border-0 first:pt-0 first:mt-0">
+                                            <div className="col-span-1 font-bold text-white text-lg">{rating.pct}</div>
+                                            <div className="col-span-3 md:col-span-4 text-slate-300 leading-relaxed">{rating.criteria}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="text-sm text-slate-400 italic">No specific rating schedule provided.</div>
+                        )}
+                    </section>
+                );
+            case 'about':
+                return (
+                    <section key="about" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                            About {condition.hero_heading} VA Claims
+                        </h2>
+                        <div 
+                            className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
+                            dangerouslySetInnerHTML={{ __html: formatConditionHTML(condition.content_html) }}
+                        />
+                    </section>
+                );
+            case 'features':
+                if (!condition.features || condition.features.length === 0) return null;
+                return (
+                    <section key="features" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>What&apos;s Included</h2>
+                        <div className="space-y-3 mt-4">
+                            {condition.features.map((feature, idx) => (
+                                <div key={idx} className="flex items-start gap-3">
+                                    <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#B91C3C' }} />
+                                    <span className="text-slate-700 text-sm leading-relaxed">{feature}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                );
+            case 'connections':
+                if (secondaryConnections.length === 0) return null;
+                return (
+                    <section key="connections" className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                        style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
+                        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                        <div className="relative z-10">
+                            <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                Secondary Service Connections
+                            </span>
+                            <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                How {condition.hero_heading} Connects to Service
+                            </h2>
+                            <p className="text-sm text-slate-600 leading-relaxed mb-5">
+                                These are the medical pathways our clinicians use to establish nexus between {(condition.hero_heading || '').toLowerCase()} and military service:
+                            </p>
+                            <div className="space-y-3">
+                                {secondaryConnections.map((conn, idx) => {
+                                    const cardContent = (
+                                        <>
+                                            <span className="text-base flex-shrink-0 mt-0.5">🔗</span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-semibold text-sm" style={{ color: '#29435f' }}>
+                                                    {conn.from} <span className="text-slate-400 mx-1">→</span> {condition.hero_heading}
+                                                </div>
+                                                <div className="text-xs text-slate-500 mt-1">{conn.mechanism}</div>
+                                            </div>
+                                        </>
+                                    );
+                                    return conn.url ? (
+                                        <Link key={idx} href={conn.url} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-indigo-300 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
+                                            {cardContent}
+                                        </Link>
+                                    ) : (
+                                        <div key={idx} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                            {cardContent}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+                );
+            case 'specialist':
+                if (service.slug !== 'independent-medical-opinion-nexus-letter' || specialistGuide.length === 0) return null;
+                return (
+                    <section key="specialist" className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                        style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
+                        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                        <div className="relative z-10">
+                            <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                Specialist Guide
+                            </span>
+                            <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                Who Should Write Your {condition.hero_heading} {service.title}?
+                            </h2>
+                            <p className="text-sm text-slate-600 mb-5">Match the writer to the medical question for maximum probative weight:</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {specialistGuide.map((spec, i) => (
+                                    <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all">
+                                        <div className="font-bold text-slate-900 text-sm mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>{spec.name}</div>
+                                        <div className="text-xs text-slate-600 leading-relaxed mb-3">{spec.best_for}</div>
+                                        <div className="text-sm font-bold" style={{ color: '#983c44' }}>{spec.price}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-4 text-sm text-slate-500">
+                                <Link href="/blog/who-should-write-your-va-nexus-letter-specialist-guide" className="font-semibold hover:underline" style={{ color: '#983c44' }}>
+                                    Read the full Specialist Guide →
+                                </Link>
+                            </div>
+                        </div>
+                    </section>
+                );
+            case 'faqs':
+                if (!condition.faqs || condition.faqs.length === 0) return null;
+                return (
+                    <section key="faqs" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="faq-heading">
+                        <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Frequently Asked Questions</h2>
+                        <p className="text-sm text-slate-500 mb-6">About {condition.hero_heading} {service.title}s</p>
+                        <Accordion type="single" collapsible className="w-full">
+                            {condition.faqs.map((faq, idx) => (
+                                <AccordionItem key={idx} value={`item-${idx}`}>
+                                    <AccordionTrigger className="text-left font-semibold text-slate-800">{faq.question}</AccordionTrigger>
+                                    <AccordionContent>
+                                        <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">
+                                            {faq.answer}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    </section>
+                );
+            case 'related_pages':
+                if (internalLinks.length === 0) return null;
+                return (
+                    <section key="related_pages" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Related Pages</h2>
+                        <p className="text-sm text-slate-500 mb-4">Explore related services, conditions, and resources</p>
+                        <div className="space-y-2 mt-4">
+                            {internalLinks.map((link, idx) => (
+                                <Link
+                                    key={idx}
+                                    href={link.url || '#'}
+                                    className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-sm transition-all group"
+                                >
+                                    {link.icon && (
+                                        <span className="text-xl flex-shrink-0">
+                                            <DynamicIcon name={link.icon} className="w-5 h-5 text-slate-600" />
+                                        </span>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#983c44' }}>{link.label}</div>
+                                        <div className="font-semibold text-slate-900 text-sm">{link.title}</div>
+                                    </div>
+                                    <span className="text-sm font-semibold flex-shrink-0" style={{ color: '#983c44' }}>→</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                );
+            case 'paired_conditions':
+                if (pairedConditions.length === 0) return null;
+                return (
+                    <section key="paired_conditions" className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                        style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.04))' }}>
+                        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                        <div className="relative z-10">
+                            <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                Commonly Paired
+                            </span>
+                            <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                Veterans Usually Pair {condition.hero_heading} With These Conditions
+                            </h2>
+                            {condition.pair_note && (
+                                <p className="text-sm text-slate-600 leading-relaxed mb-5">{condition.pair_note}</p>
+                            )}
+                            <div className="flex flex-wrap gap-3">
+                                {pairedConditions.map((pc, i) => {
+                                    if (pc.url) {
+                                        return (
+                                            <Link
+                                                key={i}
+                                                href={pc.url}
+                                                className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold hover:border-red-300 transition-all cursor-pointer block"
+                                                style={{ color: '#29435f' }}
+                                            >
+                                                {pc.name} →
+                                            </Link>
+                                        );
+                                    }
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 cursor-default"
+                                        >
+                                            {pc.name}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+                );
+            case 'insights':
+                if (relatedBlogs.length === 0 && relatedCaseStudies.length === 0) return null;
+                return (
+                    <section key="insights" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="insights-heading">
+                        <h2 id="insights-heading" className="text-2xl font-bold text-slate-900 mb-6" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Related Insights & Proof</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {relatedBlogs.map(blog => (
+                                <Link href={`/blog/${blog.slug}`} key={blog.id} className="group block">
+                                    <div className="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:shadow-md transition-all h-full bg-slate-50">
+                                        <span className="text-xs font-bold uppercase tracking-wider mb-2 block" style={{ color: '#29435f' }}>Blog</span>
+                                        <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-navy-700">{blog.title}</h3>
+                                        <div className="text-sm text-slate-655 line-clamp-2">{blog.excerpt}</div>
+                                        <div className="mt-4 flex items-center text-sm font-medium" style={{ color: '#983c44' }}>
+                                            Read Article <ArrowRight className="w-4 h-4 ml-1" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                            {relatedCaseStudies.map(study => (
+                                <Link href={`/case-studies/${study.slug}`} key={study.id} className="group block">
+                                    <div className="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:shadow-md transition-all h-full bg-slate-50">
+                                        <span className="text-xs font-bold uppercase tracking-wider mb-2 block" style={{ color: '#983c44' }}>Case Study</span>
+                                        <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-red-700">{study.title}</h3>
+                                        <div className="text-sm text-slate-600 line-clamp-2">{study.excerpt}</div>
+                                        <div className="mt-4 flex items-center text-sm font-medium" style={{ color: '#983c44' }}>
+                                            View Case Study <ArrowRight className="w-4 h-4 ml-1" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                );
+            default:
+                return null;
+        }
+    };
+
     // Structured data for condition page
     const structuredData = {
         "@context": "https://schema.org",
@@ -188,261 +463,26 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
-                            
-                            {/* DC Code Box with Rating Table */}
-                            <section className="bg-navy-800 rounded-2xl p-8 shadow-xl text-white">
-                                <div className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-2">VA DIAGNOSTIC CODE</div>
-                                <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                    {condition.dc_code ? `DC ${condition.dc_code}` : 'Varies'}
-                                </h2>
-                                <div className="text-sm text-slate-300 mb-8 pb-8 border-b border-slate-700/60">
-                                    {condition.dc_name || 'Based on affected nerve root and degree of incomplete paralysis'}
-                                </div>
-                                
-                                {condition.ratings?.length > 0 ? (
-                                    <>
-                                        <div className="grid grid-cols-4 md:grid-cols-5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-                                            <div className="col-span-1">RATING</div>
-                                            <div className="col-span-3 md:col-span-4">CRITERIA</div>
-                                        </div>
-                                        <div className="space-y-4">
-                                            {condition.ratings.map((rating, idx) => (
-                                                <div key={idx} className="grid grid-cols-4 md:grid-cols-5 items-start text-sm border-t border-slate-700/40 pt-4 mt-4 first:border-0 first:pt-0 first:mt-0">
-                                                    <div className="col-span-1 font-bold text-white text-lg">{rating.pct}</div>
-                                                    <div className="col-span-3 md:col-span-4 text-slate-300 leading-relaxed">{rating.criteria}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="text-sm text-slate-400 italic">No specific rating schedule provided.</div>
-                                )}
-                            </section>
-                            
-                            {/* Full Description */}
-                            <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                                <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                    About {condition.hero_heading} VA Claims
-                                </h2>
-                                <div 
-                                    className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
-                                    dangerouslySetInnerHTML={{ __html: formatConditionHTML(condition.content_html) }}
-                                />
-                            </section>
-
-                            {/* What's Included / Features */}
-                            {condition.features?.length > 0 && (
-                                <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>What&apos;s Included</h2>
-                                    <div className="space-y-3 mt-4">
-                                        {condition.features.map((feature, idx) => (
-                                            <div key={idx} className="flex items-start gap-3">
-                                                <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#B91C3C' }} />
-                                                <span className="text-slate-700 text-sm leading-relaxed">{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Secondary Service Connections */}
-                            {secondaryConnections.length > 0 && (
-                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
-                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
-                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
-                                    <div className="relative z-10">
-                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
-                                            Secondary Service Connections
-                                        </span>
-                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            How {condition.hero_heading} Connects to Service
-                                        </h2>
-                                        <p className="text-sm text-slate-600 leading-relaxed mb-5">
-                                            These are the medical pathways our clinicians use to establish nexus between {(condition.hero_heading || '').toLowerCase()} and military service:
-                                        </p>
-                                        <div className="space-y-3">
-                                            {secondaryConnections.map((conn, idx) => {
-                                                const cardContent = (
-                                                    <>
-                                                        <span className="text-base flex-shrink-0 mt-0.5">🔗</span>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="font-semibold text-sm" style={{ color: '#29435f' }}>
-                                                                {conn.from} <span className="text-slate-400 mx-1">→</span> {condition.hero_heading}
-                                                            </div>
-                                                            <div className="text-xs text-slate-500 mt-1">{conn.mechanism}</div>
-                                                        </div>
-                                                    </>
-                                                );
-                                                return conn.url ? (
-                                                    <Link key={idx} href={conn.url} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-indigo-300 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
-                                                        {cardContent}
-                                                    </Link>
-                                                ) : (
-                                                    <div key={idx} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                                        {cardContent}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Specialist Guide */}
-                            {service.slug === 'independent-medical-opinion-nexus-letter' && specialistGuide.length > 0 && (
-                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
-                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
-                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
-                                    <div className="relative z-10">
-                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
-                                            Specialist Guide
-                                        </span>
-                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            Who Should Write Your {condition.hero_heading} {service.title}?
-                                        </h2>
-                                        <p className="text-sm text-slate-600 mb-5">Match the writer to the medical question for maximum probative weight:</p>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {specialistGuide.map((spec, i) => (
-                                                <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all">
-                                                    <div className="font-bold text-slate-900 text-sm mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>{spec.name}</div>
-                                                    <div className="text-xs text-slate-600 leading-relaxed mb-3">{spec.best_for}</div>
-                                                    <div className="text-sm font-bold" style={{ color: '#983c44' }}>{spec.price}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="mt-4 text-sm text-slate-500">
-                                            <Link href="/blog/who-should-write-your-va-nexus-letter-specialist-guide" className="font-semibold hover:underline" style={{ color: '#983c44' }}>
-                                                Read the full Specialist Guide →
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* FAQ Section */}
-                            {condition.faqs && condition.faqs.length > 0 && (
-                                <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="faq-heading">
-                                    <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Frequently Asked Questions</h2>
-                                    <p className="text-sm text-slate-500 mb-6">About {condition.hero_heading} {service.title}s</p>
-                                    <Accordion type="single" collapsible className="w-full">
-                                        {condition.faqs.map((faq, idx) => (
-                                            <AccordionItem key={idx} value={`item-${idx}`}>
-                                                <AccordionTrigger className="text-left font-semibold text-slate-800">{faq.question}</AccordionTrigger>
-                                                <AccordionContent>
-                                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">
-                                                        {faq.answer}
-                                                    </div>
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        ))}
-                                    </Accordion>
-                                </section>
-                            )}
-
-                            {/* Related Pages / Internal Links */}
-                            {internalLinks.length > 0 && (
-                                <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Related Pages</h2>
-                                    <p className="text-sm text-slate-500 mb-4">Explore related services, conditions, and resources</p>
-                                    <div className="space-y-2 mt-4">
-                                        {internalLinks.map((link, idx) => (
-                                            <Link
-                                                key={idx}
-                                                href={link.url || '#'}
-                                                className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-sm transition-all group"
-                                            >
-                                                {link.icon && (
-                                                    <span className="text-xl flex-shrink-0">
-                                                        <DynamicIcon name={link.icon} className="w-5 h-5 text-slate-600" />
-                                                    </span>
-                                                )}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#983c44' }}>{link.label}</div>
-                                                    <div className="font-semibold text-slate-900 text-sm">{link.title}</div>
-                                                </div>
-                                                <span className="text-sm font-semibold flex-shrink-0" style={{ color: '#983c44' }}>→</span>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Commonly Paired Conditions */}
-                            {pairedConditions.length > 0 && (
-                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
-                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.04))' }}>
-                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
-                                    <div className="relative z-10">
-                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
-                                            Commonly Paired
-                                        </span>
-                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            Veterans Usually Pair {condition.hero_heading} With These Conditions
-                                        </h2>
-                                        {condition.pair_note && (
-                                            <p className="text-sm text-slate-600 leading-relaxed mb-5">{condition.pair_note}</p>
-                                        )}
-                                        <div className="flex flex-wrap gap-3">
-                                            {pairedConditions.map((pc, i) => {
-                                                if (pc.url) {
-                                                    return (
-                                                        <Link
-                                                            key={i}
-                                                            href={pc.url}
-                                                            className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold hover:border-red-300 transition-all cursor-pointer block"
-                                                            style={{ color: '#29435f' }}
-                                                        >
-                                                            {pc.name} →
-                                                        </Link>
-                                                    );
-                                                }
-
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 cursor-default"
-                                                    >
-                                                        {pc.name}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Related Insights */}
-                            {(relatedBlogs.length > 0 || relatedCaseStudies.length > 0) && (
-                                <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="insights-heading">
-                                    <h2 id="insights-heading" className="text-2xl font-bold text-slate-900 mb-6" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Related Insights & Proof</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {relatedBlogs.map(blog => (
-                                            <Link href={`/blog/${blog.slug}`} key={blog.id} className="group block">
-                                                <div className="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:shadow-md transition-all h-full bg-slate-50">
-                                                    <span className="text-xs font-bold uppercase tracking-wider mb-2 block" style={{ color: '#29435f' }}>Blog</span>
-                                                    <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-navy-700">{blog.title}</h3>
-                                                    <div className="text-sm text-slate-600 line-clamp-2">{blog.excerpt}</div>
-                                                    <div className="mt-4 flex items-center text-sm font-medium" style={{ color: '#983c44' }}>
-                                                        Read Article <ArrowRight className="w-4 h-4 ml-1" />
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                        {relatedCaseStudies.map(study => (
-                                            <Link href={`/case-studies/${study.slug}`} key={study.id} className="group block">
-                                                <div className="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:shadow-md transition-all h-full bg-slate-50">
-                                                    <span className="text-xs font-bold uppercase tracking-wider mb-2 block" style={{ color: '#983c44' }}>Case Study</span>
-                                                    <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-red-700">{study.title}</h3>
-                                                    <div className="text-sm text-slate-600 line-clamp-2">{study.excerpt}</div>
-                                                    <div className="mt-4 flex items-center text-sm font-medium" style={{ color: '#983c44' }}>
-                                                        View Case Study <ArrowRight className="w-4 h-4 ml-1" />
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
+                            {layoutSections.map((sec) => {
+                                if (!sec.is_visible) return null;
+                                if (sec.type === 'custom_rich_text') {
+                                    if (!sec.content_html) return null;
+                                    return (
+                                        <section key={sec.id} className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                                            {sec.title && (
+                                                <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                    {sec.title}
+                                                </h2>
+                                            )}
+                                            <div 
+                                                className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
+                                                dangerouslySetInnerHTML={{ __html: formatConditionHTML(sec.content_html) }}
+                                            />
+                                        </section>
+                                    );
+                                }
+                                return renderSection(sec.id);
+                            })}
                         </div>
 
                         {/* Sidebar */}
