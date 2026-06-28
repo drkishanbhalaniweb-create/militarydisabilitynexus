@@ -229,7 +229,7 @@ const Community = ({ initialQuestions, featuredQuestions = [], initialTotal, sta
           <div className="bg-[#FAF7F2] border border-amber-200/60 rounded-xl p-5 mb-6 text-left">
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
               <strong className="font-semibold text-slate-900">About this community.</strong> The Military Disability Nexus Q&A is a free, public forum for general education about VA disability claims. <strong className="font-semibold text-slate-800">Expert Answers are general information only</strong> – based solely on the limited facts in a posted question, not individualized medical or legal advice, and they do <strong className="font-semibold text-slate-800">not</strong> create a clinician-patient or attorney-client relationship. Member posts are their own; we don&apos;t verify or endorse them and may moderate or remove content. The VA decides every claim on its own facts – <strong className="font-semibold text-slate-800">no outcome is promised or guaranteed</strong>. We are an independent medical-evidence provider, <strong className="font-semibold text-slate-800">not affiliated with or endorsed by the VA</strong>. Free help is available from VA-accredited VSOs; see our{' '}
-              <Link href="/terms" className="underline text-amber-800 hover:text-amber-950 font-medium">
+              <Link href="/community-guidelines" className="underline text-amber-800 hover:text-amber-950 font-medium">
                 Community Guidelines
               </Link>{' '}
               and{' '}
@@ -427,7 +427,9 @@ const Community = ({ initialQuestions, featuredQuestions = [], initialTotal, sta
               {/* Disclaimer Box (Right) */}
               <div className="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl shadow-sm text-left h-full">
                 <div className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  <strong className="font-semibold text-slate-850">Community disclaimer.</strong>{' '}
+                  <Link href="/disclaimer" className="font-semibold text-slate-800 hover:text-navy-700 underline">
+                    Community disclaimer.
+                  </Link>{' '}
                   Expert Answers are general education only and don&apos;t create a clinician–patient relationship;
                   the VA decides every claim. Not affiliated with the VA.{' '}
                   <Link href="/disclaimer" className="underline text-navy-700 hover:text-navy-900 font-medium">
