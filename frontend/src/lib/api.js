@@ -907,6 +907,7 @@ export const conditionApi = {
         seo_keywords: conditionData.seo_keywords || [],
         internal_links: conditionData.internal_links || [],
         stat_cards: conditionData.stat_cards || [],
+        layout_sections: conditionData.layout_sections || null,
       }])
       .select()
       .single();
@@ -940,6 +941,7 @@ export const conditionApi = {
       seo_keywords: conditionData.seo_keywords || [],
       internal_links: conditionData.internal_links || [],
       stat_cards: conditionData.stat_cards || [],
+      layout_sections: conditionData.layout_sections || null,
     };
 
     if (conditionData.slug) {
