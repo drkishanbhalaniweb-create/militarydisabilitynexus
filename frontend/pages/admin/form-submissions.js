@@ -204,7 +204,9 @@ const FormSubmissions = () => {
     const filteredSubmissions = useMemo(() => {
         return submissions.filter(submission => {
             // Filter by type
-            if (filterType !== 'all' && submission.form_type !== filterType) {
+            if (filterType === 'general_inquiry') {
+                if (submission.form_type !== 'unsure' && submission.form_type !== 'general') return false;
+            } else if (filterType !== 'all' && submission.form_type !== filterType) {
                 return false;
             }
 
@@ -314,8 +316,7 @@ const FormSubmissions = () => {
                                         <option value="all">All Forms</option>
                                         <option value="quick_intake">Quick Intake</option>
                                         <option value="aid_attendance">Aid & Attendance</option>
-                                        <option value="unsure">General Inquiry</option>
-                                        <option value="general">General Inquiry</option>
+                                        <option value="general_inquiry">General Inquiry</option>
                                         <option value="claim_readiness_review">Claim Readiness Review</option>
                                         <option value="nexus_letter">Nexus Letter</option>
                                         <option value="dbq">DBQ</option>
