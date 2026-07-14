@@ -119,6 +119,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                 isOpen={isPricingModalOpen}
                 onClose={() => setIsPricingModalOpen(false)}
                 service={service}
+                isMentalHealth={system.is_mental_health}
             />
             <SEO
                 title={`${system.name} ${service.title} | Military Disability Nexus`}
@@ -167,7 +168,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                 </div>
                             </div>
                             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                                {system.name} {service.title}s
+                                {system.name}
                             </h1>
                             <p className="text-sm text-slate-400 mb-2">{system.description}</p>
                             {heroText && (
@@ -272,7 +273,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                             {/* Conditions Directory Grid */}
                             <section id="conditions" className="scroll-mt-20">
                                 <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                    {service.title}s by Condition — {system.name}
+                                    {system.name} Conditions
                                 </h2>
                                 <p className="text-sm text-slate-500 mb-6">Click any condition to view its dedicated page with DC codes, rating criteria, secondary connections, and specialist guidance.</p>
                                 
@@ -295,7 +296,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                                         </span>
                                                     )}
                                                     <h3 className="font-semibold text-slate-900 text-sm">
-                                                        {condition.page_title} {service.title}
+                                                        {condition.page_title}
                                                     </h3>
                                                 </div>
                                                 <p className="text-slate-500 line-clamp-2 text-xs leading-relaxed mt-1 flex-grow">
@@ -312,7 +313,22 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                                 {condition.paired_conditions && condition.paired_conditions.length > 0 && (
                                                     <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
                                                         <span className="font-semibold" style={{ color: '#983c44' }}>Usually paired with:</span>{' '}
-                                                        {condition.paired_conditions.join(', ')}
+                                                        {condition.paired_conditions
+                                                            .map(pc => {
+                                                                if (!pc) return '';
+                                                                if (typeof pc === 'object') return pc.name || '';
+                                                                try {
+                                                                    const parsed = JSON.parse(pc);
+                                                                    if (typeof parsed === 'object' && parsed !== null) {
+                                                                        return parsed.name || '';
+                                                                    }
+                                                                } catch {
+                                                                    // Fallback for plain string
+                                                                }
+                                                                return pc;
+                                                            })
+                                                            .filter(name => name && String(name).trim() !== '')
+                                                            .join(', ')}
                                                     </div>
                                                 )}
                                             </Link>

@@ -40,15 +40,15 @@ const PricingModal = ({ isOpen, onClose, isMentalHealth = false }) => {
         if (isMentalHealth && tier.mental_health_price) {
             price = tier.mental_health_price;
         }
-        if (price && typeof price === 'string') {
-            if (tier.slug === 'nurse-practitioner') {
-                return price.replace(/(\$\d[\d,]*)(?!\+)/g, '$1+');
-            } else {
-                return price.replace(/\+/g, '');
-            }
-        }
         return price;
     };
+
+    const internistTier = tiers.find(t => t.slug === 'internist') || tiers.find(t => t.slug === 'internist-specialist') || tiers.find(t => t.slug.includes('internist') || t.slug.includes('specialist'));
+    const internistPrice = (() => {
+        if (!internistTier || !internistTier.base_price) return '$945';
+        const match = internistTier.base_price.match(/\$\d[\d,]*/);
+        return match ? match[0] : '$945';
+    })();
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -84,7 +84,7 @@ const PricingModal = ({ isOpen, onClose, isMentalHealth = false }) => {
                     <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                         <p className="text-sm font-bold text-slate-900 mb-1">How pricing works</p>
                         <p className="text-sm text-slate-600">
-                            Pricing varies by provider qualification and claim complexity. At the Internist/Specialist level, all claim theories (presumptive, direct, secondary to multiple conditions) are included in a single nexus letter. Example: veteran claiming migraine with evidence of presumptive, direct, secondary to tinnitus, PTSD, and pain from an Internist— all addressed in one opinion at $945.
+                            Pricing varies by provider qualification and claim complexity. At the Internist/Specialist level, all claim theories (presumptive, direct, secondary to multiple conditions) are included in a single nexus letter. Example: veteran claiming migraine with evidence of presumptive, direct, secondary to tinnitus, PTSD, and pain from an Internist— all addressed in one opinion at {internistPrice}.
                         </p>
                     </div>
 

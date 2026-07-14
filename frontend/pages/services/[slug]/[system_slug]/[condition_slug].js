@@ -50,16 +50,20 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const specialistGuide = condition.specialist_guide || [];
     const secondaryConnections = condition.secondary_connections || [];
     const pairedConditions = (condition.paired_conditions || []).map(pc => {
+        if (!pc) return null;
+        if (typeof pc === 'object') {
+            return { name: pc.name || '', url: pc.url || '' };
+        }
         try {
             const parsed = JSON.parse(pc);
-            if (typeof parsed === 'object' && parsed !== null && 'name' in parsed) {
+            if (typeof parsed === 'object' && parsed !== null) {
                 return { name: parsed.name || '', url: parsed.url || '' };
             }
-        } catch (e) {
+        } catch {
             // Fallback for plain strings
         }
-        return { name: pc || '', url: '' };
-    }).filter(pc => pc.name.trim() !== '');
+        return { name: String(pc) || '', url: '' };
+    }).filter(pc => pc && pc.name && String(pc.name).trim() !== '');
     const internalLinks = condition.internal_links || [];
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
     const otherConditions = (siblingConditions || []).filter(c => c.id !== condition.id);
@@ -361,6 +365,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                 isOpen={isPricingModalOpen} 
                 onClose={() => setIsPricingModalOpen(false)} 
                 service={service}
+                isMentalHealth={isMH}
             />
             <SEO
                 title={condition.page_title}
