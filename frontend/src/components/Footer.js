@@ -72,7 +72,7 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services/va-medical-malpractice-1151-case" onClick={handleLinkClick} className="text-slate-300 hover:text-white transition-colors">
+                  <Link href="/va-1151-claim" onClick={handleLinkClick} className="text-slate-300 hover:text-white transition-colors">
                     1151 Claims
                   </Link>
                 </li>

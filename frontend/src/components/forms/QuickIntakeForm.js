@@ -28,7 +28,7 @@ const QuickIntakeForm = ({ onSuccess }) => {
         setFormTypes([
           { value: 'independent-medical-opinion-nexus-letter', label: 'Independent Medical Opinion (IMO) / Nexus Letter', requiresUpload: false },
           { value: 'disability-benefits-questionnaire-dbq', label: 'Disability Benefits Questionnaire (DBQ)', requiresUpload: false },
-          { value: 'va-medical-malpractice-1151-case', label: '1151 Claim (VA Medical Malpractice)', requiresUpload: false },
+          { value: 'va-1151-claim', label: '1151 Claim (VA Medical Malpractice)', requiresUpload: false },
           { value: 'aid-and-attendance', label: 'Aid & Attendance (21-2680)', requiresUpload: false },
           { value: 'unsure', label: "I'm not sure what I need", requiresUpload: false }
         ]);

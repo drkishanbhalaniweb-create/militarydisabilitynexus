@@ -68,6 +68,45 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
     const otherConditions = (siblingConditions || []).filter(c => c.id !== condition.id);
     const isMH = bodySystem?.is_mental_health || false;
+    const basePriceText = bodySystem?.cta_price || (isMH ? '$1,600+' : '$400+');
+    const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
+    const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
+
+    // Helper functions to clean and deduplicate titles (prevents double-appending "Nexus Letter" or "DBQ" to the title/subheadings)
+    const getCleanConditionTitle = (heroHeading, svcTitle) => {
+        const heading = heroHeading || '';
+        const svc = svcTitle || '';
+        
+        if (heading.toLowerCase().includes(svc.toLowerCase())) {
+            return heading;
+        }
+        
+        if (svc.toLowerCase().includes('nexus') || svc.toLowerCase().includes('opinion')) {
+            if (heading.toLowerCase().includes('nexus') || heading.toLowerCase().includes('imo')) {
+                return heading;
+            }
+            return `${heading} Nexus Letter`;
+        }
+        
+        if (svc.toLowerCase().includes('dbq') || svc.toLowerCase().includes('questionnaire')) {
+            if (heading.toLowerCase().includes('dbq') || heading.toLowerCase().includes('questionnaire')) {
+                return heading;
+            }
+            return `${heading} DBQ`;
+        }
+        
+        return `${heading} ${svc}`;
+    };
+
+    const getCleanConditionTitlePlural = (heroHeading, svcTitle) => {
+        const clean = getCleanConditionTitle(heroHeading, svcTitle);
+        if (clean.toLowerCase().endsWith('letter')) return `${clean}s`;
+        if (clean.toLowerCase().endsWith('dbq')) return `${clean}s`;
+        return clean;
+    };
+
+    const cleanConditionTitle = getCleanConditionTitle(condition.hero_heading, service.title);
+    const cleanConditionTitlePlural = getCleanConditionTitlePlural(condition.hero_heading, service.title);
 
     const layoutSections = condition.layout_sections || [
         { id: 'ratings', type: 'standard', is_visible: true },
@@ -118,7 +157,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                 return (
                     <section key="about" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
                         <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                            About {condition.hero_heading} VA Claims
+                            About {cleanConditionTitle} VA Claims
                         </h2>
                         <div 
                             className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
@@ -152,10 +191,10 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 Secondary Service Connections
                             </span>
                             <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                How {condition.hero_heading} Connects to Service
+                                How {cleanConditionTitle} Connects to Service
                             </h2>
                             <p className="text-sm text-slate-600 leading-relaxed mb-5">
-                                These are the medical pathways our clinicians use to establish nexus between {(condition.hero_heading || '').toLowerCase()} and military service:
+                                These are the medical pathways our clinicians use to establish nexus between {(cleanConditionTitle || '').toLowerCase()} and military service:
                             </p>
                             <div className="space-y-3">
                                 {secondaryConnections.map((conn, idx) => {
@@ -164,7 +203,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                             <span className="text-base flex-shrink-0 mt-0.5">🔗</span>
                                             <div className="flex-1 min-w-0">
                                                 <div className="font-semibold text-sm" style={{ color: '#29435f' }}>
-                                                    {conn.from} <span className="text-slate-400 mx-1">→</span> {condition.hero_heading}
+                                                    {conn.from} <span className="text-slate-400 mx-1">→</span> {cleanConditionTitle}
                                                 </div>
                                                 <div className="text-xs text-slate-500 mt-1">{conn.mechanism}</div>
                                             </div>
@@ -195,7 +234,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 Specialist Guide
                             </span>
                             <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                Who Should Write Your {condition.hero_heading} {service.title}?
+                                Who Should Write Your {cleanConditionTitle}?
                             </h2>
                             <p className="text-sm text-slate-600 mb-5">Match the writer to the medical question for maximum probative weight:</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -220,7 +259,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                 return (
                     <section key="faqs" className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200" aria-labelledby="faq-heading">
                         <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>Frequently Asked Questions</h2>
-                        <p className="text-sm text-slate-500 mb-6">About {condition.hero_heading} {service.title}s</p>
+                        <p className="text-sm text-slate-500 mb-6">About {cleanConditionTitlePlural}</p>
                         <Accordion type="single" collapsible className="w-full">
                             {condition.faqs.map((faq, idx) => (
                                 <AccordionItem key={idx} value={`item-${idx}`}>
@@ -274,7 +313,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 Commonly Paired
                             </span>
                             <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                Veterans Usually Pair {condition.hero_heading} With These Conditions
+                                Veterans Usually Pair {cleanConditionTitle} With These Conditions
                             </h2>
                             {condition.pair_note && (
                                 <p className="text-sm text-slate-600 leading-relaxed mb-5">{condition.pair_note}</p>
@@ -370,7 +409,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
             <SEO
                 title={condition.page_title}
                 description={condition.meta_description}
-                keywords={`${condition.hero_heading}, ${service.title}, VA disability, secondary condition`}
+                keywords={`${cleanConditionTitle}, VA disability, secondary condition`}
                 structuredData={structuredData}
                 faqSchema={condition.faqs}
                 canonical={`/services/${service.slug}/${bodySystem.slug}/${condition.slug}`}
@@ -423,7 +462,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                         className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
                                         style={{ backgroundColor: '#B91C3C' }}
                                     >
-                                        View Pricing — From {isMH ? '$1,600+' : '$400+'}
+                                        View Pricing — {displayCtaPrice}
                                     </button>
                                 ) : (
                                     <Link
@@ -497,10 +536,10 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 {service.slug === 'independent-medical-opinion-nexus-letter' ? (
                                     <div className="rounded-2xl p-7 shadow-xl text-white" style={{ background: 'linear-gradient(160deg, #29435f, #3a5a7a)' }}>
                                         <div className="mb-5">
-                                            <div className="text-xs text-white/50 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
+                                            <div className="text-xs text-white/50 font-medium mb-0.5">{cleanConditionTitle}</div>
                                             <div className="text-xs text-white/50">Starting at</div>
                                             <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                {isMH ? '$1,600+' : '$400+'}
+                                                {basePriceValue}
                                             </div>
                                             <p className="text-xs text-white/45 mt-1">
                                                 {isMH ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
@@ -531,7 +570,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 ) : (
                                     <div className="bg-white rounded-2xl p-7 shadow-xl border border-slate-200 text-slate-900">
                                         <div className="mb-5">
-                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{condition.hero_heading} {service.title}</div>
+                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{cleanConditionTitle}</div>
                                             <div className="text-sm text-slate-500 mb-1">Starting at</div>
                                             <div className="text-4xl font-bold text-slate-900 my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                                 ${service.base_price_usd?.toLocaleString() || 'N/A'}
@@ -660,7 +699,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 >
                                     Nexus Letter service
                                 </Link>
-                                . This page covers the {condition.page_title || condition.hero_heading} {service.title.includes('Nexus') ? 'Nexus Letter' : service.title.includes('DBQ') ? 'DBQ' : service.title}.
+                                . This page covers the {cleanConditionTitle}.
                             </>
                         ) : (
                             <>
@@ -672,7 +711,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                 >
                                     DBQ service
                                 </Link>
-                                . This page covers the {condition.page_title || condition.hero_heading} {service.title.includes('Nexus') ? 'Nexus Letter' : service.title.includes('DBQ') ? 'DBQ' : service.title}.
+                                . This page covers the {cleanConditionTitle}.
                             </>
                         )}
                     </div>

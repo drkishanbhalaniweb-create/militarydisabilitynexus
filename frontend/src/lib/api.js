@@ -1202,6 +1202,7 @@ export const bodySystemApi = {
         services_title: systemData.services_title || null,
         services_intro: systemData.services_intro || null,
         paired_title: systemData.paired_title || null,
+        cta_price: systemData.cta_price || null,
       }])
       .select()
       .single();
@@ -1234,6 +1235,7 @@ export const bodySystemApi = {
       services_title: systemData.services_title || null,
       services_intro: systemData.services_intro || null,
       paired_title: systemData.paired_title || null,
+      cta_price: systemData.cta_price || null,
     };
 
     if (systemData.slug) {

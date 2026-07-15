@@ -51,6 +51,7 @@ const BodySystemForm = () => {
         services_title: '',
         services_intro: '',
         paired_title: '',
+        cta_price: '',
     });
 
     useEffect(() => {
@@ -117,6 +118,7 @@ const BodySystemForm = () => {
                         services_title: system.services_title || '',
                         services_intro: system.services_intro || '',
                         paired_title: system.paired_title || '',
+                        cta_price: system.cta_price || '',
                     });
                 }
             } else {
@@ -345,6 +347,7 @@ const BodySystemForm = () => {
                 services_title: (formData.services_title || '').trim(),
                 services_intro: (formData.services_intro || '').trim(),
                 paired_title: (formData.paired_title || '').trim(),
+                cta_price: (formData.cta_price || '').trim() || null,
             };
 
             if (isNew) {
@@ -487,6 +490,19 @@ const BodySystemForm = () => {
                                     <RichTextEditor
                                         value={formData.overview}
                                         onChange={(html) => setFormData(prev => ({ ...prev, overview: html }))}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">CTA Custom Price</label>
+                                    <p className="text-xs text-slate-500 mb-2">Custom pricing displayed on the public CTA buttons (e.g., "$400+", "$1,600+"). Leave blank to use system defaults.</p>
+                                    <input
+                                        type="text"
+                                        name="cta_price"
+                                        value={formData.cta_price}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-slate-900 text-sm"
+                                        placeholder='e.g. "$400+" or "From $550"'
                                     />
                                 </div>
 

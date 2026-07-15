@@ -48,6 +48,11 @@ const nextConfig = {
                 destination: '/services',
                 permanent: false,
             },
+            {
+                source: '/va-1151-claim',
+                destination: '/services/va-1151-claim',
+                permanent: true,
+            },
         ];
 
         try {

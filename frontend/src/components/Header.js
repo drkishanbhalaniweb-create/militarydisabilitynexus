@@ -32,7 +32,7 @@ const serviceLinks = [
     {
         name: '1151 Claim (VA Malpractice)',
         description: 'Expert opinions for VA medical negligence cases',
-        href: '/services/va-medical-malpractice-1151-case',
+        href: '/va-1151-claim',
         icon: AlertTriangle,
     },
 ];

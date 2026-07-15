@@ -42,7 +42,7 @@ const Contact = () => {
                 setServices([
                     { value: 'independent-medical-opinion-nexus-letter', label: 'Independent Medical Opinion (IMO) / Nexus Letter' },
                     { value: 'disability-benefits-questionnaire-dbq', label: 'Disability Benefits Questionnaire (DBQ)' },
-                    { value: 'va-medical-malpractice-1151-case', label: '1151 Claim (VA Medical Malpractice)' },
+                    { value: 'va-1151-claim', label: '1151 Claim (VA Medical Malpractice)' },
                     { value: 'aid-and-attendance', label: 'Aid & Attendance (21-2680)' },
                     { value: 'unsure', label: "I'm not sure what I need" }
                 ]);

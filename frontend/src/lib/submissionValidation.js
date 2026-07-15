@@ -16,6 +16,7 @@ const CONTACT_SERVICE_TYPES = new Set([
   'expert-consultation',
   'claim-readiness-review',
   'va-medical-malpractice-1151-case',
+  'va-1151-claim',
 ]);
 
 const ALLOWED_FORM_TYPES = new Set([
@@ -33,6 +34,7 @@ const ALLOWED_FORM_TYPES = new Set([
   'cp-exam-coaching',
   'expert-consultation',
   'va-medical-malpractice-1151-case',
+  'va-1151-claim',
 ]);
 
 const MULTILINE_FIELD_HINTS = [
@@ -191,6 +193,7 @@ function getFormTypeLabel(type) {
     'cp-exam-coaching': 'C&P Exam Coaching',
     'expert-consultation': 'One-on-One Consultation with Expert',
     'va-medical-malpractice-1151-case': '1151 Claim (VA Medical Malpractice)',
+    'va-1151-claim': '1151 Claim (VA Medical Malpractice)',
   };
 
   return labels[type] || sanitizeInlineText(type, 50) || 'Form Submission';

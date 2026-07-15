@@ -15,9 +15,10 @@ const SERVICE_SLUG_MAP = {
     'nexus_letter': 'independent-medical-opinion-nexus-letter',
     'disability-benefits-questionnaire-dbq': 'disability-benefits-questionnaire-dbq',
     'dbq': 'disability-benefits-questionnaire-dbq',
-    'va-medical-malpractice-1151-case': 'va-medical-malpractice-1151-case',
-    '1151-claim': 'va-medical-malpractice-1151-case',
-    '1151_claim': 'va-medical-malpractice-1151-case',
+    'va-medical-malpractice-1151-case': 'va-1151-claim',
+    '1151-claim': 'va-1151-claim',
+    '1151_claim': 'va-1151-claim',
+    'va-1151-claim': 'va-1151-claim',
     'aid-attendance': 'aid-and-attendance',
     'aid-and-attendance': 'aid-and-attendance',
     'aid_attendance': 'aid-and-attendance',
@@ -73,7 +74,7 @@ const Forms = () => {
                 setServices([
                     { value: 'independent-medical-opinion-nexus-letter', label: 'Independent Medical Opinion (IMO) / Nexus Letter' },
                     { value: 'disability-benefits-questionnaire-dbq', label: 'Disability Benefits Questionnaire (DBQ)' },
-                    { value: 'va-medical-malpractice-1151-case', label: '1151 Claim (VA Medical Malpractice)' },
+                    { value: 'va-1151-claim', label: '1151 Claim (VA Medical Malpractice)' },
                     { value: 'aid-and-attendance', label: 'Aid & Attendance (21-2680)' },
                     { value: 'unsure', label: "I'm not sure what I need" }
                 ]);
@@ -91,7 +92,7 @@ const Forms = () => {
                 const mappedService = SERVICE_SLUG_MAP[service] || service;
                 const finalService = mappedService === 'nexus_letter' ? 'independent-medical-opinion-nexus-letter' :
                                       mappedService === 'dbq' ? 'disability-benefits-questionnaire-dbq' :
-                                      mappedService === '1151_claim' ? 'va-medical-malpractice-1151-case' :
+                                      mappedService === '1151_claim' ? 'va-1151-claim' :
                                       mappedService === 'aid_attendance' ? 'aid-and-attendance' : mappedService;
                 setFormData(prev => ({ ...prev, formType: finalService }));
                 
@@ -178,6 +179,7 @@ const Forms = () => {
                 'disability-benefits-questionnaire-dbq': 'dbq',
                 'dbq': 'dbq',
                 'va-medical-malpractice-1151-case': '1151_claim',
+                'va-1151-claim': '1151_claim',
                 '1151_claim': '1151_claim',
                 'aid-and-attendance': 'aid_attendance',
                 'aid_attendance': 'aid_attendance',

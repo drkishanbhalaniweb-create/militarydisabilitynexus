@@ -37,6 +37,10 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
     const specialistGuide = system.specialist_guide || [];
     const pairedSystems = system.paired_systems || [];
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
+    const shortServiceTitle = service.title.includes('Nexus') ? 'Nexus Letter' : service.title.includes('DBQ') ? 'DBQ' : service.title;
+    const basePriceText = system.cta_price || (system.is_mental_health ? '$1,600+' : '$400+');
+    const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
+    const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
 
     // Strip HTML tags for fallback display in plain-text Hero Card
     const heroText = system.hero_description || 
@@ -183,7 +187,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                         className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
                                         style={{ backgroundColor: '#B91C3C' }}
                                     >
-                                        View Pricing — From {system.is_mental_health ? '$1,600+' : '$400+'}
+                                        View Pricing — {displayCtaPrice}
                                     </button>
                                 ) : (
                                     <Link
@@ -304,7 +308,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                                 </p>
                                                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                                                     <span className="text-xs font-semibold" style={{ color: '#983c44' }}>
-                                                        From {system.is_mental_health ? '$1,600+' : '$400+'}
+                                                        {displayCtaPrice}
                                                     </span>
                                                     <span className="text-xs font-semibold text-slate-700 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
                                                         View Details <ArrowRight className="w-3 h-3" />
@@ -654,10 +658,10 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                 {service.slug === 'independent-medical-opinion-nexus-letter' ? (
                                     <div className="bg-slate-900 rounded-2xl p-7 shadow-xl text-white">
                                         <div className="mb-5">
-                                            <div className="text-xs text-white/50 font-medium mb-0.5">{system.name} {service.title}</div>
+                                            <div className="text-xs text-white/50 font-medium mb-0.5">{system.name} {shortServiceTitle}</div>
                                             <div className="text-xs text-white/50">Starting at</div>
                                             <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                {system.is_mental_health ? '$1,600+' : '$400+'}
+                                                {basePriceValue}
                                             </div>
                                             <p className="text-xs text-white/45 mt-1">
                                                 {system.is_mental_health ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
@@ -706,7 +710,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                 ) : (
                                     <div className="bg-white rounded-2xl p-7 shadow-xl border border-slate-200 text-slate-900">
                                         <div className="mb-5">
-                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{system.name} {service.title}</div>
+                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{system.name} {shortServiceTitle}</div>
                                             <div className="text-sm text-slate-500 mb-1">Starting at</div>
                                             <div className="text-4xl font-bold text-slate-900 my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                                 ${service.base_price_usd?.toLocaleString() || 'N/A'}
