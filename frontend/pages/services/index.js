@@ -56,8 +56,8 @@ const faqServiceLinks = {
     'DBQ': '/services/disability-benefits-questionnaire-dbq',
     'Claim Readiness Review': '/services/claim-readiness-review',
     'Aid & Attendance': '/services/aid-and-attendance',
-    '1151 claim': '/va-1151-claim',
-    '1151 case documentation': '/va-1151-claim',
+    '1151 claim': '/services/va-1151-claim',
+    '1151 case documentation': '/services/va-1151-claim',
     'TDIU': '/services/tdiu-unemployability-medical-documentation',
     'TDIU Documentation': '/services/tdiu-unemployability-medical-documentation',
     'Attorney & Advocate Partnership': '/services/attorney-advocate-partnership',
@@ -211,7 +211,7 @@ const Services = ({ services }) => {
                                 <Link href="/services/claim-readiness-review" className="inline-flex items-center gap-1.5 bg-white border border-navy-100 hover:border-red-600 hover:text-red-700 text-navy-900 font-semibold text-sm px-4 py-2.5 rounded-full shadow-sm transition-all hover:-translate-y-0.5">
                                     <span className="text-red-600 font-bold">›</span> Claim Readiness Review
                                 </Link>
-                                <Link href="/va-1151-claim" className="inline-flex items-center gap-1.5 bg-white border border-navy-100 hover:border-red-600 hover:text-red-700 text-navy-900 font-semibold text-sm px-4 py-2.5 rounded-full shadow-sm transition-all hover:-translate-y-0.5">
+                                <Link href="/services/va-1151-claim" className="inline-flex items-center gap-1.5 bg-white border border-navy-100 hover:border-red-600 hover:text-red-700 text-navy-900 font-semibold text-sm px-4 py-2.5 rounded-full shadow-sm transition-all hover:-translate-y-0.5">
                                     <span className="text-red-600 font-bold">›</span> 1151 Documentation
                                 </Link>
                             </div>
@@ -320,7 +320,7 @@ const Services = ({ services }) => {
                                             </tr>
                                             <tr className="hover:bg-slate-50/50">
                                                 <td className="p-4 font-semibold text-navy-800 whitespace-nowrap">
-                                                    <Link href="/va-1151-claim" className="text-blue-600 hover:text-blue-800 hover:underline font-bold">1151 Opinion</Link>
+                                                    <Link href="/services/va-1151-claim" className="text-blue-600 hover:text-blue-800 hover:underline font-bold">1151 Opinion</Link>
                                                 </td>
                                                 <td className="p-4 text-slate-700">VA care caused additional disability</td>
                                                 <td className="p-4 text-slate-700">Injury caused by VA medical treatment</td>
