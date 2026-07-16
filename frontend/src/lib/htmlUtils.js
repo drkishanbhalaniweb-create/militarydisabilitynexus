@@ -178,7 +178,7 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
     return processedHtml;
 };
 
-export const formatConditionHTML = (htmlString) => {
+export const formatRichHTML = (htmlString) => {
     if (!htmlString) return '';
     
     // Split the html string by custom-box divs

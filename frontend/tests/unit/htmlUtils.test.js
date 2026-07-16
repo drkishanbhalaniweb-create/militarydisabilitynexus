@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { formatBlogHTML } from '../../src/lib/htmlUtils';
+import { formatBlogHTML, formatRichHTML } from '../../src/lib/htmlUtils';
 
 describe('blog HTML formatting', () => {
   test('injects heading ids and extracts h2 table-of-contents items', () => {
@@ -30,5 +30,35 @@ describe('blog HTML formatting', () => {
       tocItems: [],
       hasToc: false,
     });
+  });
+});
+
+describe('rich HTML formatting', () => {
+  test('groups consecutive custom-boxes into a grid', () => {
+    const input = `
+      <div class="custom-box">Box 1</div>
+      <div class="custom-box">Box 2</div>
+    `;
+    const result = formatRichHTML(input);
+    expect(result).toContain('<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">');
+    expect(result).toContain('<div class="col-span-1"><div class="custom-box">Box 1</div></div>');
+    expect(result).toContain('<div class="col-span-1"><div class="custom-box">Box 2</div></div>');
+  });
+
+  test('keeps non-custom-box content outside the grid', () => {
+    const input = `
+      <p>Intro text</p>
+      <div class="custom-box">Box 1</div>
+      <p>Outro text</p>
+    `;
+    const result = formatRichHTML(input);
+    expect(result).toContain('<p>Intro text</p>');
+    expect(result).toContain('<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">');
+    expect(result).toContain('<p>Outro text</p>');
+  });
+
+  test('handles missing or empty HTML', () => {
+    expect(formatRichHTML('')).toBe('');
+    expect(formatRichHTML(null)).toBe('');
   });
 });

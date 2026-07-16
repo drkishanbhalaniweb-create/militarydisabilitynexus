@@ -15,7 +15,7 @@ import {
     AccordionTrigger,
 } from '../../../../src/components/ui/accordion';
 import { buildOrganizationReference } from '../../../../src/lib/trust';
-import { formatConditionHTML } from '../../../../src/lib/htmlUtils';
+import { formatRichHTML } from '../../../../src/lib/htmlUtils';
 
 const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = [], relatedCaseStudies = [], allServices = [], siblingConditions = [] }) => {
     const router = useRouter();
@@ -162,7 +162,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                         </h2>
                         <div 
                             className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
-                            dangerouslySetInnerHTML={{ __html: formatConditionHTML(condition.content_html) }}
+                            dangerouslySetInnerHTML={{ __html: formatRichHTML(condition.content_html) }}
                         />
                     </section>
                 );
@@ -521,7 +521,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                             )}
                                             <div 
                                                 className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
-                                                dangerouslySetInnerHTML={{ __html: formatConditionHTML(sec.content_html) }}
+                                                dangerouslySetInnerHTML={{ __html: formatRichHTML(sec.content_html) }}
                                             />
                                         </section>
                                     );

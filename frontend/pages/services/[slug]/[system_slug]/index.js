@@ -13,6 +13,7 @@ import {
     AccordionTrigger,
 } from '../../../../src/components/ui/accordion';
 import { buildOrganizationReference } from '../../../../src/lib/trust';
+import { formatRichHTML } from '../../../../src/lib/htmlUtils';
 
 const SystemConditionsPage = ({ service, system, conditions, allServices, allSystems }) => {
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
@@ -249,406 +250,450 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                     
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content */}
+                        {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
-                            {/* Overview */}
-                            {system.overview && (
-                                <section id="overview" className="scroll-mt-20 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>About {system.name} Claims</h2>
-                                    {hasHtml ? (
-                                        <div 
-                                            className="prose prose-slate max-w-none text-slate-600 leading-relaxed mb-6"
-                                            dangerouslySetInnerHTML={{ __html: system.overview }}
-                                        />
-                                    ) : (
-                                        <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed mb-6">
-                                            <p>{system.overview}</p>
-                                        </div>
-                                    )}
+                            {(() => {
+                                const defaultLayout = [
+                                    { id: 'overview', type: 'standard', name: 'Overview', is_visible: true },
+                                    { id: 'conditions_directory', type: 'standard', name: 'Conditions Directory', is_visible: true },
+                                    { id: 'signature_pathways', type: 'standard', name: 'Signature Pathways', is_visible: true },
+                                    { id: 'challenges', type: 'standard', name: 'Challenges', is_visible: true },
+                                    { id: 'services_comparison', type: 'standard', name: 'Services Comparison', is_visible: true },
+                                    { id: 'specialist_guide', type: 'standard', name: 'Specialist Guide', is_visible: true },
+                                    { id: 'paired_systems', type: 'standard', name: 'Paired Systems', is_visible: true },
+                                    { id: 'faqs', type: 'standard', name: 'Frequently Asked Questions', is_visible: true },
+                                    { id: 'related_systems', type: 'standard', name: 'Related Body Systems', is_visible: true },
+                                ];
 
+                                const layout = Array.isArray(system.layout_sections) && system.layout_sections.length > 0
+                                    ? system.layout_sections
+                                    : defaultLayout;
 
+                                const renderSection = (section) => {
+                                    if (!section.is_visible) return null;
 
-                                    {/* Note Callout */}
-                                    <div className="mt-6 text-xs text-slate-700 leading-relaxed bg-slate-50 border-l-4 rounded-r-xl p-4" style={{ borderColor: '#B91C3C' }}>
-                                        While no medical opinion can guarantee a specific VA outcome, clear, credible, and well-documented evidence gives a claim its strongest foundation. Our role is the medicine and the documentation — the decision on the claim rests with the VA.
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Conditions Directory Grid */}
-                            <section id="conditions" className="scroll-mt-20">
-                                <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                    {system.name} Conditions
-                                </h2>
-                                <p className="text-sm text-slate-500 mb-6">Click any condition to view its dedicated page with DC codes, rating criteria, secondary connections, and specialist guidance.</p>
-                                
-                                {conditions.length === 0 ? (
-                                    <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
-                                        <p className="text-slate-500">We are currently updating our list of specific conditions in this category. Contact us for a free consultation about your specific claim.</p>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {conditions.map((condition) => (
-                                            <Link 
-                                                href={`/services/${service.slug}/${system.slug}/${condition.slug}`} 
-                                                key={condition.id}
-                                                className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-red-300 hover:-translate-y-0.5 transition-all group flex flex-col h-full"
-                                            >
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    {condition.icon && (
-                                                        <span className="text-xl flex-shrink-0">
-                                                            <DynamicIcon name={condition.icon} className="w-5 h-5 text-slate-700" />
-                                                        </span>
-                                                    )}
-                                                    <h3 className="font-semibold text-slate-900 text-sm">
-                                                        {condition.page_title}
-                                                    </h3>
-                                                </div>
-                                                <p className="text-slate-500 line-clamp-2 text-xs leading-relaxed mt-1 flex-grow">
-                                                    {condition.short_description || condition.meta_description}
-                                                </p>
-                                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-                                                    <span className="text-xs font-semibold" style={{ color: '#983c44' }}>
-                                                        {displayCtaPrice}
-                                                    </span>
-                                                    <span className="text-xs font-semibold text-slate-700 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                                                        View Details <ArrowRight className="w-3 h-3" />
-                                                    </span>
-                                                </div>
-                                                {condition.paired_conditions && condition.paired_conditions.length > 0 && (
-                                                    <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-                                                        <span className="font-semibold" style={{ color: '#983c44' }}>Usually paired with:</span>{' '}
-                                                        {condition.paired_conditions
-                                                            .map(pc => {
-                                                                if (!pc) return '';
-                                                                if (typeof pc === 'object') return pc.name || '';
-                                                                try {
-                                                                    const parsed = JSON.parse(pc);
-                                                                    if (typeof parsed === 'object' && parsed !== null) {
-                                                                        return parsed.name || '';
-                                                                    }
-                                                                } catch {
-                                                                    // Fallback for plain string
-                                                                }
-                                                                return pc;
-                                                            })
-                                                            .filter(name => name && String(name).trim() !== '')
-                                                            .join(', ')}
-                                                    </div>
+                                    if (section.type === 'custom_rich_text') {
+                                        return (
+                                            <section key={section.id} id={section.id} className="scroll-mt-20 custom-rich-text-section mb-8">
+                                                {section.title && (
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        {section.title}
+                                                    </h2>
                                                 )}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </section>
+                                                <div 
+                                                    className="prose prose-slate max-w-none text-slate-600 leading-relaxed"
+                                                    dangerouslySetInnerHTML={{ __html: formatRichHTML(section.content_html || '') }}
+                                                />
+                                            </section>
+                                        );
+                                    }
 
-                            {/* Signature Pathways */}
-                            {system.pathways && system.pathways.length > 0 && (
-                                <section id="pathways" className="scroll-mt-20 bg-gradient-to-br from-slate-50 to-red-50/20 rounded-2xl p-8 border border-slate-200 relative overflow-hidden">
-                                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-red-500/5 blur-xl pointer-events-none" />
-                                    <div className="relative z-10">
-                                        <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
-                                            How Conditions Connect
-                                        </span>
-                                        <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            Common {system.name} Service-Connection Pathways
-                                        </h2>
-                                        <p className="text-sm text-slate-500 mb-6">
-                                            {system.pathways_intro || `Many ${system.name.toLowerCase()} claims succeed not as standalone conditions, but as part of a chain — one diagnosis medically explaining another. These are the relationships we most often document in plain medical terms.`}
-                                        </p>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {system.pathways.map((path, idx) => {
-                                                const cardContent = (
-                                                    <>
-                                                        <div className="flex items-center gap-2 flex-wrap mb-3">
-                                                            <span className="text-xs font-semibold bg-slate-900 text-white px-2.5 py-1 rounded-lg">
-                                                                {path.from}
-                                                            </span>
-                                                            <span className="text-red-700 font-bold">→</span>
-                                                            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200/60" style={{ backgroundColor: 'rgba(152,60,68,0.05)', color: '#983c44' }}>
-                                                                {path.to}
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-slate-600 text-xs leading-relaxed">
-                                                            {path.mechanism}
-                                                        </p>
-                                                    </>
-                                                );
-                                                const cardClass = "block bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all shadow-sm text-left";
-
-                                                if (path.url) {
-                                                    return (
-                                                        <Link key={idx} href={path.url} className={cardClass}>
-                                                            {cardContent}
-                                                        </Link>
-                                                    );
-                                                }
-
-                                                return (
-                                                    <div key={idx} className={cardClass}>
-                                                        {cardContent}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Complexity / Challenges */}
-                            {system.challenges && system.challenges.length > 0 && (
-                                <section id="challenges" className="scroll-mt-20">
-                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
-                                        What Makes Them Hard
-                                    </span>
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        {system.challenges_title || `Why ${system.name} Claims Can Be Challenging`}
-                                    </h2>
-                                    <p className="text-sm text-slate-500 mb-6">
-                                        Understanding these challenges in advance is the first step toward building a clearer medical record — and knowing where additional evidence may help.
-                                    </p>
-                                    
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {system.challenges.map((chal, idx) => (
-                                            <div key={idx} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:border-slate-300 transition-all">
-                                                {chal.icon && (
-                                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 mb-3 border border-slate-100">
-                                                        <DynamicIcon name={chal.icon} className="w-5 h-5" />
-                                                    </div>
-                                                )}
-                                                <h4 className="font-bold text-slate-900 text-sm mb-2">{chal.title}</h4>
-                                                <p className="text-slate-600 text-xs leading-relaxed">{chal.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Medical Evidence Services Comparison Matrix */}
-                            {comparisonServices.length > 0 && (
-                                <section id="services" className="scroll-mt-20">
-                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
-                                        How We Help
-                                    </span>
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        {system.services_title || `Medical Evidence Services for ${system.name} Claims`}
-                                    </h2>
-                                    <p className="text-sm text-slate-500 mb-6">
-                                        {system.services_intro || `Clinician-led services support ${system.name.toLowerCase()} claims at different stages. Each focuses on the medical evidence — clear diagnoses, sound causation reasoning, and well-documented severity.`}
-                                    </p>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {comparisonServices.map((svc) => {
-                                            const meta = serviceStaticMeta[svc.slug] || {
-                                                purpose: svc.short_description,
-                                                whenItHelps: "When you need professional medical documentation to support your claim."
-                                            };
-                                            const customDesc = (system.service_descriptions || []).find(d => d.service_slug === svc.slug)?.text;
-                                            const finalDesc = customDesc || svc.short_description;
-                                            
+                                    switch (section.id) {
+                                        case 'overview':
+                                            if (!system.overview) return null;
                                             return (
-                                                <div key={svc.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:border-red-300 transition-all flex flex-col h-full">
-                                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 mb-4 border border-slate-100">
-                                                        <DynamicIcon name={svc.icon || 'file-text'} className="w-5 h-5" />
-                                                    </div>
-                                                    <h3 className="font-bold text-slate-900 text-sm mb-3" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                        {svc.title}
-                                                    </h3>
-                                                    
-                                                    <div className="space-y-3 flex-grow text-xs">
-                                                        <div>
-                                                            <span className="block font-bold text-[9px] uppercase tracking-wider text-red-700 mb-0.5">Purpose</span>
-                                                            <p className="text-slate-600 leading-relaxed">{meta.purpose}</p>
+                                                <section key="overview" id="overview" className="scroll-mt-20 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8">
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>About {system.name} Claims</h2>
+                                                    {hasHtml ? (
+                                                        <div 
+                                                            className="prose prose-slate max-w-none text-slate-600 leading-relaxed mb-6"
+                                                            dangerouslySetInnerHTML={{ __html: system.overview }}
+                                                        />
+                                                    ) : (
+                                                        <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed mb-6">
+                                                            <p>{system.overview}</p>
                                                         </div>
-                                                        <div>
-                                                            <span className="block font-bold text-[9px] uppercase tracking-wider text-red-700 mb-0.5">When It May Help</span>
-                                                            <p className="text-slate-600 leading-relaxed">{meta.whenItHelps}</p>
-                                                        </div>
-                                                        {finalDesc && (
-                                                            <div>
-                                                                <span className="block font-bold text-[9px] uppercase tracking-wider text-red-700 mb-0.5">For {system.name} Claims</span>
-                                                                <p className="text-slate-850 font-medium leading-relaxed bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">{finalDesc}</p>
-                                                            </div>
-                                                        )}
+                                                    )}
+                                                    {/* Note Callout */}
+                                                    <div className="mt-6 text-xs text-slate-700 leading-relaxed bg-slate-50 border-l-4 rounded-r-xl p-4" style={{ borderColor: '#B91C3C' }}>
+                                                        While no medical opinion can guarantee a specific VA outcome, clear, credible, and well-documented evidence gives a claim its strongest foundation. Our role is the medicine and the documentation — the decision on the claim rests with the VA.
                                                     </div>
-                                                </div>
+                                                </section>
                                             );
-                                        })}
-                                    </div>
-                                    {service.slug === 'independent-medical-opinion-nexus-letter' && (
-                                        <p className="mt-4 text-xs text-slate-500 leading-relaxed">
-                                            Looking for a DBQ instead? Disability Benefits Questionnaires are handled within our separate{' '}
-                                            <Link href={`/services/disability-benefits-questionnaire-dbq/${system.slug}`} className="font-semibold text-red-700 hover:underline">
-                                                DBQ service for {system.name.toLowerCase()}
-                                            </Link>
-                                            . This page covers the Nexus Letter and Independent Medical Opinion service line.
-                                        </p>
-                                    )}
-                                </section>
-                            )}
-
-                            {/* Specialist Guide (Re-styled matching prototype Section 7) */}
-                            {service.slug === 'independent-medical-opinion-nexus-letter' && specialistGuide.length > 0 && (
-                                <section id="providers" className="scroll-mt-20">
-                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
-                                        Transparent Provider Selection
-                                    </span>
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        Why Provider Specialty Matters
-                                    </h2>
-                                    <p className="text-sm text-slate-500 mb-6">
-                                        The clinician who writes an opinion shapes how persuasive it is. There is no single "best" provider for every claim — the right fit depends on the condition and the medical questions involved.
-                                    </p>
-                                    
-                                    <div className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
-                                        style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
-                                        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
-                                        <div className="relative z-10">
-                                            <span className="inline-block text-white text-[9px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-4" style={{ backgroundColor: '#983c44' }}>
-                                                Matching Expertise to the Claim
-                                            </span>
-                                            
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                {specialistGuide.map((spec, i) => (
-                                                    <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all flex flex-col h-full shadow-sm">
-                                                        <h4 className="font-bold text-slate-900 text-sm mb-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>{spec.name}</h4>
-                                                        {spec.role && <div className="text-[11px] text-slate-500 mb-3">{spec.role}</div>}
-                                                        <p className="text-slate-650 text-xs leading-relaxed flex-grow mb-4">{spec.best_for}</p>
-                                                        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                                                            <span className="text-xs font-semibold" style={{ color: '#983c44' }}>{spec.price}</span>
-                                                            {spec.note && <span className="text-[10px] text-slate-500">{spec.note}</span>}
+                                        case 'conditions_directory':
+                                            return (
+                                                <section key="conditions" id="conditions" className="scroll-mt-20 mb-8">
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        {system.name} Conditions
+                                                    </h2>
+                                                    <p className="text-sm text-slate-500 mb-6">Click any condition to view its dedicated page with DC codes, rating criteria, secondary connections, and specialist guidance.</p>
+                                                    
+                                                    {conditions.length === 0 ? (
+                                                        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
+                                                            <p className="text-slate-500">We are currently updating our list of specific conditions in this category. Contact us for a free consultation about your specific claim.</p>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            
-                                            <div className="mt-5 text-xs text-slate-700 leading-relaxed flex flex-wrap gap-2 justify-between items-center">
-                                                <p><strong>Our approach:</strong> we match each veteran to a clinician whose expertise fits the medical questions in their case.</p>
-                                                <Link href="/blog/who-should-write-your-va-nexus-letter-specialist-guide" className="font-semibold hover:underline inline-flex items-center gap-1" style={{ color: '#983c44' }}>
-                                                    Read the full Specialist Guide <ArrowRight className="w-3 h-3" />
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
+                                                    ) : (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            {conditions.map((condition) => (
+                                                                <Link 
+                                                                    href={`/services/${service.slug}/${system.slug}/${condition.slug}`} 
+                                                                    key={condition.id}
+                                                                    className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-red-300 hover:-translate-y-0.5 transition-all group flex flex-col h-full"
+                                                                >
+                                                                    <div className="flex items-center gap-3 mb-2">
+                                                                        {condition.icon && (
+                                                                            <span className="text-xl flex-shrink-0">
+                                                                                <DynamicIcon name={condition.icon} className="w-5 h-5 text-slate-700" />
+                                                                            </span>
+                                                                        )}
+                                                                        <h3 className="font-semibold text-slate-900 text-sm">
+                                                                            {condition.page_title}
+                                                                        </h3>
+                                                                    </div>
+                                                                    <p className="text-slate-500 line-clamp-2 text-xs leading-relaxed mt-1 flex-grow">
+                                                                        {condition.short_description || condition.meta_description}
+                                                                    </p>
+                                                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                                                                        <span className="text-xs font-semibold" style={{ color: '#983c44' }}>
+                                                                            {displayCtaPrice}
+                                                                        </span>
+                                                                        <span className="text-xs font-semibold text-slate-700 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                                                                            View Details <ArrowRight className="w-3 h-3" />
+                                                                        </span>
+                                                                    </div>
+                                                                    {condition.paired_conditions && condition.paired_conditions.length > 0 && (
+                                                                        <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                                                                            <span className="font-semibold" style={{ color: '#983c44' }}>Usually paired with:</span>{' '}
+                                                                            {condition.paired_conditions
+                                                                                .map(pc => {
+                                                                                    if (!pc) return '';
+                                                                                    if (typeof pc === 'object') return pc.name || '';
+                                                                                    try {
+                                                                                        const parsed = JSON.parse(pc);
+                                                                                        if (typeof parsed === 'object' && parsed !== null) {
+                                                                                            return parsed.name || '';
+                                                                                        }
+                                                                                    } catch {
+                                                                                        // Fallback for plain string
+                                                                                    }
+                                                                                    return pc;
+                                                                                })
+                                                                                .filter(name => name && String(name).trim() !== '')
+                                                                                .join(', ')}
+                                                                        </div>
+                                                                    )}
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </section>
+                                            );
+                                        case 'signature_pathways':
+                                            if (!system.pathways || system.pathways.length === 0) return null;
+                                            return (
+                                                <section key="pathways" id="pathways" className="scroll-mt-20 bg-gradient-to-br from-slate-50 to-red-50/20 rounded-2xl p-8 border border-slate-200 relative overflow-hidden mb-8">
+                                                    <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-red-500/5 blur-xl pointer-events-none" />
+                                                    <div className="relative z-10">
+                                                        <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
+                                                            How Conditions Connect
+                                                        </span>
+                                                        <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                            Common {system.name} Service-Connection Pathways
+                                                        </h2>
+                                                        <p className="text-sm text-slate-500 mb-6">
+                                                            {system.pathways_intro || `Many ${system.name.toLowerCase()} claims succeed not as standalone conditions, but as part of a chain — one diagnosis medically explaining another. These are the relationships we most often document in plain medical terms.`}
+                                                        </p>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            {system.pathways.map((path, idx) => {
+                                                                const cardContent = (
+                                                                    <>
+                                                                        <div className="flex items-center gap-2 flex-wrap mb-3">
+                                                                            <span className="text-xs font-semibold bg-slate-900 text-white px-2.5 py-1 rounded-lg">
+                                                                                {path.from}
+                                                                            </span>
+                                                                            <span className="text-red-700 font-bold">→</span>
+                                                                            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200/60" style={{ backgroundColor: 'rgba(152,60,68,0.05)', color: '#983c44' }}>
+                                                                                {path.to}
+                                                                            </span>
+                                                                        </div>
+                                                                        <p className="text-slate-600 text-xs leading-relaxed">
+                                                                            {path.mechanism}
+                                                                        </p>
+                                                                    </>
+                                                                );
+                                                                const cardClass = "block bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all shadow-sm text-left";
 
-                            {/* Commonly Paired Systems */}
-                            {pairedSystems.length > 0 && (
-                                <section className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
-                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.04))' }}>
-                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
-                                    <div className="relative z-10">
-                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
-                                            Commonly Paired
-                                        </span>
-                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                            {system.paired_title || `Veterans Usually Pair ${system.name} With These Systems`}
-                                        </h2>
-                                        {system.pair_note && (
-                                            <p className="text-sm text-slate-600 leading-relaxed mb-5">{system.pair_note}</p>
-                                        )}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {pairedSystems.map((psName, i) => (
-                                                <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 hover:border-red-300 hover:-translate-y-0.5 transition-all cursor-pointer">
-                                                    <div className="font-semibold text-slate-900 text-sm">{psName}</div>
-                                                    <div className="text-xs font-semibold mt-2" style={{ color: '#983c44' }}>Explore →</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
+                                                                if (path.url) {
+                                                                    return (
+                                                                        <Link key={idx} href={path.url} className={cardClass}>
+                                                                            {cardContent}
+                                                                        </Link>
+                                                                    );
+                                                                }
 
-                            {/* FAQ Section */}
-                            {system.faqs && system.faqs.length > 0 && (
-                                <section id="faqs" className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-6 scroll-mt-20" aria-labelledby="faq-heading">
-                                    <h2 id="faq-heading" className="text-2xl font-bold text-slate-900" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        Frequently Asked Questions
-                                    </h2>
-                                    <Accordion type="single" collapsible className="w-full">
-                                        {system.faqs.map((faq, idx) => (
-                                            <AccordionItem key={idx} value={`item-${idx}`}>
-                                                <AccordionTrigger className="text-left font-semibold text-slate-900">{faq.question}</AccordionTrigger>
-                                                <AccordionContent>
-                                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed text-sm">
-                                                        {faq.answer.split('\n').map((line, i) => {
-                                                            const processLinks = (text) => {
-                                                                const parts = text.split(/(\[[^\]]+\]\s*\([^)]+\))/g);
-                                                                return parts.map((part, index) => {
-                                                                    const match = part.match(/\[([^\]]+)\]\s*\(([^)]+)\)/);
-                                                                    if (match) {
-                                                                        const url = match[2].trim();
-                                                                        if (/^(https?:\/\/|mailto:|tel:|\/(?!\/))/i.test(url)) {
-                                                                            return (
-                                                                                <Link key={index} href={url} className="text-navy-600 hover:underline font-medium">
-                                                                                    {match[1]}
-                                                                                </Link>
-                                                                            );
-                                                                        }
-                                                                    }
-                                                                    return part;
-                                                                });
-                                                            };
-
-                                                            if (line.trim().startsWith('•') || line.trim().startsWith('-') || line.trim().startsWith('*')) {
                                                                 return (
-                                                                    <div key={i} className="flex gap-2 mb-1">
-                                                                        <span className="flex-shrink-0">•</span>
-                                                                        <span>{processLinks(line.trim().replace(/^[•\-*]\s*/, ''))}</span>
+                                                                    <div key={idx} className={cardClass}>
+                                                                        {cardContent}
                                                                     </div>
                                                                 );
-                                                            }
-                                                            return line.trim() ? <p key={i} className="mb-3">{processLinks(line)}</p> : <br key={i} />;
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            );
+                                        case 'challenges':
+                                            if (!system.challenges || system.challenges.length === 0) return null;
+                                            return (
+                                                <section key="challenges" id="challenges" className="scroll-mt-20 mb-8">
+                                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
+                                                        What Makes Them Hard
+                                                    </span>
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        {system.challenges_title || `Why ${system.name} Claims Can Be Challenging`}
+                                                    </h2>
+                                                    <p className="text-sm text-slate-500 mb-6">
+                                                        Understanding these challenges in advance is the first step toward building a clearer medical record — and knowing where additional evidence may help.
+                                                    </p>
+                                                    
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                                        {system.challenges.map((chal, idx) => (
+                                                            <div key={idx} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:border-slate-300 transition-all">
+                                                                {chal.icon && (
+                                                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 mb-3 border border-slate-100">
+                                                                        <DynamicIcon name={chal.icon} className="w-5 h-5" />
+                                                                    </div>
+                                                                )}
+                                                                <h4 className="font-bold text-slate-900 text-sm mb-2">{chal.title}</h4>
+                                                                <p className="text-slate-600 text-xs leading-relaxed">{chal.description}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </section>
+                                            );
+                                        case 'services_comparison':
+                                            if (!comparisonServices || comparisonServices.length === 0) return null;
+                                            return (
+                                                <section key="services" id="services" className="scroll-mt-20 mb-8">
+                                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
+                                                        How We Help
+                                                    </span>
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        {system.services_title || `Medical Evidence Services for ${system.name} Claims`}
+                                                    </h2>
+                                                    <p className="text-sm text-slate-500 mb-6">
+                                                        {system.services_intro || `Clinician-led services support ${system.name.toLowerCase()} claims at different stages. Each focuses on the medical evidence — clear diagnoses, sound causation reasoning, and well-documented severity.`}
+                                                    </p>
+                                                    
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        {comparisonServices.map((svc) => {
+                                                            const meta = serviceStaticMeta[svc.slug] || {
+                                                                purpose: svc.short_description,
+                                                                whenItHelps: "When you need professional medical documentation to support your claim."
+                                                            };
+                                                            const customDesc = (system.service_descriptions || []).find(d => d.service_slug === svc.slug)?.text;
+                                                            const finalDesc = customDesc || svc.short_description;
+                                                            
+                                                            return (
+                                                                <div key={svc.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:border-red-300 transition-all flex flex-col h-full">
+                                                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 mb-4 border border-slate-100">
+                                                                        <DynamicIcon name={svc.icon || 'file-text'} className="w-5 h-5" />
+                                                                    </div>
+                                                                    <h3 className="font-bold text-slate-900 text-sm mb-3" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                                        {svc.title}
+                                                                    </h3>
+                                                                    
+                                                                    <div className="space-y-3 flex-grow text-xs">
+                                                                        <div>
+                                                                            <span className="block font-bold text-[9px] uppercase tracking-wider text-red-700 mb-0.5">Purpose</span>
+                                                                            <p className="text-slate-600 leading-relaxed">{meta.purpose}</p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <span className="block font-bold text-[9px] uppercase tracking-wider text-red-700 mb-0.5">When It May Help</span>
+                                                                            <p className="text-slate-600 leading-relaxed">{meta.whenItHelps}</p>
+                                                                        </div>
+                                                                        {finalDesc && (
+                                                                            <div>
+                                                                                <span className="block font-bold text-[9px] uppercase tracking-wider text-red-700 mb-0.5">For {system.name} Claims</span>
+                                                                                <p className="text-slate-850 font-medium leading-relaxed bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">{finalDesc}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            );
                                                         })}
                                                     </div>
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        ))}
-                                    </Accordion>
-                                </section>
-                            )}
-
-                            {/* Related Body Systems */}
-                            {allSystems && allSystems.filter(s => s.id !== system.id).length > 0 && (
-                                <section id="related-systems" className="scroll-mt-20">
-                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
-                                        Other Body Systems
-                                    </span>
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                        Explore Other Body Systems We Support
-                                    </h2>
-                                    <p className="text-sm text-slate-500 mb-6">
-                                        We provide medical evidence services for all major body systems evaluated by the VA.
-                                    </p>
-                                    
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {allSystems
-                                            .filter(s => s.id !== system.id)
-                                            .map((sys) => (
-                                                <Link
-                                                    key={sys.id}
-                                                    href={`/services/${service.slug}/${sys.slug}`}
-                                                    className="bg-white border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col h-full group"
-                                                >
-                                                    {sys.icon && (
-                                                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 mb-3 border border-slate-100">
-                                                            <DynamicIcon name={sys.icon} className="w-5 h-5" />
-                                                        </div>
+                                                    {service.slug === 'independent-medical-opinion-nexus-letter' && (
+                                                        <p className="mt-4 text-xs text-slate-500 leading-relaxed">
+                                                            Looking for a DBQ instead? Disability Benefits Questionnaires are handled within our separate{' '}
+                                                            <Link href={`/services/disability-benefits-questionnaire-dbq/${system.slug}`} className="font-semibold text-red-700 hover:underline">
+                                                                DBQ service for {system.name.toLowerCase()}
+                                                            </Link>
+                                                            . This page covers the Nexus Letter and Independent Medical Opinion service line.
+                                                        </p>
                                                     )}
-                                                    <h4 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-red-700 transition-colors" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                        {sys.name}
-                                                    </h4>
-                                                    <p className="text-slate-600 text-xs leading-relaxed flex-grow mb-4 line-clamp-3">
-                                                        {sys.description}
-                                                    </p>
-                                                    <span className="text-xs font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1" style={{ color: '#983c44' }}>
-                                                        Explore {service.title}s <ArrowRight className="w-3.5 h-3.5" />
+                                                </section>
+                                            );
+                                        case 'specialist_guide':
+                                            if (service.slug !== 'independent-medical-opinion-nexus-letter' || !specialistGuide || specialistGuide.length === 0) return null;
+                                            return (
+                                                <section key="providers" id="providers" className="scroll-mt-20 mb-8">
+                                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
+                                                        Transparent Provider Selection
                                                     </span>
-                                                </Link>
-                                            ))}
-                                    </div>
-                                </section>
-                            )}
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        Why Provider Specialty Matters
+                                                    </h2>
+                                                    <p className="text-sm text-slate-500 mb-6">
+                                                        The clinician who writes an opinion shapes how persuasive it is. There is no single "best" provider for every claim — the right fit depends on the condition and the medical questions involved.
+                                                    </p>
+                                                    
+                                                    <div className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden"
+                                                        style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.08))' }}>
+                                                        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                                                        <div className="relative z-10">
+                                                            <span className="inline-block text-white text-[9px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-4" style={{ backgroundColor: '#983c44' }}>
+                                                                Matching Expertise to the Claim
+                                                            </span>
+                                                            
+                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                {specialistGuide.map((spec, i) => (
+                                                                    <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all flex flex-col h-full shadow-sm">
+                                                                        <h4 className="font-bold text-slate-900 text-sm mb-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>{spec.name}</h4>
+                                                                        {spec.role && <div className="text-[11px] text-slate-500 mb-3">{spec.role}</div>}
+                                                                        <p className="text-slate-650 text-xs leading-relaxed flex-grow mb-4">{spec.best_for}</p>
+                                                                        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                                                                            <span className="text-xs font-semibold" style={{ color: '#983c44' }}>{spec.price}</span>
+                                                                            {spec.note && <span className="text-[10px] text-slate-500">{spec.note}</span>}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            
+                                                            <div className="mt-5 text-xs text-slate-700 leading-relaxed flex flex-wrap gap-2 justify-between items-center">
+                                                                <p><strong>Our approach:</strong> we match each veteran to a clinician whose expertise fits the medical questions in their case.</p>
+                                                                <Link href="/blog/who-should-write-your-va-nexus-letter-specialist-guide" className="font-semibold hover:underline inline-flex items-center gap-1" style={{ color: '#983c44' }}>
+                                                                    Read the full Specialist Guide <ArrowRight className="w-3 h-3" />
+                                                                </Link>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            );
+                                        case 'paired_systems':
+                                            if (!pairedSystems || pairedSystems.length === 0) return null;
+                                            return (
+                                                <section key="paired-systems" className="rounded-2xl p-8 border border-slate-200 relative overflow-hidden mb-8"
+                                                    style={{ background: 'linear-gradient(135deg, rgba(41,67,95,0.06), rgba(152,60,68,0.04))' }}>
+                                                    <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full opacity-30" style={{ background: 'rgba(152,60,68,0.15)' }} />
+                                                    <div className="relative z-10">
+                                                        <span className="inline-block text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-3" style={{ backgroundColor: '#983c44' }}>
+                                                            Commonly Paired
+                                                        </span>
+                                                        <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                            {system.paired_title || `Veterans Usually Pair ${system.name} With These Systems`}
+                                                        </h2>
+                                                        {system.pair_note && (
+                                                            <p className="text-sm text-slate-600 leading-relaxed mb-5">{system.pair_note}</p>
+                                                        )}
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                            {pairedSystems.map((psName, i) => (
+                                                                <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 hover:border-red-300 hover:-translate-y-0.5 transition-all cursor-pointer">
+                                                                    <div className="font-semibold text-slate-900 text-sm">{psName}</div>
+                                                                    <div className="text-xs font-semibold mt-2" style={{ color: '#983c44' }}>Explore →</div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            );
+                                        case 'faqs':
+                                            if (!system.faqs || system.faqs.length === 0) return null;
+                                            return (
+                                                <section key="faqs" id="faqs" className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-6 scroll-mt-20 mb-8" aria-labelledby="faq-heading">
+                                                    <h2 id="faq-heading" className="text-2xl font-bold text-slate-900" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        Frequently Asked Questions
+                                                    </h2>
+                                                    <Accordion type="single" collapsible className="w-full">
+                                                        {system.faqs.map((faq, idx) => (
+                                                            <AccordionItem key={idx} value={`item-${idx}`}>
+                                                                <AccordionTrigger className="text-left font-semibold text-slate-900">{faq.question}</AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed text-sm">
+                                                                        {faq.answer.split('\n').map((line, i) => {
+                                                                            const processLinks = (text) => {
+                                                                                const parts = text.split(/(\[[^\]]+\]\s*\([^)]+\))/g);
+                                                                                return parts.map((part, index) => {
+                                                                                    const match = part.match(/\[([^\]]+)\]\s*\(([^)]+)\)/);
+                                                                                    if (match) {
+                                                                                        const url = match[2].trim();
+                                                                                        if (/^(https?:\/\/|mailto:|tel:|\/(?!\/))/i.test(url)) {
+                                                                                            return (
+                                                                                                <Link key={index} href={url} className="text-navy-600 hover:underline font-medium">
+                                                                                                    {match[1]}
+                                                                                                </Link>
+                                                                                            );
+                                                                                        }
+                                                                                    }
+                                                                                    return part;
+                                                                                });
+                                                                            };
+
+                                                                            if (line.trim().startsWith('•') || line.trim().startsWith('-') || line.trim().startsWith('*')) {
+                                                                                return (
+                                                                                    <div key={i} className="flex gap-2 mb-1">
+                                                                                        <span className="flex-shrink-0">•</span>
+                                                                                        <span>{processLinks(line.trim().replace(/^[•\-*]\s*/, ''))}</span>
+                                                                                    </div>
+                                                                                );
+                                                                            }
+                                                                            return line.trim() ? <p key={i} className="mb-3">{processLinks(line)}</p> : <br key={i} />;
+                                                                        })}
+                                                                    </div>
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        ))}
+                                                    </Accordion>
+                                                </section>
+                                            );
+                                        case 'related_systems':
+                                            if (!allSystems || allSystems.filter(s => s.id !== system.id).length === 0) return null;
+                                            return (
+                                                <section key="related-systems" id="related-systems" className="scroll-mt-20 mb-8">
+                                                    <span className="inline-block text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider mb-2" style={{ backgroundColor: 'rgba(152,60,68,0.1)', color: '#983c44' }}>
+                                                        Other Body Systems
+                                                    </span>
+                                                    <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                        Explore Other Body Systems We Support
+                                                    </h2>
+                                                    <p className="text-sm text-slate-500 mb-6">
+                                                        We provide medical evidence services for all major body systems evaluated by the VA.
+                                                    </p>
+                                                    
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                                        {allSystems
+                                                            .filter(s => s.id !== system.id)
+                                                            .map((sys) => (
+                                                                <Link
+                                                                    key={sys.id}
+                                                                    href={`/services/${service.slug}/${sys.slug}`}
+                                                                    className="bg-white border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col h-full group"
+                                                                >
+                                                                    {sys.icon && (
+                                                                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 mb-3 border border-slate-100">
+                                                                            <DynamicIcon name={sys.icon} className="w-5 h-5" />
+                                                                        </div>
+                                                                    )}
+                                                                    <h4 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-red-700 transition-colors" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+                                                                        {sys.name}
+                                                                    </h4>
+                                                                    <p className="text-slate-600 text-xs leading-relaxed flex-grow mb-4 line-clamp-3">
+                                                                        {sys.description}
+                                                                    </p>
+                                                                    <span className="text-xs font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-1" style={{ color: '#983c44' }}>
+                                                                        Explore {service.title}s <ArrowRight className="w-3.5 h-3.5" />
+                                                                    </span>
+                                                                </Link>
+                                                            ))}
+                                                    </div>
+                                                </section>
+                                            );
+                                        default:
+                                            return null;
+                                    }
+                                };
+
+                                return layout.map(section => renderSection(section));
+                            })()}
                         </div>
 
                         {/* Sidebar */}
