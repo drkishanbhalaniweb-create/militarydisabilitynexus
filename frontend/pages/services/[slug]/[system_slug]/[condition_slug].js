@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
 import { conditionApi, servicesApi, bodySystemApi, blogApi, caseStudyApi } from '../../../../src/lib/api';
+import { getConditionRoutingDecision } from '../../../../src/lib/conditionRouting';
 import DynamicIcon from '../../../../src/components/ui/dynamic-icon';
 import SEO from '../../../../src/components/SEO';
 import Layout from '../../../../src/components/Layout';
@@ -742,14 +743,32 @@ export async function getStaticProps({ params }) {
             return { notFound: true };
         }
 
-        const [condition, siblingConditions] = await Promise.all([
-            conditionApi.getBySlug(condition_slug, service.id),
-            conditionApi.getByBodySystem(bodySystem.id, service.id)
-        ]);
+        const condition = await conditionApi.getBySlug(condition_slug, service.id);
 
         if (!condition) {
             return { notFound: true };
         }
+
+        const routingDecision = getConditionRoutingDecision({
+            requestedService: service,
+            requestedBodySystem: bodySystem,
+            condition,
+        });
+
+        if (routingDecision.type === 'notFound') {
+            return { notFound: true };
+        }
+
+        if (routingDecision.type === 'redirect') {
+            return {
+                redirect: {
+                    destination: routingDecision.destination,
+                    permanent: true,
+                },
+            };
+        }
+
+        const siblingConditions = await conditionApi.getByBodySystem(bodySystem.id, service.id);
 
         // Fetch related blogs and case studies by performing a basic text match
         let relatedBlogs = [];

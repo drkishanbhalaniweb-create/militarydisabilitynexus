@@ -23,6 +23,15 @@ test('sitemap.xml exposes canonical public URLs', async ({ request }) => {
   expect(body).toContain('<loc>https://www.militarydisabilitynexus.com/blog</loc>');
 });
 
+test('unknown legacy condition URLs never fall back to Mental Health', async ({ request }) => {
+  const response = await request.get('/conditions/definitely-not-a-real-condition', {
+    maxRedirects: 0,
+  });
+
+  expect(response.status()).toBe(404);
+  expect(response.headers().location || '').not.toContain('/mental-health/');
+});
+
 test('llms.txt exposes AI-readable site guidance', async ({ request }) => {
   const response = await request.get('/llms.txt');
   const body = await response.text();

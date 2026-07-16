@@ -1,4 +1,5 @@
 import { supabase } from '../src/lib/supabase';
+import { buildConditionPath } from '../src/lib/conditionRouting';
 
 const SITE_URL = "https://www.militarydisabilitynexus.com";
 
@@ -68,15 +69,19 @@ export const getServerSideProps = async ({ res }) => {
     res.setHeader('Content-Type', 'text/xml');
     res.setHeader(
         'Cache-Control',
-        'public, s-maxage=3600, stale-while-revalidate=86400'
+        'public, s-maxage=300, stale-while-revalidate=3600'
     );
 
     try {
-        const services = await fetchAll('services', 'slug, updated_at', { is_active: true });
-        const blogs = await fetchAll('blog_posts', 'slug, updated_at, published_at', { is_published: true });
-        const caseStudies = await fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true });
-        const communityQuestions = await fetchAll('community_questions', 'slug, updated_at', { status: 'published' });
-        const clinicians = await fetchAll('clinical_profiles', 'slug, updated_at', { is_active: true });
+        const [services, bodySystems, conditions, blogs, caseStudies, communityQuestions, clinicians] = await Promise.all([
+            fetchAll('services', 'id, slug, updated_at', { is_active: true }),
+            fetchAll('body_systems', 'id, slug, updated_at', { is_published: true }),
+            fetchAll('conditions', 'slug, service_id, body_system_id, updated_at', { is_published: true }),
+            fetchAll('blog_posts', 'slug, updated_at, published_at', { is_published: true }),
+            fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true }),
+            fetchAll('community_questions', 'slug, updated_at', { status: 'published' }),
+            fetchAll('clinical_profiles', 'slug, updated_at', { is_active: true }),
+        ]);
 
         // Static routes with priority and changefreq signals
         // Priority: 1.0 = homepage, 0.8 = core pages, 0.7 = content hubs, 0.5 = secondary pages
@@ -140,6 +145,41 @@ export const getServerSideProps = async ({ res }) => {
                     changefreq: 'monthly',
                 });
             }
+        });
+
+        const servicesById = new Map(services.map(service => [service.id, service]));
+        const bodySystemsById = new Map(bodySystems.map(bodySystem => [bodySystem.id, bodySystem]));
+        const addedBodySystemPaths = new Set();
+
+        conditions.forEach(condition => {
+            const service = servicesById.get(condition.service_id);
+            const bodySystem = bodySystemsById.get(condition.body_system_id);
+            if (!service || !bodySystem) return;
+
+            const conditionPath = buildConditionPath({
+                serviceSlug: service.slug,
+                bodySystemSlug: bodySystem.slug,
+                conditionSlug: condition.slug,
+            });
+            if (!conditionPath) return;
+
+            const bodySystemPath = `/services/${service.slug}/${bodySystem.slug}`;
+            if (!addedBodySystemPaths.has(bodySystemPath)) {
+                urls.push({
+                    loc: `${SITE_URL}${bodySystemPath}`,
+                    lastmod: formatDate(bodySystem.updated_at),
+                    priority: '0.7',
+                    changefreq: 'monthly',
+                });
+                addedBodySystemPaths.add(bodySystemPath);
+            }
+
+            urls.push({
+                loc: `${SITE_URL}${conditionPath}`,
+                lastmod: formatDate(condition.updated_at),
+                priority: '0.7',
+                changefreq: 'monthly',
+            });
         });
 
         blogs.forEach(post => {

@@ -10,6 +10,10 @@ import Link from 'next/link';
 import InternalLinkSearchPicker from '../../../src/components/admin/InternalLinkSearchPicker';
 import IconPicker from '../../../src/components/admin/IconPicker';
 import RichTextEditor from '../../../src/components/admin/RichTextEditor';
+import {
+    createConditionRouteSnapshot,
+    revalidateConditionRoutes,
+} from '../../../src/lib/contentRevalidation';
 
 const ConditionForm = () => {
     const router = useRouter();
@@ -19,6 +23,7 @@ const ConditionForm = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [loadError, setLoadError] = useState(false);
+    const [originalRoute, setOriginalRoute] = useState(null);
     const [allServices, setAllServices] = useState([]);
     const [allBodySystems, setAllBodySystems] = useState([]);
     
@@ -81,6 +86,7 @@ const ConditionForm = () => {
                 const condition = await conditionApi.getById(id);
                 if (condition) {
                     const keywords = (condition.seo_keywords || []).join(', ');
+                    setOriginalRoute(createConditionRouteSnapshot(condition));
                     setFormData({
                         page_title: condition.page_title || '',
                         slug: condition.slug || '',
@@ -294,6 +300,11 @@ const ConditionForm = () => {
             return;
         }
 
+        if (formData.is_published && (!formData.service_id || !formData.body_system_id)) {
+            toast.error('Published conditions require both a target service and a body system.');
+            return;
+        }
+
         setSaving(true);
 
         try {
@@ -315,13 +326,31 @@ const ConditionForm = () => {
                 internal_links: (formData.internal_links || []).filter(l => l.label || l.url),
             };
 
+            const savedCondition = isNew
+                ? await conditionApi.create(payload)
+                : await conditionApi.update(id, payload);
+
+            let refreshFailed = false;
+            try {
+                await revalidateConditionRoutes([
+                    originalRoute,
+                    createConditionRouteSnapshot(savedCondition),
+                ]);
+            } catch (refreshError) {
+                refreshFailed = true;
+                console.error('Condition saved but public page refresh failed:', refreshError);
+            }
+
             if (isNew) {
-                await conditionApi.create(payload);
                 toast.success('Condition created successfully');
                 router.push('/admin/conditions');
             } else {
-                await conditionApi.update(id, payload);
+                setOriginalRoute(createConditionRouteSnapshot(savedCondition));
                 toast.success('Condition updated successfully');
+            }
+
+            if (refreshFailed) {
+                toast.warning('Saved, but the public page cache did not refresh. Please retry the save.');
             }
         } catch (error) {
             console.error('Error saving condition:', error);
@@ -998,7 +1027,7 @@ const ConditionForm = () => {
                             {/* Body System */}
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Body System</h2>
-                                <select name="body_system_id" value={formData.body_system_id} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                <select name="body_system_id" value={formData.body_system_id} onChange={handleInputChange} required={formData.is_published} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                                     <option value="">— No body system —</option>
                                     {allBodySystems.map(sys => (
                                         <option key={sys.id} value={sys.id}>{sys.name}</option>

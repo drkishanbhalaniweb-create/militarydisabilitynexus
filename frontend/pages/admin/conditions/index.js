@@ -7,6 +7,10 @@ import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../src/components/SEO';
 import Link from 'next/link';
+import {
+    createConditionRouteSnapshot,
+    revalidateConditionRoutes,
+} from '../../../src/lib/contentRevalidation';
 
 const AdminConditions = () => {
     const [conditions, setConditions] = useState([]);
@@ -28,27 +32,41 @@ const AdminConditions = () => {
         }
     };
 
-    const togglePublish = async (id, currentStatus) => {
+    const togglePublish = async (condition) => {
+        const nextStatus = !condition.is_published;
+
+        if (nextStatus && (!condition.service_id || !condition.body_system_id)) {
+            toast.error('Assign both a target service and a body system before publishing.');
+            return;
+        }
+
         try {
             const { error } = await supabase
                 .from('conditions')
-                .update({ is_published: !currentStatus })
-                .eq('id', id);
+                .update({ is_published: nextStatus })
+                .eq('id', condition.id);
 
             if (error) throw error;
 
             setConditions(prev => prev.map(c =>
-                c.id === id ? { ...c, is_published: !currentStatus } : c
+                c.id === condition.id ? { ...c, is_published: nextStatus } : c
             ));
-            toast.success(currentStatus ? 'Condition unpublished' : 'Condition published');
+            toast.success(condition.is_published ? 'Condition unpublished' : 'Condition published');
+
+            try {
+                await revalidateConditionRoutes([createConditionRouteSnapshot(condition)]);
+            } catch (refreshError) {
+                console.error('Condition status changed but public page refresh failed:', refreshError);
+                toast.warning('Status changed, but the public page cache did not refresh. Please retry.');
+            }
         } catch (error) {
             console.error('Error updating condition:', error);
             toast.error('Failed to update condition status');
         }
     };
 
-    const deleteCondition = async (id, title) => {
-        if (!window.confirm(`Are you sure you want to permanently delete "${title}"? This action cannot be undone.`)) {
+    const deleteCondition = async (condition) => {
+        if (!window.confirm(`Are you sure you want to permanently delete "${condition.page_title}"? This action cannot be undone.`)) {
             return;
         }
 
@@ -56,12 +74,19 @@ const AdminConditions = () => {
             const { error } = await supabase
                 .from('conditions')
                 .delete()
-                .eq('id', id);
+                .eq('id', condition.id);
 
             if (error) throw error;
 
-            setConditions(prev => prev.filter(c => c.id !== id));
+            setConditions(prev => prev.filter(c => c.id !== condition.id));
             toast.success('Condition deleted successfully');
+
+            try {
+                await revalidateConditionRoutes([createConditionRouteSnapshot(condition)]);
+            } catch (refreshError) {
+                console.error('Condition deleted but public page refresh failed:', refreshError);
+                toast.warning('Deleted, but the old public page cache did not refresh.');
+            }
         } catch (error) {
             console.error('Error deleting condition:', error);
             toast.error('Failed to delete condition');
@@ -132,7 +157,7 @@ const AdminConditions = () => {
 
                                     <div className="flex items-center space-x-2">
                                         <button
-                                            onClick={() => togglePublish(condition.id, condition.is_published)}
+                                            onClick={() => togglePublish(condition)}
                                             className="flex-1 px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 text-sm font-medium transition-colors"
                                         >
                                             {condition.is_published ? 'Unpublish' : 'Publish'}
@@ -154,7 +179,7 @@ const AdminConditions = () => {
                                             <Edit className="w-4 h-4" />
                                         </Link>
                                         <button
-                                            onClick={() => deleteCondition(condition.id, condition.page_title)}
+                                            onClick={() => deleteCondition(condition)}
                                             className="p-2 border border-red-200 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
                                             title="Delete condition"
                                         >
