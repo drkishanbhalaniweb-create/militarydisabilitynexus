@@ -136,6 +136,21 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                                                     dangerouslySetInnerHTML={{ __html: formattedContent.html }}
                                                 />
                                                 <LeadMagnetHydrator />
+
+                                                {/* AI-Citable FAQs Preview */}
+                                                {post.faqs && post.faqs.length > 0 && (
+                                                    <div className="mt-12 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+                                                        <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
+                                                        <div className="space-y-6">
+                                                            {post.faqs.map((faq, index) => (
+                                                                <div key={index} className="border-b border-slate-100 last:border-0 pb-6 last:pb-0">
+                                                                    <h3 className="text-lg font-bold text-slate-900 mb-2">{faq.question || <span className="text-slate-300 italic">Untitled Question</span>}</h3>
+                                                                    <p className="text-slate-600 leading-relaxed">{faq.answer || <span className="text-slate-300 italic">No answer provided</span>}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </>
                                         ) : (
                                             <div className="text-center py-12 text-slate-400 font-semibold italic">
