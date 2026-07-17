@@ -130,35 +130,23 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
         });
     };
 
-    // Extract FAQs from content_html for JSON-LD
-    const generateFaqSchema = (html) => {
-        if (!html || !html.includes('faq-block')) return null;
+    // Generate JSON-LD for AI-Citable FAQs
+    const generateFaqSchema = (faqs) => {
+        if (!faqs || faqs.length === 0) return null;
 
-        const faqs = [];
-        const faqRegex = /<div class="faq-block">.*?<h3>(.*?)<\/h3>.*?<div class="faq-answer">(.*?)<\/div>/gis;
-
-        let match;
-        while ((match = faqRegex.exec(html)) !== null) {
-            const questionText = match[1].replace(/<[^>]*>?/gm, '').trim();
-            const answerText = match[2].replace(/<[^>]*>?/gm, '').trim();
-            if (questionText && answerText) {
-                faqs.push({
-                    "@type": "Question",
-                    "name": questionText,
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": answerText
-                    }
-                });
+        const structuredFaqs = faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer
             }
-        }
-
-        if (faqs.length === 0) return null;
+        }));
 
         return {
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": faqs
+            "mainEntity": structuredFaqs
         };
     };
 
@@ -198,7 +186,7 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
         }
     };
 
-    const faqSchema = generateFaqSchema(post.content_html);
+    const faqSchema = generateFaqSchema(post.faqs);
     const finalStructuredData = faqSchema ? [structuredData, faqSchema] : structuredData;
 
     const displayAuthorName = authorProfile 
@@ -297,6 +285,23 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                                 dangerouslySetInnerHTML={{ __html: formattedContent.html }}
                             />
                             <LeadMagnetHydrator />
+
+                            {/* AI-Citable FAQs */}
+                            {post.faqs && post.faqs.length > 0 && (
+                                <div className="mt-12 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm" itemScope itemType="https://schema.org/FAQPage">
+                                    <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
+                                    <div className="space-y-6">
+                                        {post.faqs.map((faq, index) => (
+                                            <div key={index} className="border-b border-slate-100 last:border-0 pb-6 last:pb-0" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                                                <h3 className="text-lg font-bold text-slate-900 mb-2" itemProp="name">{faq.question}</h3>
+                                                <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                                                    <p className="text-slate-600 leading-relaxed" itemProp="text">{faq.answer}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* CTA */}
                             <div className="mt-12 bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl p-8 text-center">
