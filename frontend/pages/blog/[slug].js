@@ -11,6 +11,12 @@ import ClinicalAuthorCard from '../../src/components/shared/ClinicalAuthorCard';
 import TableOfContents from '../../src/components/blog/TableOfContents';
 import LeadMagnetHydrator from '../../src/components/blog/LeadMagnetHydrator';
 import RelatedInsights from '../../src/components/shared/RelatedInsights';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '../../src/components/ui/accordion';
 import { formatBlogHTML } from '../../src/lib/htmlUtils';
 import {
     buildOrganizationReference,
@@ -290,16 +296,20 @@ const BlogPost = ({ post, relatedInsights = [], authorProfile = null, reviewerPr
                             {post.faqs && post.faqs.length > 0 && (
                                 <div className="mt-12 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm" itemScope itemType="https://schema.org/FAQPage">
                                     <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
-                                    <div className="space-y-6">
+                                    <Accordion type="single" collapsible className="w-full">
                                         {post.faqs.map((faq, index) => (
-                                            <div key={index} className="border-b border-slate-100 last:border-0 pb-6 last:pb-0" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-                                                <h3 className="text-lg font-bold text-slate-900 mb-2" itemProp="name">{faq.question}</h3>
-                                                <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                                                    <p className="text-slate-600 leading-relaxed" itemProp="text">{faq.answer}</p>
-                                                </div>
-                                            </div>
+                                            <AccordionItem key={index} value={`item-${index}`} itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                                                <AccordionTrigger className="text-left text-lg font-bold text-slate-900" itemProp="name">
+                                                    {faq.question}
+                                                </AccordionTrigger>
+                                                <AccordionContent>
+                                                    <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                                                        <p className="text-slate-600 leading-relaxed text-base pt-2" itemProp="text">{faq.answer}</p>
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionItem>
                                         ))}
-                                    </div>
+                                    </Accordion>
                                 </div>
                             )}
 

@@ -6,6 +6,12 @@ import LeadMagnetHydrator from '../blog/LeadMagnetHydrator';
 import { clinicalReviewTeam, editorialTeam } from '../../lib/trust';
 import { formatBlogHTML } from '../../lib/htmlUtils';
 import { clinicalProfileApi } from '../../lib/api';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '../ui/accordion';
 
 const BlogPreviewModal = ({ isOpen, onClose, post }) => {
     const [authorProfile, setAuthorProfile] = useState(null);
@@ -141,14 +147,20 @@ const BlogPreviewModal = ({ isOpen, onClose, post }) => {
                                                 {post.faqs && post.faqs.length > 0 && (
                                                     <div className="mt-12 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
                                                         <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
-                                                        <div className="space-y-6">
+                                                        <Accordion type="single" collapsible className="w-full">
                                                             {post.faqs.map((faq, index) => (
-                                                                <div key={index} className="border-b border-slate-100 last:border-0 pb-6 last:pb-0">
-                                                                    <h3 className="text-lg font-bold text-slate-900 mb-2">{faq.question || <span className="text-slate-300 italic">Untitled Question</span>}</h3>
-                                                                    <p className="text-slate-600 leading-relaxed">{faq.answer || <span className="text-slate-300 italic">No answer provided</span>}</p>
-                                                                </div>
+                                                                <AccordionItem key={index} value={`item-${index}`}>
+                                                                    <AccordionTrigger className="text-left text-lg font-bold text-slate-900">
+                                                                        {faq.question || <span className="text-slate-300 italic">Untitled Question</span>}
+                                                                    </AccordionTrigger>
+                                                                    <AccordionContent>
+                                                                        <div className="text-slate-600 leading-relaxed text-base pt-2">
+                                                                            {faq.answer || <span className="text-slate-300 italic">No answer provided</span>}
+                                                                        </div>
+                                                                    </AccordionContent>
+                                                                </AccordionItem>
                                                             ))}
-                                                        </div>
+                                                        </Accordion>
                                                     </div>
                                                 )}
                                             </>
