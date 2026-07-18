@@ -16,6 +16,10 @@ import {
 } from '../../../../src/components/ui/accordion';
 import { buildOrganizationReference } from '../../../../src/lib/trust';
 import { formatRichHTML } from '../../../../src/lib/htmlUtils';
+import {
+    DEFAULT_CONDITION_SECTIONS,
+    getRenderableLayoutSections,
+} from '../../../../src/lib/layoutSections';
 
 const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = [], relatedCaseStudies = [], allServices = [], siblingConditions = [] }) => {
     const router = useRouter();
@@ -109,17 +113,16 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const cleanConditionTitle = getCleanConditionTitle(condition.hero_heading, service.title);
     const cleanConditionTitlePlural = getCleanConditionTitlePlural(condition.hero_heading, service.title);
 
-    const layoutSections = condition.layout_sections || [
-        { id: 'ratings', type: 'standard', is_visible: true },
-        { id: 'about', type: 'standard', is_visible: true },
-        { id: 'features', type: 'standard', is_visible: true },
-        { id: 'connections', type: 'standard', is_visible: true },
-        { id: 'specialist', type: 'standard', is_visible: true },
-        { id: 'faqs', type: 'standard', is_visible: true },
-        { id: 'related_pages', type: 'standard', is_visible: true },
-        { id: 'paired_conditions', type: 'standard', is_visible: true },
-        { id: 'insights', type: 'standard', is_visible: true },
-    ];
+    const layoutSections = getRenderableLayoutSections(
+        condition.layout_sections,
+        DEFAULT_CONDITION_SECTIONS,
+        {
+            preserveEmpty: true,
+            supportedStandardIdsOnly: true,
+            fallbackWhenEmpty: true,
+            requireRenderableCustomContent: true,
+        },
+    );
 
     const renderSection = (sectionId) => {
         switch (sectionId) {
@@ -509,14 +512,15 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
                             {layoutSections.map((sec) => {
-                                if (!sec.is_visible) return null;
+                                if (sec.is_visible === false) return null;
                                 if (sec.type === 'custom_rich_text') {
-                                    if (!sec.content_html) return null;
+                                    if (typeof sec.content_html !== 'string' || !sec.content_html.trim()) return null;
+                                    const title = typeof sec.title === 'string' ? sec.title.trim() : '';
                                     return (
                                         <section key={sec.id} className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                                            {sec.title && (
+                                            {title && (
                                                 <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                    {sec.title}
+                                                    {title}
                                                 </h2>
                                             )}
                                             <div 

@@ -3,19 +3,59 @@ import { useRouter } from 'next/router';
 import { supabase } from '../../../../src/lib/supabase';
 import AdminLayout from '../../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../../src/components/admin/ProtectedRoute';
-import { Save, X, Plus, Trash2, Settings, ArrowUp, ArrowDown, Eye, EyeOff, Edit2 } from 'lucide-react';
-import dynamic from 'next/dynamic';
-const RichTextEditor = dynamic(() => import('../../../../src/components/admin/RichTextEditor'), { ssr: false });
+import { Save, X, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../../src/components/SEO';
+import LayoutSectionsManager from '../../../../src/components/admin/LayoutSectionsManager';
+import {
+    createCustomLayoutSection,
+    DEFAULT_SERVICE_SECTIONS,
+    getLayoutSectionsShapeError,
+    getRenderableLayoutSections,
+    hasMeaningfulLayoutRichContent,
+    SERVICE_SECTION_ALIASES,
+} from '../../../../src/lib/layoutSections';
+
+const getLayoutValidationError = (sections) => {
+    if (sections === null) return null;
+    const shapeError = getLayoutSectionsShapeError(sections, { aliases: SERVICE_SECTION_ALIASES });
+    if (shapeError) return shapeError;
+
+    for (const [index, section] of sections.entries()) {
+        const label = `Layout section ${index + 1}`;
+        if (section.type === 'custom_rich_text') {
+            if (!hasMeaningfulLayoutRichContent(section.content_html)) {
+                return `${label} needs text or media content before it can be saved.`;
+            }
+        }
+    }
+
+    return null;
+};
+
+const getEditableServiceSections = (sections) => {
+    if (sections == null || (Array.isArray(sections) && sections.length === 0)) {
+        return DEFAULT_SERVICE_SECTIONS;
+    }
+    if (!Array.isArray(sections)) return sections;
+    if (getLayoutSectionsShapeError(sections, { aliases: SERVICE_SECTION_ALIASES })) return sections;
+
+    return getRenderableLayoutSections(sections, DEFAULT_SERVICE_SECTIONS, {
+        aliases: SERVICE_SECTION_ALIASES,
+        appendMissingStandards: true,
+    });
+};
 
 const ServiceForm = () => {
     const router = useRouter();
     const { id } = router.query;
-    const isEdit = true;
 
     const [loading, setLoading] = useState(false);
-    const [editingSectionId, setEditingSectionId] = useState(null);
+    const [isLoadingService, setIsLoadingService] = useState(true);
+    const [serviceLoaded, setServiceLoaded] = useState(false);
+    const [loadedServiceId, setLoadedServiceId] = useState(null);
+    const [loadError, setLoadError] = useState(null);
+    const [notFound, setNotFound] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
@@ -37,26 +77,51 @@ const ServiceForm = () => {
     });
 
     useEffect(() => {
-        if (id) {
-            fetchService();
-        }
-    }, [id]);
+        if (!router.isReady || !id) return undefined;
 
-    const fetchService = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('services')
-                .select('*')
-                .eq('id', id)
-                .single();
+        let cancelled = false;
 
-            if (error) throw error;
-            setFormData(data);
-        } catch (error) {
-            console.error('Error fetching service:', error);
-            toast.error('Failed to load service');
-        }
-    };
+        const fetchService = async () => {
+            setIsLoadingService(true);
+            setServiceLoaded(false);
+            setLoadedServiceId(null);
+            setLoadError(null);
+            setNotFound(false);
+
+            try {
+                const { data, error } = await supabase
+                    .from('services')
+                    .select('*')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                if (error) throw error;
+                if (cancelled) return;
+
+                if (!data) {
+                    setNotFound(true);
+                    return;
+                }
+
+                setFormData(data);
+                setServiceLoaded(true);
+                setLoadedServiceId(id);
+            } catch (error) {
+                if (cancelled) return;
+                console.error('Error fetching service:', error);
+                setLoadError(error instanceof Error ? error.message : 'Unknown error');
+                toast.error('Failed to load service');
+            } finally {
+                if (!cancelled) setIsLoadingService(false);
+            }
+        };
+
+        fetchService();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [id, router.isReady]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -67,32 +132,36 @@ const ServiceForm = () => {
     };
 
     const handleFeatureChange = (index, value) => {
-        const newFeatures = [...formData.features];
+        const newFeatures = Array.isArray(formData.features) ? [...formData.features] : [];
         newFeatures[index] = value;
         setFormData({ ...formData, features: newFeatures });
     };
 
     const addFeature = () => {
-        setFormData({ ...formData, features: [...formData.features, ''] });
+        const features = Array.isArray(formData.features) ? formData.features : [];
+        setFormData({ ...formData, features: [...features, ''] });
     };
 
     const removeFeature = (index) => {
-        const newFeatures = formData.features.filter((_, i) => i !== index);
+        const features = Array.isArray(formData.features) ? formData.features : [];
+        const newFeatures = features.filter((_, i) => i !== index);
         setFormData({ ...formData, features: newFeatures });
     };
 
     const handleFaqChange = (index, field, value) => {
-        const newFaqs = [...formData.faqs];
-        newFaqs[index][field] = value;
+        const newFaqs = Array.isArray(formData.faqs) ? [...formData.faqs] : [];
+        newFaqs[index] = { ...(newFaqs[index] || {}), [field]: value };
         setFormData({ ...formData, faqs: newFaqs });
     };
 
     const addFaq = () => {
-        setFormData({ ...formData, faqs: [...formData.faqs, { question: '', answer: '' }] });
+        const faqs = Array.isArray(formData.faqs) ? formData.faqs : [];
+        setFormData({ ...formData, faqs: [...faqs, { question: '', answer: '' }] });
     };
 
     const removeFaq = (index) => {
-        const newFaqs = formData.faqs.filter((_, i) => i !== index);
+        const faqs = Array.isArray(formData.faqs) ? formData.faqs : [];
+        const newFaqs = faqs.filter((_, i) => i !== index);
         setFormData({ ...formData, faqs: newFaqs });
     };
 
@@ -112,98 +181,71 @@ const ServiceForm = () => {
         });
     };
 
+
     // --- Custom Layout System ---
-    const enableCustomLayout = () => {
-        const defaultSections = [
-            { id: 'overview', type: 'standard', name: 'Overview', is_visible: true },
-            { id: 'features', type: 'standard', name: 'Features & Pricing', is_visible: true },
-            { id: 'faqs', type: 'standard', name: 'Frequently Asked Questions', is_visible: true },
-            { id: 'related_services', type: 'standard', name: 'Related Services', is_visible: true },
-        ];
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: defaultSections
-        }));
-    };
+    const handleSectionsChange = (sections) => setFormData(prev => ({ ...prev, layout_sections: sections }));
 
-    const disableCustomLayout = () => {
-        if (window.confirm('Resetting will discard your custom section layout and any custom text boxes you added. Are you sure?')) {
-            setFormData(prev => ({
-                ...prev,
-                layout_sections: null
-            }));
-            setEditingSectionId(null);
-        }
-    };
-
-    const moveSection = (index, direction) => {
-        const sections = [...(formData.layout_sections || [])];
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= sections.length) return;
-        
-        const temp = sections[index];
-        sections[index] = sections[newIndex];
-        sections[newIndex] = temp;
-        
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: sections
-        }));
-    };
-
-    const toggleSectionVisibility = (index) => {
-        const sections = [...(formData.layout_sections || [])];
-        sections[index] = { ...sections[index], is_visible: !sections[index].is_visible };
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: sections
-        }));
+    const resetLayout = () => {
+        if (!window.confirm('Resetting will discard your custom section layout and any custom text boxes you added. Existing service content will not be deleted. Are you sure?')) return;
+        setFormData(prev => ({ ...prev, layout_sections: null }));
     };
 
     const addCustomSection = () => {
         const newId = `custom_rich_text_${Date.now()}`;
-        const newSection = {
-            id: newId,
-            type: 'custom_rich_text',
-            name: 'Custom Text Box',
-            title: '',
-            content_html: '',
-            is_visible: true
-        };
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: [...(prev.layout_sections || []), newSection]
-        }));
-        setEditingSectionId(newId);
-    };
-
-    const removeCustomSection = (id) => {
-        if (window.confirm('Are you sure you want to delete this custom text box?')) {
-            setFormData(prev => ({
-                ...prev,
-                layout_sections: (prev.layout_sections || []).filter(sec => sec.id !== id)
-            }));
-            if (editingSectionId === id) {
-                setEditingSectionId(null);
-            }
-        }
-    };
-
-    const updateCustomSection = (id, field, value) => {
+        const newSection = createCustomLayoutSection(newId);
         setFormData(prev => {
-            const sections = (prev.layout_sections || []).map(sec => {
-                if (sec.id === id) {
-                    return { ...sec, [field]: value };
-                }
-                return sec;
-            });
-            return { ...prev, layout_sections: sections };
+            const sections = Array.isArray(prev.layout_sections) && prev.layout_sections.length > 0
+                ? prev.layout_sections
+                : DEFAULT_SERVICE_SECTIONS;
+            return {
+                ...prev,
+                layout_sections: [...sections, newSection]
+            };
+        });
+        return newId;
+    };
+
+    const removeCustomSection = (sectionId) => {
+        if (!window.confirm('Are you sure you want to remove this custom section? This cannot be undone.')) return;
+        setFormData(prev => {
+            const sections = Array.isArray(prev.layout_sections) && prev.layout_sections.length > 0
+                ? prev.layout_sections
+                : DEFAULT_SERVICE_SECTIONS;
+            return {
+                ...prev,
+                layout_sections: sections.filter(section => section.id !== sectionId)
+            };
         });
     };
 
-
+    const updateCustomSection = (sectionId, field, value) => {
+        if (field !== 'title' && field !== 'content_html') return;
+        setFormData(prev => {
+            const sections = Array.isArray(prev.layout_sections) && prev.layout_sections.length > 0
+                ? prev.layout_sections
+                : DEFAULT_SERVICE_SECTIONS;
+            return {
+                ...prev,
+                layout_sections: sections.map(section =>
+                    section.id === sectionId ? { ...section, [field]: value } : section
+                )
+            };
+        });
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (isLoadingService || !serviceLoaded || loadedServiceId !== id || loadError || notFound) {
+            toast.error('This service has not loaded successfully, so it cannot be saved.');
+            return;
+        }
+
+        const layoutValidationError = getLayoutValidationError(formData.layout_sections);
+        if (layoutValidationError) {
+            toast.error(layoutValidationError);
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -229,6 +271,183 @@ const ServiceForm = () => {
             setLoading(false);
         }
     };
+
+    const renderFeatures = () => (
+        <>
+                        {/* Features */}
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-bold text-slate-900">Features</h2>
+                                <button
+                                    type="button"
+                                    onClick={addFeature}
+                                    className="text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Add Feature</span>
+                                </button>
+                            </div>
+
+                            <div className="space-y-3">
+                                {(Array.isArray(formData.features) ? formData.features : []).map((feature, index) => (
+                                    <div key={index} className="flex items-center space-x-2">
+                                        <input
+                                            type="text"
+                                            value={feature}
+                                            onChange={(e) => handleFeatureChange(index, e.target.value)}
+                                            placeholder="Feature description"
+                                            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                        {Array.isArray(formData.features) && formData.features.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeFeature(index)}
+                                                className="text-red-600 hover:text-red-700"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+        </>
+    );
+
+    const renderFaqs = () => (
+        <>
+                        {/* FAQs */}
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-bold text-slate-900">FAQs</h2>
+                                <button
+                                    type="button"
+                                    onClick={addFaq}
+                                    className="text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Add FAQ</span>
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {(Array.isArray(formData.faqs) ? formData.faqs : []).map((faq, index) => (
+                                    <div key={index} className="border border-slate-200 rounded-lg p-4">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <span className="text-sm font-semibold text-slate-700">FAQ {index + 1}</span>
+                                        {Array.isArray(formData.faqs) && formData.faqs.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeFaq(index)}
+                                                    className="text-red-600 hover:text-red-700"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="space-y-3">
+                                            <input
+                                                type="text"
+                                                value={faq.question}
+                                                onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
+                                                placeholder="Question"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                            <div className="flex justify-between items-center mb-1">
+                                                <label className="text-xs font-semibold text-slate-500">Answer</label>
+                                                <span className="text-[10px] text-slate-400">Supports [text](url)</span>
+                                            </div>
+                                            <textarea
+                                                value={faq.answer}
+                                                onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
+                                                placeholder="Answer"
+                                                rows="2"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+        </>
+    );
+
+    const sectionEditors = {
+        included: renderFeatures,
+        features: renderFeatures,
+        faq: renderFaqs,
+        faqs: renderFaqs,
+    };
+
+    const isCurrentServiceLoaded = serviceLoaded && loadedServiceId === id;
+
+    if (!router.isReady || !id || isLoadingService || (!isCurrentServiceLoaded && !loadError && !notFound)) {
+        return (
+            <ProtectedRoute>
+                <AdminLayout>
+                    <SEO title="Edit Service" noindex={true} />
+                    <div className="min-h-[50vh] flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+                    </div>
+                </AdminLayout>
+            </ProtectedRoute>
+        );
+    }
+
+    if (notFound) {
+        return (
+            <ProtectedRoute>
+                <AdminLayout>
+                    <SEO title="Service Not Found" noindex={true} />
+                    <div className="max-w-2xl rounded-xl border border-amber-200 bg-amber-50 p-6">
+                        <h1 className="text-xl font-bold text-amber-950">Service not found</h1>
+                        <p className="mt-2 text-sm text-amber-900">No service exists for this URL. Nothing was changed.</p>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/admin/services')}
+                            className="mt-5 rounded-lg bg-amber-900 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-950"
+                        >
+                            Back to Services
+                        </button>
+                    </div>
+                </AdminLayout>
+            </ProtectedRoute>
+        );
+    }
+
+    if (loadError || !serviceLoaded) {
+        return (
+            <ProtectedRoute>
+                <AdminLayout>
+                    <SEO title="Unable to Load Service" noindex={true} />
+                    <div className="max-w-2xl rounded-xl border border-red-200 bg-red-50 p-6">
+                        <h1 className="text-xl font-bold text-red-950">Service could not be loaded</h1>
+                        <p className="mt-2 text-sm text-red-900">
+                            Saving is disabled to protect the existing live content. Reload the page and try again.
+                        </p>
+                        <div className="mt-5 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => router.reload()}
+                                className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
+                            >
+                                Reload Page
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => router.push('/admin/services')}
+                                className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-900 hover:bg-red-100"
+                            >
+                                Back to Services
+                            </button>
+                        </div>
+                    </div>
+                </AdminLayout>
+            </ProtectedRoute>
+        );
+    }
 
     return (
         <ProtectedRoute>
@@ -477,297 +696,41 @@ const ServiceForm = () => {
                             </div>
                         </div>
 
-                        {/* Page Layout & Sections Manager */}
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                <div>
-                                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                                        <Settings className="w-5 h-5 text-indigo-600" />
-                                        Page Layout &amp; Sections
-                                    </h2>
-                                    <p className="text-xs text-slate-500 mt-1">
-                                        Control the layout order of sections and insert custom rich text blocks anywhere.
-                                    </p>
-                                </div>
-                                {formData.layout_sections ? (
-                                    <button
-                                        type="button"
-                                        onClick={disableCustomLayout}
-                                        className="text-xs text-red-600 hover:text-red-700 font-semibold border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors"
-                                    >
-                                        Reset to Default Layout
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={enableCustomLayout}
-                                        className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded transition-colors"
-                                    >
-                                        Customize Layout Order
-                                    </button>
-                                )}
-                            </div>
 
-                            {!formData.layout_sections ? (
-                                <div className="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-6 text-center">
-                                    <p className="text-sm text-slate-600 mb-2">
-                                        This page is using the <strong>Default Layout</strong>. Sections are displayed in the standard order:
-                                    </p>
-                                    <div className="flex flex-wrap gap-2 justify-center text-xs text-slate-500 max-w-lg mx-auto">
-                                        {['Overview', 'Features & Pricing', 'Frequently Asked Questions', 'Related Services'].map((lbl, idx) => (
-                                            <span key={idx} className="bg-slate-200 text-slate-700 px-2 py-1 rounded">
-                                                {lbl}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={enableCustomLayout}
-                                        className="mt-4 inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" /> Customize Layout &amp; Add Custom Boxes
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center bg-indigo-50/50 border border-indigo-105 rounded-lg p-3 text-xs text-indigo-900">
-                                        <span>💡 Rearrange any section below. Visibility changes affect the public page immediately.</span>
-                                        <button
-                                            type="button"
-                                            onClick={addCustomSection}
-                                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
-                                        >
-                                            <Plus className="w-3 h-3" /> Add Text Box
-                                        </button>
-                                    </div>
-
-                                    <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
-                                        {formData.layout_sections.map((sec, idx) => {
-                                            const isEditing = editingSectionId === sec.id;
-                                            return (
-                                                <div key={sec.id} className={`p-4 transition-colors ${isEditing ? 'bg-slate-50' : 'bg-white'}`}>
-                                                    <div className="flex items-center justify-between gap-4">
-                                                        {/* Drag handle / Order indicator */}
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-xs font-mono text-slate-400 w-5 text-right">{idx + 1}.</span>
-                                                            <div>
-                                                                <div className="font-semibold text-slate-800 text-sm flex items-center gap-2">
-                                                                    {sec.type === 'custom_rich_text' ? (
-                                                                        <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Custom Box</span>
-                                                                    ) : (
-                                                                        <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Standard</span>
-                                                                    )}
-                                                                    {sec.name}
-                                                                </div>
-                                                                {sec.type === 'custom_rich_text' && sec.title && (
-                                                                    <div className="text-xs text-slate-500 mt-0.5">Heading: {sec.title}</div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Controls */}
-                                                        <div className="flex items-center gap-1.5">
-                                                            {/* Move Buttons */}
-                                                            <button
-                                                                type="button"
-                                                                disabled={idx === 0}
-                                                                onClick={() => moveSection(idx, 'up')}
-                                                                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 rounded transition-colors"
-                                                                title="Move Up"
-                                                            >
-                                                                <ArrowUp className="w-4 h-4" />
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                disabled={idx === formData.layout_sections.length - 1}
-                                                                onClick={() => moveSection(idx, 'down')}
-                                                                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 rounded transition-colors"
-                                                                title="Move Down"
-                                                            >
-                                                                <ArrowDown className="w-4 h-4" />
-                                                            </button>
-
-                                                            {/* Visibility Toggle */}
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => toggleSectionVisibility(idx)}
-                                                                className={`p-1 rounded transition-colors ${sec.is_visible ? 'text-indigo-600 hover:bg-indigo-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                                                                title={sec.is_visible ? 'Visible' : 'Hidden'}
-                                                            >
-                                                                {sec.is_visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                                            </button>
-
-                                                            {/* Custom Box Only Actions */}
-                                                            {sec.type === 'custom_rich_text' && (
-                                                                <>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => setEditingSectionId(isEditing ? null : sec.id)}
-                                                                        className={`p-1.5 rounded transition-colors ${isEditing ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}
-                                                                        title="Edit Content"
-                                                                    >
-                                                                        <Edit2 className="w-3.5 h-3.5" />
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => removeCustomSection(sec.id)}
-                                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                                        title="Delete Box"
-                                                                    >
-                                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Custom Box Editor Panel (Only render when editing) */}
-                                                    {sec.type === 'custom_rich_text' && isEditing && (
-                                                        <div className="mt-4 pt-4 border-t border-slate-200/60 space-y-3 bg-white p-4 rounded-lg border border-slate-200/80 shadow-inner">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-xs font-semibold text-slate-700">Edit Custom Text Box</span>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => setEditingSectionId(null)}
-                                                                    className="p-1 text-slate-400 hover:text-slate-600 rounded transition-colors"
-                                                                >
-                                                                    <X className="w-4 h-4" />
-                                                                </button>
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block text-xs font-medium text-slate-600 mb-1">Section Title / Heading (Optional)</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={sec.title || ''}
-                                                                    onChange={(e) => {
-                                                                        updateCustomSection(sec.id, 'title', e.target.value);
-                                                                        updateCustomSection(sec.id, 'name', e.target.value ? `Custom: ${e.target.value}` : 'Custom Text Box');
-                                                                    }}
-                                                                    className="w-full p-2 border border-slate-350 rounded-lg text-sm outline-none font-normal"
-                                                                    placeholder="e.g. Recommended Next Steps"
-                                                                />
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block text-xs font-medium text-slate-600 mb-1">Rich Text Body</label>
-                                                                <RichTextEditor
-                                                                    value={sec.content_html || ''}
-                                                                    onChange={(html) => updateCustomSection(sec.id, 'content_html', html)}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-
-                                    <div className="flex justify-center pt-2">
-                                        <button
-                                            type="button"
-                                            onClick={addCustomSection}
-                                            className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 border-dashed rounded-lg py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                                        >
-                                            <Plus className="w-4 h-4" /> Add Custom Text Box
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Features */}
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-bold text-slate-900">Features</h2>
-                                <button
-                                    type="button"
-                                    onClick={addFeature}
-                                    className="text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    <span>Add Feature</span>
-                                </button>
-                            </div>
-
-                            <div className="space-y-3">
-                                {formData.features.map((feature, index) => (
-                                    <div key={index} className="flex items-center space-x-2">
-                                        <input
-                                            type="text"
-                                            value={feature}
-                                            onChange={(e) => handleFeatureChange(index, e.target.value)}
-                                            placeholder="Feature description"
-                                            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        />
-                                        {formData.features.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removeFeature(index)}
-                                                className="text-red-600 hover:text-red-700"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* FAQs */}
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-bold text-slate-900">FAQs</h2>
-                                <button
-                                    type="button"
-                                    onClick={addFaq}
-                                    className="text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    <span>Add FAQ</span>
-                                </button>
-                            </div>
-
-                            <div className="space-y-4">
-                                {formData.faqs.map((faq, index) => (
-                                    <div key={index} className="border border-slate-200 rounded-lg p-4">
-                                        <div className="flex items-start justify-between mb-3">
-                                            <span className="text-sm font-semibold text-slate-700">FAQ {index + 1}</span>
-                                            {formData.faqs.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeFaq(index)}
-                                                    className="text-red-600 hover:text-red-700"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="space-y-3">
-                                            <input
-                                                type="text"
-                                                value={faq.question}
-                                                onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
-                                                placeholder="Question"
-                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            />
-                                            <div className="flex justify-between items-center mb-1">
-                                                <label className="text-xs font-semibold text-slate-500">Answer</label>
-                                                <span className="text-[10px] text-slate-400">Supports [text](url)</span>
-                                            </div>
-                                            <textarea
-                                                value={faq.answer}
-                                                onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
-                                                placeholder="Answer"
-                                                rows="2"
-                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
+                        {/* Layout Sections Manager */}
+                        <LayoutSectionsManager
+                            sections={getEditableServiceSections(formData.layout_sections)}
+                            onSectionsChange={handleSectionsChange}
+                            sectionAliases={SERVICE_SECTION_ALIASES}
+                            sectionEditors={sectionEditors}
+                            contentIndicators={{
+                                overview: [formData.full_description, formData.short_description, formData.ai_citable_lead]
+                                    .some(value => typeof value === 'string' && value.trim().length > 0),
+                                included: Array.isArray(formData.features)
+                                    && formData.features.some(feature => typeof feature === 'string' && feature.trim().length > 0),
+                                features: Array.isArray(formData.features)
+                                    && formData.features.some(feature => typeof feature === 'string' && feature.trim().length > 0),
+                                pricing: formData.slug === 'independent-medical-opinion-nexus-letter',
+                                systems: Boolean(formData.slug),
+                                faq: Array.isArray(formData.faqs)
+                                    && formData.faqs.some(faq =>
+                                        typeof faq?.question === 'string' && faq.question.trim().length > 0
+                                        && typeof faq?.answer === 'string' && faq.answer.trim().length > 0
+                                    ),
+                                faqs: Array.isArray(formData.faqs)
+                                    && formData.faqs.some(faq =>
+                                        typeof faq?.question === 'string' && faq.question.trim().length > 0
+                                        && typeof faq?.answer === 'string' && faq.answer.trim().length > 0
+                                    ),
+                                insights: Boolean(formData.title?.trim() || formData.category?.trim()),
+                                testimonials: Boolean(formData.slug),
+                                related_services: true,
+                            }}
+                            onAddCustomSection={addCustomSection}
+                            onRemoveCustomSection={removeCustomSection}
+                            onUpdateCustomSection={updateCustomSection}
+                            onResetSections={formData.layout_sections != null ? resetLayout : undefined}
+                        />
                         {/* Submit Buttons */}
                         <div className="flex items-center justify-end space-x-4">
                             <button
@@ -779,7 +742,7 @@ const ServiceForm = () => {
                             </button>
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={loading || isLoadingService || !isCurrentServiceLoaded || Boolean(loadError) || notFound}
                                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center space-x-2"
                             >
                                 <Save className="w-5 h-5" />

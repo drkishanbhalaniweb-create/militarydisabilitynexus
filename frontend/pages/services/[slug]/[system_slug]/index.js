@@ -14,6 +14,51 @@ import {
 } from '../../../../src/components/ui/accordion';
 import { buildOrganizationReference } from '../../../../src/lib/trust';
 import { formatRichHTML } from '../../../../src/lib/htmlUtils';
+import {
+    DEFAULT_BODY_SYSTEM_SECTIONS,
+    hasMeaningfulLayoutRichContent,
+} from '../../../../src/lib/layoutSections';
+
+const SUPPORTED_STANDARD_SECTION_IDS = new Set(
+    DEFAULT_BODY_SYSTEM_SECTIONS.map(section => section.id)
+);
+
+const getSafeBodySystemLayout = (layoutSections) => {
+    const sourceSections = Array.isArray(layoutSections) && layoutSections.length > 0
+        ? layoutSections
+        : DEFAULT_BODY_SYSTEM_SECTIONS;
+    const seenIds = new Set();
+    const safeSections = [];
+
+    sourceSections.forEach((section) => {
+        if (!section || typeof section !== 'object' || Array.isArray(section)) return;
+        if (typeof section.id !== 'string' || section.id.trim() === '') return;
+
+        const id = section.id.trim();
+        if (seenIds.has(id)) return;
+
+        const isCustom = section.type === 'custom_rich_text';
+        if (isCustom && !hasMeaningfulLayoutRichContent(section.content_html)) return;
+        if (!isCustom && !SUPPORTED_STANDARD_SECTION_IDS.has(id)) return;
+
+        seenIds.add(id);
+        safeSections.push(isCustom ? {
+            ...section,
+            id,
+            type: 'custom_rich_text',
+            title: typeof section.title === 'string' ? section.title : '',
+            content_html: typeof section.content_html === 'string' ? section.content_html : '',
+            is_visible: section.is_visible !== false,
+        } : {
+            ...section,
+            id,
+            type: 'standard',
+            is_visible: section.is_visible !== false,
+        });
+    });
+
+    return safeSections.length > 0 ? safeSections : DEFAULT_BODY_SYSTEM_SECTIONS;
+};
 
 const SystemConditionsPage = ({ service, system, conditions, allServices, allSystems }) => {
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
@@ -253,24 +298,10 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
                             {(() => {
-                                const defaultLayout = [
-                                    { id: 'overview', type: 'standard', name: 'Overview', is_visible: true },
-                                    { id: 'conditions_directory', type: 'standard', name: 'Conditions Directory', is_visible: true },
-                                    { id: 'signature_pathways', type: 'standard', name: 'Signature Pathways', is_visible: true },
-                                    { id: 'challenges', type: 'standard', name: 'Challenges', is_visible: true },
-                                    { id: 'services_comparison', type: 'standard', name: 'Services Comparison', is_visible: true },
-                                    { id: 'specialist_guide', type: 'standard', name: 'Specialist Guide', is_visible: true },
-                                    { id: 'paired_systems', type: 'standard', name: 'Paired Systems', is_visible: true },
-                                    { id: 'faqs', type: 'standard', name: 'Frequently Asked Questions', is_visible: true },
-                                    { id: 'related_systems', type: 'standard', name: 'Related Body Systems', is_visible: true },
-                                ];
-
-                                const layout = Array.isArray(system.layout_sections) && system.layout_sections.length > 0
-                                    ? system.layout_sections
-                                    : defaultLayout;
+                                const layout = getSafeBodySystemLayout(system.layout_sections);
 
                                 const renderSection = (section) => {
-                                    if (!section.is_visible) return null;
+                                    if (section.is_visible === false) return null;
 
                                     if (section.type === 'custom_rich_text') {
                                         return (

@@ -907,7 +907,7 @@ export const conditionApi = {
         seo_keywords: conditionData.seo_keywords || [],
         internal_links: conditionData.internal_links || [],
         stat_cards: conditionData.stat_cards || [],
-        layout_sections: conditionData.layout_sections || null,
+        layout_sections: conditionData.layout_sections ?? null,
       }])
       .select()
       .single();
@@ -941,7 +941,7 @@ export const conditionApi = {
       seo_keywords: conditionData.seo_keywords || [],
       internal_links: conditionData.internal_links || [],
       stat_cards: conditionData.stat_cards || [],
-      layout_sections: conditionData.layout_sections || null,
+      layout_sections: conditionData.layout_sections ?? null,
     };
 
     if (conditionData.slug) {
@@ -1203,6 +1203,7 @@ export const bodySystemApi = {
         services_intro: systemData.services_intro || null,
         paired_title: systemData.paired_title || null,
         cta_price: systemData.cta_price || null,
+        layout_sections: systemData.layout_sections ?? null,
       }])
       .select()
       .single();
@@ -1236,6 +1237,7 @@ export const bodySystemApi = {
       services_intro: systemData.services_intro || null,
       paired_title: systemData.paired_title || null,
       cta_price: systemData.cta_price || null,
+      layout_sections: systemData.layout_sections ?? null,
     };
 
     if (systemData.slug) {

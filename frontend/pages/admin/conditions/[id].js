@@ -3,17 +3,53 @@ import { useRouter } from 'next/router';
 import { conditionApi, servicesApi, bodySystemApi } from '../../../src/lib/api';
 import AdminLayout from '../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
-import { ArrowLeft, Save, Plus, Trash2, ChevronDown, ChevronRight, Eye, EyeOff, ArrowUp, ArrowDown, Edit2, X, Settings } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../src/components/SEO';
 import Link from 'next/link';
 import InternalLinkSearchPicker from '../../../src/components/admin/InternalLinkSearchPicker';
 import IconPicker from '../../../src/components/admin/IconPicker';
 import RichTextEditor from '../../../src/components/admin/RichTextEditor';
+import LayoutSectionsManager from '../../../src/components/admin/LayoutSectionsManager';
+import {
+    DEFAULT_CONDITION_SECTIONS,
+    cloneLayoutSections,
+    createCustomLayoutSection,
+    getLayoutSectionsShapeError,
+    hasMeaningfulLayoutRichContent,
+} from '../../../src/lib/layoutSections';
 import {
     createConditionRouteSnapshot,
     revalidateConditionRoutes,
 } from '../../../src/lib/contentRevalidation';
+
+const createInitialConditionFormData = () => ({
+    page_title: '',
+    slug: '',
+    meta_description: '',
+    hero_description: '',
+    hero_heading: '',
+    content_html: '',
+    is_published: true,
+    faqs: [],
+    service_id: '',
+    body_system_id: '',
+    icon: '',
+    short_description: '',
+    display_order: 0,
+    dc_code: '',
+    dc_name: '',
+    ratings: [],
+    features: [],
+    secondary_connections: [],
+    specialist_guide: [],
+    paired_conditions: [],
+    pair_note: '',
+    seo_keywords: '',
+    internal_links: [],
+    stat_cards: [],
+    layout_sections: null,
+});
 
 const ConditionForm = () => {
     const router = useRouter();
@@ -23,6 +59,7 @@ const ConditionForm = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [loadError, setLoadError] = useState(false);
+    const [loadedRecordId, setLoadedRecordId] = useState(null);
     const [originalRoute, setOriginalRoute] = useState(null);
     const [allServices, setAllServices] = useState([]);
     const [allBodySystems, setAllBodySystems] = useState([]);
@@ -37,55 +74,46 @@ const ConditionForm = () => {
     const [showRelated, setShowRelated] = useState(false);
     const [showStats, setShowStats] = useState(true);
 
-    const [formData, setFormData] = useState({
-        page_title: '',
-        slug: '',
-        meta_description: '',
-        hero_description: '',
-        hero_heading: '',
-        content_html: '',
-        is_published: true,
-        faqs: [],
-        service_id: '',
-        // Phase 1 fields
-        body_system_id: '',
-        icon: '',
-        short_description: '',
-        display_order: 0,
-        dc_code: '',
-        dc_name: '',
-        ratings: [],
-        features: [],
-        secondary_connections: [],
-        specialist_guide: [],
-        paired_conditions: [],
-        pair_note: '',
-        seo_keywords: '',
-        internal_links: [],
-        stat_cards: [],
-        layout_sections: null,
-    });
+    const [formData, setFormData] = useState(createInitialConditionFormData);
 
     useEffect(() => {
-        if (id) {
-            fetchData();
-        }
+        if (!id) return undefined;
+
+        let cancelled = false;
+        fetchData(() => cancelled);
+
+        return () => {
+            cancelled = true;
+        };
     }, [id]);
 
-    const fetchData = async () => {
+    const fetchData = async (isCancelled = () => false) => {
         setLoading(true);
+        setLoadError(false);
+        setLoadedRecordId(null);
+        setOriginalRoute(null);
+        setEditingSectionId(null);
+        setShowClinical(false);
+        setShowConnections(false);
+        setShowSpecialist(false);
+        setShowRelated(false);
+        setShowStats(true);
         try {
             const [services, bodySystems] = await Promise.all([
                 servicesApi.getAll(),
                 bodySystemApi.getAll(true),
             ]);
+            if (isCancelled()) return;
             setAllServices(services || []);
             setAllBodySystems(bodySystems || []);
 
             if (!isNew) {
                 const condition = await conditionApi.getById(id);
+                if (isCancelled()) return;
                 if (condition) {
-                    const keywords = (condition.seo_keywords || []).join(', ');
+                    const keywords = Array.isArray(condition.seo_keywords)
+                        ? condition.seo_keywords.join(', ')
+                        : condition.seo_keywords || '';
                     setOriginalRoute(createConditionRouteSnapshot(condition));
                     setFormData({
                         page_title: condition.page_title || '',
@@ -108,12 +136,24 @@ const ConditionForm = () => {
                         secondary_connections: condition.secondary_connections || [],
                         specialist_guide: condition.specialist_guide || [],
                         paired_conditions: (condition.paired_conditions || []).map(p => {
+                            if (p && typeof p === 'object') {
+                                return {
+                                    ...p,
+                                    name: p.name ?? '',
+                                    url: p.url ?? '',
+                                };
+                            }
+
                             try {
                                 const parsed = JSON.parse(p);
                                 if (typeof parsed === 'object' && parsed !== null && 'name' in parsed) {
-                                    return { name: parsed.name || '', url: parsed.url || '' };
+                                    return {
+                                        ...parsed,
+                                        name: parsed.name ?? '',
+                                        url: parsed.url ?? '',
+                                    };
                                 }
-                            } catch (e) {
+                            } catch {
                                 // fallback for plain string
                             }
                             return { name: p || '', url: '' };
@@ -122,7 +162,7 @@ const ConditionForm = () => {
                         seo_keywords: keywords,
                         internal_links: condition.internal_links || [],
                         stat_cards: condition.stat_cards || [],
-                        layout_sections: condition.layout_sections || null,
+                        layout_sections: condition.layout_sections ?? null,
                     });
 
                     // Auto-expand sections that have data
@@ -130,14 +170,21 @@ const ConditionForm = () => {
                     if (condition.secondary_connections?.length) setShowConnections(true);
                     if (condition.specialist_guide?.length) setShowSpecialist(true);
                     if (condition.paired_conditions?.length || condition.internal_links?.length) setShowRelated(true);
+                    setLoadedRecordId(id);
+                } else {
+                    throw new Error('Condition not found.');
                 }
+            } else {
+                setFormData(createInitialConditionFormData());
+                setLoadedRecordId(id);
             }
         } catch (error) {
+            if (isCancelled()) return;
             console.error('Error fetching data:', error);
             toast.error('Failed to load data');
             setLoadError(true);
         } finally {
-            setLoading(false);
+            if (!isCancelled()) setLoading(false);
         }
     };
 
@@ -199,73 +246,20 @@ const ConditionForm = () => {
         });
     };
 
-    const enableCustomLayout = () => {
-        const defaultSections = [
-            { id: 'ratings', type: 'standard', name: 'VA Diagnostic Code', is_visible: true },
-            { id: 'about', type: 'standard', name: 'Overview Section', is_visible: true },
-            { id: 'features', type: 'standard', name: "What's Included", is_visible: true },
-            { id: 'connections', type: 'standard', name: 'Secondary Connections', is_visible: true },
-            { id: 'specialist', type: 'standard', name: 'Specialist Guide', is_visible: true },
-            { id: 'faqs', type: 'standard', name: 'Frequently Asked Questions', is_visible: true },
-            { id: 'related_pages', type: 'standard', name: 'Related Pages', is_visible: true },
-            { id: 'paired_conditions', type: 'standard', name: 'Commonly Paired Conditions', is_visible: true },
-            { id: 'insights', type: 'standard', name: 'Related Insights & Proof', is_visible: true },
-        ];
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: defaultSections
-        }));
-    };
-
-    const disableCustomLayout = () => {
-        if (window.confirm('Resetting will discard your custom section layout and any custom text boxes you added. Are you sure?')) {
-            setFormData(prev => ({
-                ...prev,
-                layout_sections: null
-            }));
-            setEditingSectionId(null);
-        }
-    };
-
-    const moveSection = (index, direction) => {
-        const sections = [...(formData.layout_sections || [])];
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= sections.length) return;
-        
-        const temp = sections[index];
-        sections[index] = sections[newIndex];
-        sections[newIndex] = temp;
-        
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: sections
-        }));
-    };
-
-    const toggleSectionVisibility = (index) => {
-        const sections = [...(formData.layout_sections || [])];
-        sections[index] = { ...sections[index], is_visible: !sections[index].is_visible };
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: sections
-        }));
-    };
-
     const addCustomSection = () => {
         const newId = `custom_rich_text_${Date.now()}`;
-        const newSection = {
-            id: newId,
-            type: 'custom_rich_text',
-            name: 'Custom Text Box',
-            title: '',
-            content_html: '',
-            is_visible: true
-        };
+        const newSection = createCustomLayoutSection(newId, 'Custom Text Box');
         setFormData(prev => ({
             ...prev,
-            layout_sections: [...(prev.layout_sections || []), newSection]
+            layout_sections: [
+                ...(Array.isArray(prev.layout_sections)
+                    ? prev.layout_sections
+                    : cloneLayoutSections(DEFAULT_CONDITION_SECTIONS)),
+                newSection,
+            ],
         }));
         setEditingSectionId(newId);
+        return newId;
     };
 
     const removeCustomSection = (id) => {
@@ -292,16 +286,128 @@ const ConditionForm = () => {
         });
     };
 
+    const resetLayoutSections = () => {
+        if (window.confirm('Resetting will discard the custom section layout and any custom text boxes. Continue?')) {
+            setFormData(prev => ({ ...prev, layout_sections: null }));
+            setEditingSectionId(null);
+        }
+    };
+
+    const hasText = (value) => value !== null
+        && value !== undefined
+        && String(value).trim().length > 0;
+
+    const validateListEntries = () => {
+        const validations = [
+            {
+                items: formData.faqs,
+                label: 'FAQ',
+                isComplete: item => item && hasText(item.question) && hasText(item.answer),
+            },
+            {
+                items: formData.ratings,
+                label: 'rating criterion',
+                isComplete: item => item && hasText(item.pct) && hasText(item.criteria),
+                onInvalid: () => setShowClinical(true),
+            },
+            {
+                items: formData.features,
+                label: 'feature',
+                isComplete: item => hasText(item),
+                onInvalid: () => setShowClinical(true),
+            },
+            {
+                items: formData.secondary_connections,
+                label: 'secondary connection',
+                isComplete: item => item && hasText(item.from) && hasText(item.mechanism),
+                onInvalid: () => setShowConnections(true),
+            },
+            {
+                items: formData.specialist_guide,
+                label: 'specialist',
+                isComplete: item => item
+                    && hasText(item.name)
+                    && hasText(item.price)
+                    && hasText(item.best_for),
+                onInvalid: () => setShowSpecialist(true),
+            },
+            {
+                items: formData.paired_conditions,
+                label: 'paired condition',
+                isComplete: item => item && hasText(item.name),
+                onInvalid: () => setShowRelated(true),
+            },
+            {
+                items: formData.internal_links,
+                label: 'related page',
+                isComplete: item => item
+                    && hasText(item.label)
+                    && hasText(item.title)
+                    && hasText(item.url),
+                onInvalid: () => setShowRelated(true),
+            },
+            {
+                items: formData.stat_cards,
+                label: 'hero stat card',
+                isComplete: item => item && hasText(item.label) && hasText(item.value),
+                onInvalid: () => setShowStats(true),
+            },
+        ];
+
+        for (const validation of validations) {
+            if (!Array.isArray(validation.items)) {
+                toast.error(`The ${validation.label} data is invalid. Reload the page and do not save until it is corrected.`);
+                return false;
+            }
+
+            const invalidIndex = validation.items.findIndex(item => !validation.isComplete(item));
+            if (invalidIndex !== -1) {
+                validation.onInvalid?.();
+                toast.error(
+                    `Complete or remove ${validation.label} ${invalidIndex + 1} before saving. No entries were discarded.`
+                );
+                return false;
+            }
+        }
+
+        if ((formData.stat_cards || []).length > 4) {
+            setShowStats(true);
+            toast.error('Hero stat cards are limited to 4. Remove the extra cards before saving.');
+            return false;
+        }
+
+        if (formData.layout_sections !== null) {
+            const layoutShapeError = getLayoutSectionsShapeError(formData.layout_sections);
+            if (layoutShapeError) {
+                toast.error(`${layoutShapeError} Reset the layout or correct it before saving.`);
+                return false;
+            }
+
+            for (const [index, section] of formData.layout_sections.entries()) {
+                if (section.type === 'custom_rich_text' && !hasMeaningfulLayoutRichContent(section.content_html)) {
+                    toast.error(`Add content to custom text box ${index + 1}, or remove it before saving.`);
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (loadError && !isNew) {
-            toast.error('Cannot save because the condition failed to load properly.');
+        if (loading || loadedRecordId !== id || loadError) {
+            toast.error('This condition form has not loaded successfully, so it cannot be saved.');
             return;
         }
 
         if (formData.is_published && (!formData.service_id || !formData.body_system_id)) {
             toast.error('Published conditions require both a target service and a body system.');
+            return;
+        }
+
+        if (!validateListEntries()) {
             return;
         }
 
@@ -316,14 +422,13 @@ const ConditionForm = () => {
                 seo_keywords: formData.seo_keywords
                     ? formData.seo_keywords.split(',').map(k => k.trim()).filter(Boolean)
                     : [],
-                features: (formData.features || []).filter(f => f.trim() !== ''),
+                features: formData.features || [],
                 paired_conditions: (formData.paired_conditions || [])
-                    .filter(p => p && p.name && p.name.trim() !== '')
-                    .map(p => JSON.stringify({ name: p.name.trim(), url: p.url ? p.url.trim() : '' })),
-                ratings: (formData.ratings || []).filter(r => r.pct || r.criteria),
-                secondary_connections: (formData.secondary_connections || []).filter(c => c.from),
-                specialist_guide: (formData.specialist_guide || []).filter(s => s.name),
-                internal_links: (formData.internal_links || []).filter(l => l.label || l.url),
+                    .map(p => JSON.stringify({ ...p, name: p.name, url: p.url || '' })),
+                ratings: formData.ratings || [],
+                secondary_connections: formData.secondary_connections || [],
+                specialist_guide: formData.specialist_guide || [],
+                internal_links: formData.internal_links || [],
             };
 
             const savedCondition = isNew
@@ -361,7 +466,7 @@ const ConditionForm = () => {
         }
     };
 
-    if (loading && id) {
+    if ((loading || loadedRecordId !== id) && !loadError) {
         return (
             <ProtectedRoute>
                 <AdminLayout>
@@ -373,303 +478,14 @@ const ConditionForm = () => {
         );
     }
 
-    return (
-        <ProtectedRoute>
-            <AdminLayout>
-                <SEO title={isNew ? "Create Condition" : "Edit Condition"} noindex={true} />
-                
-                {loadError && !isNew && (
-                    <div className="max-w-5xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 p-4">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <div className="ml-3">
-                                <p className="text-sm text-red-700">
-                                    Error loading condition data. Please do not submit this form as it may overwrite existing data.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
+    const handleSectionsChange = (sections) => setFormData(prev => ({
+        ...prev,
+        layout_sections: cloneLayoutSections(sections),
+    }));
 
-                <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 pb-20">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <Link href="/admin/conditions" className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                                <ArrowLeft className="w-5 h-5 text-slate-600" />
-                            </Link>
-                            <h1 className="text-3xl font-bold text-slate-900">
-                                {isNew ? 'Create New Condition' : 'Edit Condition'}
-                            </h1>
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={saving || (loadError && !isNew)}
-                            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2 disabled:opacity-50 transition-colors font-semibold text-sm"
-                        >
-                            <Save className="w-5 h-5" />
-                            <span>{saving ? 'Saving...' : 'Save Condition'}</span>
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main Content Column */}
-                        <div className="lg:col-span-2 space-y-6">
-                            {/* Basic Info */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Basic Information</h2>
-                                
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hero Heading (H1)</label>
-                                    <input
-                                        type="text"
-                                        name="hero_heading"
-                                        value={formData.hero_heading}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-                                        placeholder="e.g. VA Disability Evidence for Sleep Apnea"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hero Description (Displays on Hero Card)</label>
-                                    <textarea
-                                        name="hero_description"
-                                        value={formData.hero_description}
-                                        onChange={handleInputChange}
-                                        rows={3}
-                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-sm"
-                                        placeholder="Enter a descriptive summary for the hero card (differs from page meta description and body overview)"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">URL Slug</label>
-                                    <input
-                                        type="text"
-                                        name="slug"
-                                        value={formData.slug}
-                                        onChange={handleInputChange}
-                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-                                        placeholder="e.g. sleep-apnea (leave blank to auto-generate)"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Content / Requirements (Overview Section)</label>
-                                    <p className="text-xs text-slate-500 mb-2">Write the main condition overview. Use the "Custom Box" component from the toolbar to insert connection boxes.</p>
-                                    <RichTextEditor
-                                        value={formData.content_html}
-                                        onChange={(html) => setFormData(prev => ({ ...prev, content_html: html }))}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Page Layout & Sections Manager */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                                            <Settings className="w-5 h-5 text-indigo-600" />
-                                            Page Layout &amp; Sections
-                                        </h2>
-                                        <p className="text-xs text-slate-500 mt-1">
-                                            Control the layout order of sections and insert custom rich text blocks anywhere.
-                                        </p>
-                                    </div>
-                                    {formData.layout_sections ? (
-                                        <button
-                                            type="button"
-                                            onClick={disableCustomLayout}
-                                            className="text-xs text-red-600 hover:text-red-700 font-semibold border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors"
-                                        >
-                                            Reset to Default Layout
-                                        </button>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={enableCustomLayout}
-                                            className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded transition-colors"
-                                        >
-                                            Customize Layout Order
-                                        </button>
-                                    )}
-                                </div>
-
-                                {!formData.layout_sections ? (
-                                    <div className="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-6 text-center">
-                                        <p className="text-sm text-slate-600 mb-2">
-                                            This page is using the <strong>Default Layout</strong>. Sections are displayed in the standard order:
-                                        </p>
-                                        <div className="flex flex-wrap gap-2 justify-center text-xs text-slate-500 max-w-lg mx-auto">
-                                            {['Diagnostic Code', 'Overview', 'What\'s Included', 'Secondary Connections', 'Specialist Guide', 'FAQs', 'Related Pages', 'Paired Conditions', 'Insights'].map((lbl, idx) => (
-                                                <span key={idx} className="bg-slate-200 text-slate-700 px-2 py-1 rounded">
-                                                    {lbl}
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={enableCustomLayout}
-                                            className="mt-4 inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors"
-                                        >
-                                            <Plus className="w-3.5 h-3.5" /> Customize Layout &amp; Add Custom Boxes
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center bg-indigo-50/50 border border-indigo-105 rounded-lg p-3 text-xs text-indigo-900">
-                                            <span>💡 Rearrange any section below. Visibility changes affect the public page immediately.</span>
-                                            <button
-                                                type="button"
-                                                onClick={addCustomSection}
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
-                                            >
-                                                <Plus className="w-3 h-3" /> Add Text Box
-                                            </button>
-                                        </div>
-
-                                        <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
-                                            {formData.layout_sections.map((sec, idx) => {
-                                                const isEditing = editingSectionId === sec.id;
-                                                return (
-                                                    <div key={sec.id} className={`p-4 transition-colors ${isEditing ? 'bg-slate-50' : 'bg-white'}`}>
-                                                        <div className="flex items-center justify-between gap-4">
-                                                            {/* Drag handle / Order indicator */}
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-xs font-mono text-slate-400 w-5 text-right">{idx + 1}.</span>
-                                                                <div>
-                                                                    <div className="font-semibold text-slate-800 text-sm flex items-center gap-2">
-                                                                        {sec.type === 'custom_rich_text' ? (
-                                                                            <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Custom Box</span>
-                                                                        ) : (
-                                                                            <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Standard</span>
-                                                                        )}
-                                                                        {sec.name}
-                                                                    </div>
-                                                                    {sec.type === 'custom_rich_text' && sec.title && (
-                                                                        <div className="text-xs text-slate-500 mt-0.5">Heading: {sec.title}</div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Controls */}
-                                                            <div className="flex items-center gap-1.5">
-                                                                {/* Move Buttons */}
-                                                                <button
-                                                                    type="button"
-                                                                    disabled={idx === 0}
-                                                                    onClick={() => moveSection(idx, 'up')}
-                                                                    className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 rounded transition-colors"
-                                                                    title="Move Up"
-                                                                >
-                                                                    <ArrowUp className="w-4 h-4" />
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    disabled={idx === formData.layout_sections.length - 1}
-                                                                    onClick={() => moveSection(idx, 'down')}
-                                                                    className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 rounded transition-colors"
-                                                                    title="Move Down"
-                                                                >
-                                                                    <ArrowDown className="w-4 h-4" />
-                                                                </button>
-
-                                                                {/* Visibility Toggle */}
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => toggleSectionVisibility(idx)}
-                                                                    className={`p-1 rounded transition-colors ${sec.is_visible ? 'text-indigo-600 hover:bg-indigo-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                                                                    title={sec.is_visible ? 'Visible' : 'Hidden'}
-                                                                >
-                                                                    {sec.is_visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                                                </button>
-
-                                                                {/* Custom Box Only Actions */}
-                                                                {sec.type === 'custom_rich_text' && (
-                                                                    <>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => setEditingSectionId(isEditing ? null : sec.id)}
-                                                                            className={`p-1.5 rounded transition-colors ${isEditing ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}
-                                                                            title="Edit Content"
-                                                                        >
-                                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                                        </button>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => removeCustomSection(sec.id)}
-                                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                                            title="Delete Box"
-                                                                        >
-                                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                                        </button>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Custom Box Editor Panel (Only render when editing) */}
-                                                        {sec.type === 'custom_rich_text' && isEditing && (
-                                                            <div className="mt-4 pt-4 border-t border-slate-200/60 space-y-3 bg-white p-4 rounded-lg border border-slate-200/80 shadow-inner">
-                                                                <div className="flex justify-between items-center">
-                                                                    <span className="text-xs font-semibold text-slate-700">Edit Custom Text Box</span>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => setEditingSectionId(null)}
-                                                                        className="p-1 text-slate-400 hover:text-slate-600 rounded transition-colors"
-                                                                    >
-                                                                        <X className="w-4 h-4" />
-                                                                    </button>
-                                                                </div>
-
-                                                                <div>
-                                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Section Title / Heading (Optional)</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={sec.title || ''}
-                                                                        onChange={(e) => {
-                                                                            updateCustomSection(sec.id, 'title', e.target.value);
-                                                                            updateCustomSection(sec.id, 'name', e.target.value ? `Custom: ${e.target.value}` : 'Custom Text Box');
-                                                                        }}
-                                                                        className="w-full p-2 border border-slate-350 rounded-lg text-sm outline-none font-normal"
-                                                                        placeholder="e.g. Recommended Next Steps"
-                                                                    />
-                                                                </div>
-
-                                                                <div>
-                                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Rich Text Body</label>
-                                                                    <RichTextEditor
-                                                                        value={sec.content_html || ''}
-                                                                        onChange={(html) => updateCustomSection(sec.id, 'content_html', html)}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-
-                                        <div className="flex justify-center pt-2">
-                                            <button
-                                                type="button"
-                                                onClick={addCustomSection}
-                                                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 border-dashed rounded-lg py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                                            >
-                                                <Plus className="w-4 h-4" /> Add Custom Text Box
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* FAQs */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+    const renderFaqs = () => (
+        <>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                                     <h2 className="text-xl font-semibold text-slate-900">Frequently Asked Questions</h2>
                                     <button
@@ -721,11 +537,14 @@ const ConditionForm = () => {
                                     </div>
                                 )}
                             </div>
+        </>
+    );
 
-                            {/* Clinical Details (Collapsible) */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+    const renderClinical = () => (
+        <>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <button type="button" onClick={() => setShowClinical(!showClinical)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
-                                    <h2 className="text-xl font-semibold text-slate-900">Clinical Details</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">VA Diagnostic Code &amp; Ratings</h2>
                                     {showClinical ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
                                 </button>
                                 {showClinical && (
@@ -771,27 +590,45 @@ const ConditionForm = () => {
                                             ))}
                                         </div>
 
-                                        {/* Features */}
-                                        <div className="border-t border-slate-100 pt-4">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <label className="text-sm font-medium text-slate-700">Features Checklist</label>
-                                                <button type="button" onClick={() => addListItem('features', '')} className="text-indigo-600 hover:text-indigo-700 flex items-center text-xs font-medium">
-                                                    <Plus className="w-3 h-3 mr-1" /> Add Feature
-                                                </button>
-                                            </div>
-                                            {(formData.features || []).map((f, i) => (
-                                                <div key={i} className="flex items-center gap-2 mb-2">
-                                                    <input type="text" value={f} onChange={(e) => updateStringListItem('features', i, e.target.value)} className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Feature description" />
-                                                    <button type="button" onClick={() => removeListItem('features', i)} className="text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
-                                                </div>
-                                            ))}
-                                        </div>
                                     </div>
                                 )}
                             </div>
+        </>
+    );
 
-                            {/* Stat Cards (Hero Section) */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+    const renderFeatures = () => (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 className="text-xl font-semibold text-slate-900">What&apos;s Included</h2>
+                <button type="button" onClick={() => addListItem('features', '')} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
+                    <Plus className="w-4 h-4 mr-1" /> Add Feature
+                </button>
+            </div>
+            {(formData.features || []).length === 0 ? (
+                <p className="text-sm text-slate-500 italic">No features added yet.</p>
+            ) : (
+                <div className="space-y-2">
+                    {formData.features.map((feature, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={feature}
+                                onChange={(e) => updateStringListItem('features', index, e.target.value)}
+                                className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none"
+                                placeholder="Feature description"
+                            />
+                            <button type="button" onClick={() => removeListItem('features', index)} className="text-slate-400 hover:text-red-600">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    const renderStats = () => (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <button type="button" onClick={() => setShowStats(!showStats)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
                                     <div>
                                         <h2 className="text-xl font-semibold text-slate-900">Hero Stat Cards</h2>
@@ -864,111 +701,202 @@ const ConditionForm = () => {
                                     </div>
                                 )}
                             </div>
+    );
 
-                            {/* Secondary Connections (Collapsible) */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <button type="button" onClick={() => setShowConnections(!showConnections)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
-                                    <h2 className="text-xl font-semibold text-slate-900">Secondary Connections</h2>
-                                    {showConnections ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
-                                </button>
-                                {showConnections && (
-                                    <div className="space-y-4 pt-2">
-                                        <button type="button" onClick={() => addListItem('secondary_connections', { from: '', mechanism: '', url: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
-                                            <Plus className="w-4 h-4 mr-1" /> Add Connection
-                                        </button>
-                                        {(formData.secondary_connections || []).map((c, i) => (
-                                            <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
-                                                <button type="button" onClick={() => removeListItem('secondary_connections', i)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
-                                                <div className="space-y-3 pr-8">
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">From Condition (Name)</label>
-                                                        <div className="flex gap-2">
-                                                            <input
-                                                                type="text"
-                                                                value={c.from}
-                                                                onChange={(e) => updateListItem('secondary_connections', i, 'from', e.target.value)}
-                                                                className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none"
-                                                                placeholder="e.g. PTSD"
-                                                            />
-                                                            {c.url && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => updateListItem('secondary_connections', i, 'url', '')}
-                                                                    className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors"
-                                                                    title="Remove Link"
-                                                                >
-                                                                    Unlink
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    {c.url ? (
-                                                        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5 flex items-center justify-between text-xs">
-                                                            <span className="text-indigo-800 font-medium truncate">
-                                                                🔗 Linked to: <span className="font-mono">{c.url}</span>
-                                                            </span>
-                                                        </div>
-                                                    ) : (
-                                                        <div>
-                                                            <label className="block text-[10px] font-semibold text-slate-500 mb-1">Link to existing page (optional)</label>
-                                                            <InternalLinkSearchPicker
-                                                                onSelect={(selected) => {
-                                                                    updateListItem('secondary_connections', i, 'from', selected.title);
-                                                                    updateListItem('secondary_connections', i, 'url', selected.url);
-                                                                }}
-                                                                placeholder="Search for conditions, services, blogs, etc. to link..."
-                                                            />
-                                                        </div>
-                                                    )}
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Mechanism</label>
-                                                        <textarea value={c.mechanism} onChange={(e) => updateListItem('secondary_connections', i, 'mechanism', e.target.value)} rows={2} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="How does this connection work..." />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+    const renderConnections = () => (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <button type="button" onClick={() => setShowConnections(!showConnections)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                <h2 className="text-xl font-semibold text-slate-900">Secondary Connections</h2>
+                {showConnections ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+            </button>
+            {showConnections && (
+                <div className="space-y-4 pt-2">
+                    <button type="button" onClick={() => addListItem('secondary_connections', { from: '', mechanism: '', url: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
+                        <Plus className="w-4 h-4 mr-1" /> Add Connection
+                    </button>
+                    {(formData.secondary_connections || []).map((connection, index) => (
+                        <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                            <button type="button" onClick={() => removeListItem('secondary_connections', index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                            <div className="space-y-3 pr-8">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 mb-1">From Condition (Name)</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={connection.from || ''}
+                                            onChange={(e) => updateListItem('secondary_connections', index, 'from', e.target.value)}
+                                            className="flex-1 p-2 border border-slate-300 rounded-lg text-sm outline-none"
+                                            placeholder="e.g. PTSD"
+                                        />
+                                        {connection.url && (
+                                            <button
+                                                type="button"
+                                                onClick={() => updateListItem('secondary_connections', index, 'url', '')}
+                                                className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors"
+                                            >
+                                                Unlink
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                {connection.url ? (
+                                    <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5 text-xs text-indigo-800 font-medium truncate">
+                                        Linked to: <span className="font-mono">{connection.url}</span>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-1">Link to existing page (optional)</label>
+                                        <InternalLinkSearchPicker
+                                            onSelect={(selected) => {
+                                                updateListItem('secondary_connections', index, 'from', selected.title);
+                                                updateListItem('secondary_connections', index, 'url', selected.url);
+                                            }}
+                                            placeholder="Search for conditions, services, blogs, etc. to link..."
+                                        />
                                     </div>
                                 )}
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Mechanism</label>
+                                    <textarea
+                                        value={connection.mechanism || ''}
+                                        onChange={(e) => updateListItem('secondary_connections', index, 'mechanism', e.target.value)}
+                                        rows={2}
+                                        className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none"
+                                        placeholder="How does this connection work..."
+                                    />
+                                </div>
                             </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 
-                            {/* Specialist Guide (Collapsible) */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <button type="button" onClick={() => setShowSpecialist(!showSpecialist)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
-                                    <h2 className="text-xl font-semibold text-slate-900">Specialist Guide</h2>
-                                    {showSpecialist ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
-                                </button>
-                                {showSpecialist && (
-                                    <div className="space-y-4 pt-2">
-                                        <button type="button" onClick={() => addListItem('specialist_guide', { name: '', price: '', best_for: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
-                                            <Plus className="w-4 h-4 mr-1" /> Add Specialist
-                                        </button>
-                                        {(formData.specialist_guide || []).map((s, i) => (
-                                            <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
-                                                <button type="button" onClick={() => removeListItem('specialist_guide', i)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
-                                                <div className="space-y-3 pr-8">
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Name</label>
-                                                            <input type="text" value={s.name} onChange={(e) => updateListItem('specialist_guide', i, 'name', e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Neurologist" />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Price</label>
-                                                            <input type="text" value={s.price} onChange={(e) => updateListItem('specialist_guide', i, 'price', e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="$1,200–$1,800" />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Best For</label>
-                                                        <textarea value={s.best_for} onChange={(e) => updateListItem('specialist_guide', i, 'best_for', e.target.value)} rows={2} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="When to choose this specialist..." />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+    const renderSpecialist = () => (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <button type="button" onClick={() => setShowSpecialist(!showSpecialist)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                <h2 className="text-xl font-semibold text-slate-900">Specialist Guide</h2>
+                {showSpecialist ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+            </button>
+            {showSpecialist && (
+                <div className="space-y-4 pt-2">
+                    <button type="button" onClick={() => addListItem('specialist_guide', { name: '', price: '', best_for: '' })} className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium">
+                        <Plus className="w-4 h-4 mr-1" /> Add Specialist
+                    </button>
+                    {(formData.specialist_guide || []).map((specialist, index) => (
+                        <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                            <button type="button" onClick={() => removeListItem('specialist_guide', index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                            <div className="space-y-3 pr-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Name</label>
+                                        <input type="text" value={specialist.name || ''} onChange={(e) => updateListItem('specialist_guide', index, 'name', e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Neurologist" />
                                     </div>
-                                )}
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Price</label>
+                                        <input type="text" value={specialist.price || ''} onChange={(e) => updateListItem('specialist_guide', index, 'price', e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="$1,200–$1,800" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Best For</label>
+                                    <textarea value={specialist.best_for || ''} onChange={(e) => updateListItem('specialist_guide', index, 'best_for', e.target.value)} rows={2} className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="When to choose this specialist..." />
+                                </div>
                             </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 
-                            {/* Related Conditions (Collapsible) */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+    const renderRelatedPages = () => (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 className="text-xl font-semibold text-slate-900">Related Pages</h2>
+                <button
+                    type="button"
+                    onClick={() => addListItem('internal_links', { label: '', title: '', url: '', icon: '' })}
+                    className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                >
+                    <Plus className="w-4 h-4 mr-1" /> Add Related Page
+                </button>
+            </div>
+
+            {(formData.internal_links || []).length === 0 ? (
+                <p className="text-sm text-slate-500 italic">No related pages added yet.</p>
+            ) : (
+                <div className="space-y-4">
+                    {formData.internal_links.map((link, index) => (
+                        <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                            <button
+                                type="button"
+                                onClick={() => removeListItem('internal_links', index)}
+                                className="absolute top-4 right-4 text-slate-400 hover:text-red-600"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                            <div className="space-y-3 pr-8">
+                                <InternalLinkSearchPicker
+                                    onSelect={(selected) => {
+                                        updateListItem('internal_links', index, 'title', selected.title || '');
+                                        updateListItem('internal_links', index, 'url', selected.url || '');
+                                    }}
+                                    placeholder="Search for a page to link..."
+                                />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Label</label>
+                                        <input
+                                            type="text"
+                                            value={link.label || ''}
+                                            onChange={(e) => updateListItem('internal_links', index, 'label', e.target.value)}
+                                            className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white"
+                                            placeholder="e.g. Related Service"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Title</label>
+                                        <input
+                                            type="text"
+                                            value={link.title || ''}
+                                            onChange={(e) => updateListItem('internal_links', index, 'title', e.target.value)}
+                                            className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white"
+                                            placeholder="Page title"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-700 mb-1">URL</label>
+                                    <input
+                                        type="text"
+                                        value={link.url || ''}
+                                        onChange={(e) => updateListItem('internal_links', index, 'url', e.target.value)}
+                                        className="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none bg-white"
+                                        placeholder="/services/..."
+                                    />
+                                </div>
+                                <IconPicker
+                                    label="Icon (Optional)"
+                                    value={link.icon || ''}
+                                    onChange={(value) => updateListItem('internal_links', index, 'icon', value)}
+                                    helpText="Shown beside this related page on the public condition page."
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    const renderRelated = () => (
+        <>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <button type="button" onClick={() => setShowRelated(!showRelated)} className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
                                     <h2 className="text-xl font-semibold text-slate-900">Related Conditions</h2>
                                     {showRelated ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
@@ -1020,6 +948,163 @@ const ConditionForm = () => {
                                     </div>
                                 )}
                             </div>
+        </>
+    );
+
+    const sectionEditors = {
+        ratings: renderClinical,
+        features: renderFeatures,
+        connections: renderConnections,
+        specialist: renderSpecialist,
+        paired_conditions: renderRelated,
+        related_pages: renderRelatedPages,
+        faqs: renderFaqs,
+    };
+
+    if (loadError) {
+        return (
+            <ProtectedRoute>
+                <AdminLayout>
+                    <SEO title="Unable to Load Condition" noindex={true} />
+                    <div className="mx-auto max-w-2xl rounded-xl border border-red-200 bg-red-50 p-6">
+                        <h1 className="text-xl font-bold text-red-950">Condition data could not be loaded</h1>
+                        <p className="mt-2 text-sm text-red-900">
+                            Saving is disabled to protect existing live content. Reload the page and try again.
+                        </p>
+                        <div className="mt-5 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => router.reload()}
+                                className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
+                            >
+                                Reload Page
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => router.push('/admin/conditions')}
+                                className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-900 hover:bg-red-100"
+                            >
+                                Back to Conditions
+                            </button>
+                        </div>
+                    </div>
+                </AdminLayout>
+            </ProtectedRoute>
+        );
+    }
+
+    return (
+        <ProtectedRoute>
+            <AdminLayout>
+                <SEO title={isNew ? "Create Condition" : "Edit Condition"} noindex={true} />
+
+                <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 pb-20">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <Link href="/admin/conditions" className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                <ArrowLeft className="w-5 h-5 text-slate-600" />
+                            </Link>
+                            <h1 className="text-3xl font-bold text-slate-900">
+                                {isNew ? 'Create New Condition' : 'Edit Condition'}
+                            </h1>
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={saving || loading || loadedRecordId !== id || loadError}
+                            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2 disabled:opacity-50 transition-colors font-semibold text-sm"
+                        >
+                            <Save className="w-5 h-5" />
+                            <span>{saving ? 'Saving...' : 'Save Condition'}</span>
+                        </button>
+                    </div>
+
+
+                    <LayoutSectionsManager
+                        sections={formData.layout_sections == null
+                            ? DEFAULT_CONDITION_SECTIONS
+                            : formData.layout_sections}
+                        onSectionsChange={handleSectionsChange}
+                        sectionEditors={sectionEditors}
+                        contentIndicators={{
+                            ratings: Boolean(
+                                formData.dc_code
+                                || formData.dc_name
+                                || formData.icon
+                                || formData.short_description
+                                || (formData.ratings && formData.ratings.length > 0)
+                            ),
+                            about: !!formData.content_html,
+                            features: formData.features && formData.features.length > 0,
+                            connections: formData.secondary_connections && formData.secondary_connections.length > 0,
+                            specialist: formData.specialist_guide && formData.specialist_guide.length > 0,
+                            faqs: formData.faqs && formData.faqs.length > 0,
+                            related_pages: formData.internal_links && formData.internal_links.length > 0,
+                            paired_conditions: formData.paired_conditions && formData.paired_conditions.length > 0,
+                        }}
+                        onAddCustomSection={addCustomSection}
+                        onRemoveCustomSection={removeCustomSection}
+                        onUpdateCustomSection={updateCustomSection}
+                        onResetSections={formData.layout_sections != null
+                            ? resetLayoutSections
+                            : undefined}
+                    />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Main Content Column */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Basic Info */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Basic Information</h2>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hero Heading (H1)</label>
+                                    <input
+                                        type="text"
+                                        name="hero_heading"
+                                        value={formData.hero_heading}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+                                        placeholder="e.g. VA Disability Evidence for Sleep Apnea"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hero Description (Displays on Hero Card)</label>
+                                    <textarea
+                                        name="hero_description"
+                                        value={formData.hero_description}
+                                        onChange={handleInputChange}
+                                        rows={3}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow text-sm"
+                                        placeholder="Enter a descriptive summary for the hero card (differs from page meta description and body overview)"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">URL Slug</label>
+                                    <input
+                                        type="text"
+                                        name="slug"
+                                        value={formData.slug}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+                                        placeholder="e.g. sleep-apnea (leave blank to auto-generate)"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Content / Requirements (Overview Section)</label>
+                                    <p className="text-xs text-slate-500 mb-2">Write the main condition overview. Use the "Custom Box" component from the toolbar to insert connection boxes.</p>
+                                    <RichTextEditor
+                                        value={formData.content_html}
+                                        onChange={(html) => setFormData(prev => ({ ...prev, content_html: html }))}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Hero stat cards are not part of the reorderable public body layout. */}
+                            {renderStats()}
                         </div>
 
                         {/* Sidebar Column */}

@@ -16,6 +16,11 @@ import {
 } from '../../src/components/ui/accordion';
 import { buildOrganizationReference, serviceTagMap } from '../../src/lib/trust';
 import { formatRichHTML } from '../../src/lib/htmlUtils';
+import {
+    DEFAULT_SERVICE_SECTIONS,
+    getRenderableLayoutSections,
+    SERVICE_SECTION_ALIASES,
+} from '../../src/lib/layoutSections';
 
 // SEO-optimized title overrides — ensures high-value keywords appear in the <title> tag
 const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], relatedCaseStudies = [], relatedTestimonials = [], bodySystemsWithCounts = [] }) => {
@@ -164,32 +169,30 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
                             {(() => {
-                                const defaultLayout = [
-                                    { id: 'overview', type: 'standard', name: 'Overview', is_visible: true },
-                                    { id: 'included', type: 'standard', name: "What's Included", is_visible: true },
-                                    { id: 'pricing', type: 'standard', name: 'Pricing at a Glance', is_visible: true },
-                                    { id: 'systems', type: 'standard', name: 'Browse by Medical Category', is_visible: true },
-                                    { id: 'faq', type: 'standard', name: 'Frequently Asked Questions', is_visible: true },
-                                    { id: 'insights', type: 'standard', name: 'Related Insights', is_visible: true },
-                                    { id: 'testimonials', type: 'standard', name: 'Relevant Veteran Feedback', is_visible: true },
-                                ];
-
-                                const layout = Array.isArray(service.layout_sections) && service.layout_sections.length > 0
-                                    ? service.layout_sections
-                                    : defaultLayout;
+                                const layout = getRenderableLayoutSections(
+                                    service.layout_sections,
+                                    DEFAULT_SERVICE_SECTIONS,
+                                    {
+                                        aliases: SERVICE_SECTION_ALIASES,
+                                        appendMissingStandards: true,
+                                        requireRenderableCustomContent: true,
+                                    },
+                                );
 
                                 const renderSection = (section) => {
-                                    if (!section.is_visible) return null;
+                                    if (section.is_visible === false) return null;
 
                                     if (section.type === 'custom_rich_text') {
+                                        const sectionTitle = typeof section.title === 'string' ? section.title : '';
+                                        const sectionContent = typeof section.content_html === 'string' ? section.content_html : '';
                                         return (
                                             <section key={section.id} id={section.id} className="bg-white rounded-2xl p-8 custom-rich-text-section mb-8">
-                                                {section.title && (
-                                                    <h3 className="text-2xl font-bold text-slate-900 mb-4">{section.title}</h3>
+                                                {sectionTitle && (
+                                                    <h3 className="text-2xl font-bold text-slate-900 mb-4">{sectionTitle}</h3>
                                                 )}
                                                 <div 
                                                     className="text-slate-700 leading-relaxed prose prose-slate max-w-none"
-                                                    dangerouslySetInnerHTML={{ __html: formatRichHTML(section.content_html || '') }}
+                                                    dangerouslySetInnerHTML={{ __html: formatRichHTML(sectionContent) }}
                                                 />
                                             </section>
                                         );
@@ -248,13 +251,17 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                     </p>
                                                 </section>
                                             );
-                                        case 'included':
-                                            if (!service.features || service.features.length === 0) return null;
+                                        case 'features':
+                                        case 'included': {
+                                            const features = Array.isArray(service.features)
+                                                ? service.features.filter((feature) => typeof feature === 'string' && feature.trim())
+                                                : [];
+                                            if (features.length === 0) return null;
                                             return (
                                                 <section key="included" id="included" className="bg-white rounded-2xl p-8 mb-8" aria-labelledby="included-heading">
                                                     <h2 id="included-heading" className="text-2xl font-bold text-slate-900 mb-6">What's Included</h2>
                                                     <div className="divide-y divide-slate-100">
-                                                        {service.features.map((feature, idx) => (
+                                                        {features.map((feature, idx) => (
                                                             <div key={idx} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
                                                                 <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0 mt-0.5" />
                                                                 <p className="text-slate-700 font-medium leading-relaxed">{feature}</p>
@@ -263,6 +270,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                     </div>
                                                 </section>
                                             );
+                                        }
                                         case 'pricing':
                                             if (service.slug !== 'independent-medical-opinion-nexus-letter') return null;
                                             return (
@@ -364,13 +372,22 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                     </div>
                                                 </section>
                                             );
-                                        case 'faq':
-                                            if (!service.faqs || service.faqs.length === 0) return null;
+                                        case 'faqs':
+                                        case 'faq': {
+                                            const faqs = Array.isArray(service.faqs)
+                                                ? service.faqs.filter((faq) => (
+                                                    faq
+                                                    && typeof faq === 'object'
+                                                    && typeof faq.question === 'string'
+                                                    && typeof faq.answer === 'string'
+                                                ))
+                                                : [];
+                                            if (faqs.length === 0) return null;
                                             return (
                                                 <section key="faq" id="faq" className="bg-white rounded-2xl p-8 mb-8" aria-labelledby="faq-heading">
                                                     <h2 id="faq-heading" className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
                                                     <Accordion type="single" collapsible className="w-full">
-                                                        {service.faqs.map((faq, idx) => (
+                                                        {faqs.map((faq, idx) => (
                                                             <AccordionItem key={idx} value={`item-${idx}`}>
                                                                 <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
                                                                 <AccordionContent>
@@ -415,6 +432,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                     </Accordion>
                                                 </section>
                                             );
+                                        }
                                         case 'insights':
                                             if (relatedBlogs.length === 0 && relatedCaseStudies.length === 0) return null;
                                             return (
@@ -473,6 +491,35 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                                 showDate={false}
                                                             />
                                                         ))}
+                                                    </div>
+                                                </section>
+                                            );
+                                        case 'related_services':
+                                            if (allServices.length <= 1) return null;
+                                            return (
+                                                <section key="related_services" id="related_services" className="bg-white rounded-2xl p-8 mb-8" aria-labelledby="related-services-heading">
+                                                    <h2 id="related-services-heading" className="text-2xl font-bold text-slate-900 mb-8">Explore Our Other Services</h2>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                                        {allServices
+                                                            .filter((candidate) => candidate.slug !== service.slug)
+                                                            .slice(0, 3)
+                                                            .map((related) => (
+                                                                <Link
+                                                                    key={related.id}
+                                                                    href={`/services/${related.slug}`}
+                                                                    className="group rounded-xl border border-slate-200 p-6 hover:border-navy-300 hover:shadow-lg transition-all"
+                                                                >
+                                                                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-navy-700 transition-colors mb-2">
+                                                                        {related.title}
+                                                                    </h3>
+                                                                    <p className="text-sm text-slate-600 line-clamp-2 mb-3">
+                                                                        {related.short_description?.split('\n')[0]}
+                                                                    </p>
+                                                                    <span className="inline-flex items-center text-sm font-medium text-navy-600 group-hover:translate-x-1 transition-transform">
+                                                                        Learn more <ArrowRight className="w-4 h-4 ml-1" />
+                                                                    </span>
+                                                                </Link>
+                                                            ))}
                                                     </div>
                                                 </section>
                                             );
@@ -662,37 +709,6 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                     </div>
                 </div>
 
-                {/* Related Services — Cross-linking for SEO */}
-                {allServices.length > 1 && (
-                    <section className="py-16 bg-white border-t border-slate-200">
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <h2 className="text-2xl font-bold text-slate-900 mb-8">Explore Our Other Services</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {allServices
-                                    .filter(s => s.slug !== service.slug)
-                                    .slice(0, 3)
-                                    .map((related) => (
-                                        <Link
-                                            key={related.id}
-                                            href={`/services/${related.slug}`}
-                                            className="group rounded-xl border border-slate-200 p-6 hover:border-navy-300 hover:shadow-lg transition-all"
-                                        >
-                                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-navy-700 transition-colors mb-2">
-                                                {related.title}
-                                            </h3>
-                                            <p className="text-sm text-slate-600 line-clamp-2 mb-3">
-                                                {related.short_description?.split('\n')[0]}
-                                            </p>
-                                            <span className="inline-flex items-center text-sm font-medium text-navy-600 group-hover:translate-x-1 transition-transform">
-                                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
-                                            </span>
-                                        </Link>
-                                    ))
-                                }
-                            </div>
-                        </div>
-                    </section>
-                )}
             </div >
             
             <PricingModal 

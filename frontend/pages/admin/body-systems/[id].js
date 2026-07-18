@@ -4,9 +4,15 @@ import { bodySystemApi } from '../../../src/lib/api';
 import { supabase } from '../../../src/lib/supabase';
 import AdminLayout from '../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
-import { ArrowLeft, Save, Plus, Trash2, Settings, ArrowUp, ArrowDown, Eye, EyeOff, Edit2, X } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import SEO from '../../../src/components/SEO';
+import LayoutSectionsManager from '../../../src/components/admin/LayoutSectionsManager';
+import {
+    createCustomLayoutSection,
+    DEFAULT_BODY_SYSTEM_SECTIONS,
+    hasMeaningfulLayoutRichContent,
+} from '../../../src/lib/layoutSections';
 import Link from 'next/link';
 import IconPicker from '../../../src/components/admin/IconPicker';
 import RichTextEditor from '../../../src/components/admin/RichTextEditor';
@@ -16,6 +22,76 @@ const EMPTY_SPECIALIST = { name: '', role: '', best_for: '', price: '', note: ''
 const EMPTY_STAT_CARD = { label: '', value: '', subtext: '' };
 const EMPTY_TRUST_LINK = { label: '', url: '' };
 
+const createInitialBodySystemFormData = () => ({
+    name: '',
+    slug: '',
+    icon: '',
+    description: '',
+    overview: '',
+    hero_description: '',
+    is_mental_health: false,
+    specialist_guide: [],
+    paired_systems: [],
+    pair_note: '',
+    stat_cards: [],
+    build_trust_links: [],
+    faqs: [],
+    pathways: [],
+    challenges: [],
+    service_descriptions: [],
+    display_order: 0,
+    is_published: true,
+    pathways_intro: '',
+    challenges_title: '',
+    services_title: '',
+    services_intro: '',
+    paired_title: '',
+    cta_price: '',
+    layout_sections: null,
+});
+
+const getLayoutSectionsValidationError = (layoutSections) => {
+    if (layoutSections === null) return null;
+    if (!Array.isArray(layoutSections)) return 'Page layout must be an array or null.';
+
+    const seenIds = new Set();
+    for (let index = 0; index < layoutSections.length; index += 1) {
+        const section = layoutSections[index];
+        const position = index + 1;
+
+        if (!section || typeof section !== 'object' || Array.isArray(section)) {
+            return `Page layout section ${position} must be an object.`;
+        }
+        if (typeof section.id !== 'string' || section.id.trim() === '') {
+            return `Page layout section ${position} must have a nonempty text ID.`;
+        }
+
+        const normalizedId = section.id.trim();
+        if (seenIds.has(normalizedId)) {
+            return `Page layout contains the duplicate section ID "${normalizedId}".`;
+        }
+        seenIds.add(normalizedId);
+
+        if (section.type !== 'standard' && section.type !== 'custom_rich_text') {
+            return `Page layout section ${position} must use the standard or custom rich-text type.`;
+        }
+        if (Object.prototype.hasOwnProperty.call(section, 'is_visible') && typeof section.is_visible !== 'boolean') {
+            return `Page layout section ${position} must use a true or false visibility value.`;
+        }
+
+        if (section.type === 'custom_rich_text') {
+            if (section.title != null && typeof section.title !== 'string') {
+                return `Custom page section ${position} must use a text heading when one is provided.`;
+            }
+            if (!hasMeaningfulLayoutRichContent(section.content_html)) {
+                return `Custom page section ${position} must include text or media content.`;
+            }
+        }
+    }
+
+    return null;
+};
+
 const BodySystemForm = () => {
     const router = useRouter();
     const { id } = router.query;
@@ -24,44 +100,27 @@ const BodySystemForm = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [loadError, setLoadError] = useState(false);
+    const [loadedRecordId, setLoadedRecordId] = useState(null);
     const [allSystems, setAllSystems] = useState([]);
     const [services, setServices] = useState([]);
-    const [editingSectionId, setEditingSectionId] = useState(null);
 
-    const [formData, setFormData] = useState({
-        name: '',
-        slug: '',
-        icon: '',
-        description: '',
-        overview: '',
-        hero_description: '',
-        is_mental_health: false,
-        specialist_guide: [],
-        paired_systems: [],
-        pair_note: '',
-        stat_cards: [],
-        build_trust_links: [],
-        faqs: [],
-        pathways: [],
-        challenges: [],
-        service_descriptions: [],
-        display_order: 0,
-        is_published: true,
-        pathways_intro: '',
-        challenges_title: '',
-        services_title: '',
-        services_intro: '',
-        paired_title: '',
-        cta_price: '',
-        layout_sections: null,
-    });
+    const [formData, setFormData] = useState(createInitialBodySystemFormData);
 
     useEffect(() => {
-        if (id) fetchData();
+        if (!id) return undefined;
+
+        let cancelled = false;
+        fetchData(() => cancelled);
+
+        return () => {
+            cancelled = true;
+        };
     }, [id]);
 
-    const fetchData = async () => {
+    const fetchData = async (isCancelled = () => false) => {
         setLoading(true);
+        setLoadError(false);
+        setLoadedRecordId(null);
         try {
             // Fetch all systems for the "paired systems" selector
             const { data: systemsData, error: systemsError } = await supabase
@@ -70,6 +129,7 @@ const BodySystemForm = () => {
                 .order('display_order', { ascending: true });
 
             if (systemsError) throw systemsError;
+            if (isCancelled()) return;
             setAllSystems(systemsData || []);
 
             // Fetch all active services
@@ -80,21 +140,22 @@ const BodySystemForm = () => {
                 .order('display_order', { ascending: true });
 
             if (servicesError) throw servicesError;
+            if (isCancelled()) return;
             const activeServicesList = servicesData || [];
             setServices(activeServicesList);
 
             if (!isNew) {
                 const system = await bodySystemApi.getById(id);
+                if (isCancelled()) return;
                 if (system) {
                     // Populate service descriptions with defaults if empty
                     const existingDescriptions = system.service_descriptions || [];
-                    const mappedServiceDescriptions = activeServicesList.map(s => {
-                        const existing = existingDescriptions.find(d => d.service_slug === s.slug);
-                        return {
-                            service_slug: s.slug,
-                            text: existing ? existing.text : ''
-                        };
-                    });
+                    const mappedServiceDescriptions = [
+                        ...existingDescriptions,
+                        ...activeServicesList
+                            .filter(s => !existingDescriptions.some(d => d.service_slug === s.slug))
+                            .map(s => ({ service_slug: s.slug, text: '' })),
+                    ];
 
                     setFormData({
                         name: system.name || '',
@@ -121,24 +182,29 @@ const BodySystemForm = () => {
                         services_intro: system.services_intro || '',
                         paired_title: system.paired_title || '',
                         cta_price: system.cta_price || '',
-                        layout_sections: system.layout_sections || null,
+                        layout_sections: system.layout_sections ?? null,
                     });
+                    setLoadedRecordId(id);
+                } else {
+                    throw new Error('Body system not found.');
                 }
             } else {
-                setFormData(prev => ({
-                    ...prev,
+                setFormData({
+                    ...createInitialBodySystemFormData(),
                     service_descriptions: activeServicesList.map(s => ({
                         service_slug: s.slug,
                         text: ''
                     }))
-                }));
+                });
+                setLoadedRecordId(id);
             }
         } catch (error) {
+            if (isCancelled()) return;
             console.error('Error fetching data:', error);
             toast.error('Failed to load data');
             setLoadError(true);
         } finally {
-            setLoading(false);
+            if (!isCancelled()) setLoading(false);
         }
     };
 
@@ -204,14 +270,6 @@ const BodySystemForm = () => {
             const updated = [...prev.stat_cards];
             updated[index] = { ...updated[index], [field]: value };
             return { ...prev, stat_cards: updated };
-        });
-    };
-
-    const updateStringListItem = (field, index, value) => {
-        setFormData(prev => {
-            const updated = [...prev[field]];
-            updated[index] = value;
-            return { ...prev, [field]: updated };
         });
     };
 
@@ -321,111 +379,108 @@ const BodySystemForm = () => {
         });
     };
 
+
     // --- Custom Layout System ---
-    const enableCustomLayout = () => {
-        const defaultSections = [
-            { id: 'overview', type: 'standard', name: 'Overview', is_visible: true },
-            { id: 'conditions_directory', type: 'standard', name: 'Conditions Directory', is_visible: true },
-            { id: 'signature_pathways', type: 'standard', name: 'Signature Pathways', is_visible: true },
-            { id: 'challenges', type: 'standard', name: 'Challenges', is_visible: true },
-            { id: 'services_comparison', type: 'standard', name: 'Services Comparison', is_visible: true },
-            { id: 'specialist_guide', type: 'standard', name: 'Specialist Guide', is_visible: true },
-            { id: 'paired_systems', type: 'standard', name: 'Paired Systems', is_visible: true },
-            { id: 'faqs', type: 'standard', name: 'Frequently Asked Questions', is_visible: true },
-            { id: 'related_systems', type: 'standard', name: 'Related Body Systems', is_visible: true },
-        ];
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: defaultSections
-        }));
-    };
-
-    const disableCustomLayout = () => {
-        if (window.confirm('Resetting will discard your custom section layout and any custom text boxes you added. Are you sure?')) {
-            setFormData(prev => ({
-                ...prev,
-                layout_sections: null
-            }));
-            setEditingSectionId(null);
-        }
-    };
-
-    const moveSection = (index, direction) => {
-        const sections = [...(formData.layout_sections || [])];
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= sections.length) return;
-        
-        const temp = sections[index];
-        sections[index] = sections[newIndex];
-        sections[newIndex] = temp;
-        
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: sections
-        }));
-    };
-
-    const toggleSectionVisibility = (index) => {
-        const sections = [...(formData.layout_sections || [])];
-        sections[index] = { ...sections[index], is_visible: !sections[index].is_visible };
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: sections
-        }));
-    };
+    const handleSectionsChange = (sections) => setFormData(prev => ({ ...prev, layout_sections: sections }));
 
     const addCustomSection = () => {
         const newId = `custom_rich_text_${Date.now()}`;
-        const newSection = {
-            id: newId,
-            type: 'custom_rich_text',
-            name: 'Custom Text Box',
-            title: '',
-            content_html: '',
-            is_visible: true
-        };
-        setFormData(prev => ({
-            ...prev,
-            layout_sections: [...(prev.layout_sections || []), newSection]
-        }));
-        setEditingSectionId(newId);
-    };
-
-    const removeCustomSection = (id) => {
-        if (window.confirm('Are you sure you want to delete this custom text box?')) {
-            setFormData(prev => ({
-                ...prev,
-                layout_sections: (prev.layout_sections || []).filter(sec => sec.id !== id)
-            }));
-            if (editingSectionId === id) {
-                setEditingSectionId(null);
-            }
-        }
-    };
-
-    const updateCustomSection = (id, field, value) => {
+        const newSection = createCustomLayoutSection(newId);
         setFormData(prev => {
-            const sections = (prev.layout_sections || []).map(sec => {
-                if (sec.id === id) {
-                    return { ...sec, [field]: value };
-                }
-                return sec;
-            });
-            return { ...prev, layout_sections: sections };
+            const sections = Array.isArray(prev.layout_sections) && prev.layout_sections.length > 0
+                ? prev.layout_sections
+                : DEFAULT_BODY_SYSTEM_SECTIONS;
+            return {
+                ...prev,
+                layout_sections: [...sections, newSection],
+            };
+        });
+        return newId;
+    };
+
+    const removeCustomSection = (sectionId) => {
+        if (!window.confirm('Are you sure you want to remove this custom section? This cannot be undone.')) return;
+        setFormData(prev => {
+            const sections = Array.isArray(prev.layout_sections) && prev.layout_sections.length > 0
+                ? prev.layout_sections
+                : DEFAULT_BODY_SYSTEM_SECTIONS;
+            return {
+                ...prev,
+                layout_sections: sections.filter(s => s.id !== sectionId),
+            };
         });
     };
 
+    const updateCustomSection = (sectionId, field, value) => {
+        if (field !== 'title' && field !== 'content_html') return;
+        setFormData(prev => {
+            const sections = Array.isArray(prev.layout_sections) && prev.layout_sections.length > 0
+                ? prev.layout_sections
+                : DEFAULT_BODY_SYSTEM_SECTIONS;
+            return {
+                ...prev,
+                layout_sections: sections.map(s =>
+                    s.id === sectionId ? { ...s, [field]: value } : s
+                ),
+            };
+        });
+    };
+
+    const resetLayout = () => {
+        if (!window.confirm('Resetting will discard your custom section layout and any custom text boxes you added. Existing body-system content will not be deleted. Are you sure?')) return;
+        setFormData(prev => ({ ...prev, layout_sections: null }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (loadError && !isNew) {
-            toast.error('Cannot save because the body system failed to load properly.');
+        if (loading || loadedRecordId !== id || loadError) {
+            toast.error('This body-system form has not loaded successfully, so it cannot be saved.');
             return;
         }
 
         if (!formData.overview || formData.overview.trim() === '' || formData.overview === '<p></p>') {
             toast.error('Overview content is required.');
+            return;
+        }
+
+        const layoutValidationError = getLayoutSectionsValidationError(formData.layout_sections);
+        if (layoutValidationError) {
+            toast.error(layoutValidationError);
+            return;
+        }
+
+        const incompleteFaqIndex = (formData.faqs || []).findIndex(faq =>
+            String(faq?.question ?? '').trim() === '' || String(faq?.answer ?? '').trim() === ''
+        );
+        if (incompleteFaqIndex !== -1) {
+            toast.error(`FAQ ${incompleteFaqIndex + 1} must include both a question and an answer.`);
+            return;
+        }
+
+        const incompletePathwayIndex = (formData.pathways || []).findIndex(pathway =>
+            String(pathway?.from ?? '').trim() === '' ||
+            String(pathway?.to ?? '').trim() === '' ||
+            String(pathway?.mechanism ?? '').trim() === ''
+        );
+        if (incompletePathwayIndex !== -1) {
+            toast.error(`Signature pathway ${incompletePathwayIndex + 1} must include source, target, and biological mechanism.`);
+            return;
+        }
+
+        const incompleteChallengeIndex = (formData.challenges || []).findIndex(challenge =>
+            String(challenge?.title ?? '').trim() === '' || String(challenge?.description ?? '').trim() === ''
+        );
+        if (incompleteChallengeIndex !== -1) {
+            toast.error(`Challenge ${incompleteChallengeIndex + 1} must include both a title and a description.`);
+            return;
+        }
+
+        const incompleteSpecialistIndex = (formData.specialist_guide || []).findIndex(specialist =>
+            String(specialist?.name ?? '').trim() === ''
+        );
+        if (incompleteSpecialistIndex !== -1) {
+            toast.error(`Specialist tier ${incompleteSpecialistIndex + 1} must include a provider name.`);
             return;
         }
 
@@ -435,11 +490,11 @@ const BodySystemForm = () => {
             const payload = {
                 ...formData,
                 display_order: parseInt(formData.display_order, 10) || 0,
-                specialist_guide: (formData.specialist_guide || []).filter(s => (s.name ?? '').trim() !== ''),
-                faqs: (formData.faqs || []).filter(f => (f.question ?? '').trim() !== '' || (f.answer ?? '').trim() !== ''),
-                pathways: (formData.pathways || []).filter(p => (p.from ?? '').trim() !== '' && (p.to ?? '').trim() !== ''),
-                challenges: (formData.challenges || []).filter(c => (c.title ?? '').trim() !== ''),
-                service_descriptions: (formData.service_descriptions || []).filter(d => (d.text ?? '').trim() !== ''),
+                specialist_guide: formData.specialist_guide || [],
+                faqs: formData.faqs || [],
+                pathways: formData.pathways || [],
+                challenges: formData.challenges || [],
+                service_descriptions: formData.service_descriptions || [],
                 pathways_intro: (formData.pathways_intro || '').trim(),
                 challenges_title: (formData.challenges_title || '').trim(),
                 services_title: (formData.services_title || '').trim(),
@@ -468,7 +523,7 @@ const BodySystemForm = () => {
     // Exclude self from paired systems list
     const otherSystems = allSystems.filter(s => s.id !== id);
 
-    if (loading && id) {
+    if ((loading || loadedRecordId !== id) && !loadError) {
         return (
             <ProtectedRoute>
                 <AdminLayout>
@@ -479,19 +534,457 @@ const BodySystemForm = () => {
             </ProtectedRoute>
         );
     }
+    const renderSpecialist = () => (
+        <>
+                            {/* Specialist Guide */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <h2 className="text-xl font-semibold text-slate-900">Specialist Guide</h2>
+                                    <button
+                                        type="button"
+                                        onClick={addSpecialist}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Specialist Tier
+                                    </button>
+                                </div>
+
+                                {formData.specialist_guide.length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">No specialist tiers added. These help veterans decide which provider level to choose.</p>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {formData.specialist_guide.map((spec, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeSpecialist(index)}
+                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Provider Name *</label>
+                                                            <input
+                                                                type="text"
+                                                                value={spec.name || ''}
+                                                                onChange={(e) => updateSpecialist(index, 'name', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "Nurse Practitioner"'
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Role</label>
+                                                            <input
+                                                                type="text"
+                                                                value={spec.role || ''}
+                                                                onChange={(e) => updateSpecialist(index, 'role', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "Former C&P Examiner"'
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Price</label>
+                                                            <input
+                                                                type="text"
+                                                                value={spec.price || ''}
+                                                                onChange={(e) => updateSpecialist(index, 'price', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "From $400"'
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Note</label>
+                                                            <input
+                                                                type="text"
+                                                                value={spec.note || ''}
+                                                                onChange={(e) => updateSpecialist(index, 'note', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "+$250/additional"'
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Best For</label>
+                                                        <textarea
+                                                            value={spec.best_for || ''}
+                                                            onChange={(e) => updateSpecialist(index, 'best_for', e.target.value)}
+                                                            rows={2}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="When should a veteran choose this provider level..."
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+        </>
+    );
+
+    const renderPairedSystems = () => (
+        <>
+                            {/* Paired Systems */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Commonly Paired Systems</h2>
+                                <p className="text-xs text-slate-500">Select body systems that are commonly filed together with this one.</p>
+
+                                {otherSystems.length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">No other body systems exist yet. Create more systems first.</p>
+                                ) : (
+                                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                        {otherSystems.map(sys => (
+                                            <label key={sys.id} className="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={(formData.paired_systems || []).includes(sys.name)}
+                                                    onChange={() => togglePairedSystem(sys.name)}
+                                                    className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                                                />
+                                                <span className="text-sm font-medium text-slate-700">{sys.name}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Pair Note</label>
+                                    <textarea
+                                        name="pair_note"
+                                        value={formData.pair_note}
+                                        onChange={handleInputChange}
+                                        rows={2}
+                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                                        placeholder='e.g. "Veterans with neurological conditions often also have mental health claims"'
+                                    />
+                                </div>
+                            </div>
+
+        </>
+    );
+
+    const renderFaqs = () => (
+        <>
+                            {/* FAQs */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Frequently Asked Questions</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Add FAQs specific to this body system to improve SEO and user understanding.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addFaq}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add FAQ
+                                    </button>
+                                </div>
+
+                                {(!formData.faqs || formData.faqs.length === 0) ? (
+                                    <p className="text-sm text-slate-500 italic">No FAQs added yet. FAQs are highly recommended for GEO/AI citation.</p>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {formData.faqs.map((faq, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeFaq(index)}
+                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Question {index + 1} *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={faq.question || ''}
+                                                            onChange={(e) => updateFaq(index, 'question', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="e.g. What is the VA rating for Neurology conditions?"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Answer *</label>
+                                                        <textarea
+                                                            value={faq.answer || ''}
+                                                            onChange={(e) => updateFaq(index, 'answer', e.target.value)}
+                                                            rows={3}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="Enter answer..."
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+        </>
+    );
+
+    const renderPathways = () => (
+        <>
+                            {/* Signature Pathways */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Signature Pathways</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Causation relationships shown as flowcharts (e.g. PTSD → Migraine).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addPathway}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Pathway
+                                    </button>
+                                </div>
+
+                                {(!formData.pathways || formData.pathways.length === 0) ? (
+                                    <p className="text-sm text-slate-500 italic">No signature pathways added yet. Section will be hidden on public page if empty.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {formData.pathways.map((path, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePathway(index)}
+                                                    className="absolute top-3 right-3 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-6">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Source Node (From) *</label>
+                                                            <input
+                                                                type="text"
+                                                                value={path.from || ''}
+                                                                onChange={(e) => updatePathway(index, 'from', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "PTSD" or "TBI"'
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Target Node (To) *</label>
+                                                            <input
+                                                                type="text"
+                                                                value={path.to || ''}
+                                                                onChange={(e) => updatePathway(index, 'to', e.target.value)}
+                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                                placeholder='e.g. "Migraine Headaches"'
+                                                                required
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {path.url ? (
+                                                        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5 flex items-center justify-between text-xs">
+                                                            <span className="text-indigo-800 font-medium truncate">
+                                                                🔗 Linked to: <span className="font-mono">{path.url}</span>
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => updatePathway(index, 'url', '')}
+                                                                className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors"
+                                                                title="Remove Link"
+                                                            >
+                                                                Unlink
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Link to existing page (optional)</label>
+                                                            <InternalLinkSearchPicker
+                                                                onSelect={(selected) => {
+                                                                    updatePathway(index, 'url', selected.url);
+                                                                }}
+                                                                placeholder="Search for conditions, services, blogs, etc. to link this pathway..."
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Biological Mechanism *</label>
+                                                        <textarea
+                                                            value={path.mechanism || ''}
+                                                            onChange={(e) => updatePathway(index, 'mechanism', e.target.value)}
+                                                            rows={2}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="Explain the connection mechanism..."
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+        </>
+    );
+
+    const renderChallenges = () => (
+        <>
+                            {/* Complexity / Challenges */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">Why Claims Are Challenging</h2>
+                                        <p className="text-xs text-slate-500 mt-1">Cards highlighting why these specific claims are complex (typically 6 items).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addChallenge}
+                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4 mr-1" /> Add Challenge
+                                    </button>
+                                </div>
+
+                                {(!formData.challenges || formData.challenges.length === 0) ? (
+                                    <p className="text-sm text-slate-500 italic">No challenges added yet. Section will be hidden on public page if empty.</p>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {formData.challenges.map((chal, index) => (
+                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative border-l-4 border-l-indigo-500">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeChallenge(index)}
+                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="space-y-3 pr-8">
+                                                    <div className="pt-2">
+                                                        <IconPicker
+                                                            label="Challenge Card Icon"
+                                                            value={chal.icon}
+                                                            onChange={(val) => updateChallenge(index, 'icon', val)}
+                                                            helpText="Select an icon representing this challenge."
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Title *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={chal.title || ''}
+                                                            onChange={(e) => updateChallenge(index, 'title', e.target.value)}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder='e.g. "Multiple Possible Causes"'
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Description *</label>
+                                                        <textarea
+                                                            value={chal.description || ''}
+                                                            onChange={(e) => updateChallenge(index, 'description', e.target.value)}
+                                                            rows={2}
+                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                                                            placeholder="Explain why this is a challenge..."
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+        </>
+    );
+
+    const renderServices = () => (
+        <>
+                            {/* Service-Specific Descriptions */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Service Comparison Descriptions</h2>
+                                <p className="text-xs text-slate-500">Provide a description explaining what each service does specifically for this body system category.</p>
+
+                                {services.length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">No active services found.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {services.map(svc => {
+                                            const descObj = (formData.service_descriptions || []).find(d => d.service_slug === svc.slug) || { text: '' };
+                                            return (
+                                                <div key={svc.id} className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                                                    <label className="block text-sm font-semibold text-slate-800 mb-1">{svc.title}</label>
+                                                    <textarea
+                                                        value={descObj.text || ''}
+                                                        onChange={(e) => updateServiceDescription(svc.slug, e.target.value)}
+                                                        rows={3}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-white"
+                                                        placeholder={`Describe how ${svc.title} applies specifically to this body system (falls back to service description if empty)...`}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+        </>
+    );
+
+    const sectionEditors = {
+        signature_pathways: renderPathways,
+        challenges: renderChallenges,
+        services_comparison: renderServices,
+        specialist_guide: renderSpecialist,
+        paired_systems: renderPairedSystems,
+        faqs: renderFaqs,
+    };
+
+    if (loadError) {
+        return (
+            <ProtectedRoute>
+                <AdminLayout>
+                    <SEO title="Unable to Load Body System" noindex={true} />
+                    <div className="mx-auto max-w-2xl rounded-xl border border-red-200 bg-red-50 p-6">
+                        <h1 className="text-xl font-bold text-red-950">Body-system data could not be loaded</h1>
+                        <p className="mt-2 text-sm text-red-900">
+                            Saving is disabled to protect existing live content. Reload the page and try again.
+                        </p>
+                        <div className="mt-5 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => router.reload()}
+                                className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
+                            >
+                                Reload Page
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => router.push('/admin/body-systems')}
+                                className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-900 hover:bg-red-100"
+                            >
+                                Back to Body Systems
+                            </button>
+                        </div>
+                    </div>
+                </AdminLayout>
+            </ProtectedRoute>
+        );
+    }
 
     return (
         <ProtectedRoute>
             <AdminLayout>
                 <SEO title={isNew ? 'Create Body System' : 'Edit Body System'} noindex={true} />
-
-                {loadError && !isNew && (
-                    <div className="max-w-5xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 p-4">
-                        <p className="text-sm text-red-700">
-                            Error loading body system data. Please do not submit this form as it may overwrite existing data.
-                        </p>
-                    </div>
-                )}
 
                 <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 pb-20">
                     <div className="flex items-center justify-between">
@@ -505,13 +998,35 @@ const BodySystemForm = () => {
                         </div>
                         <button
                             type="submit"
-                            disabled={saving || (loadError && !isNew)}
+                            disabled={saving || loading || loadedRecordId !== id || loadError}
                             className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2 disabled:opacity-50 transition-colors"
                         >
                             <Save className="w-5 h-5" />
                             <span>{saving ? 'Saving...' : 'Save System'}</span>
                         </button>
                     </div>
+
+                    <LayoutSectionsManager
+                        sections={formData.layout_sections == null
+                            || (Array.isArray(formData.layout_sections) && formData.layout_sections.length === 0)
+                            ? DEFAULT_BODY_SYSTEM_SECTIONS
+                            : formData.layout_sections}
+                        onSectionsChange={handleSectionsChange}
+                        sectionEditors={sectionEditors}
+                        contentIndicators={{
+                            overview: !!formData.overview,
+                            signature_pathways: formData.pathways && formData.pathways.length > 0,
+                            challenges: formData.challenges && formData.challenges.length > 0,
+                            services_comparison: formData.service_descriptions?.some(d => String(d?.text ?? '').trim() !== ''),
+                            specialist_guide: formData.specialist_guide && formData.specialist_guide.length > 0,
+                            paired_systems: formData.paired_systems && formData.paired_systems.length > 0,
+                            faqs: formData.faqs && formData.faqs.length > 0,
+                        }}
+                        onAddCustomSection={addCustomSection}
+                        onRemoveCustomSection={removeCustomSection}
+                        onUpdateCustomSection={updateCustomSection}
+                        onResetSections={formData.layout_sections != null ? resetLayout : undefined}
+                    />
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content */}
@@ -685,130 +1200,6 @@ const BodySystemForm = () => {
                                 </div>
                             </div>
 
-                            {/* Specialist Guide */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <h2 className="text-xl font-semibold text-slate-900">Specialist Guide</h2>
-                                    <button
-                                        type="button"
-                                        onClick={addSpecialist}
-                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
-                                    >
-                                        <Plus className="w-4 h-4 mr-1" /> Add Specialist Tier
-                                    </button>
-                                </div>
-
-                                {formData.specialist_guide.length === 0 ? (
-                                    <p className="text-sm text-slate-500 italic">No specialist tiers added. These help veterans decide which provider level to choose.</p>
-                                ) : (
-                                    <div className="space-y-6">
-                                        {formData.specialist_guide.map((spec, index) => (
-                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeSpecialist(index)}
-                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <div className="space-y-3 pr-8">
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Provider Name *</label>
-                                                            <input
-                                                                type="text"
-                                                                value={spec.name || ''}
-                                                                onChange={(e) => updateSpecialist(index, 'name', e.target.value)}
-                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "Nurse Practitioner"'
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Role</label>
-                                                            <input
-                                                                type="text"
-                                                                value={spec.role || ''}
-                                                                onChange={(e) => updateSpecialist(index, 'role', e.target.value)}
-                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "Former C&P Examiner"'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Price</label>
-                                                            <input
-                                                                type="text"
-                                                                value={spec.price || ''}
-                                                                onChange={(e) => updateSpecialist(index, 'price', e.target.value)}
-                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "From $400"'
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Note</label>
-                                                            <input
-                                                                type="text"
-                                                                value={spec.note || ''}
-                                                                onChange={(e) => updateSpecialist(index, 'note', e.target.value)}
-                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "+$250/additional"'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Best For</label>
-                                                        <textarea
-                                                            value={spec.best_for || ''}
-                                                            onChange={(e) => updateSpecialist(index, 'best_for', e.target.value)}
-                                                            rows={2}
-                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                            placeholder="When should a veteran choose this provider level..."
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Paired Systems */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Commonly Paired Systems</h2>
-                                <p className="text-xs text-slate-500">Select body systems that are commonly filed together with this one.</p>
-
-                                {otherSystems.length === 0 ? (
-                                    <p className="text-sm text-slate-500 italic">No other body systems exist yet. Create more systems first.</p>
-                                ) : (
-                                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                                        {otherSystems.map(sys => (
-                                            <label key={sys.id} className="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={(formData.paired_systems || []).includes(sys.name)}
-                                                    onChange={() => togglePairedSystem(sys.name)}
-                                                    className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-                                                />
-                                                <span className="text-sm font-medium text-slate-700">{sys.name}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Pair Note</label>
-                                    <textarea
-                                        name="pair_note"
-                                        value={formData.pair_note}
-                                        onChange={handleInputChange}
-                                        rows={2}
-                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-                                        placeholder='e.g. "Veterans with neurological conditions often also have mental health claims"'
-                                    />
-                                </div>
-                            </div>
-
                             {/* Stat Cards */}
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -934,457 +1325,6 @@ const BodySystemForm = () => {
                                 )}
                             </div>
 
-                            {/* Page Layout & Sections Manager */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                                            <Settings className="w-5 h-5 text-indigo-600" />
-                                            Page Layout &amp; Sections
-                                        </h2>
-                                        <p className="text-xs text-slate-500 mt-1">
-                                            Control the layout order of sections and insert custom rich text blocks anywhere.
-                                        </p>
-                                    </div>
-                                    {formData.layout_sections ? (
-                                        <button
-                                            type="button"
-                                            onClick={disableCustomLayout}
-                                            className="text-xs text-red-600 hover:text-red-700 font-semibold border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors"
-                                        >
-                                            Reset to Default Layout
-                                        </button>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={enableCustomLayout}
-                                            className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded transition-colors"
-                                        >
-                                            Customize Layout Order
-                                        </button>
-                                    )}
-                                </div>
-
-                                {!formData.layout_sections ? (
-                                    <div className="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-6 text-center">
-                                        <p className="text-sm text-slate-600 mb-2">
-                                            This page is using the <strong>Default Layout</strong>. Sections are displayed in the standard order:
-                                        </p>
-                                        <div className="flex flex-wrap gap-2 justify-center text-xs text-slate-500 max-w-lg mx-auto">
-                                            {['Overview', 'Conditions Directory', 'Signature Pathways', 'Challenges', 'Services Comparison', 'Specialist Guide', 'Paired Systems', 'FAQs', 'Related Body Systems'].map((lbl, idx) => (
-                                                <span key={idx} className="bg-slate-200 text-slate-700 px-2 py-1 rounded">
-                                                    {lbl}
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={enableCustomLayout}
-                                            className="mt-4 inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors"
-                                        >
-                                            <Plus className="w-3.5 h-3.5" /> Customize Layout &amp; Add Custom Boxes
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center bg-indigo-50/50 border border-indigo-105 rounded-lg p-3 text-xs text-indigo-900">
-                                            <span>💡 Rearrange any section below. Visibility changes affect the public page immediately.</span>
-                                            <button
-                                                type="button"
-                                                onClick={addCustomSection}
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
-                                            >
-                                                <Plus className="w-3 h-3" /> Add Text Box
-                                            </button>
-                                        </div>
-
-                                        <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
-                                            {formData.layout_sections.map((sec, idx) => {
-                                                const isEditing = editingSectionId === sec.id;
-                                                return (
-                                                    <div key={sec.id} className={`p-4 transition-colors ${isEditing ? 'bg-slate-50' : 'bg-white'}`}>
-                                                        <div className="flex items-center justify-between gap-4">
-                                                            {/* Drag handle / Order indicator */}
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-xs font-mono text-slate-400 w-5 text-right">{idx + 1}.</span>
-                                                                <div>
-                                                                    <div className="font-semibold text-slate-800 text-sm flex items-center gap-2">
-                                                                        {sec.type === 'custom_rich_text' ? (
-                                                                            <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Custom Box</span>
-                                                                        ) : (
-                                                                            <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded">Standard</span>
-                                                                        )}
-                                                                        {sec.name}
-                                                                    </div>
-                                                                    {sec.type === 'custom_rich_text' && sec.title && (
-                                                                        <div className="text-xs text-slate-500 mt-0.5">Heading: {sec.title}</div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Controls */}
-                                                            <div className="flex items-center gap-1.5">
-                                                                {/* Move Buttons */}
-                                                                <button
-                                                                    type="button"
-                                                                    disabled={idx === 0}
-                                                                    onClick={() => moveSection(idx, 'up')}
-                                                                    className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 rounded transition-colors"
-                                                                    title="Move Up"
-                                                                >
-                                                                    <ArrowUp className="w-4 h-4" />
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    disabled={idx === formData.layout_sections.length - 1}
-                                                                    onClick={() => moveSection(idx, 'down')}
-                                                                    className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 rounded transition-colors"
-                                                                    title="Move Down"
-                                                                >
-                                                                    <ArrowDown className="w-4 h-4" />
-                                                                </button>
-
-                                                                {/* Visibility Toggle */}
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => toggleSectionVisibility(idx)}
-                                                                    className={`p-1 rounded transition-colors ${sec.is_visible ? 'text-indigo-600 hover:bg-indigo-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                                                                    title={sec.is_visible ? 'Visible' : 'Hidden'}
-                                                                >
-                                                                    {sec.is_visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                                                </button>
-
-                                                                {/* Custom Box Only Actions */}
-                                                                {sec.type === 'custom_rich_text' && (
-                                                                    <>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => setEditingSectionId(isEditing ? null : sec.id)}
-                                                                            className={`p-1.5 rounded transition-colors ${isEditing ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}
-                                                                            title="Edit Content"
-                                                                        >
-                                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                                        </button>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => removeCustomSection(sec.id)}
-                                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                                            title="Delete Box"
-                                                                        >
-                                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                                        </button>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Custom Box Editor Panel (Only render when editing) */}
-                                                        {sec.type === 'custom_rich_text' && isEditing && (
-                                                            <div className="mt-4 pt-4 border-t border-slate-200/60 space-y-3 bg-white p-4 rounded-lg border border-slate-200/80 shadow-inner">
-                                                                <div className="flex justify-between items-center">
-                                                                    <span className="text-xs font-semibold text-slate-700">Edit Custom Text Box</span>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => setEditingSectionId(null)}
-                                                                        className="p-1 text-slate-400 hover:text-slate-600 rounded transition-colors"
-                                                                    >
-                                                                        <X className="w-4 h-4" />
-                                                                    </button>
-                                                                </div>
-
-                                                                <div>
-                                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Section Title / Heading (Optional)</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={sec.title || ''}
-                                                                        onChange={(e) => {
-                                                                            updateCustomSection(sec.id, 'title', e.target.value);
-                                                                            updateCustomSection(sec.id, 'name', e.target.value ? `Custom: ${e.target.value}` : 'Custom Text Box');
-                                                                        }}
-                                                                        className="w-full p-2 border border-slate-350 rounded-lg text-sm outline-none font-normal"
-                                                                        placeholder="e.g. Recommended Next Steps"
-                                                                    />
-                                                                </div>
-
-                                                                <div>
-                                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Rich Text Body</label>
-                                                                    <RichTextEditor
-                                                                        value={sec.content_html || ''}
-                                                                        onChange={(html) => updateCustomSection(sec.id, 'content_html', html)}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-
-                                        <div className="flex justify-center pt-2">
-                                            <button
-                                                type="button"
-                                                onClick={addCustomSection}
-                                                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 border-dashed rounded-lg py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                                            >
-                                                <Plus className="w-4 h-4" /> Add Custom Text Box
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* FAQs */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-slate-900">Frequently Asked Questions</h2>
-                                        <p className="text-xs text-slate-500 mt-1">Add FAQs specific to this body system to improve SEO and user understanding.</p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={addFaq}
-                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
-                                    >
-                                        <Plus className="w-4 h-4 mr-1" /> Add FAQ
-                                    </button>
-                                </div>
-
-                                {(!formData.faqs || formData.faqs.length === 0) ? (
-                                    <p className="text-sm text-slate-500 italic">No FAQs added yet. FAQs are highly recommended for GEO/AI citation.</p>
-                                ) : (
-                                    <div className="space-y-6">
-                                        {formData.faqs.map((faq, index) => (
-                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeFaq(index)}
-                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <div className="space-y-3 pr-8">
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Question {index + 1} *</label>
-                                                        <input
-                                                            type="text"
-                                                            value={faq.question || ''}
-                                                            onChange={(e) => updateFaq(index, 'question', e.target.value)}
-                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                            placeholder="e.g. What is the VA rating for Neurology conditions?"
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Answer *</label>
-                                                        <textarea
-                                                            value={faq.answer || ''}
-                                                            onChange={(e) => updateFaq(index, 'answer', e.target.value)}
-                                                            rows={3}
-                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                            placeholder="Enter answer..."
-                                                            required
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Signature Pathways */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-slate-900">Signature Pathways</h2>
-                                        <p className="text-xs text-slate-500 mt-1">Causation relationships shown as flowcharts (e.g. PTSD → Migraine).</p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={addPathway}
-                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
-                                    >
-                                        <Plus className="w-4 h-4 mr-1" /> Add Pathway
-                                    </button>
-                                </div>
-
-                                {(!formData.pathways || formData.pathways.length === 0) ? (
-                                    <p className="text-sm text-slate-500 italic">No signature pathways added yet. Section will be hidden on public page if empty.</p>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {formData.pathways.map((path, index) => (
-                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removePathway(index)}
-                                                    className="absolute top-3 right-3 text-slate-400 hover:text-red-600 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <div className="space-y-3 pr-6">
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Source Node (From) *</label>
-                                                            <input
-                                                                type="text"
-                                                                value={path.from || ''}
-                                                                onChange={(e) => updatePathway(index, 'from', e.target.value)}
-                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "PTSD" or "TBI"'
-                                                                required
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Target Node (To) *</label>
-                                                            <input
-                                                                type="text"
-                                                                value={path.to || ''}
-                                                                onChange={(e) => updatePathway(index, 'to', e.target.value)}
-                                                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "Migraine Headaches"'
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {path.url ? (
-                                                        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5 flex items-center justify-between text-xs">
-                                                            <span className="text-indigo-800 font-medium truncate">
-                                                                🔗 Linked to: <span className="font-mono">{path.url}</span>
-                                                            </span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => updatePathway(index, 'url', '')}
-                                                                className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors"
-                                                                title="Remove Link"
-                                                            >
-                                                                Unlink
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div>
-                                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Link to existing page (optional)</label>
-                                                            <InternalLinkSearchPicker
-                                                                onSelect={(selected) => {
-                                                                    updatePathway(index, 'url', selected.url);
-                                                                }}
-                                                                placeholder="Search for conditions, services, blogs, etc. to link this pathway..."
-                                                            />
-                                                        </div>
-                                                    )}
-
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Biological Mechanism *</label>
-                                                        <textarea
-                                                            value={path.mechanism || ''}
-                                                            onChange={(e) => updatePathway(index, 'mechanism', e.target.value)}
-                                                            rows={2}
-                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                            placeholder="Explain the connection mechanism..."
-                                                            required
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Complexity / Challenges */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-slate-900">Why Claims Are Challenging</h2>
-                                        <p className="text-xs text-slate-500 mt-1">Cards highlighting why these specific claims are complex (typically 6 items).</p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={addChallenge}
-                                        className="text-indigo-600 hover:text-indigo-700 flex items-center text-sm font-medium"
-                                    >
-                                        <Plus className="w-4 h-4 mr-1" /> Add Challenge
-                                    </button>
-                                </div>
-
-                                {(!formData.challenges || formData.challenges.length === 0) ? (
-                                    <p className="text-sm text-slate-500 italic">No challenges added yet. Section will be hidden on public page if empty.</p>
-                                ) : (
-                                    <div className="space-y-6">
-                                        {formData.challenges.map((chal, index) => (
-                                            <div key={index} className="p-4 bg-slate-50 border border-slate-200 rounded-lg relative border-l-4 border-l-indigo-500">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeChallenge(index)}
-                                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <div className="space-y-3 pr-8">
-                                                    <div className="pt-2">
-                                                        <IconPicker
-                                                            label="Challenge Card Icon"
-                                                            value={chal.icon}
-                                                            onChange={(val) => updateChallenge(index, 'icon', val)}
-                                                            helpText="Select an icon representing this challenge."
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Title *</label>
-                                                        <input
-                                                            type="text"
-                                                            value={chal.title || ''}
-                                                            onChange={(e) => updateChallenge(index, 'title', e.target.value)}
-                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                            placeholder='e.g. "Multiple Possible Causes"'
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Description *</label>
-                                                        <textarea
-                                                            value={chal.description || ''}
-                                                            onChange={(e) => updateChallenge(index, 'description', e.target.value)}
-                                                            rows={2}
-                                                            className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                            placeholder="Explain why this is a challenge..."
-                                                            required
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Service-Specific Descriptions */}
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <h2 className="text-xl font-semibold text-slate-900 border-b border-slate-100 pb-3">Service Comparison Descriptions</h2>
-                                <p className="text-xs text-slate-500">Provide a description explaining what each service does specifically for this body system category.</p>
-
-                                {services.length === 0 ? (
-                                    <p className="text-sm text-slate-500 italic">No active services found.</p>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {services.map(svc => {
-                                            const descObj = (formData.service_descriptions || []).find(d => d.service_slug === svc.slug) || { text: '' };
-                                            return (
-                                                <div key={svc.id} className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
-                                                    <label className="block text-sm font-semibold text-slate-800 mb-1">{svc.title}</label>
-                                                    <textarea
-                                                        value={descObj.text || ''}
-                                                        onChange={(e) => updateServiceDescription(svc.slug, e.target.value)}
-                                                        rows={3}
-                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-white"
-                                                        placeholder={`Describe how ${svc.title} applies specifically to this body system (falls back to service description if empty)...`}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
                         </div>
 
                         {/* Sidebar */}
@@ -1428,5 +1368,6 @@ const BodySystemForm = () => {
         </ProtectedRoute>
     );
 };
+
 
 export default BodySystemForm;
