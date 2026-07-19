@@ -3,7 +3,7 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
         return options.extractToc ? { html: '', tocItems: [], hasToc: false } : '';
     }
 
-    const customBlocks = ['stat-strip', 'faq-section', 'highlight-box', 'hook-block', 'denial-grid', 'definition-block', 'author-block', 'toc-block', 'alert-box', 'lead-magnet-block', 'custom-box'];
+    const customBlocks = ['stat-strip', 'faq-section', 'highlight-box', 'hook-block', 'denial-grid', 'denial-card', 'definition-block', 'author-block', 'toc-block', 'alert-box', 'lead-magnet-block', 'custom-box', 'rating-box'];
 
     // 1. Parse Headings & Inject IDs
     let headings = [];

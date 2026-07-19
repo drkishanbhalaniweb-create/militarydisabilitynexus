@@ -415,11 +415,85 @@
       margin-bottom: 0 !important;
     }
 
+    /* ── RATING BOX ── */
+    .rating-box {
+      border: 1px solid var(--blog-border);
+      background: var(--blog-warm-white);
+      padding: 28px;
+      margin: 32px 0;
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 24px;
+      row-gap: 12px;
+      align-items: start;
+      box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 2px 4px -1px rgba(0, 0, 0, 0.025);
+    }
+    .rating-box > *:not(.rating-badge) {
+      grid-column: 2;
+    }
+    .rating-badge {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--blog-navy);
+      color: #fff;
+      border-radius: 8px;
+      width: 96px;
+      height: 56px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+    .rating-badge p {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1.1 !important;
+      background: transparent !important;
+      color: #fff !important;
+    }
+    .rating-value {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .rating-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-top: 1px;
+      text-transform: uppercase;
+    }
+    .rating-content {
+      width: 100%;
+    }
+    .rating-content p {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.65;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    .rating-content p:last-child {
+      margin-bottom: 0;
+    }
+
 @media (max-width: 620px) {
     .denial-grid { grid-template-columns: 1fr; }
     .writer-grid { grid-template-columns: 1fr; }
     .hook-block { padding: 28px 22px; }
     .highlight-box { padding: 28px 22px; }
+    .rating-box { padding: 20px; column-gap: 16px; row-gap: 8px; }
     .stat-strip { grid-template-columns: repeat(2, 1fr); }
     .author-block { flex-direction: column; text-align: center; }
 }

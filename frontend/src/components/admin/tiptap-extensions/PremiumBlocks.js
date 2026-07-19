@@ -50,7 +50,7 @@ export const GlobalWrapperDiv = Node.create({
             'highlight-box', 'hook-block', 
             'denial-grid', 'denial-card', 'denial-header', 'denial-body', 
             'definition-block', 'definition-content', 'toc-block', 'alert-box',
-            'lead-magnet-block', 'custom-box'
+            'lead-magnet-block', 'custom-box', 'rating-box', 'rating-badge', 'rating-content'
           ];
           
           if (allowedWrappers.some(c => cls.includes(c))) {
@@ -117,7 +117,8 @@ export const GlobalInlineSpan = Node.create({
             'stat-num', 'stat-lbl', 
             'section-label', 
             'card-num', 
-            'def-label'
+            'def-label',
+            'rating-value', 'rating-label'
           ];
           
           if (allowedSpans.some(c => cls.includes(c))) {

@@ -23,6 +23,15 @@ describe('blog HTML formatting', () => {
     expect(formatted).toContain('prose prose-slate');
   });
 
+  test('preserves rating-box outside generated prose wrappers', () => {
+    const formatted = formatBlogHTML(
+      '<p>Intro</p><div class="rating-box"><div class="rating-badge"><span class="rating-value">10</span><span class="rating-label">PERCENT</span></div><div class="rating-content"><p>Criteria</p></div></div><p>Outro</p>',
+    );
+
+    expect(formatted).toContain('<div class="rating-box"><div class="rating-badge"><span class="rating-value">10</span><span class="rating-label">PERCENT</span></div><div class="rating-content"><p>Criteria</p></div></div>');
+    expect(formatted).toContain('prose prose-slate');
+  });
+
   test('returns empty values for missing html', () => {
     expect(formatBlogHTML('')).toBe('');
     expect(formatBlogHTML('', { extractToc: true })).toEqual({

@@ -12,7 +12,7 @@ import TableCell from '@tiptap/extension-table-cell';
 import CustomTableHeader from './tiptap-extensions/CustomTableHeader';
 import TableBubbleMenu from './tiptap-extensions/TableBubbleMenu';
 import { FontSize, DropCap } from './tiptap-extensions/AdvancedTypography';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify, Table as TableIcon, FileUp, Upload, X } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, LayoutGrid, AlertCircle, Info, MessageSquare, ImageIcon, Loader2, Baseline, PaintBucket, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify, Table as TableIcon, FileUp, Upload, X, Percent } from 'lucide-react';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { uploadBlogImage, validateImage } from '../../lib/imageUpload';
 import { uploadLeadMagnetPdf, validatePdf } from '../../lib/pdfUpload';
@@ -31,7 +31,8 @@ const TEMPLATES = {
     CHECKLIST: `<ul class="checklist"><li>I have a current, formal diagnosis.</li><li>I can clearly identify my in-service stressor.</li></ul><p></p>`,
     TOC_BLOCK: `<div class="toc-block"><p class="text-slate-500 text-sm font-semibold italic text-center">Table of contents will automatically generate here when viewed.</p></div><p></p>`,
     ALERT_BOX: `<div class="alert-box"><p><strong>⚠️ Warning or Pattern Title</strong></p><p>Describe the specific issue, pattern, or warning here in a couple of sentences.</p></div><p></p>`,
-    CUSTOM_BOX: `<div class="custom-box"><h3>Heading</h3><p>Body</p></div><p></p>`
+    CUSTOM_BOX: `<div class="custom-box"><h3>Heading</h3><p>Body</p></div><p></p>`,
+    RATING_BOX: `<div class="rating-box"><div class="rating-badge"><span class="rating-value">10</span><span class="rating-label">PERCENT</span></div><div class="rating-content"><p>FEV-1 of 71 to 80 percent predicted, or FEV-1/FVC of 71 to 80 percent, or intermittent inhalational or oral bronchodilator therapy.</p><p>The veteran who reaches for an albuterol rescue inhaler now and then, or whose breathing tests show mild reduction. Either one, documented, supports a compensable rating.</p></div></div><p></p>`
 };
 
 const FONTS = [
@@ -420,6 +421,9 @@ const MenuBar = ({ editor }) => {
                 </button>
                 <button type="button" onClick={() => insertBlock(TEMPLATES.CUSTOM_BOX)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1">
                     <LayoutGrid className="w-3 h-3" /> Custom Box
+                </button>
+                <button type="button" onClick={() => insertBlock(TEMPLATES.RATING_BOX)} className="px-2 py-1 text-xs bg-red-50 text-[#B91C3C] border border-red-200 rounded hover:bg-red-100 flex items-center gap-1" title="Disability Rating Box">
+                    <Percent className="w-3 h-3" /> Rating Box
                 </button>
             </div>
         </div>
@@ -817,6 +821,87 @@ const RichTextEditor = ({ value, onChange }) => {
                     background-color: #dbeafe;
                     outline: 2px solid #3b82f6;
                     outline-offset: -2px;
+                }
+
+                /* Rating Box Styling in Editor */
+                .tiptap-wrapper .ProseMirror .rating-box {
+                    margin: 1.5rem 0;
+                    padding: 1.75rem;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 0.75rem;
+                    background: #ffffff;
+                    display: grid !important;
+                    grid-template-columns: auto 1fr !important;
+                    column-gap: 1.25rem !important;
+                    row-gap: 0.75rem !important;
+                    align-items: start !important;
+                    box-shadow: 
+                      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                      0 2px 4px -1px rgba(0, 0, 0, 0.025);
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-box > *:not(.rating-badge) {
+                    grid-column: 2 !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-badge {
+                    grid-column: 1 !important;
+                    grid-row: 1 / span 2 !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    background: #1e3a5f !important;
+                    color: #ffffff !important;
+                    border-radius: 0.5rem;
+                    width: 96px !important;
+                    height: 56px !important;
+                    text-align: center !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-badge p {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    line-height: 1.1 !important;
+                    background: transparent !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-value {
+                    font-family: 'Inter', sans-serif !important;
+                    font-size: 1.5rem !important;
+                    font-weight: 800 !important;
+                    line-height: 1 !important;
+                    display: block !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-label {
+                    font-family: 'DM Mono', monospace !important;
+                    font-size: 8px !important;
+                    font-weight: 700 !important;
+                    letter-spacing: 0.1em !important;
+                    margin-top: 1px !important;
+                    text-transform: uppercase !important;
+                    display: block !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-content {
+                    width: 100% !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-content p {
+                    font-size: 0.95rem !important;
+                    color: #334155 !important;
+                    line-height: 1.65 !important;
+                    margin-top: 0 !important;
+                    margin-bottom: 12px !important;
+                }
+
+                .tiptap-wrapper .ProseMirror .rating-content p:last-child {
+                    margin-bottom: 0 !important;
                 }
 
                 .tiptap-wrapper .ProseMirror .tiptap-table p {
