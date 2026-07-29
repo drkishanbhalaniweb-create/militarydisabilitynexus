@@ -78,40 +78,41 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
 
     // Helper functions to clean and deduplicate titles (prevents double-appending "Nexus Letter" or "DBQ" to the title/subheadings)
-    const getCleanConditionTitle = (heroHeading, svcTitle) => {
+    const getCleanConditionTitle = (heroHeading, serviceObj) => {
         const heading = heroHeading || '';
-        const svc = svcTitle || '';
+        const svcSlug = typeof serviceObj === 'object' ? serviceObj?.slug : '';
+        const svcTitle = typeof serviceObj === 'object' ? serviceObj?.title || '' : serviceObj || '';
         
-        if (heading.toLowerCase().includes(svc.toLowerCase())) {
+        if (svcTitle && heading.toLowerCase().includes(svcTitle.toLowerCase())) {
             return heading;
         }
         
-        if (svc.toLowerCase().includes('nexus') || svc.toLowerCase().includes('opinion')) {
+        if (svcSlug === 'independent-medical-opinion-nexus-letter' || (svcTitle.toLowerCase().includes('nexus') && !svcSlug)) {
             if (heading.toLowerCase().includes('nexus') || heading.toLowerCase().includes('imo')) {
                 return heading;
             }
             return `${heading} Nexus Letter`;
         }
         
-        if (svc.toLowerCase().includes('dbq') || svc.toLowerCase().includes('questionnaire')) {
+        if (svcSlug === 'disability-benefits-questionnaire-dbq' || (svcTitle.toLowerCase().includes('dbq') && !svcSlug)) {
             if (heading.toLowerCase().includes('dbq') || heading.toLowerCase().includes('questionnaire')) {
                 return heading;
             }
             return `${heading} DBQ`;
         }
         
-        return `${heading} ${svc}`;
+        return heading;
     };
 
-    const getCleanConditionTitlePlural = (heroHeading, svcTitle) => {
-        const clean = getCleanConditionTitle(heroHeading, svcTitle);
+    const getCleanConditionTitlePlural = (heroHeading, serviceObj) => {
+        const clean = getCleanConditionTitle(heroHeading, serviceObj);
         if (clean.toLowerCase().endsWith('letter')) return `${clean}s`;
         if (clean.toLowerCase().endsWith('dbq')) return `${clean}s`;
         return clean;
     };
 
-    const cleanConditionTitle = getCleanConditionTitle(condition.hero_heading, service.title);
-    const cleanConditionTitlePlural = getCleanConditionTitlePlural(condition.hero_heading, service.title);
+    const cleanConditionTitle = getCleanConditionTitle(condition.hero_heading, service);
+    const cleanConditionTitlePlural = getCleanConditionTitlePlural(condition.hero_heading, service);
 
     const layoutSections = getRenderableLayoutSections(
         condition.layout_sections,

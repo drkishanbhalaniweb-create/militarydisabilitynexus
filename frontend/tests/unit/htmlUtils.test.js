@@ -66,6 +66,30 @@ describe('rich HTML formatting', () => {
     expect(result).toContain('<p>Outro text</p>');
   });
 
+  test('handles odd number of custom-boxes maintaining col-span-1 cells', () => {
+    const input = `
+      <div class="custom-box">Box 1</div>
+      <div class="custom-box">Box 2</div>
+      <div class="custom-box">Box 3</div>
+    `;
+    const result = formatRichHTML(input);
+    expect(result).toContain('<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">');
+    expect(result).toContain('<div class="col-span-1"><div class="custom-box">Box 1</div></div>');
+    expect(result).toContain('<div class="col-span-1"><div class="custom-box">Box 2</div></div>');
+    expect(result).toContain('<div class="col-span-1"><div class="custom-box">Box 3</div></div>');
+  });
+
+  test('handles custom-boxes with extra attributes and nested tags', () => {
+    const input = `
+      <p><div class="custom-box" style="margin:0;"><h3>Heading</h3><div>Inner content</div></div></p>
+      <div class="custom-box extra-class" data-id="123"><p>Box 2</p></div>
+    `;
+    const result = formatRichHTML(input);
+    expect(result).toContain('<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">');
+    expect(result).toContain('<h3>Heading</h3><div>Inner content</div>');
+    expect(result).toContain('data-id="123"');
+  });
+
   test('handles missing or empty HTML', () => {
     expect(formatRichHTML('')).toBe('');
     expect(formatRichHTML(null)).toBe('');

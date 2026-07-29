@@ -186,12 +186,12 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                         const sectionTitle = typeof section.title === 'string' ? section.title : '';
                                         const sectionContent = typeof section.content_html === 'string' ? section.content_html : '';
                                         return (
-                                            <section key={section.id} id={section.id} className="bg-white rounded-2xl p-8 custom-rich-text-section mb-8">
+                                            <section key={section.id} id={section.id} className="scroll-mt-20 bg-white rounded-2xl p-8 shadow-sm border border-slate-200 custom-rich-text-section mb-8">
                                                 {sectionTitle && (
                                                     <h3 className="text-2xl font-bold text-slate-900 mb-4">{sectionTitle}</h3>
                                                 )}
                                                 <div 
-                                                    className="text-slate-700 leading-relaxed prose prose-slate max-w-none"
+                                                    className="text-slate-700 leading-relaxed prose prose-slate max-w-none [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
                                                     dangerouslySetInnerHTML={{ __html: formatRichHTML(sectionContent) }}
                                                 />
                                             </section>
@@ -330,7 +330,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                                             {system.name}
                                                                         </h3>
                                                                         <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full mt-1 inline-block">
-                                                                            {system.conditionCount} {service.title.includes('Nexus') ? 'Nexus Letters' : service.title.includes('DBQ') ? 'DBQs' : 'Conditions'}
+                                                                            {system.conditionCount} {system.conditionCount === 1 ? 'Condition' : 'Conditions'}
                                                                         </span>
                                                                     </div>
                                                                 </div>

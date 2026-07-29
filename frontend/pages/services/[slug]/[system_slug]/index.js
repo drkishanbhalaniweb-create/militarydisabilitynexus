@@ -83,7 +83,21 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
     const specialistGuide = system.specialist_guide || [];
     const pairedSystems = system.paired_systems || [];
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
-    const shortServiceTitle = service.title.includes('Nexus') ? 'Nexus Letter' : service.title.includes('DBQ') ? 'DBQ' : service.title;
+    const getShortServiceTitle = (svc) => {
+        if (!svc) return '';
+        if (svc.slug === 'independent-medical-opinion-nexus-letter') return 'Nexus Letter';
+        if (svc.slug === 'disability-benefits-questionnaire-dbq') return 'DBQ';
+        if (svc.slug === 'aid-and-attendance') return 'Aid & Attendance';
+        if (svc.slug === 'claim-readiness-review') return 'Claim Readiness Review';
+        if (svc.short_title) return svc.short_title;
+        if (svc.title?.includes('Nexus')) return 'Nexus Letter';
+        if (svc.title?.includes('DBQ')) return 'DBQ';
+        return svc.title || '';
+    };
+    const shortServiceTitle = getShortServiceTitle(service);
+    const systemServiceHeader = system.name && shortServiceTitle && system.name.toLowerCase().includes(shortServiceTitle.toLowerCase())
+        ? system.name
+        : `${system.name || ''} ${shortServiceTitle || ''}`.trim();
     const basePriceText = system.cta_price || (system.is_mental_health ? '$1,600+' : '$400+');
     const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
     const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
@@ -305,14 +319,14 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
 
                                     if (section.type === 'custom_rich_text') {
                                         return (
-                                            <section key={section.id} id={section.id} className="scroll-mt-20 custom-rich-text-section mb-8">
+                                            <section key={section.id} id={section.id} className="scroll-mt-20 bg-white rounded-2xl p-8 shadow-sm border border-slate-200 custom-rich-text-section mb-8">
                                                 {section.title && (
                                                     <h2 className="text-2xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                                         {section.title}
                                                     </h2>
                                                 )}
                                                 <div 
-                                                    className="prose prose-slate max-w-none text-slate-600 leading-relaxed"
+                                                    className="prose prose-slate max-w-none text-slate-700 leading-relaxed [&>p]:mb-4 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-900 [&>h3]:mt-6 [&>h3]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-4"
                                                     dangerouslySetInnerHTML={{ __html: formatRichHTML(section.content_html || '') }}
                                                 />
                                             </section>
@@ -328,7 +342,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                                     {hasHtml ? (
                                                         <div 
                                                             className="prose prose-slate max-w-none text-slate-600 leading-relaxed mb-6"
-                                                            dangerouslySetInnerHTML={{ __html: system.overview }}
+                                                            dangerouslySetInnerHTML={{ __html: formatRichHTML(system.overview) }}
                                                         />
                                                     ) : (
                                                         <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed mb-6">
@@ -734,7 +748,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                 {service.slug === 'independent-medical-opinion-nexus-letter' ? (
                                     <div className="bg-slate-900 rounded-2xl p-7 shadow-xl text-white">
                                         <div className="mb-5">
-                                            <div className="text-xs text-white/50 font-medium mb-0.5">{system.name} {shortServiceTitle}</div>
+                                            <div className="text-xs text-white/50 font-medium mb-0.5">{systemServiceHeader}</div>
                                             <div className="text-xs text-white/50">Starting at</div>
                                             <div className="text-4xl font-bold my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                                 {basePriceValue}
@@ -786,7 +800,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                 ) : (
                                     <div className="bg-white rounded-2xl p-7 shadow-xl border border-slate-200 text-slate-900">
                                         <div className="mb-5">
-                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{system.name} {shortServiceTitle}</div>
+                                            <div className="text-xs text-slate-500 font-medium mb-0.5">{systemServiceHeader}</div>
                                             <div className="text-sm text-slate-500 mb-1">Starting at</div>
                                             <div className="text-4xl font-bold text-slate-900 my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                                                 ${service.base_price_usd?.toLocaleString() || 'N/A'}

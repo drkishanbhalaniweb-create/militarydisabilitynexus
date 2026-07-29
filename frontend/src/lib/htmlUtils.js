@@ -181,16 +181,9 @@ export const formatBlogHTML = (htmlString, options = { extractToc: false }) => {
 export const formatRichHTML = (htmlString) => {
     if (!htmlString) return '';
     
-    // Split the html string by custom-box divs
-    // Capture the custom-box div block to keep it in the split array
-    const parts = htmlString.split(/(<div class="custom-box">.*?<\/div>)/gs);
-    
     let result = '';
     let currentRun = [];
-    
-    const isSeparator = (str) => {
-        return !str.trim() || /^(?:<p>\s*(?:<br\s*\/?>)?\s*<\/p>|\s)+$/i.test(str);
-    };
+    let currentIdx = 0;
     
     const flushRun = () => {
         if (currentRun.length === 0) return;
@@ -202,21 +195,74 @@ export const formatRichHTML = (htmlString) => {
         currentRun = [];
     };
     
-    for (const part of parts) {
-        if (part.startsWith('<div class="custom-box"')) {
-            currentRun.push(part);
-        } else if (isSeparator(part)) {
-            // If we are currently in a run of custom-boxes, we ignore/skip the separator 
-            // to allow grouping consecutive custom-boxes together.
-            // If we are not in a run, we just append it to result.
-            if (currentRun.length === 0) {
-                result += part;
-            }
-        } else {
-            // Actual text/content, so end the current run of custom-boxes
+    const customBoxStartRegex = /(?:<p>\s*)?<div\s+[^>]*class=["'][^"']*\bcustom-box\b[^"']*["'][^>]*>/gi;
+    
+    while (currentIdx < htmlString.length) {
+        customBoxStartRegex.lastIndex = currentIdx;
+        const match = customBoxStartRegex.exec(htmlString);
+        
+        if (!match) {
             flushRun();
-            result += part;
+            result += htmlString.substring(currentIdx);
+            break;
         }
+        
+        const matchStart = match.index;
+        const divStartInMatch = match[0].indexOf('<div');
+        const divStartIdx = matchStart + divStartInMatch;
+        const matchHasLeadingP = divStartInMatch > 0;
+        
+        let openDivs = 0;
+        let closingDivIdx = -1;
+        let i = divStartIdx;
+        
+        while (i < htmlString.length) {
+            if (htmlString.startsWith('<div', i)) {
+                openDivs++;
+                i += 4;
+            } else if (htmlString.startsWith('</div', i)) {
+                openDivs--;
+                if (openDivs === 0) {
+                    closingDivIdx = i + 6;
+                    break;
+                }
+                i += 5;
+            } else {
+                i++;
+            }
+        }
+        
+        if (closingDivIdx === -1) {
+            flushRun();
+            result += htmlString.substring(currentIdx);
+            break;
+        }
+        
+        let blockEndIdx = closingDivIdx;
+        if (matchHasLeadingP) {
+            const trailingP = htmlString.substring(closingDivIdx).match(/^\s*<\/p>/i);
+            if (trailingP) {
+                blockEndIdx += trailingP[0].length;
+            }
+        }
+        
+        const leadingText = htmlString.substring(currentIdx, matchStart);
+        const isWhitespaceOrEmptyP = (str) => {
+            return !str.trim() || /^(?:<p>\s*(?:<br\s*\/?>)?\s*<\/p>|\s)+$/i.test(str);
+        };
+        
+        if (currentRun.length > 0 && isWhitespaceOrEmptyP(leadingText)) {
+            // Keep run going for consecutive custom-boxes
+        } else {
+            if (leadingText) {
+                flushRun();
+                result += leadingText;
+            }
+        }
+        
+        const customBoxHtml = htmlString.substring(divStartIdx, closingDivIdx);
+        currentRun.push(customBoxHtml);
+        currentIdx = blockEndIdx;
     }
     
     flushRun();
