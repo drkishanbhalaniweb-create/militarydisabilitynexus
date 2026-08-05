@@ -78,10 +78,10 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
         );
     }
 
-    const statCards = system.stat_cards || [];
-    const buildTrustLinks = system.build_trust_links || [];
-    const specialistGuide = system.specialist_guide || [];
-    const pairedSystems = system.paired_systems || [];
+    const statCards = Array.isArray(system.stat_cards) ? system.stat_cards : [];
+    const buildTrustLinks = Array.isArray(system.build_trust_links) ? system.build_trust_links : [];
+    const specialistGuide = Array.isArray(system.specialist_guide) ? system.specialist_guide : [];
+    const pairedSystems = Array.isArray(system.paired_systems) ? system.paired_systems : [];
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
     const getShortServiceTitle = (svc) => {
         if (!svc) return '';
@@ -98,27 +98,30 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
     const systemServiceHeader = system.name && shortServiceTitle && system.name.toLowerCase().includes(shortServiceTitle.toLowerCase())
         ? system.name
         : `${system.name || ''} ${shortServiceTitle || ''}`.trim();
-    const basePriceText = system.cta_price || (system.is_mental_health ? '$1,600+' : '$400+');
+    const rawPrice = system.cta_price != null ? String(system.cta_price) : '';
+    const basePriceText = rawPrice || (system.is_mental_health ? '$1,600+' : '$400+');
     const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
     const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
 
     // Strip HTML tags for fallback display in plain-text Hero Card
-    const heroText = system.hero_description || 
-        (system.overview ? system.overview.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '');
+    const rawOverview = typeof system.overview === 'string' ? system.overview : '';
+    const rawHeroDesc = typeof system.hero_description === 'string' ? system.hero_description : '';
+    const heroText = rawHeroDesc || 
+        (rawOverview ? rawOverview.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '');
 
-    const hasHtml = system.overview ? /<[a-z][\s\S]*>/i.test(system.overview) : false;
+    const hasHtml = rawOverview ? /<[a-z][\s\S]*>/i.test(rawOverview) : false;
 
 
 
     const navLinks = [
-        { label: 'Overview', href: '#overview', show: !!system.overview },
-        { label: 'Conditions', href: '#conditions', show: conditions.length > 0 },
-        { label: 'Service-Connection Pathways', href: '#pathways', show: system.pathways && system.pathways.length > 0 },
-        { label: 'Why It\'s Complex', href: '#challenges', show: system.challenges && system.challenges.length > 0 },
+        { label: 'Overview', href: '#overview', show: !!rawOverview },
+        { label: 'Conditions', href: '#conditions', show: (conditions || []).length > 0 },
+        { label: 'Service-Connection Pathways', href: '#pathways', show: Array.isArray(system.pathways) && system.pathways.length > 0 },
+        { label: 'Why It\'s Complex', href: '#challenges', show: Array.isArray(system.challenges) && system.challenges.length > 0 },
         { label: 'Medical Evidence Services', href: '#services', show: true },
         { label: 'Provider Specialty', href: '#providers', show: service.slug === 'independent-medical-opinion-nexus-letter' && specialistGuide.length > 0 },
-        { label: 'FAQs', href: '#faqs', show: system.faqs && system.faqs.length > 0 },
-        { label: 'Related Systems', href: '#related-systems', show: allSystems && allSystems.filter(s => s.id !== system.id).length > 0 },
+        { label: 'FAQs', href: '#faqs', show: Array.isArray(system.faqs) && system.faqs.length > 0 },
+        { label: 'Related Systems', href: '#related-systems', show: Array.isArray(allSystems) && allSystems.filter(s => s.id !== system.id).length > 0 },
     ].filter(link => link.show);
 
     const mainServiceSlugs = [
@@ -151,27 +154,29 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
             {
                 "@type": "CollectionPage",
                 "name": `${service.title} for ${system.name} Conditions`,
-                "description": system.description,
+                "description": system.description || '',
                 "publisher": {
                     ...buildOrganizationReference()
                 },
-                "hasPart": conditions.map(c => ({
+                "hasPart": (conditions || []).map(c => ({
                     "@type": "MedicalWebPage",
-                    "name": c.hero_heading,
+                    "name": c.hero_heading || c.title || '',
                     "url": `https://www.militarydisabilitynexus.com/services/${service.slug}/${system.slug}/${c.slug}`
                 }))
             },
-            ...(system.faqs && system.faqs.length > 0 ? [
+            ...(Array.isArray(system.faqs) && system.faqs.length > 0 ? [
                 {
                     "@type": "FAQPage",
-                    "mainEntity": system.faqs.map(faq => ({
-                        "@type": "Question",
-                        "name": faq.question,
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": faq.answer
-                        }
-                    }))
+                    "mainEntity": system.faqs
+                        .filter(faq => faq && typeof faq === 'object' && typeof faq.question === 'string')
+                        .map(faq => ({
+                            "@type": "Question",
+                            "name": faq.question,
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": typeof faq.answer === 'string' ? faq.answer : String(faq.answer || '')
+                            }
+                        }))
                 }
             ] : [])
         ]
@@ -908,31 +913,53 @@ export async function getStaticProps({ params }) {
     try {
         const { slug, system_slug } = params;
         
-        const [service, system, allServices, allSystems] = await Promise.all([
+        // 1. Primary essential queries (Service & Body System must exist)
+        const [service, system] = await Promise.all([
             servicesApi.getBySlug(slug),
-            bodySystemApi.getBySlug(system_slug),
-            servicesApi.getAll(),
-            bodySystemApi.getAll()
+            bodySystemApi.getBySlug(system_slug)
         ]);
         
         if (!service || !system) {
             return { notFound: true };
         }
 
-        const conditions = await conditionApi.getByBodySystem(system.id, service.id);
+        // 2. Secondary auxiliary queries (fall back gracefully if any fail)
+        let conditions = [];
+        let allServices = [];
+        let allSystems = [];
+
+        try {
+            const [condRes, servRes, sysRes] = await Promise.allSettled([
+                conditionApi.getByBodySystem(system.id, service.id),
+                servicesApi.getAll(),
+                bodySystemApi.getAll()
+            ]);
+
+            if (condRes.status === 'fulfilled' && Array.isArray(condRes.value)) {
+                conditions = condRes.value;
+            }
+            if (servRes.status === 'fulfilled' && Array.isArray(servRes.value)) {
+                allServices = servRes.value;
+            }
+            if (sysRes.status === 'fulfilled' && Array.isArray(sysRes.value)) {
+                allSystems = sysRes.value;
+            }
+        } catch (auxError) {
+            console.warn(`Auxiliary data fetch warning for ${slug}/${system_slug}:`, auxError);
+        }
 
         return {
             props: {
                 service,
                 system,
-                conditions: conditions || [],
-                allServices: allServices || [],
-                allSystems: allSystems || [],
+                conditions,
+                allServices,
+                allSystems,
             },
             revalidate: 3600, // Revalidate every hour
         };
     } catch (error) {
-        console.error(`Error fetching data for ${params.slug}/${params.system_slug}:`, error);
+        console.error(`Error fetching core data for ${params?.slug}/${params?.system_slug}:`, error);
         return { notFound: true };
     }
 }
