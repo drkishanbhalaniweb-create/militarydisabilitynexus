@@ -8,6 +8,7 @@ import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import TestimonialCard from '../../src/components/testimonials/TestimonialCard';
 import PricingModal from '../../src/components/services/PricingModal';
+import HeroCard from '../../src/components/services/HeroCard';
 import {
     Accordion,
     AccordionContent,
@@ -76,8 +77,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
             "@type": "Offer",
             "price": service.base_price_usd,
             "priceCurrency": "USD"
-        },
-        ...(conditionForSchema.length > 0 && {
+        },        ...(conditionForSchema.length > 0 && {
             "audience": {
                 "@type": "MedicalAudience",
                 "healthCondition": conditionForSchema
@@ -117,51 +117,28 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                     </nav>
 
                     {/* Hero Card */}
-                    <section className="bg-slate-900 text-white rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-                        <div className="max-w-3xl relative z-10">
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4">{service.title}</h1>
-                            <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-8">{service.short_description}</p>
-                            
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                {service.slug === 'attorney-advocate-partnership' ? (
-                                    <Link 
-                                        href={`/forms?service=${slug}`}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all text-center flex items-center justify-center"
-                                    >
-                                        Drop us a message
-                                    </Link>
-                                ) : service.slug === 'independent-medical-opinion-nexus-letter' ? (
-                                    <button 
-                                        onClick={() => setIsPricingModalOpen(true)}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all"
-                                    >
-                                        View Pricing &mdash; From $400+
-                                    </button>
-                                ) : (
-                                    <Link 
-                                        href={
-                                            service.slug === 'claim-readiness-review'
-                                                ? '/claim-readiness-review'
-                                                : service.slug === 'aid-and-attendance'
-                                                ? '/forms?service=aid-and-attendance'
-                                                : `/forms?service=${slug}`
-                                        }
-                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] transition-all text-center flex items-center justify-center"
-                                    >
-                                        Book Now &mdash; ${service.base_price_usd?.toLocaleString() || 'N/A'}
-                                    </Link>
-                                )}
-                                {service.slug !== 'attorney-advocate-partnership' && (
-                                    <Link 
-                                        href={`/forms?service=${slug}`}
-                                        className="bg-transparent border border-slate-600 hover:border-slate-400 text-white font-semibold py-3 px-8 rounded-xl transition-all text-center"
-                                    >
-                                        Free Consultation
-                                    </Link>
-                                )}
-                            </div>
-                        </div>
-                    </section>
+                    <HeroCard
+                        heading={service.title}
+                        description={service.short_description}
+                        primaryCta={
+                            service.slug === 'attorney-advocate-partnership'
+                                ? { label: 'Drop us a message', href: `/forms?service=${slug}` }
+                                : service.slug === 'independent-medical-opinion-nexus-letter'
+                                ? { label: 'View Pricing \u2014 From $400+', onClick: () => setIsPricingModalOpen(true) }
+                                : { label: `Book Now \u2014 $${service.base_price_usd?.toLocaleString() || 'N/A'}`, href:
+                                    service.slug === 'claim-readiness-review'
+                                        ? '/claim-readiness-review'
+                                        : service.slug === 'aid-and-attendance'
+                                        ? '/forms?service=aid-and-attendance'
+                                        : `/forms?service=${slug}`
+                                }
+                        }
+                        secondaryCta={
+                            service.slug !== 'attorney-advocate-partnership'
+                                ? { label: 'Free Consultation', href: `/forms?service=${slug}` }
+                                : null
+                        }
+                    />
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -8,6 +8,7 @@ import DynamicIcon from '../../../../src/components/ui/dynamic-icon';
 import SEO from '../../../../src/components/SEO';
 import Layout from '../../../../src/components/Layout';
 import PricingModal from '../../../../src/components/services/PricingModal';
+import HeroCard from '../../../../src/components/services/HeroCard';
 import {
     Accordion,
     AccordionContent,
@@ -443,54 +444,26 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                     </nav>
 
                     {/* Hero Card */}
-                    <section className="bg-slate-900 text-white rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-                        <div className="absolute right-0 top-0 w-1/2 h-full opacity-10 pointer-events-none">
-                            <div className="w-96 h-96 bg-white rounded-full absolute -right-20 -top-20 blur-3xl"></div>
-                        </div>
-                        <div className="max-w-3xl relative z-10">
-                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/80 mb-4">
+                    <HeroCard
+                        heading={condition.hero_heading}
+                        description={condition.hero_description || condition.meta_description}
+                        badge={
+                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/80">
                                 {bodySystem.icon && <DynamicIcon name={bodySystem.icon} className="w-3.5 h-3.5" />}
                                 {bodySystem.name} · {service.title}
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                {condition.hero_heading}
-                            </h1>
-                            {(condition.hero_description || condition.meta_description) && (
-                                <p className="text-lg md:text-xl text-slate-300 leading-relaxed">
-                                    {condition.hero_description || condition.meta_description}
-                                </p>
-                            )}
-                            <div className="flex flex-wrap gap-3 mt-8">
-                                {service.slug === 'independent-medical-opinion-nexus-letter' ? (
-                                    <button
-                                        onClick={() => setIsPricingModalOpen(true)}
-                                        className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110"
-                                        style={{ backgroundColor: '#B91C3C' }}
-                                    >
-                                        View Pricing — {displayCtaPrice}
-                                    </button>
-                                ) : (
-                                    <Link
-                                        href={
-                                            service.slug === 'claim-readiness-review'
-                                                ? '/claim-readiness-review'
-                                                : `/forms?service=${service.slug}`
-                                        }
-                                        className="text-white px-8 py-4 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110 flex items-center justify-center"
-                                        style={{ backgroundColor: '#B91C3C' }}
-                                    >
-                                        Book Now — ${service.base_price_usd?.toLocaleString() || 'N/A'}
-                                    </Link>
-                                )}
-                                <Link
-                                    href="/contact"
-                                    className="bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-center hover:bg-white/15 transition-all"
-                                >
-                                    Free Consultation
-                                </Link>
-                            </div>
-                        </div>
-                    </section>
+                        }
+                        primaryCta={
+                            service.slug === 'independent-medical-opinion-nexus-letter'
+                                ? { label: `View Pricing \u2014 ${displayCtaPrice}`, onClick: () => setIsPricingModalOpen(true) }
+                                : { label: `Book Now \u2014 $${service.base_price_usd?.toLocaleString() || 'N/A'}`, href:
+                                    service.slug === 'claim-readiness-review'
+                                        ? '/claim-readiness-review'
+                                        : `/forms?service=${service.slug}`
+                                }
+                        }
+                        secondaryCta={{ label: 'Free Consultation', href: '/contact' }}
+                    />
                 </div>
 
                 {/* Stat Cards */}
