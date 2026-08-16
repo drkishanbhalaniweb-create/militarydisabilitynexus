@@ -936,7 +936,8 @@ export async function getStaticProps({ params }) {
         };
     } catch (error) {
         console.error(`Error fetching core data for ${params?.slug}/${params?.system_slug}:`, error);
-        return { notFound: true };
+        // Throw so ISR serves the stale cached page instead of caching a 404.
+        throw error;
     }
 }
 

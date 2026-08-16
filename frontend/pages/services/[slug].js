@@ -857,7 +857,10 @@ export async function getStaticProps({ params }) {
         };
     } catch (error) {
         console.error('Error in getStaticProps:', error);
-        return { notFound: true };
+        // Throw so ISR serves the stale cached page instead of caching a 404.
+        // Returning { notFound: true } here would replace the live page with a
+        // cached 404 for the entire revalidate window (1 hour).
+        throw error;
     }
 }
 
