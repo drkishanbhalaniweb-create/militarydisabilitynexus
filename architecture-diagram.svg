@@ -1,0 +1,655 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1440" width="100%" height="100%" style="background-color: #080c14; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Background Grid Pattern -->
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#1e293b" stroke-width="0.6" stroke-opacity="0.45"/>
+      <circle cx="0" cy="0" r="1.2" fill="#334155" fill-opacity="0.5"/>
+    </pattern>
+
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151e2e" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#0b111c" stop-opacity="0.98"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#072740" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#0b1322" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradTeal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#043224" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#0b1322" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradPurple" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#201c54" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#0b1322" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradAmber" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4d2304" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0b1322" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradRose" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#54081e" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0b1322" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <!-- Filters for Glow & Shadows -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arr-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#34d399" />
+    </marker>
+    <marker id="arr-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#fbbf24" />
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#a5b4fc" />
+    </marker>
+    <marker id="arr-rose" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#fb7185" />
+    </marker>
+  </defs>
+
+  <!-- Background Base with Grid -->
+  <rect width="1920" height="1440" fill="#080c14"/>
+  <rect width="1920" height="1440" fill="url(#grid)"/>
+
+  <!-- ========================================================================= -->
+  <!-- 1. HEADER SECTION                                                         -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 24)">
+    <rect width="1840" height="88" rx="14" fill="url(#cardGradDark)" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="8" height="88" rx="4" fill="url(#headerGrad)"/>
+
+    <!-- Title and Subtitle -->
+    <text x="32" y="38" font-size="22" font-weight="800" fill="#f8fafc" letter-spacing="0.5">MILITARY DISABILITY NEXUS (MDN) — SOFTWARE ARCHITECTURE</text>
+    <text x="32" y="64" font-size="13" font-weight="400" fill="#94a3b8">Comprehensive System Topology · Next.js Pages Router · React 19 · Supabase Cloud · Stripe Billing · Cal.com · Vercel Edge CI/CD</text>
+
+    <!-- Header Badges -->
+    <g transform="translate(1080, 26)">
+      <rect width="135" height="34" rx="7" fill="#0c4a6e" stroke="#0284c7" stroke-width="1.2"/>
+      <text x="67" y="21" font-size="11.5" font-weight="700" fill="#38bdf8" text-anchor="middle">Next.js 15 &amp; React 19</text>
+    </g>
+    <g transform="translate(1225, 26)">
+      <rect width="165" height="34" rx="7" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1.2"/>
+      <text x="82" y="21" font-size="11.5" font-weight="700" fill="#a5b4fc" text-anchor="middle">Supabase Postgres &amp; RLS</text>
+    </g>
+    <g transform="translate(1400, 26)">
+      <rect width="145" height="34" rx="7" fill="#064e3b" stroke="#059669" stroke-width="1.2"/>
+      <text x="72" y="21" font-size="11.5" font-weight="700" fill="#6ee7b7" text-anchor="middle">Deno 2.x Edge Engine</text>
+    </g>
+    <g transform="translate(1555, 26)">
+      <rect width="135" height="34" rx="7" fill="#78350f" stroke="#d97706" stroke-width="1.2"/>
+      <text x="67" y="21" font-size="11.5" font-weight="700" fill="#fcd34d" text-anchor="middle">Stripe + Cal.com</text>
+    </g>
+    <g transform="translate(1700, 26)">
+      <rect width="120" height="34" rx="7" fill="#881337" stroke="#e11d48" stroke-width="1.2"/>
+      <text x="60" y="21" font-size="11.5" font-weight="700" fill="#fda4af" text-anchor="middle">HIPAA-Aware</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 2. ACTORS / USERS LAYER                                                   -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 132)">
+    <rect width="1840" height="96" rx="12" fill="url(#cardGradDark)" stroke="#1e293b" stroke-width="1.2" filter="url(#shadow)"/>
+    
+    <!-- Section Label -->
+    <rect x="24" y="-12" width="140" height="24" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="94" y="4" font-size="11" font-weight="800" fill="#94a3b8" text-anchor="middle">1. USERS &amp; INGRESS</text>
+
+    <!-- Actor 1: Veterans & Claimants -->
+    <g transform="translate(30, 18)">
+      <rect width="425" height="62" rx="8" fill="#151e2e" stroke="#0284c7" stroke-width="1.2"/>
+      <circle cx="36" cy="31" r="17" fill="#0369a1" fill-opacity="0.4"/>
+      <path d="M 36 22 A 5 5 0 1 0 36 32 A 5 5 0 1 0 36 22 Z M 26 39 C 26 35 30 35 36 35 C 42 35 46 35 46 39 Z" fill="#38bdf8"/>
+      <text x="68" y="26" font-size="13" font-weight="700" fill="#f1f5f9">Veterans &amp; Disability Claimants</text>
+      <text x="68" y="45" font-size="11" fill="#94a3b8">Diagnostic Tool · Intake Forms · Community Q&amp;A · Telehealth Booking</text>
+    </g>
+
+    <!-- Actor 2: Medical Staff & Clinicians -->
+    <g transform="translate(480, 18)">
+      <rect width="425" height="62" rx="8" fill="#151e2e" stroke="#059669" stroke-width="1.2"/>
+      <circle cx="36" cy="31" r="17" fill="#047857" fill-opacity="0.4"/>
+      <path d="M 36 19 L 46 23 L 46 32 C 46 37 36 42 36 42 C 36 42 26 37 26 32 L 26 23 Z" fill="#34d399"/>
+      <text x="68" y="26" font-size="13" font-weight="700" fill="#f1f5f9">Medical Evaluators &amp; Admins</text>
+      <text x="68" y="45" font-size="11" fill="#94a3b8">Admin CMS · Case Study Editor · Medical Vault · Inquiry Moderation</text>
+    </g>
+
+    <!-- Actor 3: Search Engines & AI Agents -->
+    <g transform="translate(930, 18)">
+      <rect width="425" height="62" rx="8" fill="#151e2e" stroke="#d97706" stroke-width="1.2"/>
+      <circle cx="36" cy="31" r="17" fill="#b45309" fill-opacity="0.4"/>
+      <path d="M 33 24 A 6 6 0 1 0 33 36 A 6 6 0 1 0 33 24 Z M 38 35 L 44 41" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <text x="68" y="26" font-size="13" font-weight="700" fill="#f1f5f9">Search Engines &amp; AI Agents (GEO)</text>
+      <text x="68" y="45" font-size="11" fill="#94a3b8">Googlebot · Bing · Perplexity · ChatGPT (SSR/ISR Pre-rendered Pages)</text>
+    </g>
+
+    <!-- Actor 4: Automated Webhooks & Jobs -->
+    <g transform="translate(1380, 18)">
+      <rect width="430" height="62" rx="8" fill="#151e2e" stroke="#6366f1" stroke-width="1.2"/>
+      <circle cx="36" cy="31" r="17" fill="#4338ca" fill-opacity="0.4"/>
+      <path d="M 38 19 L 29 31 L 35 31 L 34 43 L 43 30 L 37 30 Z" fill="#818cf8"/>
+      <text x="68" y="26" font-size="13" font-weight="700" fill="#f1f5f9">External Event Streams &amp; Hooks</text>
+      <text x="68" y="45" font-size="11" fill="#94a3b8">Stripe Payment Webhooks · Cal.com Consult Webhooks · PostHog Events</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Actors to Edge -->
+  <g stroke="#38bdf8" stroke-width="1.6" fill="none" opacity="0.65">
+    <path d="M 242 228 L 242 254" marker-end="url(#arr-blue)"/>
+    <path d="M 692 228 L 692 254" marker-end="url(#arr-blue)"/>
+    <path d="M 1142 228 L 1142 254" marker-end="url(#arr-blue)"/>
+    <path d="M 1595 228 L 1595 254" marker-end="url(#arr-blue)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 3. EDGE ROUTING & INGRESS LAYER (VERCEL EDGE)                             -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 260)">
+    <rect width="1840" height="88" rx="12" fill="url(#cardGradBlue)" stroke="#0284c7" stroke-width="1.4" filter="url(#shadow)"/>
+    
+    <rect x="24" y="-12" width="240" height="24" rx="6" fill="#0c4a6e" stroke="#0284c7" stroke-width="1"/>
+    <text x="144" y="4" font-size="11" font-weight="800" fill="#38bdf8" text-anchor="middle">2. EDGE DELIVERY &amp; SECURITY INGRESS</text>
+
+    <!-- Edge Nodes -->
+    <g transform="translate(25, 17)">
+      <rect width="340" height="54" rx="6" fill="#0b1322" stroke="#0369a1" stroke-width="1"/>
+      <text x="18" y="23" font-size="12" font-weight="700" fill="#e0f2fe">Vercel Global Edge Network</text>
+      <text x="18" y="40" font-size="10.5" fill="#7dd3fc">Anycast DNS · Automatic SSL/TLS · DDoS Shield</text>
+    </g>
+
+    <g transform="translate(380, 17)">
+      <rect width="360" height="54" rx="6" fill="#0b1322" stroke="#0369a1" stroke-width="1"/>
+      <text x="18" y="23" font-size="12" font-weight="700" fill="#e0f2fe">Security Headers &amp; Strict CSP</text>
+      <text x="18" y="40" font-size="10.5" fill="#7dd3fc">vercel.json · X-Frame-Options · HSTS · Script Rules</text>
+    </g>
+
+    <g transform="translate(755, 17)">
+      <rect width="345" height="54" rx="6" fill="#0b1322" stroke="#0369a1" stroke-width="1"/>
+      <text x="18" y="23" font-size="12" font-weight="700" fill="#e0f2fe">Canonical Routing &amp; Rewrites</text>
+      <text x="18" y="40" font-size="10.5" fill="#7dd3fc">Host Canonicalization · 301 Redirects · Asset Caching</text>
+    </g>
+
+    <g transform="translate(1115, 17)">
+      <rect width="350" height="54" rx="6" fill="#0b1322" stroke="#0369a1" stroke-width="1"/>
+      <text x="18" y="23" font-size="12" font-weight="700" fill="#e0f2fe">On-Demand ISR &amp; Edge Cache</text>
+      <text x="18" y="40" font-size="10.5" fill="#7dd3fc">Stale-While-Revalidate · Fast Condition/Blog Delivery</text>
+    </g>
+
+    <g transform="translate(1480, 17)">
+      <rect width="335" height="54" rx="6" fill="#0b1322" stroke="#0369a1" stroke-width="1"/>
+      <text x="18" y="23" font-size="12" font-weight="700" fill="#e0f2fe">Serverless Gateway</text>
+      <text x="18" y="40" font-size="10.5" fill="#7dd3fc">Routes to /pages/api/* &amp; Supabase Edge Functions</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Edge to Frontend -->
+  <g stroke="#38bdf8" stroke-width="1.6" fill="none" opacity="0.65">
+    <path d="M 480 348 L 480 376" marker-end="url(#arr-blue)"/>
+    <path d="M 1440 348 L 1440 376" marker-end="url(#arr-blue)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 4. FRONTEND APPLICATION LAYER (NEXT.JS & REACT 19)                       -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 382)">
+    <rect width="1840" height="348" rx="14" fill="url(#cardGradDark)" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    
+    <rect x="24" y="-12" width="290" height="24" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+    <text x="169" y="4" font-size="11" font-weight="800" fill="#38bdf8" text-anchor="middle">3. FRONTEND PRESENTATION &amp; LOGIC (Next.js 15)</text>
+
+    <!-- Sub-Column 1: Public Veteran Experience (Pages) -->
+    <g transform="translate(25, 25)">
+      <rect width="560" height="305" rx="10" fill="#0f172a" stroke="#0284c7" stroke-width="1.2"/>
+      <rect x="15" y="-10" width="230" height="20" rx="4" fill="#0369a1"/>
+      <text x="130" y="4" font-size="10" font-weight="800" fill="#ffffff" text-anchor="middle">PUBLIC VETERAN PORTAL (Pages Router)</text>
+
+      <g transform="translate(15, 20)">
+        <rect width="530" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#38bdf8">Claim Readiness Diagnostic (/claim-readiness-review, /results)</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">5-Question assessment · Realtime score calculation · Tier recommendations</text>
+      </g>
+
+      <g transform="translate(15, 78)">
+        <rect width="530" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#38bdf8">Dynamic Medical Hubs (/conditions/[slug], /services/[slug])</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">60+ Conditions · Body systems hierarchy · DB-driven clinical evidence</text>
+      </g>
+
+      <g transform="translate(15, 136)">
+        <rect width="530" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#38bdf8">Intake &amp; Claim Submissions (/nexus-letter-form, /aid-attendance-form)</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Multi-step validated forms · Encrypted PDF/Doc upload · Service history capture</text>
+      </g>
+
+      <g transform="translate(15, 194)">
+        <rect width="530" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#38bdf8">Veteran Community Q&amp;A (/community, /community/question/[slug])</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Threaded discussions · Verified expert badge · Upvoting · Tag taxonomy</text>
+      </g>
+
+      <g transform="translate(15, 252)">
+        <rect width="530" height="44" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="18" font-size="12" font-weight="700" fill="#38bdf8">Telehealth Booking &amp; Checkout (/booking, /checkout, /success)</text>
+        <text x="15" y="33" font-size="10.5" fill="#94a3b8">Cal.com embed integration · Stripe checkout redirection · Receipt flows</text>
+      </g>
+    </g>
+
+    <!-- Sub-Column 2: Protected Admin Management Portal -->
+    <g transform="translate(605, 25)">
+      <rect width="580" height="305" rx="10" fill="#0f172a" stroke="#059669" stroke-width="1.2"/>
+      <rect x="15" y="-10" width="230" height="20" rx="4" fill="#047857"/>
+      <text x="130" y="4" font-size="10" font-weight="800" fill="#ffffff" text-anchor="middle">ADMIN MANAGEMENT PORTAL (/admin/*)</text>
+
+      <g transform="translate(15, 20)">
+        <rect width="550" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#34d399">Full-Featured Headless CMS (/admin/blog, /conditions, /services)</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">TipTap Rich Text Editor · SEO keywords &amp; schema markup · Clinical profiles</text>
+      </g>
+
+      <g transform="translate(15, 78)">
+        <rect width="550" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#34d399">Intake Submissions &amp; Lead Management (/admin/form-submissions)</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Captured emails · Contact requests · Medical record viewer · Payment audit</text>
+      </g>
+
+      <g transform="translate(15, 136)">
+        <rect width="550" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#34d399">Community Q&amp;A Moderation &amp; Expert Answers (/admin/community)</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Official physician response publishing · Spam filtering · Tag taxonomy control</text>
+      </g>
+
+      <g transform="translate(15, 194)">
+        <rect width="550" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#34d399">Dynamic Pricing Tiers &amp; Layout Sections (/admin/pricing-tiers)</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Stripe Price ID configuration · Testimonial curation · Section reordering</text>
+      </g>
+
+      <g transform="translate(15, 252)">
+        <rect width="550" height="44" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="18" font-size="12" font-weight="700" fill="#34d399">ProtectedRoute.js &amp; Supabase Admin RBAC</text>
+        <text x="15" y="33" font-size="10.5" fill="#94a3b8">JWT verification · Multi-factor session checks · Role-based database policy</text>
+      </g>
+    </g>
+
+    <!-- Sub-Column 3: Shared Frontend Core & State Engine (src/lib/) -->
+    <g transform="translate(1205, 25)">
+      <rect width="610" height="305" rx="10" fill="#0f172a" stroke="#818cf8" stroke-width="1.2"/>
+      <rect x="15" y="-10" width="230" height="20" rx="4" fill="#4338ca"/>
+      <text x="130" y="4" font-size="10" font-weight="800" fill="#ffffff" text-anchor="middle">CLIENT LOGIC &amp; UTILITIES (src/lib/)</text>
+
+      <g transform="translate(15, 20)">
+        <rect width="580" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#a5b4fc">supabase.js &amp; supabaseAdmin.js</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Browser client (Anon Key) vs Server-side Privileged client (Service Role Key)</text>
+      </g>
+
+      <g transform="translate(15, 78)">
+        <rect width="580" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#a5b4fc">diagnosticScoring.js &amp; diagnosticConfig.js</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Deterministic 0-10 point rubric · Automated risk classification &amp; tier matching</text>
+      </g>
+
+      <g transform="translate(15, 136)">
+        <rect width="580" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#a5b4fc">submissionValidation.js, pdfUpload.js, imageUpload.js</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Client-side XSS sanitization · MIME-type sniffing · Secure file upload</text>
+      </g>
+
+      <g transform="translate(15, 194)">
+        <rect width="580" height="50" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="21" font-size="12" font-weight="700" fill="#a5b4fc">payment.js &amp; Stripe Checkout SDK</text>
+        <text x="15" y="38" font-size="10.5" fill="#94a3b8">Price Tier resolution · Checkout session redirection · Fallback handlers</text>
+      </g>
+
+      <g transform="translate(15, 252)">
+        <rect width="580" height="44" rx="6" fill="#172236" stroke="#1e293b" stroke-width="1"/>
+        <text x="15" y="18" font-size="12" font-weight="700" fill="#a5b4fc">metaPixel.js, redditPixel.js, PostHog, Google Ads</text>
+        <text x="15" y="33" font-size="10.5" fill="#94a3b8">Conversion tracking · Privacy-respecting analytics · Funnel event logging</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Connectors from Frontend to API / Edge Functions -->
+  <g stroke="#34d399" stroke-width="1.6" fill="none" opacity="0.7">
+    <path d="M 450 730 L 450 762" marker-end="url(#arr-teal)"/>
+    <path d="M 900 730 L 900 762" marker-end="url(#arr-teal)"/>
+    <path d="M 1480 730 L 1480 762" marker-end="url(#arr-teal)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 5. API & SERVERLESS EXECUTION LAYER (NEXT API & SUPABASE EDGE)             -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 768)">
+    <rect width="1840" height="182" rx="14" fill="url(#cardGradTeal)" stroke="#059669" stroke-width="1.4" filter="url(#shadow)"/>
+    
+    <rect x="24" y="-12" width="290" height="24" rx="6" fill="#064e3b" stroke="#34d399" stroke-width="1"/>
+    <text x="169" y="4" font-size="11" font-weight="800" fill="#34d399" text-anchor="middle">4. API &amp; SERVERLESS COMPUTE LAYER</text>
+
+    <!-- Sub-Block 1: Next.js API Routes (/pages/api/*) -->
+    <g transform="translate(25, 22)">
+      <rect width="870" height="142" rx="8" fill="#0b1322" stroke="#047857" stroke-width="1.2"/>
+      <text x="20" y="24" font-size="13" font-weight="700" fill="#6ee7b7">Next.js Serverless API Handlers (Node.js Runtime)</text>
+      
+      <!-- Box 1 -->
+      <g transform="translate(20, 36)">
+        <rect width="260" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">/api/submit-form &amp; submit-contact</text>
+        <text x="12" y="34" font-size="9.5" fill="#94a3b8">Payload validation &amp; DB insertion</text>
+      </g>
+      
+      <!-- Box 2 -->
+      <g transform="translate(295, 36)">
+        <rect width="265" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">/api/community/* (ask, answer, vote)</text>
+        <text x="12" y="34" font-size="9.5" fill="#94a3b8">Threaded discussion &amp; vote tally</text>
+      </g>
+
+      <!-- Box 3 -->
+      <g transform="translate(575, 36)">
+        <rect width="275" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">/api/lead-magnet-capture</text>
+        <text x="12" y="34" font-size="9.5" fill="#94a3b8">PDF roadmap &amp; email acquisition</text>
+      </g>
+
+      <!-- Box 4 -->
+      <g transform="translate(20, 88)">
+        <rect width="400" height="42" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="18" font-size="11" font-weight="700" fill="#f1f5f9">/api/revalidate-condition &amp; revalidate-blog</text>
+        <text x="12" y="32" font-size="9.5" fill="#94a3b8">Secured ISR on-demand webhook trigger</text>
+      </g>
+
+      <!-- Box 5 -->
+      <g transform="translate(435, 88)">
+        <rect width="415" height="42" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="18" font-size="11" font-weight="700" fill="#f1f5f9">Server-side Supabase Admin Client</text>
+        <text x="12" y="32" font-size="9.5" fill="#94a3b8">Protected environment secrets · Service Role execution</text>
+      </g>
+    </g>
+
+    <!-- Sub-Block 2: Supabase Edge Functions (Deno Runtime) -->
+    <g transform="translate(915, 22)">
+      <rect width="900" height="142" rx="8" fill="#0b1322" stroke="#047857" stroke-width="1.2"/>
+      <text x="20" y="24" font-size="13" font-weight="700" fill="#6ee7b7">Supabase Edge Functions (Deno 2.x Distributed Engine)</text>
+      
+      <!-- Func 1 -->
+      <g transform="translate(20, 36)">
+        <rect width="270" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">create-checkout-session</text>
+        <text x="12" y="34" font-size="9.5" fill="#94a3b8">Stripe Session Init &amp; Price resolution</text>
+      </g>
+      
+      <!-- Func 2 -->
+      <g transform="translate(305, 36)">
+        <rect width="270" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">stripe-webhook</text>
+        <text x="12" y="34" font-size="9.5" fill="#94a3b8">Signature verification &amp; DB payment sync</text>
+      </g>
+
+      <!-- Func 3 -->
+      <g transform="translate(590, 36)">
+        <rect width="290" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">create-admin-user</text>
+        <text x="12" y="34" font-size="9.5" fill="#94a3b8">Service role privileged auth provisioning</text>
+      </g>
+
+      <!-- Func 4 -->
+      <g transform="translate(20, 88)">
+        <rect width="425" height="42" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="18" font-size="11" font-weight="700" fill="#f1f5f9">send-email &amp; notify-answer-posted</text>
+        <text x="12" y="32" font-size="9.5" fill="#94a3b8">SMTP/Resend delivery · HTML email formatting</text>
+      </g>
+
+      <!-- Func 5 -->
+      <g transform="translate(460, 88)">
+        <rect width="420" height="42" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="18" font-size="11" font-weight="700" fill="#f1f5f9">notify-form / notify-contact / notify-diagnostic</text>
+        <text x="12" y="32" font-size="9.5" fill="#94a3b8">Asynchronous admin alerts on new veteran leads</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Connectors from API to Database & Storage -->
+  <g stroke="#818cf8" stroke-width="1.6" fill="none" opacity="0.7">
+    <path d="M 450 950 L 450 982" marker-end="url(#arr-purple)"/>
+    <path d="M 1360 950 L 1360 982" marker-end="url(#arr-purple)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 6. DATA & STORAGE PERSISTENCE LAYER (SUPABASE BACKEND)                    -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 986)">
+    <rect width="1840" height="240" rx="14" fill="url(#cardGradPurple)" stroke="#6366f1" stroke-width="1.4" filter="url(#shadow)"/>
+    
+    <rect x="24" y="-12" width="290" height="24" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1"/>
+    <text x="169" y="4" font-size="11" font-weight="800" fill="#a5b4fc" text-anchor="middle">5. SUPABASE BACKEND &amp; CLOUD DATABASE</text>
+
+    <!-- DB Block 1: Relational Postgres Schema -->
+    <g transform="translate(25, 24)">
+      <rect width="820" height="196" rx="8" fill="#0b1322" stroke="#4338ca" stroke-width="1.2"/>
+      <text x="20" y="24" font-size="13" font-weight="700" fill="#c7d2fe">PostgreSQL Database Engine (60+ Migrations)</text>
+      
+      <!-- Cluster A -->
+      <g transform="translate(20, 36)">
+        <rect width="245" height="144" rx="6" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="20" font-size="11" font-weight="700" fill="#38bdf8">CMS &amp; Medical Data</text>
+        <text x="12" y="38" font-size="10" fill="#94a3b8">• conditions (60+ records)</text>
+        <text x="12" y="54" font-size="10" fill="#94a3b8">• body_systems &amp; services</text>
+        <text x="12" y="70" font-size="10" fill="#94a3b8">• blog_posts &amp; case_studies</text>
+        <text x="12" y="86" font-size="10" fill="#94a3b8">• pricing_tiers &amp; testimonials</text>
+        <text x="12" y="102" font-size="10" fill="#94a3b8">• clinical_profiles</text>
+        <text x="12" y="126" font-size="9.5" fill="#0284c7">Public read · Admin write</text>
+      </g>
+
+      <!-- Cluster B -->
+      <g transform="translate(280, 36)">
+        <rect width="255" height="144" rx="6" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="20" font-size="11" font-weight="700" fill="#34d399">Inquiries, Forms &amp; Leads</text>
+        <text x="12" y="38" font-size="10" fill="#94a3b8">• form_submissions</text>
+        <text x="12" y="54" font-size="10" fill="#94a3b8">• contact_submissions</text>
+        <text x="12" y="70" font-size="10" fill="#94a3b8">• captured_emails</text>
+        <text x="12" y="86" font-size="10" fill="#94a3b8">• diagnostics (scores &amp; tiers)</text>
+        <text x="12" y="102" font-size="10" fill="#94a3b8">• payments (Stripe audit logs)</text>
+        <text x="12" y="126" font-size="9.5" fill="#059669">Strict RLS · Encrypted PII</text>
+      </g>
+
+      <!-- Cluster C -->
+      <g transform="translate(550, 36)">
+        <rect width="250" height="144" rx="6" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="20" font-size="11" font-weight="700" fill="#fbbf24">Community &amp; Discussions</text>
+        <text x="12" y="38" font-size="10" fill="#94a3b8">• community_questions</text>
+        <text x="12" y="54" font-size="10" fill="#94a3b8">• community_answers</text>
+        <text x="12" y="70" font-size="10" fill="#94a3b8">• community_comments</text>
+        <text x="12" y="86" font-size="10" fill="#94a3b8">• community_votes</text>
+        <text x="12" y="102" font-size="10" fill="#94a3b8">• community_tags</text>
+        <text x="12" y="126" font-size="9.5" fill="#d97706">Community RLS &amp; Moderation</text>
+      </g>
+    </g>
+
+    <!-- DB Block 2: Security & RLS Policies (FIXED: Isolated Groups) -->
+    <g transform="translate(865, 24)">
+      <rect width="460" height="196" rx="8" fill="#0b1322" stroke="#4338ca" stroke-width="1.2"/>
+      <text x="20" y="24" font-size="13" font-weight="700" fill="#c7d2fe">Database Security &amp; Postgres Policies</text>
+      
+      <!-- Item 1 -->
+      <g transform="translate(20, 36)">
+        <rect width="420" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">Row-Level Security (RLS) Policies</text>
+        <text x="12" y="33" font-size="9.5" fill="#94a3b8">Granular policies isolate veteran submissions from unauthorized access</text>
+      </g>
+
+      <!-- Item 2 -->
+      <g transform="translate(20, 86)">
+        <rect width="420" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">Database Triggers &amp; Email Webhooks</text>
+        <text x="12" y="33" font-size="9.5" fill="#94a3b8">Triggers fire edge functions asynchronously on new intake submissions</text>
+      </g>
+
+      <!-- Item 3 -->
+      <g transform="translate(20, 136)">
+        <rect width="420" height="44" rx="4" fill="#151e2e" stroke="#1e293b" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#f1f5f9">Search Indexes &amp; Function Search Paths</text>
+        <text x="12" y="33" font-size="9.5" fill="#94a3b8">pg_trgm search, full-text vector index &amp; fixed security search paths</text>
+      </g>
+    </g>
+
+    <!-- DB Block 3: Supabase Storage & Auth (FIXED: Isolated Groups) -->
+    <g transform="translate(1345, 24)">
+      <rect width="470" height="196" rx="8" fill="#0b1322" stroke="#4338ca" stroke-width="1.2"/>
+      <text x="20" y="24" font-size="13" font-weight="700" fill="#c7d2fe">Storage Buckets &amp; Supabase Auth</text>
+      
+      <!-- Item 1: Medical Records -->
+      <g transform="translate(20, 36)">
+        <rect width="430" height="44" rx="4" fill="#151e2e" stroke="#e11d48" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#fda4af">medical-records &amp; submission-files (Private)</text>
+        <text x="12" y="33" font-size="9.5" fill="#94a3b8">Encrypted HIPAA-ready private bucket · Signed URLs for review</text>
+      </g>
+
+      <!-- Item 2: Public Media -->
+      <g transform="translate(20, 86)">
+        <rect width="430" height="44" rx="4" fill="#151e2e" stroke="#059669" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#6ee7b7">blog-images &amp; public-assets (Public CDN)</text>
+        <text x="12" y="33" font-size="9.5" fill="#94a3b8">Public global CDN cache · WebP optimization · Fast delivery</text>
+      </g>
+
+      <!-- Item 3: Supabase Auth -->
+      <g transform="translate(20, 136)">
+        <rect width="430" height="44" rx="4" fill="#151e2e" stroke="#818cf8" stroke-width="1"/>
+        <text x="12" y="19" font-size="11" font-weight="700" fill="#c7d2fe">Supabase Auth (Admin Identity Engine)</text>
+        <text x="12" y="33" font-size="9.5" fill="#94a3b8">JWT tokens · bcrypt password hashing · admin_users table role link</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 7. EXTERNAL INTEGRATIONS & CI/CD PIPELINE (FIXED: Full Grid Coordinates)  -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 1248)">
+    <!-- External Services Box (FIXED: 4 Distinct Isolated Cards) -->
+    <g transform="translate(0, 0)">
+      <rect width="900" height="152" rx="12" fill="url(#cardGradAmber)" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+      <rect x="24" y="-12" width="240" height="24" rx="6" fill="#78350f" stroke="#fbbf24" stroke-width="1"/>
+      <text x="144" y="4" font-size="11" font-weight="800" fill="#fbbf24" text-anchor="middle">6. THIRD-PARTY INTEGRATIONS</text>
+
+      <!-- Card 1: Stripe -->
+      <g transform="translate(20, 24)">
+        <rect width="205" height="112" rx="6" fill="#0b1322" stroke="#d97706" stroke-width="1"/>
+        <text x="14" y="24" font-size="12" font-weight="700" fill="#fef08a">Stripe Payments</text>
+        <text x="14" y="46" font-size="10" fill="#94a3b8">• Checkout Sessions</text>
+        <text x="14" y="64" font-size="10" fill="#94a3b8">• Webhook Signatures</text>
+        <text x="14" y="82" font-size="10" fill="#94a3b8">• Automated Receipts</text>
+        <text x="14" y="100" font-size="9.5" fill="#fbbf24">Secure Checkout Flow</text>
+      </g>
+
+      <!-- Card 2: Cal.com -->
+      <g transform="translate(235, 24)">
+        <rect width="205" height="112" rx="6" fill="#0b1322" stroke="#d97706" stroke-width="1"/>
+        <text x="14" y="24" font-size="12" font-weight="700" fill="#fef08a">Cal.com Scheduling</text>
+        <text x="14" y="46" font-size="10" fill="#94a3b8">• Telehealth Discovery</text>
+        <text x="14" y="64" font-size="10" fill="#94a3b8">• Review Consultations</text>
+        <text x="14" y="82" font-size="10" fill="#94a3b8">• Inline Embeds / Modal</text>
+        <text x="14" y="100" font-size="9.5" fill="#fbbf24">Automated Intake Sync</text>
+      </g>
+
+      <!-- Card 3: Resend -->
+      <g transform="translate(450, 24)">
+        <rect width="205" height="112" rx="6" fill="#0b1322" stroke="#d97706" stroke-width="1"/>
+        <text x="14" y="24" font-size="12" font-weight="700" fill="#fef08a">Resend / SMTP</text>
+        <text x="14" y="46" font-size="10" fill="#94a3b8">• Admin Lead Alerts</text>
+        <text x="14" y="64" font-size="10" fill="#94a3b8">• Veteran Confirmations</text>
+        <text x="14" y="82" font-size="10" fill="#94a3b8">• Answer Notifications</text>
+        <text x="14" y="100" font-size="9.5" fill="#fbbf24">Transactional Pipeline</text>
+      </g>
+
+      <!-- Card 4: Analytics -->
+      <g transform="translate(665, 24)">
+        <rect width="215" height="112" rx="6" fill="#0b1322" stroke="#d97706" stroke-width="1"/>
+        <text x="14" y="24" font-size="12" font-weight="700" fill="#fef08a">Analytics &amp; Pixels</text>
+        <text x="14" y="46" font-size="10" fill="#94a3b8">• PostHog Funnels</text>
+        <text x="14" y="64" font-size="10" fill="#94a3b8">• Meta &amp; Reddit Pixels</text>
+        <text x="14" y="82" font-size="10" fill="#94a3b8">• Google Ads Conversions</text>
+        <text x="14" y="100" font-size="9.5" fill="#fbbf24">Privacy-First Telemetry</text>
+      </g>
+    </g>
+
+    <!-- CI/CD & DevOps Pipeline Box (FIXED: 5 Distinct Isolated Cards) -->
+    <g transform="translate(940, 0)">
+      <rect width="900" height="152" rx="12" fill="url(#cardGradRose)" stroke="#e11d48" stroke-width="1.3" filter="url(#shadow)"/>
+      <rect x="24" y="-12" width="290" height="24" rx="6" fill="#881337" stroke="#fb7185" stroke-width="1"/>
+      <text x="169" y="4" font-size="11" font-weight="800" fill="#fda4af" text-anchor="middle">7. CI/CD &amp; QUALITY GATEWAY (.github/workflows)</text>
+
+      <!-- Job 1: Frontend Quality -->
+      <g transform="translate(20, 24)">
+        <rect width="164" height="112" rx="6" fill="#0b1322" stroke="#be123c" stroke-width="1"/>
+        <text x="12" y="22" font-size="11.5" font-weight="700" fill="#fda4af">1. Quality &amp; Vitest</text>
+        <text x="12" y="42" font-size="9.5" fill="#94a3b8">• Node 22 + npm ci</text>
+        <text x="12" y="58" font-size="9.5" fill="#94a3b8">• ESLint verification</text>
+        <text x="12" y="74" font-size="9.5" fill="#94a3b8">• Vitest Unit/API suite</text>
+        <text x="12" y="90" font-size="9.5" fill="#94a3b8">• Next.js prod build</text>
+        <text x="12" y="104" font-size="8.5" fill="#fb7185">Code Integrity Pass</text>
+      </g>
+
+      <!-- Job 2: Playwright E2E -->
+      <g transform="translate(194, 24)">
+        <rect width="164" height="112" rx="6" fill="#0b1322" stroke="#be123c" stroke-width="1"/>
+        <text x="12" y="22" font-size="11.5" font-weight="700" fill="#fda4af">2. Playwright E2E</text>
+        <text x="12" y="42" font-size="9.5" fill="#94a3b8">• Chromium browser</text>
+        <text x="12" y="58" font-size="9.5" fill="#94a3b8">• Smoke user flows</text>
+        <text x="12" y="74" font-size="9.5" fill="#94a3b8">• axe-core a11y audit</text>
+        <text x="12" y="90" font-size="9.5" fill="#94a3b8">• HTML report output</text>
+        <text x="12" y="104" font-size="8.5" fill="#fb7185">Accessibility &amp; UX</text>
+      </g>
+
+      <!-- Job 3: Supabase & Functions -->
+      <g transform="translate(368, 24)">
+        <rect width="168" height="112" rx="6" fill="#0b1322" stroke="#be123c" stroke-width="1"/>
+        <text x="12" y="22" font-size="11.5" font-weight="700" fill="#fda4af">3. Deno &amp; SQL Lint</text>
+        <text x="12" y="42" font-size="9.5" fill="#94a3b8">• Deno 2.x Functions</text>
+        <text x="12" y="58" font-size="9.5" fill="#94a3b8">• TypeScript check</text>
+        <text x="12" y="74" font-size="9.5" fill="#94a3b8">• 60+ migrations inv.</text>
+        <text x="12" y="90" font-size="9.5" fill="#94a3b8">• Supabase CLI lint</text>
+        <text x="12" y="104" font-size="8.5" fill="#fb7185">Schema &amp; Functions</text>
+      </g>
+
+      <!-- Job 4: Security Scan -->
+      <g transform="translate(546, 24)">
+        <rect width="164" height="112" rx="6" fill="#0b1322" stroke="#be123c" stroke-width="1"/>
+        <text x="12" y="22" font-size="11.5" font-weight="700" fill="#fda4af">4. Security Checks</text>
+        <text x="12" y="42" font-size="9.5" fill="#94a3b8">• TruffleHog Secrets</text>
+        <text x="12" y="58" font-size="9.5" fill="#94a3b8">• Dependency Review</text>
+        <text x="12" y="74" font-size="9.5" fill="#94a3b8">• npm audit scanner</text>
+        <text x="12" y="90" font-size="9.5" fill="#94a3b8">• Secret leak block</text>
+        <text x="12" y="104" font-size="8.5" fill="#fb7185">Zero Secret Leak</text>
+      </g>
+
+      <!-- Job 5: CI Gate -->
+      <g transform="translate(720, 24)">
+        <rect width="160" height="112" rx="6" fill="#0b1322" stroke="#be123c" stroke-width="1"/>
+        <text x="12" y="22" font-size="11.5" font-weight="700" fill="#fda4af">5. CI Status Gate</text>
+        <text x="12" y="42" font-size="9.5" fill="#94a3b8">• Unified gate status</text>
+        <text x="12" y="58" font-size="9.5" fill="#94a3b8">• Step Summary gen</text>
+        <text x="12" y="74" font-size="9.5" fill="#94a3b8">• Branch protection</text>
+        <text x="12" y="90" font-size="9.5" fill="#94a3b8">• Zero prod leak</text>
+        <text x="12" y="104" font-size="8.5" fill="#fb7185">Required Status Check</text>
+      </g>
+    </g>
+  </g>
+
+</svg>

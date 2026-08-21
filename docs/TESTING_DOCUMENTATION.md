@@ -4,17 +4,20 @@ This repository is a Next.js frontend app in `frontend/`. The historical Create 
 
 ## Current State
 
-`frontend/package.json` currently exposes these scripts:
+`frontend/package.json` provides scripts for development, testing, and CI verification:
 
 ```bash
-npm run dev
-npm run lint
-npm run build
-npm start
-npm run lint:fix
+npm run dev            # Start Next.js development server
+npm run lint           # Run ESLint across frontend
+npm run lint:fix       # Run ESLint with auto-fix
+npm run test           # Vitest watch mode
+npm run test:run       # Vitest run unit & API test suites
+npm run test:e2e       # Playwright end-to-end tests
+npm run test:e2e:smoke # Playwright smoke and accessibility tests
+npm run build          # Production Next.js build
+npm run verify:ci      # Full CI verification gate (lint + test + build + e2e)
+npm start              # Serve production build
 ```
-
-There are no committed Vitest or Playwright npm scripts yet, and CI currently verifies lint plus production build only. A parallel testing lane may add config files or specs before scripts are wired; treat `frontend/package.json` as the source of truth for runnable commands. Until the test tooling lane lands, use `npm run lint`, `npm run build`, and focused manual smoke tests as the required verification baseline.
 
 ## Command Matrix
 
@@ -22,16 +25,15 @@ Run commands from `frontend/`.
 
 | Purpose | Command | Status |
 | --- | --- | --- |
-| Install exactly from lockfile | `npm ci` | Current |
-| Start local Next.js dev server | `npm run dev` | Current |
-| Lint frontend files | `npm run lint` | Current |
-| Production build | `npm run build` | Current |
-| Serve production build | `npm start` | Current, after build |
-| Unit/component tests | `npm run test` | Owner task |
-| Watch unit/component tests | `npm run test:watch` | Owner task |
-| Coverage report | `npm run test:coverage` | Owner task |
-| Playwright browser tests | `npm run test:e2e` | Owner task |
-| Playwright UI mode | `npm run test:e2e:ui` | Owner task |
+| Install exactly from lockfile | `npm ci` | Active |
+| Start local Next.js dev server | `npm run dev` | Active |
+| Lint frontend files | `npm run lint` | Active |
+| Unit & API tests (Vitest) | `npm run test:run` | Active |
+| Watch unit/component tests | `npm run test` | Active |
+| Playwright browser & a11y tests | `npm run test:e2e:smoke` | Active |
+| Production build | `npm run build` | Active |
+| CI verification gate | `npm run verify:ci` | Active |
+| Serve production build | `npm start` | Active, after build |
 
 ## Target Tooling
 
@@ -148,27 +150,22 @@ Browser tests must not call real payment, booking, analytics, or production data
 
 ## CI Guidance
 
-Current CI in `.github/workflows/frontend-ci.yml` runs:
+The active CI pipeline in `.github/workflows/frontend-ci.yml` runs:
 
-```bash
-npm ci
-npm run lint
-npm run build
-```
+1. **Frontend quality**: `npm run lint` → `npm run test:run` → `npm run build` (with Next.js build cache)
+2. **E2E smoke**: `npm run test:e2e:smoke` (with Playwright browser binary cache and axe-core accessibility checks)
+3. **Supabase and Edge Functions**: Deno type-checking/linting for Edge Functions, SQL migration validation, and linked DB linting
+4. **Security checks**: TruffleHog secret scanning, PR Dependency Review, and non-blocking high-severity npm audit
+5. **CI Pipeline Gate**: Aggregates all job statuses into a GitHub Actions Step Summary table
 
-When test tooling is added, extend CI in this order:
-
-1. `npm run test`
-2. `npm run build`
-3. `npm run test:e2e` against a local production server or a preview deployment
-
-Use CI placeholders for public env variables and CI secret stores for server-only secrets. Keep Playwright browser installation explicit in the test lane.
+Use CI placeholders for public env variables and CI secret stores for server-only secrets.
 
 ## Manual Verification Checklist
 
-Until automated tests exist, use focused manual checks for changed areas:
+For manual verification during local development:
 
 - `npm run lint`
+- `npm run test:run`
 - `npm run build`
 - Start `npm run dev` and open the affected route
 - Check desktop and mobile viewport behavior
@@ -179,10 +176,6 @@ Until automated tests exist, use focused manual checks for changed areas:
 
 ## Owner Tasks
 
-- Add or finalize Vitest dependencies, `vitest.config.*`, and DOM setup.
-- Add or finalize Playwright dependencies, `playwright.config.*`, and smoke specs.
-- Add npm scripts for `test`, `test:watch`, `test:coverage`, `test:e2e`, and `test:e2e:ui`.
-- Add stable mocks for Supabase, Stripe, Cal.com, analytics pixels, and file uploads.
-- Update CI to run tests after the scripts exist.
-- Add coverage thresholds only after the initial suite is stable enough to avoid blocking unrelated work.
-- Remove or archive remaining stale CRA/Jest references in docs outside this lane when those docs are assigned.
+- Keep `frontend/.env.example`, Vercel environment settings, GitHub Actions placeholders, and this document synchronized.
+- Add coverage thresholds when the test suite expands to cover remaining dynamic admin routes.
+- Periodically review `frontend/vercel.json` CSP entries when third-party scripts or embeds change.

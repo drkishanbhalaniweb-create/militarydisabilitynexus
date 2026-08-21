@@ -114,30 +114,34 @@ The codebase still contains a few legacy `REACT_APP_*` fallbacks and stale docs 
 
 ## CI
 
-`.github/workflows/frontend-ci.yml` is the active GitHub Actions workflow for frontend verification. It runs on pull requests that touch `frontend/**` or the workflow file, and on pushes to `main` for the same paths.
+`.github/workflows/frontend-ci.yml` is the active GitHub Actions workflow for full-stack frontend, Supabase, and security verification. It runs on pull requests and pushes to `main` affecting `frontend/**`, `supabase/**`, or `.github/**`.
 
-The job:
+The pipeline consists of five coordinated jobs:
 
-1. Checks out the repo.
-2. Sets up Node.js 20 with npm cache keyed to `frontend/package-lock.json`.
-3. Runs `npm ci` in `frontend/`.
-4. Runs `npm run lint`.
-5. Runs `npm run build`.
+1. **Frontend quality (`frontend-quality`)**: Sets up Node.js 22, restores Next.js build cache (`frontend/.next/cache`), installs dependencies (`npm ci`), runs ESLint (`npm run lint`), executes Vitest unit/API test suites (`npm run test:run`), and builds the Next.js production app (`npm run build`).
+2. **E2E smoke & accessibility (`e2e-smoke`)**: Sets up Node.js 22, caches and installs Playwright Chromium binaries, and executes browser smoke & axe-core accessibility tests (`npm run test:e2e:smoke`). Uploads Playwright test reports on completion.
+3. **Supabase and Edge Functions (`supabase-and-functions`)**: Sets up Deno 2.x to lint and type-check all TypeScript Edge Functions under `supabase/functions/`, validates SQL migration inventory (60+ migrations), and executes Supabase CLI linked database linting when repository credentials are provided.
+4. **Security checks (`security-checks`)**: Executes GitHub Dependency Review on pull requests, TruffleHog secret scanning for leaked credentials, and npm high-severity vulnerability audit.
+5. **CI Pipeline Gate (`ci-gate`)**: Summarizes all test, build, and security results into `$GITHUB_STEP_SUMMARY` and serves as the single unified Required Status Check for branch protection.
 
-CI currently supplies placeholder public environment variables for Supabase, Stripe, and Cal.com so build-time checks can run without production secrets.
-
-Do not edit CI workflows from this lane. When test tooling is added, the testing lane should add Vitest and Playwright steps intentionally.
+CI supplies placeholder public environment variables for Supabase, Stripe, Cal.com, and PostHog so build and test checks run securely without requiring production secrets.
 
 ## Testing
 
-Current automated verification is lint plus build. The testing standard is documented in `docs/TESTING_DOCUMENTATION.md`:
+The testing suite comprises Vitest for unit and API route coverage, and Playwright for browser end-to-end and accessibility coverage:
 
-- Vitest for unit and component tests
-- React Testing Library for component behavior
-- Playwright for browser end-to-end smoke tests
-- External services mocked by default
+- Vitest (`npm run test:run`): Tests unit helpers, diagnostic scoring, form validation, phone formatting, HTML utilities, payment helpers, and API endpoints.
+- Playwright (`npm run test:e2e:smoke`): Validates public pages, dynamic service/condition routing, accessibility standards via axe-core, form interactions, and admin route guards.
 
-No test npm scripts are currently committed. A testing lane may add Playwright or Vitest config/spec files before scripts are wired; verify `frontend/package.json` before documenting or running test commands.
+Run verification commands from `frontend/`:
+
+```bash
+npm run lint           # ESLint check
+npm run test:run       # Vitest unit and API tests
+npm run build          # Next.js production build
+npm run test:e2e:smoke # Playwright browser smoke & a11y tests
+npm run verify:ci      # Full CI-equivalent check
+```
 
 ## Deployment Notes
 
@@ -149,9 +153,6 @@ No test npm scripts are currently committed. A testing lane may add Playwright o
 
 ## Owner Tasks
 
-- Add or wire Vitest and Playwright dependencies, configuration, npm scripts, and CI steps when the testing lane is assigned.
-- Decide whether hard-coded public analytics IDs should remain in source or move to environment variables.
 - Keep `frontend/.env.example`, Vercel environment settings, GitHub Actions placeholders, and this document synchronized.
-- Review stale docs outside this lane that still mention Create React App, React Router, `npm start` as a dev command, or Jest-only testing.
 - Periodically review `frontend/vercel.json` CSP entries when third-party scripts or embeds change.
 - Confirm Supabase service-role usage remains limited to API routes, server scripts, and trusted backend functions.
