@@ -81,6 +81,7 @@ async function sendAdminNotification(supabase: any, diagnostic: any) {
             diagnostic_id: diagnostic.id,
             first_name: diagnostic.first_name,
             email: diagnostic.email,
+            phone: diagnostic.phone,
             score: diagnostic.total_score,
           },
         })
@@ -106,6 +107,7 @@ function generateAdminNotificationEmail(diagnostic: any): string {
   const adminUrl = `${frontendUrl}/admin/analytics`
   const safeName = formatInlineHtml(diagnostic.first_name, 'Not provided', 120)
   const safeEmail = formatSafeEmail(diagnostic.email)
+  const safePhone = sanitizeInlineText(diagnostic.phone, 32)
   const safeRecommendation = formatInlineHtml(
     sanitizeInlineText(diagnostic.recommendation, 120).replace(/_/g, ' '),
     'Not provided',
@@ -138,6 +140,7 @@ function generateAdminNotificationEmail(diagnostic: any): string {
           <h3 style="margin-top: 0; color: #1f2937; font-size: 18px;">Lead Contact Information</h3>
           <p style="margin: 8px 0;"><strong>Name:</strong> ${safeName}</p>
           <p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${safeEmail}" style="color: #667eea;">${safeEmail}</a></p>
+          ${safePhone ? `<p style="margin: 8px 0;"><strong>Phone:</strong> ${formatInlineHtml(safePhone, '', 32)}</p>` : ''}
         </div>
 
         <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">

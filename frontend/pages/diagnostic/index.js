@@ -13,6 +13,7 @@ import {
     formatDiagnosticData,
 } from '../../src/lib/diagnosticScoring';
 import { supabase } from '../../src/lib/supabase';
+import { formatPhoneNumber } from '../../src/lib/phoneUtils';
 
 const Diagnostic = () => {
     const router = useRouter();
@@ -23,6 +24,7 @@ const Diagnostic = () => {
     const [showLeadCapture, setShowLeadCapture] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const currentQuestion = QUESTIONS[currentQuestionIndex] || QUESTIONS[QUESTIONS.length - 1];
@@ -71,7 +73,8 @@ const Diagnostic = () => {
             const diagnosticData = {
                 ...formatDiagnosticData(finalAnswers, score, recommendation),
                 first_name: firstName.trim() || null,
-                email: email.trim() || null
+                email: email.trim() || null,
+                phone: phone.trim() || null
             };
 
             // Save to Supabase
@@ -262,6 +265,21 @@ const Diagnostic = () => {
                                         required
                                         className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 transition-colors"
                                         placeholder="you@example.com"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
+                                        Phone Number (Optional)
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="phone"
+                                        value={phone}
+                                        onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 transition-colors"
+                                        placeholder="(555) 000-0000"
                                         disabled={isSubmitting}
                                     />
                                 </div>

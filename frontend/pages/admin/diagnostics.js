@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, TrendingUp, Users, DollarSign, Calendar, Filter, Trash2 } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Calendar, Filter, Trash2 } from 'lucide-react';
 import { supabase } from '../../src/lib/supabase';
 import { toast } from 'sonner';
 import { RECOMMENDATIONS } from '../../src/lib/diagnosticConfig';
@@ -312,10 +312,23 @@ const Diagnostics = () => {
                                                     {new Date(session.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
-                                                    {session.first_name || session.email ? (
+                                                    {session.first_name || session.email || session.phone ? (
                                                         <div>
                                                             {session.first_name && <div className="font-semibold text-slate-900">{session.first_name}</div>}
-                                                            {session.email && <div className="text-slate-500 text-xs">{session.email}</div>}
+                                                            {session.email && (
+                                                                <div>
+                                                                    <a href={`mailto:${session.email}`} className="text-slate-500 hover:text-navy-700 text-xs">
+                                                                        {session.email}
+                                                                    </a>
+                                                                </div>
+                                                            )}
+                                                            {session.phone && (
+                                                                <div>
+                                                                    <a href={`tel:${session.phone}`} className="text-indigo-600 hover:text-indigo-800 text-xs">
+                                                                        {session.phone}
+                                                                    </a>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ) : (
                                                         <span className="text-slate-400 italic">Anonymous</span>

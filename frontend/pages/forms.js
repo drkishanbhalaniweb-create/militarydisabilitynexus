@@ -7,6 +7,7 @@ import SuccessModal from '../src/components/SuccessModal';
 import { fileUploadApi, formSubmissionsApi, servicesApi, pricingTierApi } from '../src/lib/api';
 import Layout from '../src/components/Layout';
 import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
+import { formatPhoneNumber } from '../src/lib/phoneUtils';
 
 // Maps CMS service slugs to canonical values for ?service= URL param auto-selection
 const SERVICE_SLUG_MAP = {
@@ -142,7 +143,7 @@ const Forms = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: name === 'phone' ? formatPhoneNumber(value) : value
         }));
         
         // Clear pricing tier if service changes
@@ -483,7 +484,7 @@ const Forms = () => {
                                         onChange={handleChange}
                                         required
                                         className="w-full px-4 py-3 border border-white/30 bg-white/50 backdrop-blur-sm rounded-lg focus:ring-2 focus:ring-navy-400 focus:border-transparent transition-all text-slate-900 placeholder:text-slate-600"
-                                        placeholder="+1 888 215 9785"
+                                        placeholder="(555) 000-0000"
                                     />
                                 </div>
 

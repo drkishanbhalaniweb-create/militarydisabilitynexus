@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AlertCircle, CheckCircle2, FileText, Loader2, Mail } from 'lucide-react';
+import { formatPhoneNumber } from '../../lib/phoneUtils';
 
 const HYDRATED_ATTRIBUTE = 'data-lead-magnet-hydrated';
 
@@ -22,7 +23,9 @@ const LeadMagnetForm = ({
   fileName,
 }) => {
   const emailInputId = useId();
+  const phoneInputId = useId();
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [startedAt] = useState(() => Date.now());
   const [status, setStatus] = useState('idle');
@@ -39,6 +42,7 @@ const LeadMagnetForm = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
+          phone: phone.trim() || undefined,
           pdfPath,
           title,
           fileName,
@@ -60,6 +64,7 @@ const LeadMagnetForm = ({
       setStatus('success');
       setMessage('Check your email for the download link.');
       setEmail('');
+      setPhone('');
     } catch (error) {
       setStatus('error');
       setMessage(error.message || 'Unable to send the PDF.');
@@ -95,20 +100,38 @@ const LeadMagnetForm = ({
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <label className="sr-only" htmlFor={emailInputId}>
-              Email address
-            </label>
-            <input
-              id={emailInputId}
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@example.com"
-              className="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-              disabled={status === 'submitting'}
-            />
+          <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="sr-only" htmlFor={emailInputId}>
+                  Email address
+                </label>
+                <input
+                  id={emailInputId}
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Email address (required) *"
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                  disabled={status === 'submitting'}
+                />
+              </div>
+              <div>
+                <label className="sr-only" htmlFor={phoneInputId}>
+                  Phone number (optional)
+                </label>
+                <input
+                  id={phoneInputId}
+                  type="tel"
+                  value={phone}
+                  onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
+                  placeholder="Phone (optional)"
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                  disabled={status === 'submitting'}
+                />
+              </div>
+            </div>
             <input
               type="text"
               value={honeypot}
@@ -121,7 +144,7 @@ const LeadMagnetForm = ({
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-[#B91C3C] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#991b33] disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#B91C3C] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#991b33] disabled:opacity-60 sm:w-auto"
             >
               {status === 'submitting' ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

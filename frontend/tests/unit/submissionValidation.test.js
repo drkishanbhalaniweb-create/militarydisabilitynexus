@@ -7,6 +7,7 @@ import {
   sanitizeFormDataObject,
   sanitizeInlineText,
   sanitizeMultilineText,
+  sanitizePhone,
   validateSubmissionMeta,
 } from '../../src/lib/submissionValidation';
 
@@ -15,6 +16,15 @@ describe('submission validation', () => {
     expect(sanitizeInlineText('  Pat\t\tVeteran\nClaim  ')).toBe('Pat Veteran Claim');
     expect(sanitizeMultilineText(' First line\n\n\n\n Second line ')).toBe('First line\n\nSecond line');
     expect(sanitizeEmail('  PAT@EXAMPLE.COM ')).toBe('pat@example.com');
+  });
+
+  test('normalizes and validates phone numbers', () => {
+    expect(sanitizePhone('8885551212')).toBe('(888) 555-1212');
+    expect(sanitizePhone('(888) 555-1212')).toBe('(888) 555-1212');
+    expect(sanitizePhone('+1 888 555 1212')).toBe('(888) 555-1212');
+    expect(sanitizePhone('', { required: false })).toBe(null);
+    expect(() => sanitizePhone('', { required: true })).toThrow(/Please provide a valid phone number\./);
+    expect(() => sanitizePhone('123', { required: true })).toThrow(/Please provide a valid 10-digit phone number\./);
   });
 
   test('rejects invalid anti-spam metadata', () => {
@@ -60,6 +70,7 @@ describe('submission validation', () => {
     });
 
     expect(prepared.formType).toBe('nexus_letter');
+    expect(prepared.phone).toBe('(888) 555-1212');
     expect(prepared.requiresUpload).toBe(true);
     expect(prepared.formData.selectedServices).toEqual(['dbq']);
     expect(prepared.formData.message).toBe('Line 1\n\nLine 2');
@@ -67,12 +78,19 @@ describe('submission validation', () => {
   });
 
   test('rejects invalid required fields', () => {
-    expect(() => prepareContactSubmission({ name: 'P', email: 'bad', message: 'short' })).toThrow(
+    expect(() => prepareContactSubmission({ name: 'P', email: 'bad', phone: '8885551212', message: 'short' })).toThrow(
       /valid email/,
     );
+    expect(() => prepareContactSubmission({ name: 'Pat Veteran', email: 'pat@example.com', phone: '', message: 'A'.repeat(25) })).toThrow(
+      /Please provide a valid phone number\./,
+    );
     expect(() =>
-      prepareFormSubmission({ formType: 'unknown', fullName: 'Pat', email: 'pat@example.com' }),
+      prepareFormSubmission({ formType: 'unknown', fullName: 'Pat', email: 'pat@example.com', phone: '8885551212' }),
     ).toThrow(/valid service type/);
+    expect(() =>
+      prepareFormSubmission({ formType: 'nexus_letter', fullName: 'Pat', email: 'pat@example.com', phone: '' }),
+    ).toThrow(/Please provide a valid phone number\./,
+    );
   });
 
   test('sanitizes arbitrary JSON form data without accepting arrays at the root', () => {

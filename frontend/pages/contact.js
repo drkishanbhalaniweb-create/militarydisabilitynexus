@@ -10,6 +10,7 @@ import SuccessModal from '../src/components/SuccessModal';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
 import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
+import { formatPhoneNumber } from '../src/lib/phoneUtils';
 
 const Contact = () => {
     const router = useRouter();
@@ -58,9 +59,10 @@ const Contact = () => {
     const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value,
+            [name]: name === 'phone' ? formatPhoneNumber(value) : value,
         });
     };
 
@@ -245,7 +247,7 @@ const Contact = () => {
 
                                         <div className="mb-6">
                                             <label htmlFor="contact-phone" className="block text-sm font-semibold text-slate-700 mb-2">
-                                                Phone
+                                                Phone *
                                             </label>
                                             <input
                                                 id="contact-phone"
@@ -253,6 +255,8 @@ const Contact = () => {
                                                 name="phone"
                                                 value={formData.phone}
                                                 onChange={handleChange}
+                                                required
+                                                placeholder="(555) 000-0000"
                                                 data-testid="contact-phone-input"
                                                 className="w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-lg focus:border-indigo-500 focus:outline-none shadow-sm"
                                             />

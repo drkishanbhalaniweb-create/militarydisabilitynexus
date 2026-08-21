@@ -6,7 +6,7 @@ import ErrorBoundary from '../../src/components/admin/ErrorBoundary';
 import { TableRowSkeleton } from '../../src/components/admin/SkeletonLoader';
 import { useDebounce } from '../../src/hooks/useDebounce';
 import SEO from '../../src/components/SEO';
-import { AlertCircle, Calendar, ExternalLink, Mail, Search, Trash2 } from 'lucide-react';
+import { AlertCircle, Calendar, ExternalLink, Mail, Phone, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const STATUS_STYLES = {
@@ -72,6 +72,7 @@ const CapturedEmails = () => {
     const query = debouncedSearchQuery.toLowerCase();
     return captures.filter((capture) => (
       capture.email?.toLowerCase().includes(query) ||
+      capture.phone?.toLowerCase().includes(query) ||
       capture.lead_magnet_title?.toLowerCase().includes(query) ||
       capture.source_path?.toLowerCase().includes(query)
     ));
@@ -100,53 +101,27 @@ const CapturedEmails = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-                <p className="text-sm text-slate-500">Total Captures</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">{captures.length}</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-                <p className="text-sm text-slate-500">Emails Sent</p>
-                <p className="text-2xl font-bold text-green-700 mt-1">
-                  {captures.filter((capture) => capture.email_status === 'sent').length}
-                </p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-                <p className="text-sm text-slate-500">Failed Sends</p>
-                <p className="text-2xl font-bold text-red-700 mt-1">
-                  {captures.filter((capture) => capture.email_status === 'failed').length}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-              <div className="relative">
-                <label htmlFor="captured-email-search" className="sr-only">Search captured emails</label>
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
-                <input
-                  id="captured-email-search"
-                  type="text"
-                  placeholder="Search by email, template, or source page..."
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search by email, phone, template title, or page path..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 text-slate-900 bg-white"
+              />
             </div>
 
             {error && (
-              <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-red-200">
-                <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Failed to Load Captures</h3>
-                <p className="text-slate-600 mb-6">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+                <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
+                <p className="text-red-800 font-medium">{error}</p>
                 <button
-                  type="button"
                   onClick={fetchCaptures}
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
                 >
-                  Try Again
+                  Retry
                 </button>
               </div>
             )}
@@ -158,6 +133,7 @@ const CapturedEmails = () => {
                     <thead className="bg-slate-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Template</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Source</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
@@ -167,7 +143,7 @@ const CapturedEmails = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">
                       {loading ? (
-                        <TableRowSkeleton columns={6} rows={5} />
+                        <TableRowSkeleton columns={7} rows={5} />
                       ) : (
                         filteredCaptures.map((capture) => (
                           <tr key={capture.id} className="hover:bg-slate-50">
@@ -179,6 +155,19 @@ const CapturedEmails = () => {
                                 <Mail className="w-4 h-4 text-slate-400" />
                                 {capture.email}
                               </a>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {capture.phone ? (
+                                <a
+                                  href={`tel:${capture.phone}`}
+                                  className="text-sm font-medium text-slate-900 hover:text-indigo-700 inline-flex items-center gap-2"
+                                >
+                                  <Phone className="w-4 h-4 text-slate-400" />
+                                  {capture.phone}
+                                </a>
+                              ) : (
+                                <span className="text-sm text-slate-400">—</span>
+                              )}
                             </td>
                             <td className="px-6 py-4">
                               <div className="text-sm font-medium text-slate-900">{capture.lead_magnet_title}</div>

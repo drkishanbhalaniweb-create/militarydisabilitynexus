@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import {
   prepareContactSubmission,
-  createSubmissionMeta,
   validateSubmissionMeta,
 } from '../../src/lib/submissionValidation';
 

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import {
   sanitizeEmail,
   sanitizeInlineText,
+  sanitizePhone,
   validateSubmissionMeta,
 } from '../../src/lib/submissionValidation';
 
@@ -190,6 +191,7 @@ export default async function handler(req, res) {
     }
 
     const email = sanitizeEmail(payload.email);
+    const phone = sanitizePhone(payload.phone);
     const pdfPath = sanitizePdfPath(payload.pdfPath);
     const title = sanitizeInlineText(payload.title, 140) || 'Free PDF Template';
     const fileName = sanitizeInlineText(payload.fileName, 180) || null;
@@ -214,6 +216,7 @@ export default async function handler(req, res) {
       .from('lead_magnet_captures')
       .insert({
         email,
+        phone: phone || null,
         lead_magnet_title: title,
         pdf_storage_path: pdfPath,
         pdf_file_name: fileName,

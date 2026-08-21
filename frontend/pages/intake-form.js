@@ -7,6 +7,7 @@ import SEO from '../src/components/SEO';
 import SuccessModal from '../src/components/SuccessModal';
 import Layout from '../src/components/Layout';
 import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
+import { formatPhoneNumber } from '../src/lib/phoneUtils';
 
 const FORM_TYPES = [
     { value: 'quick_intake', label: 'Quick Intake', requiresUpload: false },
@@ -30,14 +31,16 @@ const IntakeForm = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [submissionId, setSubmissionId] = useState(null); // Add state for submissionId
 
     const selectedFormType = FORM_TYPES.find(ft => ft.value === formData.formType);
     const requiresUpload = selectedFormType?.requiresUpload || false;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === 'phone' ? formatPhoneNumber(value) : value
+        }));
     };
 
     const handleFileSelect = (e) => {
@@ -71,8 +74,6 @@ const IntakeForm = () => {
                 requiresUpload,
             }, submissionMeta);
 
-            setSubmissionId(submission.id);
-
             if (selectedFiles.length > 0) {
                 for (const file of selectedFiles) {
                     await fileUploadApi.upload(file, submission.id, 'medical_record', true);
@@ -104,15 +105,17 @@ const IntakeForm = () => {
     return (
         <Layout>
             <SEO
-                title="Intake Form"
-                description="Submit your information and we'll recommend the right service for your VA disability claim."
+                title="Intake Form - Military Disability Nexus"
+                description="Submit your information for VA disability claim medical documentation review."
             />
-            <div className="min-h-screen bg-slate-50 py-12">
-                <div className="max-w-3xl mx-auto px-4">
+
+            <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-3xl mx-auto">
                     <div className="text-center mb-8">
-                        <FileText className="w-16 h-16 text-indigo-600 mx-auto mb-4" />
-                        <h1 className="text-4xl font-bold text-slate-900 mb-4">Intake Form</h1>
-                        <p className="text-xl text-slate-600">
+                        <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                            VA Claim Intake Form
+                        </h1>
+                        <p className="text-slate-600">
                             Tell us about your case and we'll recommend the right service
                         </p>
                     </div>
@@ -162,15 +165,16 @@ const IntakeForm = () => {
 
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Phone Number (Optional)
+                                Phone Number *
                             </label>
                             <input
                                 type="tel"
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
+                                required
                                 className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                                placeholder="+1 888 215 9785"
+                                placeholder="(555) 000-0000"
                             />
                         </div>
 
@@ -254,8 +258,7 @@ const IntakeForm = () => {
                             )}
                         </div>
 
-                        {/* Rush Service Checkbox */}
-                        <div className="flex items-start gap-3 p-4 bg-navy-50/50 rounded-lg border border-navy-100">
+                        <div className="flex items-start">
                             <input
                                 type="checkbox"
                                 id="rushService"
@@ -264,50 +267,46 @@ const IntakeForm = () => {
                                 onChange={(e) => setFormData(prev => ({ ...prev, rushService: e.target.checked }))}
                                 className="mt-1 w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
                             />
-                            <label htmlFor="rushService" className="flex-1 cursor-pointer">
-                                <span className="text-sm font-medium text-slate-900">Rush service (expedited fee)</span>
-                                <p className="text-xs text-slate-600 mt-0.5">Get your documentation completed in 3-5 business days</p>
+                            <label htmlFor="rushService" className="ml-3">
+                                <span className="text-sm font-semibold text-slate-900">
+                                    Rush Service (3-5 business days)
+                                </span>
+                                <p className="text-xs text-slate-500">
+                                    Additional fees apply for expedited processing
+                                </p>
                             </label>
                         </div>
 
-                        <div className="flex gap-4 pt-4">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="flex-1 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                style={{ backgroundColor: '#B91C3C' }}
-                            >
-                                {loading ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                        <span>Submitting...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Send className="w-5 h-5" />
-                                        <span>Submit Form</span>
-                                    </>
-                                )}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => router.push('/forms?view=schedule')}
-                                className="flex-1 bg-white text-navy-600 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-slate-300 hover:border-slate-400 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <span>Free Discovery Call</span>
-                            </button>
-                        </div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-navy-600 hover:bg-navy-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
+                        >
+                            {loading ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                                    <span>Submitting...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="w-5 h-5" />
+                                    <span>Submit Intake Form</span>
+                                </>
+                            )}
+                        </button>
                     </form>
-                </div>
 
-                {/* Success Modal */}
-                <SuccessModal
-                    isOpen={showSuccessModal}
-                    onClose={() => setShowSuccessModal(false)}
-                    title="Form Submitted Successfully!"
-                    message="Your intake form has been submitted. Our medical team will review your information and contact you within 1-2 business days."
-                />
+                    {/* Success Modal */}
+                    <SuccessModal
+                        isOpen={showSuccessModal}
+                        onClose={() => {
+                            setShowSuccessModal(false);
+                            router.push('/');
+                        }}
+                        title="Intake Form Submitted!"
+                        message="Thank you for submitting your intake form. Our team will review your case and contact you within 1-2 business days with recommendations."
+                    />
+                </div>
             </div>
         </Layout>
     );

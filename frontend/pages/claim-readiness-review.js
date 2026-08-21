@@ -9,6 +9,7 @@ import { supabase } from '../src/lib/supabase';
 import SEO from '../src/components/SEO';
 import Layout from '../src/components/Layout';
 import { createSubmissionMeta, validateSubmissionMeta } from '../src/lib/submissionValidation';
+import { formatPhoneNumber } from '../src/lib/phoneUtils';
 
 const ClaimReadinessReview = () => {
     const router = useRouter();
@@ -56,7 +57,7 @@ const ClaimReadinessReview = () => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: type === 'checkbox' ? checked : (name === 'phone' ? formatPhoneNumber(value) : value)
         }));
     };
 
@@ -257,7 +258,7 @@ const ClaimReadinessReview = () => {
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent"
-                                    placeholder="+1 888 215 9785"
+                                    placeholder="(555) 000-0000"
                                 />
                             </div>
 

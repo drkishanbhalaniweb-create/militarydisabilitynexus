@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { formSubmissionsApi, fileUploadApi, servicesApi } from '../../lib/api';
 import SuccessModal from '../SuccessModal';
 import { createSubmissionMeta, validateSubmissionMeta } from '../../lib/submissionValidation';
+import { formatPhoneNumber } from '../../lib/phoneUtils';
 
 const QuickIntakeForm = ({ onSuccess }) => {
   const [formTypes, setFormTypes] = useState([]);
@@ -72,7 +73,10 @@ const QuickIntakeForm = ({ onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'phone' ? formatPhoneNumber(value) : value
+    }));
   };
 
   const handleFormTypeToggle = (value) => {
@@ -212,8 +216,9 @@ const QuickIntakeForm = ({ onSuccess }) => {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
+            required
             className="w-full px-4 py-2.5 rounded-lg border border-white/30 bg-white/50 backdrop-blur-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200/50 focus:outline-none text-sm text-slate-900 placeholder:text-slate-600"
-            placeholder="Phone (optional)"
+            placeholder="Phone * (e.g. (555) 000-0000)"
           />
         </div>
 

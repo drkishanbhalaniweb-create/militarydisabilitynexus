@@ -11,17 +11,22 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Loader2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { paymentApi } from '../lib/payment';
+import { formatPhoneNumber } from '../lib/phoneUtils';
 
 const BookingModal = ({ isOpen, onClose, serviceType = 'cp_exam_prep', price = 15000 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phone: '',
     });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({
+            ...prev,
+            [name]: name === 'phone' ? formatPhoneNumber(value) : value,
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -29,20 +34,18 @@ const BookingModal = ({ isOpen, onClose, serviceType = 'cp_exam_prep', price = 1
         setIsLoading(true);
 
         try {
-            // Create a temporary form submission for lead tracking
-            // In a real app, you might want a specialized lead table
-            // Here we use the checkout session metadata as well
-
             const successUrl = `${window.location.origin}/cp-exam-coaching/success?session_id={CHECKOUT_SESSION_ID}`;
             const cancelUrl = `${window.location.origin}/cp-exam-coaching`;
 
             const session = await paymentApi.createCheckoutSession({
-                formSubmissionId: 'lead_' + Date.now(), // Generate a temp ID
+                formSubmissionId: 'lead_' + Date.now(),
                 serviceType,
                 amount: price,
-                priceId: 'price_1StIpmGp9b54FZ4D8DdGZXwg', // Force the exact Stripe Product
+                priceId: 'price_1StIpmGp9b54FZ4D8DdGZXwg',
                 isRushService: false,
                 customerEmail: formData.email,
+                customerPhone: formData.phone,
+                customerName: formData.name,
                 successUrl,
                 cancelUrl,
             });
@@ -75,7 +78,7 @@ const BookingModal = ({ isOpen, onClose, serviceType = 'cp_exam_prep', price = 1
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-slate-700 font-bold ml-1">Full Name</Label>
+                            <Label htmlFor="name" className="text-slate-700 font-bold ml-1">Full Name *</Label>
                             <Input
                                 id="name"
                                 name="name"
@@ -87,7 +90,7 @@ const BookingModal = ({ isOpen, onClose, serviceType = 'cp_exam_prep', price = 1
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-slate-700 font-bold ml-1">Email Address</Label>
+                            <Label htmlFor="email" className="text-slate-700 font-bold ml-1">Email Address *</Label>
                             <Input
                                 id="email"
                                 name="email"
@@ -95,6 +98,19 @@ const BookingModal = ({ isOpen, onClose, serviceType = 'cp_exam_prep', price = 1
                                 placeholder="john@example.com"
                                 required
                                 value={formData.email}
+                                onChange={handleInputChange}
+                                className="h-14 rounded-xl border-slate-200 focus:border-navy-500 focus:ring-navy-500 text-lg px-4"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="phone" className="text-slate-700 font-bold ml-1">Phone Number *</Label>
+                            <Input
+                                id="phone"
+                                name="phone"
+                                type="tel"
+                                placeholder="(555) 000-0000"
+                                required
+                                value={formData.phone}
                                 onChange={handleInputChange}
                                 className="h-14 rounded-xl border-slate-200 focus:border-navy-500 focus:ring-navy-500 text-lg px-4"
                             />

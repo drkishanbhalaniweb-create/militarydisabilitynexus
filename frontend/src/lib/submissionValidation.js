@@ -103,17 +103,33 @@ export function sanitizeEmail(value) {
   return sanitized;
 }
 
-export function sanitizePhone(value) {
+export function sanitizePhone(value, { required = false } = {}) {
   const raw = toStringValue(value).replace(/[^\d+().\-\s]/g, '').trim();
 
   if (!raw) {
+    if (required) {
+      throw new Error('Please provide a valid phone number.');
+    }
     return null;
   }
 
   const normalized = raw.replace(/\s+/g, ' ').slice(0, 32).trim();
+  const digits = normalized.replace(/\D/g, '');
 
-  if (normalized.length < 7) {
+  if (digits.length < 10 && !normalized.startsWith('+')) {
+    throw new Error('Please provide a valid 10-digit phone number.');
+  }
+
+  if (normalized.startsWith('+') && digits.length < 8) {
     throw new Error('Please provide a valid phone number.');
+  }
+
+  // Format standard 10-digit US number nicely
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}`;
   }
 
   return normalized;
@@ -232,7 +248,7 @@ export function validateSubmissionMeta(meta) {
 export function prepareContactSubmission(contactData) {
   const name = sanitizeInlineText(contactData.name, 120);
   const email = sanitizeEmail(contactData.email);
-  const phone = sanitizePhone(contactData.phone);
+  const phone = sanitizePhone(contactData.phone, { required: true });
   const message = sanitizeMultilineText(contactData.message, 5000);
   const serviceTypes = sanitizeAllowedStringArray(contactData.serviceTypes, CONTACT_SERVICE_TYPES);
   const subject = serviceTypes.length > 0
@@ -265,7 +281,7 @@ export function prepareFormSubmission(formData) {
   const formType = sanitizeInlineText(formData.formType || formData.form_type, 50);
   const fullName = sanitizeInlineText(formData.fullName || formData.full_name, 120);
   const email = sanitizeEmail(formData.email);
-  const phone = sanitizePhone(formData.phone);
+  const phone = sanitizePhone(formData.phone, { required: true });
   const sanitizedFormData = sanitizeFormDataObject(formData.formData || formData.form_data);
 
   if (!ALLOWED_FORM_TYPES.has(formType)) {
