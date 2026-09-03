@@ -61,8 +61,8 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const requestData: CreateAdminRequest = await req.json();
-    const { email, password, full_name, role } = requestData;
+    const requestData: CreateAdminRequest & { allowed_tabs?: string[] } = await req.json();
+    const { email, password, full_name, role, allowed_tabs } = requestData;
 
     // Validate input
     if (!email || !password || !full_name || !role) {
@@ -117,6 +117,8 @@ serve(async (req) => {
       throw new Error('Failed to create user: No user returned');
     }
 
+    const assignedTabs = role === 'super_admin' ? null : (Array.isArray(allowed_tabs) ? allowed_tabs : []);
+
     // Create entry in admin_users table
     const { error: insertError } = await supabaseAdmin
       .from('admin_users')
@@ -125,6 +127,7 @@ serve(async (req) => {
         email,
         full_name,
         role,
+        allowed_tabs: assignedTabs,
         created_by: user.id,
         is_active: true,
       });

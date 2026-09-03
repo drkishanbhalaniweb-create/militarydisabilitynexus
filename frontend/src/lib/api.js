@@ -4,6 +4,7 @@ import {
   prepareContactSubmission,
   prepareFormSubmission,
 } from './submissionValidation';
+import { getAttributionPayload } from './journeyTracker';
 
 // ============================================
 // SERVICES
@@ -228,12 +229,14 @@ export const testimonialApi = {
 export const contactsApi = {
   async submit(contactData, submissionMeta = null) {
     const preparedContact = prepareContactSubmission(contactData);
+    const attribution = contactData.attribution || getAttributionPayload();
 
     const response = await fetch('/api/submit-contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...preparedContact,
+        attribution,
         meta: submissionMeta ? createSubmissionMeta(submissionMeta) : undefined,
       }),
     });
@@ -372,12 +375,14 @@ export const fileUploadApi = {
 export const formSubmissionsApi = {
   async submit(formData, submissionMeta = null) {
     const preparedSubmission = prepareFormSubmission(formData);
+    const attribution = formData.attribution || getAttributionPayload();
 
     const response = await fetch('/api/submit-form', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...preparedSubmission,
+        attribution,
         meta: submissionMeta ? createSubmissionMeta(submissionMeta) : undefined,
       }),
     });

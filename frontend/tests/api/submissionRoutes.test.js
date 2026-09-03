@@ -120,12 +120,24 @@ describe('submission API routes', () => {
     expect(res.body).toEqual({ error: 'Method not allowed' });
   });
 
-  test('submits contact payloads with sanitized fields', async () => {
+  test('submits contact payloads with sanitized fields and attribution data', async () => {
     const { chains } = mockSupabase();
     const { submitContact } = await importHandlers();
     const res = createResponse();
 
-    await submitContact(createRequest(validContact), res);
+    const contactWithAttribution = {
+      ...validContact,
+      attribution: {
+        anonymous_journey_id: 'e1d2c3b4-a5f6-4a7b-8c9d-0e1f2a3b4c5d',
+        first_touch_source: 'google',
+        first_touch_medium: 'cpc',
+        first_touch_campaign: 'spring_nexus',
+        referrer_category: 'paid',
+        device_class: 'mobile',
+      },
+    };
+
+    await submitContact(createRequest(contactWithAttribution), res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(chains.contacts.insert).toHaveBeenCalledWith(
@@ -134,17 +146,35 @@ describe('submission API routes', () => {
         email: 'pat@example.com',
         service_interest: 'nexus_letter',
         status: 'new',
+        anonymous_journey_id: 'e1d2c3b4-a5f6-4a7b-8c9d-0e1f2a3b4c5d',
+        first_touch_source: 'google',
+        first_touch_medium: 'cpc',
+        first_touch_campaign: 'spring_nexus',
+        referrer_category: 'paid',
+        device_class: 'mobile',
+        qualification_status: 'pending',
       }),
     );
     expect(res.body.success).toBe(true);
   });
 
-  test('submits form payloads with sanitized fields', async () => {
+  test('submits form payloads with sanitized fields and attribution data', async () => {
     const { chains } = mockSupabase();
     const { submitForm } = await importHandlers();
     const res = createResponse();
 
-    await submitForm(createRequest(validForm), res);
+    const formWithAttribution = {
+      ...validForm,
+      attribution: {
+        anonymous_journey_id: 'e1d2c3b4-a5f6-4a7b-8c9d-0e1f2a3b4c5d',
+        first_touch_source: 'perplexity',
+        first_touch_medium: 'ai_search',
+        referrer_category: 'social_ai',
+        device_class: 'desktop',
+      },
+    };
+
+    await submitForm(createRequest(formWithAttribution), res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(chains.form_submissions.insert).toHaveBeenCalledWith(
@@ -153,6 +183,11 @@ describe('submission API routes', () => {
         full_name: 'Pat Veteran',
         requires_upload: true,
         status: 'new',
+        anonymous_journey_id: 'e1d2c3b4-a5f6-4a7b-8c9d-0e1f2a3b4c5d',
+        first_touch_source: 'perplexity',
+        referrer_category: 'social_ai',
+        device_class: 'desktop',
+        qualification_status: 'pending',
       }),
     );
     expect(res.body.success).toBe(true);

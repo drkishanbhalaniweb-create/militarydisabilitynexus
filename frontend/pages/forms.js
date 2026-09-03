@@ -105,25 +105,6 @@ const Forms = () => {
         }
     }, [router.isReady, initialView, service, tier]);
 
-    // Load Cal.com inline embed
-    useEffect(() => {
-        if (showCal) {
-            if (typeof document === 'undefined') return;
-
-            // Load Cal.com embed script
-            const script = document.createElement('script');
-            script.src = 'https://app.cal.com/embed/embed.js';
-            script.async = true;
-            document.head.appendChild(script);
-
-            return () => {
-                if (document.head.contains(script)) {
-                    document.head.removeChild(script);
-                }
-            };
-        }
-    }, [showCal]);
-
     // Update URL when toggling views (only when showCal changes via user interaction)
     useEffect(() => {
         if (!router.isReady) return;
@@ -308,17 +289,17 @@ const Forms = () => {
                         </div>
                     </div>
 
-                    {/* Cal.com Inline Widget */}
+                    {/* Zoom Scheduler Inline Widget */}
                     {showCal ? (
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/40">
-                            <h2 className="text-2xl font-bold text-slate-900 mb-6">Schedule Your Free Discovery Call</h2>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Schedule Your Free Discovery Call</h2>
                             <p className="text-slate-600 mb-6">
                                 Book a consultation to discuss your VA claim needs. We'll help you understand which services are right for you.
                             </p>
-                            <div className="bg-white rounded-lg overflow-hidden">
-                                {/* Cal.com Inline Embed */}
+                            <div className="bg-white rounded-lg overflow-hidden border border-slate-200">
+                                {/* Zoom Scheduler Inline Embed */}
                                 <iframe
-                                    src="https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus?embed=true"
+                                    src={process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us'}
                                     width="100%"
                                     height="700"
                                     frameBorder="0"
@@ -327,7 +308,15 @@ const Forms = () => {
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
-                                Having trouble? <a href="https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                                Having trouble?{' '}
+                                <a
+                                    href={process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-indigo-600 hover:underline font-semibold"
+                                >
+                                    Open calendar in new window
+                                </a>
                             </p>
                         </div>
                     ) : (

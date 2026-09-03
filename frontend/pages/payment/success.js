@@ -10,25 +10,11 @@ const PaymentSuccess = () => {
     const { session_id } = router.query;
     const [showCal, setShowCal] = useState(false);
 
-    // Show Cal.com widget after delay
+    // Show booking widget after delay
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowCal(true);
-
-            if (typeof document === 'undefined') return;
-
-            // Load Cal.com embed script
-            const script = document.createElement('script');
-            script.src = 'https://app.cal.com/embed/embed.js';
-            script.async = true;
-            document.head.appendChild(script);
-
-            return () => {
-                if (document.head.contains(script)) {
-                    document.head.removeChild(script);
-                }
-            };
-        }, 2000);
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
@@ -145,7 +131,7 @@ const PaymentSuccess = () => {
                         </ul>
                     </div>
 
-                    {/* Cal.com Booking Section */}
+                    {/* Zoom Scheduler Booking Section */}
                     {showCal && (
                         <div className="bg-white rounded-2xl p-8 shadow-lg mb-6">
                             <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center justify-center">
@@ -155,10 +141,10 @@ const PaymentSuccess = () => {
                             <p className="text-center text-slate-600 mb-6">
                                 Book a time to discuss your claim with our team
                             </p>
-                            <div className="bg-white rounded-lg overflow-hidden">
-                                {/* Cal.com Inline Embed */}
+                            <div className="bg-white rounded-lg overflow-hidden border border-slate-200">
+                                {/* Zoom Scheduler Inline Embed */}
                                 <iframe
-                                    src="https://cal.com/militarydisabilitynexus/claim-readiness-review?embed=true"
+                                    src={process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us'}
                                     width="100%"
                                     height="700"
                                     frameBorder="0"
@@ -167,7 +153,7 @@ const PaymentSuccess = () => {
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
-                                Having trouble? <a href="https://cal.com/militarydisabilitynexus/claim-readiness-review" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                                Having trouble? <a href={process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us'} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
                             </p>
                         </div>
                     )}

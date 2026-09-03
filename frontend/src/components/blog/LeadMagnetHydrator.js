@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AlertCircle, CheckCircle2, FileText, Loader2, Mail } from 'lucide-react';
 import { formatPhoneNumber } from '../../lib/phoneUtils';
+import { getAttributionPayload } from '../../lib/journeyTracker';
 
 const HYDRATED_ATTRIBUTE = 'data-lead-magnet-hydrated';
 
@@ -47,6 +48,7 @@ const LeadMagnetForm = ({
           title,
           fileName,
           sourcePath: window.location.pathname,
+          attribution: getAttributionPayload(),
           meta: {
             honeypot,
             startedAt,

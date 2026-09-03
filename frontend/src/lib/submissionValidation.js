@@ -308,3 +308,74 @@ export function prepareFormSubmission(formData) {
     requiresUpload: Boolean(formData.requiresUpload || formData.requires_upload),
   };
 }
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const ALLOWED_DEVICE_CLASSES = new Set(['mobile', 'tablet', 'desktop']);
+const ALLOWED_QUALIFICATION_STATUSES = new Set(['pending', 'qualified', 'unqualified', 'nurture']);
+
+function sanitizeTimestamp(value) {
+  if (!value) return null;
+  try {
+    const d = new Date(value);
+    return !isNaN(d.getTime()) ? d.toISOString() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function sanitizeAttributionPayload(attribution) {
+  if (!attribution || typeof attribution !== 'object' || Array.isArray(attribution)) {
+    return {
+      anonymous_journey_id: null,
+      first_touch_source: null,
+      first_touch_medium: null,
+      first_touch_campaign: null,
+      first_touch_landing_page: null,
+      first_touch_at: null,
+      last_touch_source: null,
+      last_touch_medium: null,
+      last_touch_campaign: null,
+      last_touch_landing_page: null,
+      last_touch_at: null,
+      referrer_category: 'direct',
+      device_class: null,
+      qualification_status: 'pending',
+      qualification_reason: null,
+      qualified_at: null,
+      qualified_by: null,
+    };
+  }
+
+  const rawJourneyId = toStringValue(attribution.anonymous_journey_id || attribution.journey_id || attribution.journeyId).trim();
+  const anonymous_journey_id = UUID_REGEX.test(rawJourneyId) ? rawJourneyId : null;
+
+  const rawDeviceClass = toStringValue(attribution.device_class || attribution.deviceClass).trim().toLowerCase();
+  const device_class = ALLOWED_DEVICE_CLASSES.has(rawDeviceClass) ? rawDeviceClass : null;
+
+  const rawQualStatus = toStringValue(attribution.qualification_status || attribution.qualificationStatus).trim().toLowerCase();
+  const qualification_status = ALLOWED_QUALIFICATION_STATUSES.has(rawQualStatus) ? rawQualStatus : 'pending';
+
+  const rawQualifiedBy = toStringValue(attribution.qualified_by || attribution.qualifiedBy).trim();
+  const qualified_by = UUID_REGEX.test(rawQualifiedBy) ? rawQualifiedBy : null;
+
+  return {
+    anonymous_journey_id,
+    first_touch_source: sanitizeInlineText(attribution.first_touch_source || attribution.firstTouchSource, 100) || null,
+    first_touch_medium: sanitizeInlineText(attribution.first_touch_medium || attribution.firstTouchMedium, 100) || null,
+    first_touch_campaign: sanitizeInlineText(attribution.first_touch_campaign || attribution.firstTouchCampaign, 200) || null,
+    first_touch_landing_page: sanitizeInlineText(attribution.first_touch_landing_page || attribution.firstTouchLandingPage, 300) || null,
+    first_touch_at: sanitizeTimestamp(attribution.first_touch_at || attribution.firstTouchAt),
+    last_touch_source: sanitizeInlineText(attribution.last_touch_source || attribution.lastTouchSource, 100) || null,
+    last_touch_medium: sanitizeInlineText(attribution.last_touch_medium || attribution.lastTouchMedium, 100) || null,
+    last_touch_campaign: sanitizeInlineText(attribution.last_touch_campaign || attribution.lastTouchCampaign, 200) || null,
+    last_touch_landing_page: sanitizeInlineText(attribution.last_touch_landing_page || attribution.lastTouchLandingPage, 300) || null,
+    last_touch_at: sanitizeTimestamp(attribution.last_touch_at || attribution.lastTouchAt),
+    referrer_category: sanitizeInlineText(attribution.referrer_category || attribution.referrerCategory, 50) || 'direct',
+    device_class,
+    qualification_status,
+    qualification_reason: sanitizeInlineText(attribution.qualification_reason || attribution.qualificationReason, 500) || null,
+    qualified_at: sanitizeTimestamp(attribution.qualified_at || attribution.qualifiedAt),
+    qualified_by,
+  };
+}
+

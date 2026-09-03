@@ -407,31 +407,33 @@ Redirect to success.html
 
 ---
 
-## Cal.com Integration
+## Zoom Scheduler Integration
 
 ### Overview
 
-Cal.com is used for appointment booking. The integration is currently manual (user books separately), but can be automated.
+Zoom Scheduler is used for appointment booking across the website (free discovery calls, post-payment consultations, and coaching sessions).
 
 ### Current Implementation
 
-**Manual Booking Flow:**
-1. User completes payment on Stripe
-2. User receives confirmation email
-3. User clicks booking link in email
-4. User selects time slot on Cal.com
-5. Cal.com sends confirmation
+**Booking Configuration:**
+- Primary universal booking link: `NEXT_PUBLIC_ZOOM_URL`
+- Optional overrides: `NEXT_PUBLIC_ZOOM_URL_DISCOVERY`, `NEXT_PUBLIC_ZOOM_URL_CONSULTATION`, `NEXT_PUBLIC_ZOOM_URL_CP_COACHING`
 
-### Automated Integration (Recommended)
+**Booking Flows:**
+1. **Free Discovery Calls (`/forms?view=schedule`):** Directly embeds Zoom Scheduler. Zoom Scheduler handles slot selection, Name, Email, and mandatory Phone Number (configured as a required Attendee Question) without redundant multi-step friction.
+2. **Post-Payment Consultations:** Embedded on `/payment/success`.
+3. **C&P Exam Coaching:** Embedded on `/cp-exam-coaching/success`.
 
 **Embedded Booking:**
 ```html
-<!-- Embed Cal.com booking widget -->
-<div 
-  data-cal-link="your-username/claim-readiness-review"
-  data-cal-config='{"theme":"light"}'
-></div>
-<script src="https://cal.com/embed.js"></script>
+<!-- Embed Zoom Scheduler booking widget -->
+<iframe
+  src="https://scheduler.zoom.us/your-team/universal-link"
+  width="100%"
+  height="700"
+  frameborder="0"
+  title="Schedule Consultation"
+></iframe>
 ```
 
 **API Integration:**

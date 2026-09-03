@@ -13,7 +13,6 @@ const AdminUsers = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
-    const [userRole, setUserRole] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -54,8 +53,6 @@ const AdminUsers = () => {
                 router.push('/admin/dashboard');
                 return;
             }
-
-            setUserRole(data.role);
         } catch (error) {
             console.error('Error checking permissions:', error);
             toast.error('Failed to verify permissions');
@@ -203,13 +200,13 @@ const AdminUsers = () => {
                                             Role
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                                            Permissions / Access
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                             Status
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                             Last Login
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                            Created
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                                             Actions
@@ -239,6 +236,30 @@ const AdminUsers = () => {
                                                         <span>{roleBadge.label}</span>
                                                     </span>
                                                 </td>
+                                                <td className="px-6 py-4">
+                                                    {user.role === 'super_admin' ? (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                                                            Full Unrestricted Access
+                                                        </span>
+                                                    ) : Array.isArray(user.allowed_tabs) && user.allowed_tabs.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1 max-w-xs">
+                                                            {user.allowed_tabs.slice(0, 3).map(tab => (
+                                                                <span key={tab} className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                                                    {tab}
+                                                                </span>
+                                                            ))}
+                                                            {user.allowed_tabs.length > 3 && (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700">
+                                                                    +{user.allowed_tabs.length - 3} more
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-slate-400 italic">
+                                                            Default role permissions
+                                                        </span>
+                                                    )}
+                                                </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span
                                                         className={`inline-flex items-center space-x-1 px-3 py-1 text-xs font-semibold rounded-full ${user.is_active
@@ -262,10 +283,16 @@ const AdminUsers = () => {
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                                     {formatDate(user.last_login)}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                                    {formatDate(user.created_at)}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            setCurrentUser(user);
+                                                            setShowForm(true);
+                                                        }}
+                                                        className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                                    >
+                                                        Edit
+                                                    </button>
                                                     <button
                                                         onClick={() => handleToggleActive(user.id, user.is_active, user.email)}
                                                         className={`${user.is_active
@@ -291,12 +318,17 @@ const AdminUsers = () => {
                     </div>
                 </div>
 
-                {/* Create Admin Form Modal */}
+                {/* Create/Edit Admin Form Modal */}
                 {showForm && (
                     <AdminUserForm
-                        onClose={() => setShowForm(false)}
+                        userToEdit={currentUser}
+                        onClose={() => {
+                            setShowForm(false);
+                            setCurrentUser(null);
+                        }}
                         onSuccess={() => {
                             setShowForm(false);
+                            setCurrentUser(null);
                             fetchAdminUsers();
                         }}
                     />

@@ -2,58 +2,69 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabase';
 import {
-  LayoutDashboard,
-  FileText,
-  Briefcase,
-  MessageSquare,
-  Mail,
-  LogOut,
-  Menu,
-  X,
-  ClipboardList,
-  Users,
-  HelpCircle,
-  BookOpen,
-  Activity,
-  Settings,
-  Quote,
-  Stethoscope,
-  HeartPulse,
-  DollarSign,
-  Layers
-} from 'lucide-react';
+  ADMIN_NAV_SECTIONS,
+  isTabAllowed,
+  canAccessPath,
+  getFirstAllowedRoute
+} from '../../lib/adminNavConfig';
+import { LogOut, Menu, X, Shield, ShieldCheck, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const AdminLayout = ({ children }) => {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [adminProfile, setAdminProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
-    checkUserRole();
+    loadAdminProfile();
   }, []);
 
-  const checkUserRole = async () => {
+  const loadAdminProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoadingProfile(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from('admin_users')
-        .select('role')
+        .select('id, email, full_name, role, allowed_tabs, is_active')
         .eq('id', user.id)
-        .maybeSingle(); // Use maybeSingle instead of single to avoid errors
+        .maybeSingle();
 
-      // Ignore errors - user might not be in admin_users table yet
-      if (data && data.role === 'super_admin') {
-        setIsSuperAdmin(true);
+      if (error) {
+        console.warn('Could not load admin user profile:', error.message);
       }
-    } catch (error) {
-      // Silently fail - user just won't see Admin Users link
-      console.log('Admin users table not accessible yet');
+
+      const profile = data || {
+        id: user.id,
+        email: user.email,
+        role: 'admin',
+        allowed_tabs: null,
+        is_active: true
+      };
+
+      setAdminProfile(profile);
+    } catch (err) {
+      console.error('Error in loadAdminProfile:', err);
+    } finally {
+      setLoadingProfile(false);
     }
   };
+
+  // Route guarding: protect against unauthorized direct URL visits
+  useEffect(() => {
+    if (loadingProfile || !adminProfile) return;
+
+    if (!canAccessPath(adminProfile, router.pathname)) {
+      toast.error('Access restricted: You do not have permission to view that section.');
+      const fallbackRoute = getFirstAllowedRoute(adminProfile);
+      router.replace(fallbackRoute);
+    }
+  }, [router.pathname, adminProfile, loadingProfile, router]);
 
   const handleLogout = async () => {
     try {
@@ -66,113 +77,169 @@ const AdminLayout = ({ children }) => {
     }
   };
 
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
-    { name: 'Captured Emails', href: '/admin/captured-emails', icon: Mail },
-    { name: 'Form Submissions', href: '/admin/form-submissions', icon: ClipboardList },
-    { name: 'Diagnostics', href: '/admin/diagnostics', icon: Activity },
-    { name: 'Services', href: '/admin/services', icon: Briefcase },
-    { name: 'Pricing Tiers', href: '/admin/pricing-tiers', icon: DollarSign },
-    { name: 'Body Systems', href: '/admin/body-systems', icon: Layers },
-    { name: 'Conditions', href: '/admin/conditions', icon: HeartPulse },
-    { name: 'Case Studies', href: '/admin/case-studies', icon: BookOpen },
-    { name: 'Testimonials', href: '/admin/testimonials', icon: Quote },
-    { name: 'Clinical Profiles', href: '/admin/clinical-profiles', icon: Stethoscope },
-    { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
-    { name: 'Community Q&A', href: '/admin/community', icon: HelpCircle },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
-    ...(isSuperAdmin ? [{ name: 'Admin Users', href: '/admin/users', icon: Users }] : []),
-  ];
+  // Filter navigation sections based on permissions
+  const filteredSections = useMemo(() => {
+    if (!adminProfile) return [];
 
-  const isActive = (path) => router.pathname === path;
+    return ADMIN_NAV_SECTIONS.map(section => ({
+      ...section,
+      items: section.items.filter(item => isTabAllowed(adminProfile, item.id))
+    })).filter(section => section.items.length > 0);
+  }, [adminProfile]);
+
+  const isActive = (path) => {
+    if (path === '/admin/dashboard') {
+      return router.pathname === path;
+    }
+    return router.pathname.startsWith(path);
+  };
+
+  const getRoleIcon = () => {
+    if (!adminProfile) return null;
+    if (adminProfile.role === 'super_admin') return <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />;
+    if (adminProfile.role === 'editor') return <Edit2 className="w-3.5 h-3.5 text-green-300" />;
+    return <Shield className="w-3.5 h-3.5 text-indigo-200" />;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Sidebar - Desktop */}
       <div className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow bg-indigo-700 overflow-y-auto">
-          <div className="flex items-center flex-shrink-0 px-4 py-6">
-            <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-5 border-b border-indigo-600/60">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-white">Admin Panel</h1>
+              <p className="text-xs text-indigo-200 mt-0.5">Military Disability Nexus</p>
+            </div>
           </div>
-          <nav className="flex-1 px-2 pb-4 space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${isActive(item.href)
-                    ? 'bg-indigo-800 text-white'
-                    : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
-                    }`}
-                >
-                  <Icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
+
+          {/* User badge */}
+          {adminProfile && (
+            <div className="px-4 py-3 bg-indigo-800/40 border-b border-indigo-600/40 flex items-center justify-between">
+              <div className="truncate pr-2">
+                <p className="text-xs font-medium text-white truncate">
+                  {adminProfile.full_name || adminProfile.email}
+                </p>
+                <div className="flex items-center space-x-1 mt-0.5">
+                  {getRoleIcon()}
+                  <span className="text-[11px] font-medium text-indigo-200 capitalize">
+                    {adminProfile.role?.replace('_', ' ') || 'Admin'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Categorized Navigation */}
+          <nav className="flex-1 px-3 py-4 space-y-5">
+            {filteredSections.map((section) => (
+              <div key={section.title} className="space-y-1">
+                <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-indigo-200/80">
+                  {section.title}
+                </div>
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        active
+                          ? 'bg-indigo-800 text-white shadow-sm font-semibold'
+                          : 'text-indigo-100 hover:bg-indigo-600/70 hover:text-white'
+                      }`}
+                    >
+                      <Icon className={`mr-3 h-4 w-4 shrink-0 ${active ? 'text-white' : 'text-indigo-200'}`} />
+                      <span className="truncate">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
-          <div className="flex-shrink-0 flex border-t border-indigo-800 p-4">
+
+          {/* Logout */}
+          <div className="flex-shrink-0 flex border-t border-indigo-600/60 p-3">
             <button
               onClick={handleLogout}
-              className="flex-shrink-0 w-full group flex items-center px-3 py-3 text-sm font-medium text-indigo-100 rounded-lg hover:bg-indigo-600 hover:text-white transition-colors"
+              className="w-full group flex items-center px-3 py-2.5 text-sm font-medium text-indigo-100 rounded-lg hover:bg-indigo-600 hover:text-white transition-colors"
             >
-              <LogOut className="mr-3 h-5 w-5" />
+              <LogOut className="mr-3 h-4 w-4" />
               Logout
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu button */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-indigo-700 z-40">
-        <div className="flex items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+      {/* Mobile Header Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-indigo-700 z-40 border-b border-indigo-600">
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div>
+            <h1 className="text-lg font-bold text-white">Admin Panel</h1>
+            {adminProfile && (
+              <span className="text-[11px] text-indigo-200 capitalize">
+                {adminProfile.role?.replace('_', ' ')}
+              </span>
+            )}
+          </div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-white"
+            className="p-1.5 text-indigo-100 hover:text-white hover:bg-indigo-600 rounded-lg transition-colors"
+            aria-label="Toggle navigation"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-30 bg-indigo-700 pt-16">
-          <nav className="px-2 pb-4 space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive(item.href)
-                    ? 'bg-indigo-800 text-white'
-                    : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
-                    }`}
-                >
-                  <Icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
+        <div className="md:hidden fixed inset-0 z-30 bg-indigo-700 pt-16 flex flex-col overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-5">
+            {filteredSections.map((section) => (
+              <div key={section.title} className="space-y-1">
+                <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-indigo-200/80">
+                  {section.title}
+                </div>
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg ${
+                        active
+                          ? 'bg-indigo-800 text-white font-semibold'
+                          : 'text-indigo-100 hover:bg-indigo-600 hover:text-white'
+                      }`}
+                    >
+                      <Icon className="mr-3 h-4 w-4" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+          <div className="p-4 border-t border-indigo-600">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center px-3 py-3 text-sm font-medium text-indigo-100 rounded-lg hover:bg-indigo-600 hover:text-white"
+              className="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-indigo-800/80 rounded-lg hover:bg-indigo-900 transition-colors"
             >
-              <LogOut className="mr-3 h-5 w-5" />
+              <LogOut className="mr-2 h-4 w-4" />
               Logout
             </button>
-          </nav>
+          </div>
         </div>
       )}
 
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1">
-        <main className="flex-1 pt-16 md:pt-0">
+        <main className="flex-1 pt-14 md:pt-0">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               {children}

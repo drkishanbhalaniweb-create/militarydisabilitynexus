@@ -93,8 +93,10 @@ Use `frontend/.env.example` as the placeholder reference. Do not copy values fro
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser and server | Public anon key; still environment-specific |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only | Required by API routes and admin scripts; never expose to browser code |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Browser | Publishable Stripe key |
-| `NEXT_PUBLIC_CAL_URL_DISCOVERY` | Browser | Discovery booking URL |
-| `NEXT_PUBLIC_CAL_URL_CONSULTATION` | Browser | Consultation booking URL |
+| `NEXT_PUBLIC_ZOOM_URL` | Browser | Universal Zoom Scheduler booking URL |
+| `NEXT_PUBLIC_ZOOM_URL_DISCOVERY` | Browser | Optional discovery booking override (Zoom Scheduler) |
+| `NEXT_PUBLIC_ZOOM_URL_CONSULTATION` | Browser | Optional consultation booking override (Zoom Scheduler) |
+| `NEXT_PUBLIC_ZOOM_URL_CP_COACHING` | Browser | Optional C&P Coaching booking override (Zoom Scheduler) |
 | `NEXT_PUBLIC_META_PIXEL_ID` | Browser | Optional Meta Pixel ID |
 | `NEXT_PUBLIC_POSTHOG_HOST` | Browser | Optional PostHog host override |
 | `NEXT_PUBLIC_GOOGLE_ADS_CP_SUCCESS_LABEL` | Browser | Optional conversion label used on C&P coaching success |

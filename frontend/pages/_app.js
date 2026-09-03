@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import posthog from 'posthog-js';
 import { Toaster } from 'sonner';
 import { META_PIXEL_ID, trackMetaPageView } from '../src/lib/metaPixel';
+import { initJourneyTracker, handleRouteChange as trackJourneyRouteChange } from '../src/lib/journeyTracker';
 import '../src/index.css';
 import '../src/App.css';
 import '../src/blog-design.css';
@@ -16,6 +17,9 @@ function MyApp({ Component, pageProps }) {
     const router = useRouter();
 
     useEffect(() => {
+        // Initialize Attribution Journey Tracker
+        initJourneyTracker();
+
         // Initialize PostHog
         posthog.init('phc_yJW1VjHGGwmCbbrtczfqqNxgBDbhlhOWcdzcIJEOTFE', {
             api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
@@ -25,7 +29,8 @@ function MyApp({ Component, pageProps }) {
             },
         });
 
-        const handleRouteChange = () => {
+        const handleRouteChange = (url) => {
+            trackJourneyRouteChange(url);
             posthog?.capture('$pageview');
             trackMetaPageView();
         };

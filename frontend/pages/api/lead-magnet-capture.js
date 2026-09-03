@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import {
+  sanitizeAttributionPayload,
   sanitizeEmail,
   sanitizeInlineText,
   sanitizePhone,
@@ -212,6 +213,8 @@ export default async function handler(req, res) {
       throw new Error('Unable to prepare this PDF.');
     }
 
+    const attribution = sanitizeAttributionPayload(payload.attribution);
+
     const { data: capture, error: insertError } = await supabase
       .from('lead_magnet_captures')
       .insert({
@@ -224,6 +227,23 @@ export default async function handler(req, res) {
         ip_hash: ipHash,
         user_agent: sanitizeInlineText(req.headers['user-agent'], 500) || null,
         email_status: 'pending',
+        anonymous_journey_id: attribution.anonymous_journey_id,
+        first_touch_source: attribution.first_touch_source,
+        first_touch_medium: attribution.first_touch_medium,
+        first_touch_campaign: attribution.first_touch_campaign,
+        first_touch_landing_page: attribution.first_touch_landing_page,
+        first_touch_at: attribution.first_touch_at,
+        last_touch_source: attribution.last_touch_source,
+        last_touch_medium: attribution.last_touch_medium,
+        last_touch_campaign: attribution.last_touch_campaign,
+        last_touch_landing_page: attribution.last_touch_landing_page,
+        last_touch_at: attribution.last_touch_at,
+        referrer_category: attribution.referrer_category,
+        device_class: attribution.device_class,
+        qualification_status: attribution.qualification_status,
+        qualification_reason: attribution.qualification_reason,
+        qualified_at: attribution.qualified_at,
+        qualified_by: attribution.qualified_by,
       })
       .select('id')
       .single();

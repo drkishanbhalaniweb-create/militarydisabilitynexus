@@ -15,12 +15,23 @@ const webServerEnv = {
     process.env.SUPABASE_SERVICE_ROLE_KEY || 'playwright-service-role-key',
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_playwright',
-  NEXT_PUBLIC_CAL_URL_DISCOVERY:
+  NEXT_PUBLIC_ZOOM_URL:
+    process.env.NEXT_PUBLIC_ZOOM_URL ||
+    'https://scheduler.zoom.us',
+  NEXT_PUBLIC_ZOOM_URL_DISCOVERY:
+    process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY ||
+    process.env.NEXT_PUBLIC_ZOOM_URL ||
     process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY ||
-    'https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus',
-  NEXT_PUBLIC_CAL_URL_CONSULTATION:
+    'https://scheduler.zoom.us',
+  NEXT_PUBLIC_ZOOM_URL_CONSULTATION:
+    process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION ||
+    process.env.NEXT_PUBLIC_ZOOM_URL ||
     process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION ||
-    'https://cal.com/militarydisabilitynexus/claim-readiness-review',
+    'https://scheduler.zoom.us',
+  NEXT_PUBLIC_ZOOM_URL_CP_COACHING:
+    process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING ||
+    process.env.NEXT_PUBLIC_ZOOM_URL ||
+    'https://scheduler.zoom.us',
   NEXT_PUBLIC_ENABLE_HEALTH_CHECK:
     process.env.NEXT_PUBLIC_ENABLE_HEALTH_CHECK || 'false',
 };

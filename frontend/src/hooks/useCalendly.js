@@ -1,32 +1,31 @@
 import { useState } from 'react';
 
-export const useCal = (type = 'discovery') => {
+export const useZoom = (type = 'discovery') => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const openCal = () => {
-    console.log('Opening Cal.com with URL:', calUrl);
+  const openBooking = () => {
     setIsOpen(true);
   };
 
-  const closeCal = () => setIsOpen(false);
+  const closeBooking = () => setIsOpen(false);
 
-  // Support both discovery calls and post-payment consultations
-  const calUrl = type === 'consultation'
-    ? (process.env.REACT_APP_CAL_URL_CONSULTATION || 'https://cal.com/militarydisabilitynexus/claim-readiness-review')
-    : (process.env.REACT_APP_CAL_URL_DISCOVERY || 'https://cal.com/militarydisabilitynexus/discovery-call-military-disability-nexus');
-
-  // Log the URL on mount for debugging
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`Cal.com URL configured (${type}):`, calUrl);
-  }
+  const universalUrl = process.env.NEXT_PUBLIC_ZOOM_URL;
+  const bookingUrl = type === 'consultation'
+    ? (process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || process.env.REACT_APP_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us')
+    : type === 'cp_coaching'
+    ? (process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING || universalUrl || process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us')
+    : (process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || process.env.REACT_APP_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us');
 
   return {
     isOpen,
-    openCal,
-    closeCal,
-    calUrl
+    openBooking,
+    closeBooking,
+    bookingUrl,
+    openCal: openBooking,
+    closeCal: closeBooking,
+    calUrl: bookingUrl
   };
 };
 
-// Backward compatibility export
-export const useCalendly = useCal;
+export const useCal = useZoom;
+export const useCalendly = useZoom;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { CheckCircle, Clock, Calendar, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
+import { CheckCircle, Clock, Calendar, ArrowRight, Mail } from 'lucide-react';
 import SEO from '../../src/components/SEO';
 import Layout from '../../src/components/Layout';
 import Link from 'next/link';
@@ -14,21 +14,7 @@ const CPCoachingSuccess = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowCal(true);
-
-            // Load Cal.com embed script
-            if (typeof window !== 'undefined') {
-                const script = document.createElement('script');
-                script.src = 'https://app.cal.com/embed/embed.js';
-                script.async = true;
-                document.head.appendChild(script);
-
-                return () => {
-                    if (document.head.contains(script)) {
-                        document.head.removeChild(script);
-                    }
-                };
-            }
-        }, 1500);
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
@@ -84,7 +70,7 @@ const CPCoachingSuccess = () => {
                         </div>
                     </div>
 
-                    {/* Cal.com Container */}
+                    {/* Zoom Scheduler Container */}
                     <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100 mb-10 min-h-[800px] relative">
                         {!showCal && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
@@ -97,7 +83,7 @@ const CPCoachingSuccess = () => {
                         {showCal && (
                             <div className="animate-in fade-in duration-700">
                                 <iframe
-                                    src="https://cal.com/militarydisabilitynexus/c-p-exam-coaching?embed=true"
+                                    src={process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us'}
                                     width="100%"
                                     height="800"
                                     frameBorder="0"
