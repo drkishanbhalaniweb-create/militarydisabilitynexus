@@ -299,18 +299,33 @@ const Forms = () => {
                             <div className="bg-white rounded-lg overflow-hidden border border-slate-200">
                                 {/* Zoom Scheduler Inline Embed */}
                                 <iframe
-                                    src={process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us'}
+                                    src={(() => {
+                                        const raw = process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
+                                        try {
+                                            const url = new URL(raw);
+                                            if (!url.searchParams.has('embed')) url.searchParams.set('embed', 'true');
+                                            if (!url.searchParams.has('origin')) {
+                                                const origin = typeof window !== 'undefined' && window.location.origin
+                                                    ? window.location.origin
+                                                    : 'https://www.militarydisabilitynexus.com';
+                                                url.searchParams.set('origin', origin);
+                                            }
+                                            return url.toString();
+                                        } catch {
+                                            return `https://scheduler.zoom.us/kishan-bhalani/free-discovery-call?origin=https%3A%2F%2Fwww.militarydisabilitynexus.com&embed=true`;
+                                        }
+                                    })()}
                                     width="100%"
-                                    height="700"
+                                    height="650"
                                     frameBorder="0"
-                                    style={{ border: 0 }}
+                                    style={{ border: 0, minHeight: '560px' }}
                                     title="Schedule Discovery Call"
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
                                 Having trouble?{' '}
                                 <a
-                                    href={process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us'}
+                                    href={process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call'}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-indigo-600 hover:underline font-semibold"

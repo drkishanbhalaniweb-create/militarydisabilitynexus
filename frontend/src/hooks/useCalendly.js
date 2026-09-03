@@ -9,12 +9,13 @@ export const useZoom = (type = 'discovery') => {
 
   const closeBooking = () => setIsOpen(false);
 
-  const universalUrl = process.env.NEXT_PUBLIC_ZOOM_URL;
+  const defaultZoomUrl = 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
+  const universalUrl = process.env.NEXT_PUBLIC_ZOOM_URL || defaultZoomUrl;
   const bookingUrl = type === 'consultation'
-    ? (process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || process.env.REACT_APP_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us')
+    ? (process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || defaultZoomUrl)
     : type === 'cp_coaching'
-    ? (process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING || universalUrl || process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us')
-    : (process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || process.env.REACT_APP_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us');
+    ? (process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING || universalUrl || defaultZoomUrl)
+    : (process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || universalUrl || defaultZoomUrl);
 
   return {
     isOpen,

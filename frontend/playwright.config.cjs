@@ -17,21 +17,21 @@ const webServerEnv = {
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_playwright',
   NEXT_PUBLIC_ZOOM_URL:
     process.env.NEXT_PUBLIC_ZOOM_URL ||
-    'https://scheduler.zoom.us',
+    'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call',
   NEXT_PUBLIC_ZOOM_URL_DISCOVERY:
     process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY ||
     process.env.NEXT_PUBLIC_ZOOM_URL ||
     process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY ||
-    'https://scheduler.zoom.us',
+    'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call',
   NEXT_PUBLIC_ZOOM_URL_CONSULTATION:
     process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION ||
     process.env.NEXT_PUBLIC_ZOOM_URL ||
     process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION ||
-    'https://scheduler.zoom.us',
+    'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call',
   NEXT_PUBLIC_ZOOM_URL_CP_COACHING:
     process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING ||
     process.env.NEXT_PUBLIC_ZOOM_URL ||
-    'https://scheduler.zoom.us',
+    'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call',
   NEXT_PUBLIC_ENABLE_HEALTH_CHECK:
     process.env.NEXT_PUBLIC_ENABLE_HEALTH_CHECK || 'false',
 };

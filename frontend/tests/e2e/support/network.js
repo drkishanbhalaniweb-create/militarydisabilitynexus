@@ -181,6 +181,8 @@ async function quietThirdParties(page) {
 
   await page.route('https://app.cal.com/**', emptyResponse);
   await page.route('https://cal.com/**', emptyResponse);
+  await page.route('https://scheduler.zoom.us/**', emptyResponse);
+  await page.route('https://*.zoom.us/**', emptyResponse);
   await page.route('https://www.facebook.com/**', emptyResponse);
   await page.route('https://connect.facebook.net/**', emptyResponse);
   await page.route('https://us.i.posthog.com/**', emptyResponse);
