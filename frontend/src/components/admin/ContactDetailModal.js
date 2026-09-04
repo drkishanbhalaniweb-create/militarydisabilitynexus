@@ -108,25 +108,21 @@ const ContactDetailModal = ({ contact, isOpen, onClose, onDelete }) => {
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-slate-200 px-4 sm:px-6 overflow-x-auto">
-            <nav className="flex space-x-4 sm:space-x-8 min-w-max" aria-label="Contact detail tabs">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
-                    ${activeTab === tab.id
-                      ? 'border-indigo-600 text-indigo-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                    }
-                  `}
-                  aria-current={activeTab === tab.id ? 'page' : undefined}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
+          <div className="flex border-b border-slate-200 px-4 sm:px-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-indigo-600 text-indigo-600'
+                    : 'border-transparent text-slate-600 hover:text-slate-900'
+                }`}
+                aria-current={activeTab === tab.id ? 'page' : undefined}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Content */}
