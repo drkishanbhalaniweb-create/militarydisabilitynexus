@@ -1,14 +1,93 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import {
-  formatInlineHtml,
-  formatSafeEmail,
-  sanitizeSubjectLine,
-} from '../_shared/email-safety.ts'
-import {
-  getSubmissionDisplayLabel,
-  sanitizeInlineText,
-} from '../_shared/submission-utils.ts'
+// Helper functions inlined for self-contained bundling (supports Supabase Dashboard & CLI)
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function sanitizeInlineText(value: unknown, maxLength = 120): string {
+  const str = typeof value === 'string' ? value : ''
+  return str
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .replace(/\r?\n+/g, ' ')
+    .replace(/[^\S\r\n]+/g, ' ')
+    .trim()
+    .slice(0, maxLength)
+    .trim()
+}
+
+function sanitizeSubjectLine(value: unknown, fallback: string): string {
+  return sanitizeInlineText(value, 150) || fallback
+}
+
+function formatInlineHtml(
+  value: unknown,
+  fallback = 'Not provided',
+  maxLength = 200,
+): string {
+  const sanitized = sanitizeInlineText(value, maxLength)
+  return escapeHtml(sanitized || fallback)
+}
+
+function formatSafeEmail(value: unknown, fallback = 'Not provided'): string {
+  try {
+    const sanitized = sanitizeInlineText(value, 254).toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitized)) {
+      throw new Error('Invalid email')
+    }
+    return escapeHtml(sanitized)
+  } catch {
+    return escapeHtml(fallback)
+  }
+}
+
+function getFormTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    quick_intake: 'Quick Intake',
+    aid_attendance: 'Aid & Attendance',
+    unsure: 'General Inquiry',
+    general: 'General Inquiry',
+    claim_readiness_review: 'Claim Readiness Review',
+    nexus_letter: 'Nexus Letter',
+    dbq: 'DBQ',
+    '1151_claim': '1151 Claim',
+  }
+  return labels[type] || sanitizeInlineText(type, 50) || 'Form Submission'
+}
+
+function getSubmissionDisplayLabel(
+  formType: unknown,
+  formData?: Record<string, any> | null,
+): string {
+  const normalizedType = sanitizeInlineText(formType, 50)
+
+  if (normalizedType === 'quick_intake' && formData) {
+    const services = Array.isArray(formData.selectedServices)
+      ? formData.selectedServices
+      : []
+    const contactServices = new Set([
+      'nexus_letter',
+      'dbq',
+      '1151_claim',
+      'aid_attendance',
+      'unsure',
+    ])
+    const filtered = services
+      .map((item: unknown) => sanitizeInlineText(item, 50))
+      .filter((item: string) => contactServices.has(item))
+
+    if (filtered.length > 0) {
+      return filtered.map((service: string) => getFormTypeLabel(service)).join(', ')
+    }
+  }
+
+  return getFormTypeLabel(normalizedType)
+}
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -191,9 +270,8 @@ function generateUserConfirmationEmail(submission: any, displayLabel: string): s
 
         <h3 style="color: #1f2937; font-size: 18px;">What Happens Next?</h3>
         <ul style="padding-left: 20px; line-height: 1.8;">
-          <li>Our medical team will review your submission within 24-48 hours</li>
+          <li>Our team will review your submission within 24-48 hours</li>
           <li>We may contact you if additional information is needed</li>
-          <li>Processing time: 7-10 business days (or 36-48 hours for rush service)</li>
           <li>You'll receive updates via email as we progress</li>
         </ul>
 
