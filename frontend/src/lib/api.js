@@ -340,10 +340,13 @@ export const fileUploadApi = {
     return data;
   },
 
-  async getDownloadUrl(storagePath) {
+  async getDownloadUrl(storagePath, download = false) {
+    const options = download
+      ? { download: typeof download === 'string' ? download : true }
+      : {};
     const { data, error } = await supabase.storage
       .from(STORAGE_BUCKETS.MEDICAL_DOCUMENTS)
-      .createSignedUrl(storagePath, 3600); // 1 hour expiry
+      .createSignedUrl(storagePath, 3600, options); // 1 hour expiry
 
     if (error) throw error;
     return data.signedUrl;

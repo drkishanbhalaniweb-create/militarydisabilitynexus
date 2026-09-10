@@ -69,12 +69,13 @@ const DocumentViewer = React.memo(({
     e.stopPropagation();
     
     try {
-      const signedUrl = await fileUploadApi.getDownloadUrl(file.storage_path);
+      const signedUrl = await fileUploadApi.getDownloadUrl(file.storage_path, file.original_filename);
       
       // Create a temporary link and trigger download
       const link = document.createElement('a');
       link.href = signedUrl;
       link.download = file.original_filename;
+      link.target = '_blank';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

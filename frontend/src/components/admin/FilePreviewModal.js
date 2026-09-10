@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Download, Loader2, AlertCircle } from 'lucide-react';
+import { X, Download, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
 import { fileUploadApi } from '../../lib/api';
 import { canPreview, getPreviewType, getFileTypeLabel } from '../../lib/fileTypeDetection';
 
@@ -83,15 +83,21 @@ const FilePreviewModal = ({ file, isOpen, onClose }) => {
   }, [onClose]);
 
   // Handle download
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
     if (!signedUrl || typeof document === 'undefined') return;
 
-    const link = document.createElement('a');
-    link.href = signedUrl;
-    link.download = file.original_filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const downloadUrl = await fileUploadApi.getDownloadUrl(file.storage_path, file.original_filename);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = file.original_filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Error downloading file:', err);
+    }
   }, [signedUrl, file]);
 
   if (!isOpen) return null;
@@ -166,13 +172,24 @@ const FilePreviewModal = ({ file, isOpen, onClose }) => {
               )}
 
               {previewType === 'image' && (
-                <div className="flex items-center justify-center">
-                  <img
-                    src={signedUrl}
-                    alt={file.original_filename}
-                    className="max-w-full h-auto rounded-lg shadow-lg"
-                    style={{ maxHeight: '70vh' }}
-                  />
+                <div className="flex flex-col items-center justify-center">
+                  <a
+                    href={signedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cursor-zoom-in"
+                    title="Click to view at full resolution in new tab"
+                  >
+                    <img
+                      src={signedUrl}
+                      alt={file.original_filename}
+                      className="max-w-full h-auto rounded-lg shadow-lg hover:opacity-95 transition-opacity"
+                      style={{ maxHeight: '70vh' }}
+                    />
+                  </a>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Click image or &quot;Open Full Size&quot; below to view in full resolution
+                  </p>
                 </div>
               )}
 
@@ -192,15 +209,29 @@ const FilePreviewModal = ({ file, isOpen, onClose }) => {
 
         {/* Footer */}
         <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0 p-3 sm:p-4 border-t border-slate-200 bg-white">
-          <button
-            onClick={handleDownload}
-            disabled={!signedUrl || loading}
-            className="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
-            aria-label="Download file"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {signedUrl && (
+              <a
+                href={signedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center space-x-1.5 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm sm:text-base font-medium"
+                title="Open in new tab to view at full resolution"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Open Full Size</span>
+              </a>
+            )}
+            <button
+              onClick={handleDownload}
+              disabled={!signedUrl || loading}
+              className="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
+              aria-label="Download file"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download</span>
+            </button>
+          </div>
           <button
             onClick={onClose}
             className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm sm:text-base"
