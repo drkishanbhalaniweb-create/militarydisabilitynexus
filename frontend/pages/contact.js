@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Mail, Phone, Send, Calendar } from 'lucide-react';
+import { Mail, Phone, Send, Calendar, Upload, X, FileText } from 'lucide-react';
 import { toast } from 'sonner';
-import { contactsApi, servicesApi } from '../src/lib/api';
+import { contactsApi, servicesApi, fileUploadApi } from '../src/lib/api';
 import { useEffect } from 'react';
 import FileUpload from '../src/components/FileUpload';
 import FileList from '../src/components/FileList';
@@ -57,6 +57,7 @@ const Contact = () => {
     const [contactId, setContactId] = useState(null);
     const [showFileUpload, setShowFileUpload] = useState(false);
     const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -75,6 +76,35 @@ const Contact = () => {
         }));
     };
 
+    const handleFileSelect = (e) => {
+        const newFiles = Array.from(e.target.files || []);
+        if (newFiles.length === 0) return;
+
+        const maxFiles = 10;
+        if (selectedFiles.length + newFiles.length > maxFiles) {
+            toast.error(`Maximum ${maxFiles} files allowed`);
+            return;
+        }
+
+        const validFiles = [];
+        for (const file of newFiles) {
+            if (file.size > 50 * 1024 * 1024) {
+                toast.error(`${file.name} exceeds the 50MB file size limit`);
+                continue;
+            }
+            validFiles.push(file);
+        }
+
+        if (validFiles.length > 0) {
+            setSelectedFiles(prev => [...prev, ...validFiles]);
+        }
+        e.target.value = '';
+    };
+
+    const removeSelectedFile = (index) => {
+        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -88,9 +118,24 @@ const Contact = () => {
 
             const response = await contactsApi.submit(formData, submissionMeta);
             setContactId(response.id);
+
+            // Upload staged files if any
+            if (selectedFiles.length > 0) {
+                for (const file of selectedFiles) {
+                    try {
+                        await fileUploadApi.upload(file, response.id, 'other', false);
+                    } catch (uploadErr) {
+                        console.error('Failed to upload file:', file.name, uploadErr);
+                        toast.error(`Failed to upload ${file.name}`);
+                    }
+                }
+                setFileRefreshTrigger(prev => prev + 1);
+            }
+
             setShowFileUpload(true);
             setShowSuccessModal(true);
             setFormData({ name: '', email: '', phone: '', serviceTypes: [], message: '', website: '' });
+            setSelectedFiles([]);
             formStartedAt.current = Date.now();
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -307,6 +352,58 @@ const Contact = () => {
                                             {formData.message.length > 0 && formData.message.length < 10 && (
                                                 <p className="text-sm text-amber-600 mt-1">Please add a little more detail ({formData.message.length}/10 characters minimum)</p>
                                             )}
+                                        </div>
+
+                                        {/* Optional Supporting Documents */}
+                                        <div className="mb-6">
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Upload Supporting Documents (Optional)
+                                            </label>
+                                            <div className="border-2 border-dashed border-slate-300 bg-white/40 backdrop-blur-sm rounded-xl p-6 transition-colors hover:border-slate-400">
+                                                <label className="cursor-pointer block text-center">
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        onChange={handleFileSelect}
+                                                        className="hidden"
+                                                        accept="image/*,.pdf,.doc,.docx,.txt"
+                                                    />
+                                                    <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                                                    <span className="text-sm font-semibold text-slate-700 block mb-1">
+                                                        Click to attach documents
+                                                    </span>
+                                                    <p className="text-xs text-slate-500">
+                                                        PDF, DOC, DOCX, TXT, or images (up to 50MB each)
+                                                    </p>
+                                                </label>
+
+                                                {selectedFiles.length > 0 && (
+                                                    <div className="mt-4 space-y-2">
+                                                        {selectedFiles.map((file, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center justify-between bg-white/80 px-3 py-2 rounded-lg border border-slate-200"
+                                                            >
+                                                                <div className="flex items-center space-x-2 truncate mr-2">
+                                                                    <FileText className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                                                                    <span className="text-sm text-slate-700 truncate">{file.name}</span>
+                                                                    <span className="text-xs text-slate-400 flex-shrink-0">
+                                                                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                                                                    </span>
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeSelectedFile(index)}
+                                                                    className="text-red-500 hover:text-red-700 p-1 flex-shrink-0 transition-colors"
+                                                                    aria-label={`Remove ${file.name}`}
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <button
