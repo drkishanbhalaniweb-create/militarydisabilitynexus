@@ -124,7 +124,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             service.slug === 'attorney-advocate-partnership'
                                 ? { label: 'Drop us a message', href: `/forms?service=${slug}` }
                                 : service.slug === 'independent-medical-opinion-nexus-letter'
-                                ? { label: 'View Pricing \u2014 From $400+', onClick: () => setIsPricingModalOpen(true) }
+                                ? { label: 'View Pricing \u2014 From $945+', onClick: () => setIsPricingModalOpen(true) }
                                 : { label: `Book Now \u2014 $${service.base_price_usd?.toLocaleString() || 'N/A'}`, href:
                                     service.slug === 'claim-readiness-review'
                                         ? '/claim-readiness-review'
@@ -254,12 +254,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                 <section key="pricing" id="pricing" className="bg-gradient-to-br from-slate-50 to-indigo-50 border border-slate-200 rounded-2xl p-8 mb-8" aria-labelledby="pricing-heading">
                                                     <h2 id="pricing-heading" className="text-2xl font-bold text-slate-900 mb-2">Pricing at a Glance</h2>
                                                     <p className="text-slate-600 mb-6 text-sm">All claim theories (presumptive, direct, secondary) included in a single letter at internist/specialist level.</p>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                                                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center h-full">
-                                                            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nurse Practitioner</div>
-                                                            <div className="text-2xl font-bold text-slate-900 mb-2">$400+</div>
-                                                            <div className="text-[12px] font-semibold text-[#B91C3C]">Single condition</div>
-                                                        </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
                                                         <div className="bg-white p-6 rounded-xl border-2 border-indigo-200 shadow-md flex flex-col justify-center items-center text-center h-full relative overflow-hidden">
                                                             <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
                                                             <div className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Internist / Specialist</div>
@@ -554,12 +549,12 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                             {service.slug === 'independent-medical-opinion-nexus-letter' ? (
                                 <div className="bg-slate-900 rounded-2xl p-8 shadow-xl text-white">
                                     <div className="mb-6">
-                                        <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Nurse Practitioner</div>
+                                        <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Internist / Specialist</div>
                                         <div className="text-sm text-slate-400 mb-1">Starting at</div>
                                         <div className="text-4xl font-bold mb-1">
-                                            $400+
+                                            $945+
                                         </div>
-                                        <p className="text-xs text-slate-400 mt-2">Single condition</p>
+                                        <p className="text-xs text-slate-400 mt-2">All claim theories included</p>
                                     </div>
 
                                     <button 

@@ -74,7 +74,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const otherServices = (allServices || []).filter(s => s.slug !== service.slug);
     const otherConditions = (siblingConditions || []).filter(c => c.id !== condition.id);
     const isMH = bodySystem?.is_mental_health || false;
-    const basePriceText = bodySystem?.cta_price || (isMH ? '$1,600+' : '$400+');
+    const basePriceText = bodySystem?.cta_price || (isMH ? '$1,600+' : '$945+');
     const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
     const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
 
@@ -521,7 +521,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                                 {basePriceValue}
                                             </div>
                                             <p className="text-xs text-white/45 mt-1">
-                                                {isMH ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
+                                                {isMH ? 'Psychiatrist / Psychologist' : 'Internist / Specialist · All claim theories'}
                                             </p>
                                         </div>
 

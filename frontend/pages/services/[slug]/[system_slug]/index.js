@@ -100,7 +100,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
         ? system.name
         : `${system.name || ''} ${shortServiceTitle || ''}`.trim();
     const rawPrice = system.cta_price != null ? String(system.cta_price) : '';
-    const basePriceText = rawPrice || (system.is_mental_health ? '$1,600+' : '$400+');
+    const basePriceText = rawPrice || (system.is_mental_health ? '$1,600+' : '$945+');
     const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
     const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
 
@@ -735,7 +735,7 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                                 {basePriceValue}
                                             </div>
                                             <p className="text-xs text-white/45 mt-1">
-                                                {system.is_mental_health ? 'Psychiatrist / Psychologist' : 'Nurse Practitioner · Single condition'}
+                                                {system.is_mental_health ? 'Psychiatrist / Psychologist' : 'Internist / Specialist · All claim theories'}
                                             </p>
                                         </div>
 
