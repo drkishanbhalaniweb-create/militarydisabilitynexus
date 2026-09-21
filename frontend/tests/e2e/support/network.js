@@ -179,6 +179,10 @@ async function quietThirdParties(page) {
       body: '',
     });
 
+  await page.route('https://militarydisabilitynexus.zohobookings.com/**', emptyResponse);
+  await page.route('https://*.zohobookings.com/**', emptyResponse);
+  await page.route('https://*.zoho.com/**', emptyResponse);
+  await page.route('https://bookings.nimbuspop.com/**', emptyResponse);
   await page.route('https://app.cal.com/**', emptyResponse);
   await page.route('https://cal.com/**', emptyResponse);
   await page.route('https://scheduler.zoom.us/**', emptyResponse);

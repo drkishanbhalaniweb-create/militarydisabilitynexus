@@ -15,6 +15,13 @@ const webServerEnv = {
     process.env.SUPABASE_SERVICE_ROLE_KEY || 'playwright-service-role-key',
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_playwright',
+  NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY:
+    process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY ||
+    process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL ||
+    'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065',
+  NEXT_PUBLIC_ZOHO_BOOKINGS_URL:
+    process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL ||
+    'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065',
   NEXT_PUBLIC_ZOOM_URL:
     process.env.NEXT_PUBLIC_ZOOM_URL ||
     'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call',

@@ -289,7 +289,7 @@ const Forms = () => {
                         </div>
                     </div>
 
-                    {/* Zoom Scheduler Inline Widget */}
+                    {/* Zoho Bookings Inline Widget */}
                     {showCal ? (
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/40">
                             <h2 className="text-2xl font-bold text-slate-900 mb-2">Schedule Your Free Discovery Call</h2>
@@ -297,35 +297,20 @@ const Forms = () => {
                                 Book a consultation to discuss your VA claim needs. We'll help you understand which services are right for you.
                             </p>
                             <div className="bg-white rounded-lg overflow-hidden border border-slate-200">
-                                {/* Zoom Scheduler Inline Embed */}
+                                {/* Zoho Bookings Inline Embed */}
                                 <iframe
-                                    src={(() => {
-                                        const raw = process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
-                                        try {
-                                            const url = new URL(raw);
-                                            if (!url.searchParams.has('embed')) url.searchParams.set('embed', 'true');
-                                            if (!url.searchParams.has('origin')) {
-                                                const origin = typeof window !== 'undefined' && window.location.origin
-                                                    ? window.location.origin
-                                                    : 'https://www.militarydisabilitynexus.com';
-                                                url.searchParams.set('origin', origin);
-                                            }
-                                            return url.toString();
-                                        } catch {
-                                            return `https://scheduler.zoom.us/kishan-bhalani/free-discovery-call?origin=https%3A%2F%2Fwww.militarydisabilitynexus.com&embed=true`;
-                                        }
-                                    })()}
+                                    src={process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL || 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065'}
                                     width="100%"
                                     height="650"
                                     frameBorder="0"
-                                    style={{ border: 0, minHeight: '560px' }}
-                                    title="Schedule Discovery Call"
+                                    style={{ border: 0, minHeight: '600px' }}
+                                    title="Schedule Free Discovery Call"
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
                                 Having trouble?{' '}
                                 <a
-                                    href={process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_CAL_URL_DISCOVERY || 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call'}
+                                    href={process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL || 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065'}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-indigo-600 hover:underline font-semibold"
