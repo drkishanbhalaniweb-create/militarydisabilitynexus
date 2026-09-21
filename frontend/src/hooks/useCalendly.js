@@ -9,7 +9,7 @@ export const useZoom = (type = 'discovery') => {
 
   const closeBooking = () => setIsOpen(false);
 
-  const defaultZohoDiscoveryUrl = 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065';
+  const defaultZohoDiscoveryUrl = 'https://militarydisabilitynexus.zohobookings.com/5013772000000040065';
   const defaultZoomUrl = 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
   const universalUrl = process.env.NEXT_PUBLIC_ZOOM_URL || defaultZoomUrl;
   const bookingUrl = type === 'consultation'

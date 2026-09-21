@@ -25,6 +25,27 @@ const SERVICE_SLUG_MAP = {
     'aid_attendance': 'aid-and-attendance',
 };
 
+// Resolves the proper iframe embed URL for Zoho Bookings (requires portal-embed#/customer/<serviceId>)
+const getZohoEmbedUrl = (rawUrl) => {
+    const fallback = 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/5013772000000040065';
+    if (!rawUrl) return fallback;
+    if (rawUrl.includes('portal-embed#/customer/')) return rawUrl;
+    if (rawUrl.includes('portal-embed#/')) return rawUrl.replace('portal-embed#/', 'portal-embed#/customer/');
+    if (rawUrl.includes('.zohobookings.com/')) {
+        return rawUrl.replace(/\.zohobookings\.com\/(?:#\/customer\/|#\/)?/, '.zohobookings.com/portal-embed#/customer/');
+    }
+    return rawUrl;
+};
+
+// Resolves the direct standalone URL for opening in a new window tab
+const getZohoDirectUrl = (rawUrl) => {
+    const fallback = 'https://militarydisabilitynexus.zohobookings.com/5013772000000040065';
+    if (!rawUrl) return fallback;
+    if (rawUrl.includes('portal-embed#/customer/')) return rawUrl.replace('portal-embed#/customer/', '');
+    if (rawUrl.includes('portal-embed#/')) return rawUrl.replace('portal-embed#/', '');
+    return rawUrl;
+};
+
 const Forms = () => {
     const router = useRouter();
     const formStartedAt = useRef(Date.now());
@@ -299,7 +320,7 @@ const Forms = () => {
                             <div className="bg-white rounded-lg overflow-hidden border border-slate-200">
                                 {/* Zoho Bookings Inline Embed */}
                                 <iframe
-                                    src={process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL || 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065'}
+                                    src={getZohoEmbedUrl(process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL)}
                                     width="100%"
                                     height="650"
                                     frameBorder="0"
@@ -310,7 +331,7 @@ const Forms = () => {
                             <p className="text-sm text-slate-500 mt-4 text-center">
                                 Having trouble?{' '}
                                 <a
-                                    href={process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL || 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065'}
+                                    href={getZohoDirectUrl(process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-indigo-600 hover:underline font-semibold"

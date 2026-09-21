@@ -18,10 +18,10 @@ const webServerEnv = {
   NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY:
     process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY ||
     process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL ||
-    'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065',
+    'https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/5013772000000040065',
   NEXT_PUBLIC_ZOHO_BOOKINGS_URL:
     process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL ||
-    'https://militarydisabilitynexus.zohobookings.com/portal-embed#/5013772000000040065',
+    'https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/5013772000000040065',
   NEXT_PUBLIC_ZOOM_URL:
     process.env.NEXT_PUBLIC_ZOOM_URL ||
     'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call',
