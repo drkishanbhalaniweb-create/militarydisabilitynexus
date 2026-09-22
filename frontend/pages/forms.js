@@ -25,25 +25,47 @@ const SERVICE_SLUG_MAP = {
     'aid_attendance': 'aid-and-attendance',
 };
 
+const DEFAULT_ZOHO_SERVICE_ID = '5013772000000040065';
+const DEFAULT_ZOHO_EMBED_URL = `https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/${DEFAULT_ZOHO_SERVICE_ID}`;
+const DEFAULT_ZOHO_DIRECT_URL = `https://militarydisabilitynexus.zohobookings.com/${DEFAULT_ZOHO_SERVICE_ID}`;
+
+// Helper to extract service identifier or fall back to discovery service ID
+const extractZohoServiceId = (url) => {
+    if (!url) return DEFAULT_ZOHO_SERVICE_ID;
+    const cleaned = url.trim().replace(/\/+$/, '');
+    
+    // Check if it's a bare portal-embed without a service ID (e.g., .../portal-embed, .../portal-embed/#/portal-embed)
+    if (/(?:portal-embed(?:\/#\/portal-embed|#\/portal-embed|\/)?)$/.test(cleaned)) {
+        return DEFAULT_ZOHO_SERVICE_ID;
+    }
+
+    const embedMatch = cleaned.match(/portal-embed#(?:\/customer)?\/([^#?/]+)/);
+    if (embedMatch && embedMatch[1] && embedMatch[1] !== 'portal-embed') {
+        return embedMatch[1];
+    }
+
+    const domainMatch = cleaned.match(/\.zohobookings\.com\/([^#?/]+)/);
+    if (domainMatch && domainMatch[1] && domainMatch[1] !== 'portal-embed') {
+        return domainMatch[1];
+    }
+
+    return DEFAULT_ZOHO_SERVICE_ID;
+};
+
 // Resolves the proper iframe embed URL for Zoho Bookings (requires portal-embed#/customer/<serviceId>)
 const getZohoEmbedUrl = (rawUrl) => {
-    const fallback = 'https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/5013772000000040065';
-    if (!rawUrl) return fallback;
-    if (rawUrl.includes('portal-embed#/customer/')) return rawUrl;
-    if (rawUrl.includes('portal-embed#/')) return rawUrl.replace('portal-embed#/', 'portal-embed#/customer/');
-    if (rawUrl.includes('.zohobookings.com/')) {
-        return rawUrl.replace(/\.zohobookings\.com\/(?:#\/customer\/|#\/)?/, '.zohobookings.com/portal-embed#/customer/');
-    }
-    return rawUrl;
+    if (!rawUrl) return DEFAULT_ZOHO_EMBED_URL;
+    if (!rawUrl.includes('.zohobookings.com')) return rawUrl;
+    const serviceId = extractZohoServiceId(rawUrl);
+    return `https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/${serviceId}`;
 };
 
 // Resolves the direct standalone URL for opening in a new window tab
 const getZohoDirectUrl = (rawUrl) => {
-    const fallback = 'https://militarydisabilitynexus.zohobookings.com/5013772000000040065';
-    if (!rawUrl) return fallback;
-    if (rawUrl.includes('portal-embed#/customer/')) return rawUrl.replace('portal-embed#/customer/', '');
-    if (rawUrl.includes('portal-embed#/')) return rawUrl.replace('portal-embed#/', '');
-    return rawUrl;
+    if (!rawUrl) return DEFAULT_ZOHO_DIRECT_URL;
+    if (!rawUrl.includes('.zohobookings.com')) return rawUrl;
+    const serviceId = extractZohoServiceId(rawUrl);
+    return `https://militarydisabilitynexus.zohobookings.com/${serviceId}`;
 };
 
 const Forms = () => {
