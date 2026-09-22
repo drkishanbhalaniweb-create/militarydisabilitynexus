@@ -347,7 +347,7 @@ const Forms = () => {
                                     height="650"
                                     frameBorder="0"
                                     style={{ border: 0, minHeight: '600px' }}
-                                    title="Schedule Free Discovery Call"
+                                    title="Schedule Discovery Call"
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">

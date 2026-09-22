@@ -182,7 +182,7 @@ jobs:
           find supabase/migrations -maxdepth 1 -type f -name '*.sql' -empty -exec echo "::warning::Empty migration file found: {}" \;
 
       - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v2
+        uses: supabase/setup-cli@v3
         with:
           version: latest
 
