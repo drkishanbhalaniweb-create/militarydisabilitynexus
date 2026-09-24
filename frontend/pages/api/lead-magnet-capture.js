@@ -6,6 +6,8 @@ import {
   sanitizePhone,
   validateSubmissionMeta,
 } from '../../src/lib/submissionValidation';
+import { upsertLead } from '../../src/lib/zohoCrm';
+import { mapLeadMagnetToZohoLead } from '../../src/lib/zohoLeadMapper';
 
 const RATE_LIMIT_MAX = 6;
 const RATE_LIMIT_WINDOW_MINUTES = 60;
@@ -276,6 +278,26 @@ export default async function handler(req, res) {
 
     if (updateError) {
       console.error('Lead magnet capture status update failed:', updateError);
+    }
+
+    // Non-blocking Zoho CRM synchronization
+    try {
+      const leadPayload = mapLeadMagnetToZohoLead(
+        {
+          email,
+          phone,
+          magnetSlug: fileName,
+          magnetTitle: title,
+          sourcePath,
+        },
+        attribution
+      );
+      const zohoResult = await upsertLead(leadPayload);
+      if (!zohoResult.success && !zohoResult.skipped) {
+        console.warn('[ZohoCRM] Lead magnet sync warning:', zohoResult.error);
+      }
+    } catch (zohoError) {
+      console.error('[ZohoCRM] Unexpected sync error:', zohoError.message);
     }
 
     return res.status(200).json({ success: true });

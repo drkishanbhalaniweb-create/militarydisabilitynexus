@@ -4,6 +4,8 @@ import {
   sanitizeAttributionPayload,
   validateSubmissionMeta,
 } from '../../src/lib/submissionValidation';
+import { upsertLead } from '../../src/lib/zohoCrm';
+import { mapFormSubmissionToZohoLead } from '../../src/lib/zohoLeadMapper';
 
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MINUTES = 60;
@@ -139,6 +141,17 @@ export default async function handler(req, res) {
     if (error) {
       console.error('Form submission insert failed:', error);
       throw new Error('Failed to submit form.');
+    }
+
+    // Non-blocking Zoho CRM synchronization
+    try {
+      const leadPayload = mapFormSubmissionToZohoLead(preparedSubmission, attribution);
+      const zohoResult = await upsertLead(leadPayload);
+      if (!zohoResult.success && !zohoResult.skipped) {
+        console.warn('[ZohoCRM] Form sync warning:', zohoResult.error);
+      }
+    } catch (zohoError) {
+      console.error('[ZohoCRM] Unexpected sync error:', zohoError.message);
     }
 
     return res.status(200).json({ success: true, submission: data });

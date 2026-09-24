@@ -1,9 +1,16 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-const createClient = vi.fn();
+const { createClient, upsertLead } = vi.hoisted(() => ({
+  createClient: vi.fn(),
+  upsertLead: vi.fn().mockResolvedValue({ success: true, action: 'created' }),
+}));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient,
+}));
+
+vi.mock('../../src/lib/zohoCrm', () => ({
+  upsertLead,
 }));
 
 function createResponse() {
@@ -106,6 +113,7 @@ const validForm = {
 describe('submission API routes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    upsertLead.mockResolvedValue({ success: true, action: 'created' });
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role-key';
   });
@@ -155,6 +163,17 @@ describe('submission API routes', () => {
         qualification_status: 'pending',
       }),
     );
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        First_Name: 'Pat',
+        Last_Name: 'Veteran',
+        Email: 'pat@example.com',
+        Phone: '(888) 555-1212',
+        Company: 'Veteran (Self)',
+        Lead_Source: 'Google Ads',
+        Description: expect.stringContaining('--- CONTACT FORM INQUIRY ---'),
+      }),
+    );
     expect(res.body.success).toBe(true);
   });
 
@@ -190,7 +209,74 @@ describe('submission API routes', () => {
         qualification_status: 'pending',
       }),
     );
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        First_Name: 'Pat',
+        Last_Name: 'Veteran',
+        Email: 'pat@example.com',
+        Phone: '(888) 555-1212',
+        Company: 'Veteran (Self)',
+        Lead_Source: 'Perplexity',
+        Description: expect.stringContaining('--- INTAKE FORM SUBMISSION ---'),
+      }),
+    );
     expect(res.body.success).toBe(true);
+  });
+
+  test('returns 200 and records contact even if upsertLead rejects or fails', async () => {
+    mockSupabase();
+    upsertLead.mockRejectedValueOnce(new Error('Zoho API network failure'));
+    const { submitContact } = await importHandlers();
+    const res = createResponse();
+
+    await submitContact(createRequest(validContact), res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.contact).toBeDefined();
+    expect(res.body.contact.id).toBe('contacts-id');
+  });
+
+  test('returns 200 and records contact even if upsertLead returns error response', async () => {
+    mockSupabase();
+    upsertLead.mockResolvedValueOnce({ success: false, error: 'Zoho rate limit 429' });
+    const { submitContact } = await importHandlers();
+    const res = createResponse();
+
+    await submitContact(createRequest(validContact), res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.contact).toBeDefined();
+    expect(res.body.contact.id).toBe('contacts-id');
+  });
+
+  test('returns 200 and records form submission even if upsertLead rejects or fails', async () => {
+    mockSupabase();
+    upsertLead.mockRejectedValueOnce(new Error('Zoho API network failure'));
+    const { submitForm } = await importHandlers();
+    const res = createResponse();
+
+    await submitForm(createRequest(validForm), res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.submission).toBeDefined();
+    expect(res.body.submission.id).toBe('form_submissions-id');
+  });
+
+  test('returns 200 and records form submission even if upsertLead returns error response', async () => {
+    mockSupabase();
+    upsertLead.mockResolvedValueOnce({ success: false, error: 'Zoho invalid credentials' });
+    const { submitForm } = await importHandlers();
+    const res = createResponse();
+
+    await submitForm(createRequest(validForm), res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.submission).toBeDefined();
+    expect(res.body.submission.id).toBe('form_submissions-id');
   });
 
   test('rejects honeypot submissions before writing to Supabase', async () => {
