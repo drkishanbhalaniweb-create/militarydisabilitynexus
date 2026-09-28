@@ -36,16 +36,27 @@ export async function getStaticProps() {
 
 const TestimonialsPage = ({ initialTestimonials }) => {
     const [selectedTag, setSelectedTag] = useState(null);
+    const [showVideosOnly, setShowVideosOnly] = useState(false);
+
+    const videoCount = useMemo(() => {
+        return initialTestimonials.filter((testimonial) => Boolean(testimonial.video_url)).length;
+    }, [initialTestimonials]);
 
     const filteredTestimonials = useMemo(() => {
-        if (!selectedTag) {
-            return initialTestimonials;
+        let list = initialTestimonials;
+
+        if (showVideosOnly) {
+            list = list.filter((testimonial) => Boolean(testimonial.video_url));
         }
 
-        return initialTestimonials.filter((testimonial) =>
-            (testimonial.tags || []).includes(selectedTag)
-        );
-    }, [initialTestimonials, selectedTag]);
+        if (selectedTag) {
+            list = list.filter((testimonial) =>
+                (testimonial.tags || []).includes(selectedTag)
+            );
+        }
+
+        return list;
+    }, [initialTestimonials, showVideosOnly, selectedTag]);
 
     const averageRating = getAverageRating(initialTestimonials);
     const branchCount = getUniqueBranchCount(initialTestimonials);
@@ -195,14 +206,32 @@ const TestimonialsPage = ({ initialTestimonials }) => {
                             </div>
                             <button
                                 type="button"
-                                onClick={() => setSelectedTag(null)}
-                                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${selectedTag === null
+                                onClick={() => {
+                                    setShowVideosOnly(false);
+                                    setSelectedTag(null);
+                                }}
+                                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${!showVideosOnly && selectedTag === null
                                         ? 'bg-slate-900 text-white'
                                         : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
                                     }`}
                             >
                                 All Testimonials
                             </button>
+                            {videoCount > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowVideosOnly((prev) => !prev)}
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${showVideosOnly
+                                            ? 'bg-red-700 text-white shadow-sm'
+                                            : 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100'
+                                        }`}
+                                >
+                                    <span>🎥 Video Stories</span>
+                                    <span className={`rounded-full px-2 py-0.5 text-xs ${showVideosOnly ? 'bg-white/20 text-white' : 'bg-red-200 text-red-800'}`}>
+                                        {videoCount}
+                                    </span>
+                                </button>
+                            )}
                             {TESTIMONIAL_TAG_OPTIONS.map((tag) => {
                                 const count = getTagCount(initialTestimonials, tag);
 
@@ -233,7 +262,10 @@ const TestimonialsPage = ({ initialTestimonials }) => {
                                 </p>
                                 <button
                                     type="button"
-                                    onClick={() => setSelectedTag(null)}
+                                    onClick={() => {
+                                        setSelectedTag(null);
+                                        setShowVideosOnly(false);
+                                    }}
                                     className="mt-6 rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white"
                                 >
                                     Show all testimonials

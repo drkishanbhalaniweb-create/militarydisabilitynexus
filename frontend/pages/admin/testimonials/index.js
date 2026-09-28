@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Video, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminLayout from '../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
@@ -111,8 +111,29 @@ const TestimonialsAdminPage = () => {
                                         {testimonials.map((testimonial) => (
                                             <tr key={testimonial.id} className="hover:bg-slate-50">
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm font-medium text-slate-900">{testimonial.name}</div>
-                                                    <div className="text-sm text-slate-500">{testimonial.branch || 'Branch not set'}</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium text-slate-900">{testimonial.name}</span>
+                                                        {testimonial.video_url && (
+                                                            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                                                <Video className="h-3 w-3" />
+                                                                <span>{testimonial.video_aspect_ratio || '4:5'}</span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-sm text-slate-500 flex items-center gap-2 mt-0.5">
+                                                        <span>{testimonial.branch || 'Branch not set'}</span>
+                                                        {testimonial.slug && (
+                                                            <a
+                                                                href={`/testimonials/${testimonial.slug}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-0.5 text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                                                            >
+                                                                <ExternalLink className="h-3 w-3" />
+                                                                <span>Watch Page</span>
+                                                            </a>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-wrap gap-2">

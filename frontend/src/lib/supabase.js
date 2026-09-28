@@ -17,4 +17,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export const STORAGE_BUCKETS = {
   MEDICAL_DOCUMENTS: 'medical-documents',
+  TESTIMONIALS: 'testimonials',
 };
+
+export { supabaseUrl, supabaseAnonKey };
+

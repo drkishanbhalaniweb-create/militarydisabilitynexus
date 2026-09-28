@@ -13,6 +13,19 @@ const initialFormData = {
     tags: [],
     rating: 5,
     feedback: '',
+    slug: '',
+    video_url: '',
+    video_provider: 'html5',
+    video_thumbnail_url: '',
+    video_duration: '',
+    video_aspect_ratio: '4:5',
+    video_transcript: '',
+    video_key_moments: [],
+    clinician_notes: '',
+    claim_outcome: '',
+    condition_tag: '',
+    service_slug: '',
+    is_featured: false,
 };
 
 const NewTestimonialPage = () => {
@@ -21,7 +34,14 @@ const NewTestimonialPage = () => {
     const [formData, setFormData] = useState(initialFormData);
 
     const handleChange = (event) => {
-        const { name, value } = event.target;
+        const { name, value, type, checked } = event.target;
+        setFormData((current) => ({
+            ...current,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const handleCustomChange = (name, value) => {
         setFormData((current) => ({
             ...current,
             [name]: value,
@@ -53,6 +73,14 @@ const NewTestimonialPage = () => {
                 name: formData.name.trim(),
                 branch: formData.branch.trim(),
                 feedback: formData.feedback.trim(),
+                slug: formData.slug ? formData.slug.trim() : null,
+                video_url: formData.video_url ? formData.video_url.trim() : null,
+                video_thumbnail_url: formData.video_thumbnail_url ? formData.video_thumbnail_url.trim() : null,
+                video_duration: formData.video_duration || null,
+                claim_outcome: formData.claim_outcome ? formData.claim_outcome.trim() : null,
+                condition_tag: formData.condition_tag ? formData.condition_tag.trim() : null,
+                clinician_notes: formData.clinician_notes ? formData.clinician_notes.trim() : null,
+                video_transcript: formData.video_transcript ? formData.video_transcript.trim() : null,
             });
 
             toast.success('Testimonial created');
@@ -74,6 +102,7 @@ const NewTestimonialPage = () => {
                     formData={formData}
                     loading={loading}
                     onChange={handleChange}
+                    onCustomChange={handleCustomChange}
                     onTagToggle={handleTagToggle}
                     onRatingChange={(rating) => setFormData((current) => ({ ...current, rating }))}
                     onCancel={() => router.push('/admin/testimonials')}

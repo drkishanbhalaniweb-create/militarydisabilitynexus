@@ -1,17 +1,25 @@
 import { supabase } from '../src/lib/supabase';
 import { buildConditionPath } from '../src/lib/conditionRouting';
+import { extractYouTubeId, parseDurationInput } from '../src/lib/testimonials';
 
 const SITE_URL = "https://www.militarydisabilitynexus.com";
 
 // Helper to safely format dates
 const formatDate = (dateString) => {
     if (!dateString) return new Date().toISOString();
-    return new Date(dateString).toISOString();
+    try {
+        const d = new Date(dateString);
+        return !Number.isNaN(d.getTime()) ? d.toISOString() : new Date().toISOString();
+    } catch {
+        return new Date().toISOString();
+    }
 };
 
 // Helper to escape special characters in XML
 const escapeXml = (unsafe) => {
-    return unsafe.replace(/[<>&'"]/g, (c) => {
+    if (unsafe === null || unsafe === undefined) return '';
+    const str = typeof unsafe === 'string' ? unsafe : String(unsafe);
+    return str.replace(/[<>&'"]/g, (c) => {
         switch (c) {
             case '<': return '&lt;';
             case '>': return '&gt;';
@@ -73,7 +81,7 @@ export const getServerSideProps = async ({ res }) => {
     );
 
     try {
-        const [services, bodySystems, conditions, blogs, caseStudies, communityQuestions, clinicians] = await Promise.all([
+        const [services, bodySystems, conditions, blogs, caseStudies, communityQuestions, clinicians, testimonials] = await Promise.all([
             fetchAll('services', 'id, slug, updated_at', { is_active: true }),
             fetchAll('body_systems', 'id, slug, updated_at', { is_published: true }),
             fetchAll('conditions', 'slug, service_id, body_system_id, updated_at', { is_published: true }),
@@ -81,6 +89,7 @@ export const getServerSideProps = async ({ res }) => {
             fetchAll('case_studies', 'slug, updated_at, published_at', { is_published: true }),
             fetchAll('community_questions', 'slug, updated_at', { status: 'published' }),
             fetchAll('clinical_profiles', 'slug, updated_at', { is_active: true }),
+            fetchAll('testimonials', 'slug, name, feedback, video_url, video_thumbnail_url, video_duration, condition_tag, updated_at, created_at, tags'),
         ]);
 
         // Static routes with priority and changefreq signals
@@ -226,15 +235,89 @@ export const getServerSideProps = async ({ res }) => {
             }
         });
 
+        // Dedicated Video Testimonials Spoke Pages (/testimonials/[slug])
+        const videoTestimonials = (testimonials || []).filter(
+            (t) => Boolean(t.slug && t.slug.trim()) && Boolean(t.video_url && t.video_url.trim())
+        );
+
+        videoTestimonials.forEach((vt) => {
+            const videoId = extractYouTubeId(vt.video_url);
+            const veteranName = vt.name?.trim() || 'Veteran';
+            let rawThumb = vt.video_thumbnail_url?.trim() || (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : `${SITE_URL}/android-chrome-512x512.png`);
+            if (!rawThumb.startsWith('http://') && !rawThumb.startsWith('https://')) {
+                rawThumb = `${SITE_URL}${rawThumb.startsWith('/') ? '' : '/'}${rawThumb}`;
+            }
+            const thumbnailLoc = rawThumb;
+
+            const videoTitle = vt.condition_tag
+                ? `${veteranName} - ${vt.condition_tag.trim()} VA Disability Review`
+                : `${veteranName} VA Disability Review`;
+            const rawDesc = vt.feedback
+                ? vt.feedback
+                : `${veteranName} shares their experience with Military Disability Nexus.`;
+            const videoDesc = rawDesc.replace(/\s+/g, ' ').trim().slice(0, 1024);
+            const isDirectMedia = Boolean(
+                vt.video_provider === 'html5' ||
+                !videoId ||
+                /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(vt.video_url) ||
+                vt.video_url.includes('/storage/')
+            );
+            let contentLoc = isDirectMedia ? vt.video_url.trim() : null;
+            if (contentLoc && !contentLoc.startsWith('http://') && !contentLoc.startsWith('https://')) {
+                contentLoc = `${SITE_URL}${contentLoc.startsWith('/') ? '' : '/'}${contentLoc}`;
+            }
+            const playerLoc = !contentLoc && videoId
+                ? `https://www.youtube-nocookie.com/embed/${videoId}`
+                : null;
+
+            const safeTags = (vt.tags || [])
+                .filter((t) => t && String(t).trim())
+                .slice(0, 32)
+                .map((t) => escapeXml(String(t).trim()));
+
+            const parsedDuration = parseDurationInput(vt.video_duration);
+            const validDuration = parsedDuration > 0
+                ? Math.min(28800, Math.max(1, parsedDuration))
+                : null;
+
+            urls.push({
+                loc: `${SITE_URL}/testimonials/${escapeXml(vt.slug.trim())}`,
+                lastmod: formatDate(vt.updated_at || vt.created_at),
+                priority: '0.8',
+                changefreq: 'monthly',
+                video: {
+                    thumbnail_loc: escapeXml(thumbnailLoc),
+                    title: escapeXml(videoTitle),
+                    description: escapeXml(videoDesc),
+                    content_loc: contentLoc ? escapeXml(contentLoc) : null,
+                    player_loc: playerLoc ? escapeXml(playerLoc) : null,
+                    duration: validDuration,
+                    publication_date: formatDate(vt.created_at),
+                    tags: safeTags,
+                },
+            });
+        });
+
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 ${urls
                 .map(
                     (url) => `  <url>
     <loc>${url.loc}</loc>${url.lastmod ? `
     <lastmod>${url.lastmod}</lastmod>` : ''}
     <changefreq>${url.changefreq}</changefreq>
-    <priority>${url.priority}</priority>
+    <priority>${url.priority}</priority>${url.video ? `
+    <video:video>
+      <video:thumbnail_loc>${url.video.thumbnail_loc}</video:thumbnail_loc>
+      <video:title>${url.video.title}</video:title>
+      <video:description>${url.video.description}</video:description>${url.video.content_loc ? `
+      <video:content_loc>${url.video.content_loc}</video:content_loc>` : ''}${url.video.player_loc ? `
+      <video:player_loc>${url.video.player_loc}</video:player_loc>` : ''}${url.video.duration ? `
+      <video:duration>${url.video.duration}</video:duration>` : ''}
+      <video:publication_date>${url.video.publication_date}</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>${(url.video.tags || []).map((tag) => `
+      <video:tag>${tag}</video:tag>`).join('')}
+    </video:video>` : ''}
   </url>`
                 )
                 .join('\n')}

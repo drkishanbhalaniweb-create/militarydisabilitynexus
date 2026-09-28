@@ -46,6 +46,10 @@ const SEO = ({
     ? canonicalPath
     : `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`;
 
+  const fullOgImage = ogImage.startsWith('http')
+    ? ogImage
+    : `${siteUrl}${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
+
   const fullTitle = title
     ? (title.includes(siteName) ? title : `${title} | ${siteName}`)
     : siteName;
@@ -88,7 +92,7 @@ const SEO = ({
       <meta property="og:title" content={fullTitle} />
       {description && <meta property="og:description" content={description} />}
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+      <meta property="og:image" content={fullOgImage} />
       <meta property="og:site_name" content={siteName} />
 
       {/* Article specific */}
@@ -104,7 +108,7 @@ const SEO = ({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       {description && <meta name="twitter:description" content={description} />}
-      <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+      <meta name="twitter:image" content={fullOgImage} />
 
       {/* Additional SEO */}
       <meta name="author" content={author} />

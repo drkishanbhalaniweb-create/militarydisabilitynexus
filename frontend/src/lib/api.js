@@ -5,6 +5,7 @@ import {
   prepareFormSubmission,
 } from './submissionValidation';
 import { getAttributionPayload } from './journeyTracker';
+import { parseDurationInput, generateTestimonialSlug } from './testimonials';
 
 // ============================================
 // SERVICES
@@ -126,6 +127,31 @@ export const testimonialApi = {
       return null;
     }
 
+    let parsedKeyMoments = [];
+    if (Array.isArray(testimonial.video_key_moments)) {
+      parsedKeyMoments = testimonial.video_key_moments;
+    } else if (typeof testimonial.video_key_moments === 'string') {
+      try {
+        parsedKeyMoments = JSON.parse(testimonial.video_key_moments);
+      } catch {
+        parsedKeyMoments = [];
+      }
+    }
+
+    // Sanitize key moments: must have a non-empty name, clean integer offsets, sorted chronologically
+    const sanitizedMoments = (Array.isArray(parsedKeyMoments) ? parsedKeyMoments : [])
+      .filter((m) => m && typeof m === 'object' && typeof m.name === 'string' && m.name.trim().length > 0)
+      .map((m) => ({
+        name: m.name.trim(),
+        startOffset: Math.max(0, Math.floor(Number(m.startOffset) || 0)),
+        endOffset: Math.max(0, Math.floor(Number(m.endOffset) || 0)),
+      }))
+      .sort((a, b) => a.startOffset - b.startOffset);
+
+    const parsedDuration = testimonial.video_duration !== null && testimonial.video_duration !== undefined
+      ? (parseDurationInput(testimonial.video_duration) || null)
+      : null;
+
     return {
       ...testimonial,
       name: testimonial.name || testimonial.client_name || '',
@@ -133,6 +159,19 @@ export const testimonialApi = {
       feedback: testimonial.feedback || testimonial.testimonial_text || '',
       tags: testimonial.tags || [],
       rating: testimonial.rating || 0,
+      slug: testimonial.slug || null,
+      video_url: testimonial.video_url || null,
+      video_provider: testimonial.video_provider || 'html5',
+      video_thumbnail_url: testimonial.video_thumbnail_url || null,
+      video_duration: parsedDuration,
+      video_aspect_ratio: testimonial.video_aspect_ratio || '4:5',
+      video_transcript: testimonial.video_transcript || '',
+      video_key_moments: sanitizedMoments,
+      clinician_notes: testimonial.clinician_notes || '',
+      claim_outcome: testimonial.claim_outcome || '',
+      condition_tag: testimonial.condition_tag || '',
+      service_slug: testimonial.service_slug || '',
+      is_featured: Boolean(testimonial.is_featured),
     };
   },
 
@@ -151,13 +190,28 @@ export const testimonialApi = {
     return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
   },
 
+  async getVideoTestimonials(limit = null) {
+    let query = supabase
+      .from('testimonials')
+      .select('*')
+      .not('video_url', 'is', null)
+      .order('created_at', { ascending: false });
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
+  },
+
   async getByIds(ids) {
     if (!ids || ids.length === 0) return [];
     const { data, error } = await supabase
       .from('testimonials')
       .select('*')
-      .in('id', ids)
-      .eq('is_published', true);
+      .in('id', ids);
 
     if (error) throw error;
     return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
@@ -174,18 +228,105 @@ export const testimonialApi = {
     return testimonialApi.normalize(data);
   },
 
-  async create(testimonialData) {
+  async getBySlug(slug) {
+    if (!slug) return null;
     const { data, error } = await supabase
       .from('testimonials')
-      .insert([
-        {
-          name: testimonialData.name,
-          branch: testimonialData.branch,
-          tags: testimonialData.tags || [],
-          rating: testimonialData.rating,
-          feedback: testimonialData.feedback,
-        },
-      ])
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    return testimonialApi.normalize(data);
+  },
+
+  async getVideoSlugs() {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('slug')
+      .not('slug', 'is', null)
+      .not('video_url', 'is', null);
+
+    if (error) throw error;
+    return (data || []).map((row) => row.slug).filter(Boolean);
+  },
+
+  async ensureUniqueSlug(slug, excludeId = null) {
+    if (!slug) return null;
+    const baseSlug = slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90);
+    if (!baseSlug) return null;
+
+    let candidate = baseSlug;
+    let counter = 1;
+
+    while (counter < 20) {
+      let query = supabase.from('testimonials').select('id').eq('slug', candidate);
+      if (excludeId) {
+        query = query.neq('id', excludeId);
+      }
+      const { data, error } = await query;
+      if (error || !data || data.length === 0) {
+        return candidate;
+      }
+      counter++;
+      candidate = `${baseSlug}-${counter}`;
+    }
+
+    return candidate;
+  },
+
+  async create(testimonialData) {
+    let cleanSlug = testimonialData.slug ? testimonialData.slug.trim() : null;
+    const cleanVideoUrl = testimonialData.video_url ? testimonialData.video_url.trim() : null;
+
+    if (cleanVideoUrl && !cleanSlug) {
+      cleanSlug = generateTestimonialSlug(
+        testimonialData.name,
+        testimonialData.condition_tag,
+        testimonialData.service_slug
+      );
+    }
+
+    if (cleanSlug) {
+      cleanSlug = await testimonialApi.ensureUniqueSlug(cleanSlug);
+    }
+
+    const sanitizedMoments = (Array.isArray(testimonialData.video_key_moments) ? testimonialData.video_key_moments : [])
+      .filter((m) => m && typeof m === 'object' && typeof m.name === 'string' && m.name.trim().length > 0)
+      .map((m) => ({
+        name: m.name.trim(),
+        startOffset: Math.max(0, Math.floor(Number(m.startOffset) || 0)),
+        endOffset: Math.max(0, Math.floor(Number(m.endOffset) || 0)),
+      }))
+      .sort((a, b) => a.startOffset - b.startOffset);
+
+    const payload = {
+      name: testimonialData.name,
+      branch: testimonialData.branch,
+      tags: testimonialData.tags || [],
+      rating: testimonialData.rating,
+      feedback: testimonialData.feedback,
+      slug: cleanSlug || null,
+      video_url: cleanVideoUrl || null,
+      video_provider: testimonialData.video_provider || 'html5',
+      video_thumbnail_url: testimonialData.video_thumbnail_url ? testimonialData.video_thumbnail_url.trim() : null,
+      video_duration: testimonialData.video_duration ? (parseDurationInput(testimonialData.video_duration) || null) : null,
+      video_aspect_ratio: testimonialData.video_aspect_ratio || '4:5',
+      video_transcript: testimonialData.video_transcript ? testimonialData.video_transcript.trim() : null,
+      video_key_moments: sanitizedMoments,
+      clinician_notes: testimonialData.clinician_notes ? testimonialData.clinician_notes.trim() : null,
+      claim_outcome: testimonialData.claim_outcome ? testimonialData.claim_outcome.trim() : null,
+      condition_tag: testimonialData.condition_tag ? testimonialData.condition_tag.trim() : null,
+      service_slug: testimonialData.service_slug ? testimonialData.service_slug.trim() : null,
+      is_featured: Boolean(testimonialData.is_featured),
+    };
+
+    const { data, error } = await supabase
+      .from('testimonials')
+      .insert([payload])
       .select()
       .single();
 
@@ -194,15 +335,54 @@ export const testimonialApi = {
   },
 
   async update(id, testimonialData) {
+    let cleanSlug = testimonialData.slug ? testimonialData.slug.trim() : null;
+    const cleanVideoUrl = testimonialData.video_url ? testimonialData.video_url.trim() : null;
+
+    if (cleanVideoUrl && !cleanSlug) {
+      cleanSlug = generateTestimonialSlug(
+        testimonialData.name,
+        testimonialData.condition_tag,
+        testimonialData.service_slug
+      );
+    }
+
+    if (cleanSlug) {
+      cleanSlug = await testimonialApi.ensureUniqueSlug(cleanSlug, id);
+    }
+
+    const sanitizedMoments = (Array.isArray(testimonialData.video_key_moments) ? testimonialData.video_key_moments : [])
+      .filter((m) => m && typeof m === 'object' && typeof m.name === 'string' && m.name.trim().length > 0)
+      .map((m) => ({
+        name: m.name.trim(),
+        startOffset: Math.max(0, Math.floor(Number(m.startOffset) || 0)),
+        endOffset: Math.max(0, Math.floor(Number(m.endOffset) || 0)),
+      }))
+      .sort((a, b) => a.startOffset - b.startOffset);
+
+    const payload = {
+      name: testimonialData.name,
+      branch: testimonialData.branch,
+      tags: testimonialData.tags || [],
+      rating: testimonialData.rating,
+      feedback: testimonialData.feedback,
+      slug: cleanSlug || null,
+      video_url: cleanVideoUrl || null,
+      video_provider: testimonialData.video_provider || 'html5',
+      video_thumbnail_url: testimonialData.video_thumbnail_url ? testimonialData.video_thumbnail_url.trim() : null,
+      video_duration: testimonialData.video_duration ? (parseDurationInput(testimonialData.video_duration) || null) : null,
+      video_aspect_ratio: testimonialData.video_aspect_ratio || '4:5',
+      video_transcript: testimonialData.video_transcript ? testimonialData.video_transcript.trim() : null,
+      video_key_moments: sanitizedMoments,
+      clinician_notes: testimonialData.clinician_notes ? testimonialData.clinician_notes.trim() : null,
+      claim_outcome: testimonialData.claim_outcome ? testimonialData.claim_outcome.trim() : null,
+      condition_tag: testimonialData.condition_tag ? testimonialData.condition_tag.trim() : null,
+      service_slug: testimonialData.service_slug ? testimonialData.service_slug.trim() : null,
+      is_featured: Boolean(testimonialData.is_featured),
+    };
+
     const { data, error } = await supabase
       .from('testimonials')
-      .update({
-        name: testimonialData.name,
-        branch: testimonialData.branch,
-        tags: testimonialData.tags || [],
-        rating: testimonialData.rating,
-        feedback: testimonialData.feedback,
-      })
+      .update(payload)
       .eq('id', id)
       .select()
       .single();

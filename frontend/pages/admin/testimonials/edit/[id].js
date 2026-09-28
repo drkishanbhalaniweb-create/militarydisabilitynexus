@@ -7,18 +7,33 @@ import SEO from '../../../../src/components/SEO';
 import TestimonialForm from '../../../../src/components/admin/TestimonialForm';
 import { testimonialApi } from '../../../../src/lib/api';
 
+const initialFormData = {
+    name: '',
+    branch: '',
+    tags: [],
+    rating: 5,
+    feedback: '',
+    slug: '',
+    video_url: '',
+    video_provider: 'html5',
+    video_thumbnail_url: '',
+    video_duration: '',
+    video_aspect_ratio: '4:5',
+    video_transcript: '',
+    video_key_moments: [],
+    clinician_notes: '',
+    claim_outcome: '',
+    condition_tag: '',
+    service_slug: '',
+    is_featured: false,
+};
+
 const EditTestimonialPage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [loading, setLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(true);
-    const [formData, setFormData] = useState({
-        name: '',
-        branch: '',
-        tags: [],
-        rating: 5,
-        feedback: '',
-    });
+    const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
         if (id) {
@@ -35,6 +50,19 @@ const EditTestimonialPage = () => {
                 tags: data.tags || [],
                 rating: data.rating || 5,
                 feedback: data.feedback || '',
+                slug: data.slug || '',
+                video_url: data.video_url || '',
+                video_provider: data.video_provider || 'html5',
+                video_thumbnail_url: data.video_thumbnail_url || '',
+                video_duration: data.video_duration || '',
+                video_aspect_ratio: data.video_aspect_ratio || '4:5',
+                video_transcript: data.video_transcript || '',
+                video_key_moments: Array.isArray(data.video_key_moments) ? data.video_key_moments : [],
+                clinician_notes: data.clinician_notes || '',
+                claim_outcome: data.claim_outcome || '',
+                condition_tag: data.condition_tag || '',
+                service_slug: data.service_slug || '',
+                is_featured: Boolean(data.is_featured),
             });
         } catch (error) {
             console.error('Error loading testimonial:', error);
@@ -46,7 +74,14 @@ const EditTestimonialPage = () => {
     };
 
     const handleChange = (event) => {
-        const { name, value } = event.target;
+        const { name, value, type, checked } = event.target;
+        setFormData((current) => ({
+            ...current,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const handleCustomChange = (name, value) => {
         setFormData((current) => ({
             ...current,
             [name]: value,
@@ -78,6 +113,14 @@ const EditTestimonialPage = () => {
                 name: formData.name.trim(),
                 branch: formData.branch.trim(),
                 feedback: formData.feedback.trim(),
+                slug: formData.slug ? formData.slug.trim() : null,
+                video_url: formData.video_url ? formData.video_url.trim() : null,
+                video_thumbnail_url: formData.video_thumbnail_url ? formData.video_thumbnail_url.trim() : null,
+                video_duration: formData.video_duration || null,
+                claim_outcome: formData.claim_outcome ? formData.claim_outcome.trim() : null,
+                condition_tag: formData.condition_tag ? formData.condition_tag.trim() : null,
+                clinician_notes: formData.clinician_notes ? formData.clinician_notes.trim() : null,
+                video_transcript: formData.video_transcript ? formData.video_transcript.trim() : null,
             });
 
             toast.success('Testimonial updated');
@@ -104,6 +147,7 @@ const EditTestimonialPage = () => {
                         formData={formData}
                         loading={loading}
                         onChange={handleChange}
+                        onCustomChange={handleCustomChange}
                         onTagToggle={handleTagToggle}
                         onRatingChange={(rating) => setFormData((current) => ({ ...current, rating }))}
                         onCancel={() => router.push('/admin/testimonials')}
