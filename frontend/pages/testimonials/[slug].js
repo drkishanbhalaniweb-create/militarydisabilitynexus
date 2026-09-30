@@ -533,7 +533,7 @@ const VideoTestimonialSpokePage = ({ testimonial, related = [] }) => {
                   </h3>
 
                   <p className="mt-1 text-xs text-slate-500 font-medium">
-                    Licensed Physician & VA Disability Medical Opinion Specialist
+                    Subject Matter Expert/VA Disability Medical Opinion Specialist
                   </p>
 
                   <div className="mt-5 space-y-4 text-sm leading-relaxed text-slate-700">
