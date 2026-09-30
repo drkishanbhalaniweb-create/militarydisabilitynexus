@@ -48,8 +48,16 @@ const TestimonialCard = ({
             <div>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <StarRating value={testimonial.rating} className="mb-3" />
+                            {testimonial.is_pinned && (
+                                <span
+                                    className="mb-3 inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-bold text-red-700"
+                                    aria-label="Pinned testimonial"
+                                >
+                                    <span>📌 {hasVideo ? 'Pinned Story' : 'Featured Review'}</span>
+                                </span>
+                            )}
                             {hasVideo && (
                                 <span className="mb-3 inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
                                     <Video className="h-3 w-3" />

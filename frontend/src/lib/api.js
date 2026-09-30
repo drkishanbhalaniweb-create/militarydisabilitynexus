@@ -172,6 +172,8 @@ export const testimonialApi = {
       condition_tag: testimonial.condition_tag || '',
       service_slug: testimonial.service_slug || '',
       is_featured: Boolean(testimonial.is_featured),
+      is_pinned: Boolean(testimonial.is_pinned),
+      pin_order: testimonial.pin_order !== null && testimonial.pin_order !== undefined ? Number(testimonial.pin_order) : 0,
     };
   },
 
@@ -179,13 +181,28 @@ export const testimonialApi = {
     let query = supabase
       .from('testimonials')
       .select('*')
+      .order('is_pinned', { ascending: false })
+      .order('pin_order', { ascending: true })
       .order('created_at', { ascending: false });
 
     if (limit) {
       query = query.limit(limit);
     }
 
-    const { data, error } = await query;
+    let { data, error } = await query;
+    if (error && error.code === '42703') {
+      let fallbackQuery = supabase
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (limit) {
+        fallbackQuery = fallbackQuery.limit(limit);
+      }
+      const fallbackResult = await fallbackQuery;
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+    }
+
     if (error) throw error;
     return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
   },
@@ -195,13 +212,29 @@ export const testimonialApi = {
       .from('testimonials')
       .select('*')
       .not('video_url', 'is', null)
+      .order('is_pinned', { ascending: false })
+      .order('pin_order', { ascending: true })
       .order('created_at', { ascending: false });
 
     if (limit) {
       query = query.limit(limit);
     }
 
-    const { data, error } = await query;
+    let { data, error } = await query;
+    if (error && error.code === '42703') {
+      let fallbackQuery = supabase
+        .from('testimonials')
+        .select('*')
+        .not('video_url', 'is', null)
+        .order('created_at', { ascending: false });
+      if (limit) {
+        fallbackQuery = fallbackQuery.limit(limit);
+      }
+      const fallbackResult = await fallbackQuery;
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+    }
+
     if (error) throw error;
     return (data || []).map((testimonial) => testimonialApi.normalize(testimonial));
   },
@@ -322,6 +355,8 @@ export const testimonialApi = {
       condition_tag: testimonialData.condition_tag ? testimonialData.condition_tag.trim() : null,
       service_slug: testimonialData.service_slug ? testimonialData.service_slug.trim() : null,
       is_featured: Boolean(testimonialData.is_featured),
+      is_pinned: Boolean(testimonialData.is_pinned),
+      pin_order: testimonialData.pin_order !== null && testimonialData.pin_order !== undefined ? Number(testimonialData.pin_order) : 0,
     };
 
     const { data, error } = await supabase
@@ -378,11 +413,28 @@ export const testimonialApi = {
       condition_tag: testimonialData.condition_tag ? testimonialData.condition_tag.trim() : null,
       service_slug: testimonialData.service_slug ? testimonialData.service_slug.trim() : null,
       is_featured: Boolean(testimonialData.is_featured),
+      is_pinned: Boolean(testimonialData.is_pinned),
+      pin_order: testimonialData.pin_order !== null && testimonialData.pin_order !== undefined ? Number(testimonialData.pin_order) : 0,
     };
 
     const { data, error } = await supabase
       .from('testimonials')
       .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return testimonialApi.normalize(data);
+  },
+
+  async togglePin(id, isPinned, pinOrder = 0) {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .update({
+        is_pinned: Boolean(isPinned),
+        pin_order: pinOrder !== null && pinOrder !== undefined ? Number(pinOrder) : 0,
+      })
       .eq('id', id)
       .select()
       .single();

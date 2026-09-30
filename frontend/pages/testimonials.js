@@ -11,6 +11,7 @@ import {
     getUniqueBranchCount,
     TESTIMONIAL_TAG_OPTIONS,
     testimonialThemes,
+    compareTestimonialsByPinned,
 } from '../src/lib/testimonials';
 
 export async function getStaticProps() {
@@ -55,7 +56,7 @@ const TestimonialsPage = ({ initialTestimonials }) => {
             );
         }
 
-        return list;
+        return [...list].sort(compareTestimonialsByPinned);
     }, [initialTestimonials, showVideosOnly, selectedTag]);
 
     const averageRating = getAverageRating(initialTestimonials);

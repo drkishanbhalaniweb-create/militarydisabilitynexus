@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, Video, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, Video, ExternalLink, Pin } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminLayout from '../../../src/components/admin/AdminLayout';
 import ProtectedRoute from '../../../src/components/admin/ProtectedRoute';
 import SEO from '../../../src/components/SEO';
 import StarRating from '../../../src/components/testimonials/StarRating';
 import { testimonialApi } from '../../../src/lib/api';
-import { getTestimonialTagTone } from '../../../src/lib/testimonials';
+import { getTestimonialTagTone, compareTestimonialsByPinned } from '../../../src/lib/testimonials';
 
 const TestimonialsAdminPage = () => {
     const [testimonials, setTestimonials] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState('all'); // 'all' | 'pinned' | 'videos'
 
     useEffect(() => {
         fetchTestimonials();
@@ -26,6 +27,42 @@ const TestimonialsAdminPage = () => {
             toast.error('Failed to load testimonials');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleTogglePin = async (testimonial) => {
+        const nextPinned = !testimonial.is_pinned;
+        const nextOrder = nextPinned
+            ? (testimonial.pin_order > 0 ? testimonial.pin_order : 1)
+            : (testimonial.pin_order || 0);
+
+        // Optimistic UI update
+        setTestimonials((current) =>
+            current.map((t) =>
+                t.id === testimonial.id
+                    ? { ...t, is_pinned: nextPinned, pin_order: nextOrder }
+                    : t
+            ).sort(compareTestimonialsByPinned)
+        );
+
+        try {
+            await testimonialApi.togglePin(testimonial.id, nextPinned, nextOrder);
+            if (nextPinned) {
+                toast.success('Testimonial pinned to top');
+            } else {
+                toast.success('Testimonial unpinned');
+            }
+        } catch (error) {
+            console.error('Error toggling pin:', error);
+            toast.error('Failed to update pin status');
+            // Rollback optimistic update
+            setTestimonials((current) =>
+                current.map((t) =>
+                    t.id === testimonial.id
+                        ? { ...t, is_pinned: testimonial.is_pinned, pin_order: testimonial.pin_order }
+                        : t
+                ).sort(compareTestimonialsByPinned)
+            );
         }
     };
 
@@ -44,6 +81,26 @@ const TestimonialsAdminPage = () => {
         }
     };
 
+    const pinnedCount = useMemo(
+        () => testimonials.filter((t) => Boolean(t.is_pinned)).length,
+        [testimonials]
+    );
+
+    const videoCount = useMemo(
+        () => testimonials.filter((t) => Boolean(t.video_url)).length,
+        [testimonials]
+    );
+
+    const filteredTestimonials = useMemo(() => {
+        let list = testimonials;
+        if (filter === 'pinned') {
+            list = list.filter((t) => Boolean(t.is_pinned));
+        } else if (filter === 'videos') {
+            list = list.filter((t) => Boolean(t.video_url));
+        }
+        return [...list].sort(compareTestimonialsByPinned);
+    }, [testimonials, filter]);
+
     const formatDate = (dateString) =>
         new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -56,11 +113,11 @@ const TestimonialsAdminPage = () => {
             <AdminLayout>
                 <SEO title="Admin Testimonials" noindex={true} />
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-slate-900">Testimonials</h1>
                             <p className="mt-2 text-slate-600">
-                                Every saved testimonial is public and appears newest first on the website.
+                                Pinned testimonials appear first on the website, followed by newest additions.
                             </p>
                         </div>
 
@@ -72,6 +129,55 @@ const TestimonialsAdminPage = () => {
                             <span>New Testimonial</span>
                         </Link>
                     </div>
+
+                    {/* Quick Filters */}
+                    {!loading && testimonials.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setFilter('all')}
+                                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                                    filter === 'all'
+                                        ? 'bg-slate-900 text-white'
+                                        : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                }`}
+                            >
+                                All ({testimonials.length})
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFilter('pinned')}
+                                className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                                    filter === 'pinned'
+                                        ? 'bg-amber-600 text-white shadow-xs'
+                                        : 'border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100'
+                                }`}
+                            >
+                                <span>📌 Pinned Only</span>
+                                <span className={`rounded-full px-1.5 py-0.2 text-[10px] ${
+                                    filter === 'pinned' ? 'bg-white/25 text-white' : 'bg-amber-200 text-amber-900'
+                                }`}>
+                                    {pinnedCount}
+                                </span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFilter('videos')}
+                                className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                                    filter === 'videos'
+                                        ? 'bg-red-700 text-white shadow-xs'
+                                        : 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100'
+                                }`}
+                            >
+                                <span>🎥 Videos</span>
+                                <span className={`rounded-full px-1.5 py-0.2 text-[10px] ${
+                                    filter === 'videos' ? 'bg-white/25 text-white' : 'bg-red-200 text-red-900'
+                                }`}>
+                                    {videoCount}
+                                </span>
+                            </button>
+                        </div>
+                    )}
 
                     {loading ? (
                         <div className="flex justify-center py-12">
@@ -91,6 +197,9 @@ const TestimonialsAdminPage = () => {
                                     <thead className="bg-slate-50">
                                         <tr>
                                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
+                                                Pin
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                                                 Client
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
@@ -108,9 +217,40 @@ const TestimonialsAdminPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 bg-white">
-                                        {testimonials.map((testimonial) => (
-                                            <tr key={testimonial.id} className="hover:bg-slate-50">
-                                                <td className="px-6 py-4">
+                                        {filteredTestimonials.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="6" className="px-6 py-12 text-center text-sm text-slate-500">
+                                                    {filter === 'pinned'
+                                                        ? 'No pinned testimonials yet. Click "Pin" on any testimonial to pin it to top.'
+                                                        : filter === 'videos'
+                                                        ? 'No video testimonials found.'
+                                                        : 'No testimonials found.'}
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            filteredTestimonials.map((testimonial) => (
+                                                <tr key={testimonial.id} className="hover:bg-slate-50">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleTogglePin(testimonial)}
+                                                            title={testimonial.is_pinned ? `Pinned (#${testimonial.pin_order || 1}). Click to unpin.` : 'Click to pin to top'}
+                                                            aria-label={testimonial.is_pinned ? `Unpin testimonial (currently priority ${testimonial.pin_order || 1})` : 'Pin testimonial to top'}
+                                                            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                                                                testimonial.is_pinned
+                                                                    ? 'border-amber-300 bg-amber-50 text-amber-900 shadow-xs hover:bg-amber-100'
+                                                                    : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300 hover:text-slate-600'
+                                                            }`}
+                                                        >
+                                                            <Pin className={`h-3.5 w-3.5 ${testimonial.is_pinned ? 'fill-amber-600 text-amber-600' : 'text-slate-400'}`} />
+                                                            {testimonial.is_pinned ? (
+                                                                <span>📌 #{testimonial.pin_order ?? 1}</span>
+                                                            ) : (
+                                                                <span className="text-slate-500">Pin</span>
+                                                            )}
+                                                        </button>
+                                                    </td>
+                                                    <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-sm font-medium text-slate-900">{testimonial.name}</span>
                                                         {testimonial.video_url && (
@@ -176,7 +316,7 @@ const TestimonialsAdminPage = () => {
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )))}
                                     </tbody>
                                 </table>
                             </div>

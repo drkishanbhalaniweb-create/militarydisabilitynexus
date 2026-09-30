@@ -114,6 +114,30 @@ export const shortenFeedback = (feedback = '', maxLength = 240) => {
   return `${slice.slice(0, breakpoint > 80 ? breakpoint : maxLength).trim()}...`;
 };
 
+/**
+ * Comparator to sort testimonials with pinned items first, ordered by pin_order ASC,
+ * and falling back to created_at DESC.
+ */
+export const compareTestimonialsByPinned = (a, b) => {
+  const aPinned = Boolean(a?.is_pinned);
+  const bPinned = Boolean(b?.is_pinned);
+
+  if (aPinned && !bPinned) return -1;
+  if (!aPinned && bPinned) return 1;
+
+  if (aPinned && bPinned) {
+    const aOrder = a?.pin_order !== null && a?.pin_order !== undefined ? Number(a.pin_order) : 0;
+    const bOrder = b?.pin_order !== null && b?.pin_order !== undefined ? Number(b.pin_order) : 0;
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder;
+    }
+  }
+
+  const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0;
+  const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0;
+  return bTime - aTime;
+};
+
 // Video Testimonials Configuration & Utilities
 // ============================================
 

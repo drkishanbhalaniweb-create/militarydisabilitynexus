@@ -26,6 +26,8 @@ const initialFormData = {
     condition_tag: '',
     service_slug: '',
     is_featured: false,
+    is_pinned: false,
+    pin_order: 1,
 };
 
 const NewTestimonialPage = () => {
@@ -81,6 +83,8 @@ const NewTestimonialPage = () => {
                 condition_tag: formData.condition_tag ? formData.condition_tag.trim() : null,
                 clinician_notes: formData.clinician_notes ? formData.clinician_notes.trim() : null,
                 video_transcript: formData.video_transcript ? formData.video_transcript.trim() : null,
+                is_pinned: Boolean(formData.is_pinned),
+                pin_order: formData.pin_order !== null && formData.pin_order !== undefined ? Number(formData.pin_order) : 0,
             });
 
             toast.success('Testimonial created');

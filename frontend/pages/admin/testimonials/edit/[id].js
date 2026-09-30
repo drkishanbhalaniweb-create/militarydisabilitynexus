@@ -26,6 +26,8 @@ const initialFormData = {
     condition_tag: '',
     service_slug: '',
     is_featured: false,
+    is_pinned: false,
+    pin_order: 1,
 };
 
 const EditTestimonialPage = () => {
@@ -63,6 +65,8 @@ const EditTestimonialPage = () => {
                 condition_tag: data.condition_tag || '',
                 service_slug: data.service_slug || '',
                 is_featured: Boolean(data.is_featured),
+                is_pinned: Boolean(data.is_pinned),
+                pin_order: data.pin_order !== null && data.pin_order !== undefined ? Number(data.pin_order) : 0,
             });
         } catch (error) {
             console.error('Error loading testimonial:', error);
@@ -121,6 +125,8 @@ const EditTestimonialPage = () => {
                 condition_tag: formData.condition_tag ? formData.condition_tag.trim() : null,
                 clinician_notes: formData.clinician_notes ? formData.clinician_notes.trim() : null,
                 video_transcript: formData.video_transcript ? formData.video_transcript.trim() : null,
+                is_pinned: Boolean(formData.is_pinned),
+                pin_order: formData.pin_order !== null && formData.pin_order !== undefined ? Number(formData.pin_order) : 0,
             });
 
             toast.success('Testimonial updated');

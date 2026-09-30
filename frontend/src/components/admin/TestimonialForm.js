@@ -13,6 +13,8 @@ import {
     CheckCircle2,
     AlertCircle,
     Loader2,
+    Pin,
+    Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import StarRating from '../testimonials/StarRating';
@@ -339,6 +341,64 @@ const TestimonialForm = ({
                             />
                         </div>
                     </div>
+                </div>
+
+                {/* FEATURED & PINNING SECTION */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div className="flex items-center gap-2 text-slate-900">
+                            <Pin className="h-5 w-5 text-amber-600" />
+                            <h2 className="text-xl font-bold">Featured & Pinning</h2>
+                        </div>
+                        <label className="relative inline-flex cursor-pointer items-center">
+                            <input
+                                type="checkbox"
+                                name="is_pinned"
+                                checked={Boolean(formData.is_pinned)}
+                                onChange={onChange}
+                                className="peer sr-only"
+                            />
+                            <div className="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-600 peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                            <span className="ml-3 text-sm font-medium text-slate-700">Pin to top of testimonials page</span>
+                        </label>
+                    </div>
+
+                    {formData.is_pinned && (
+                        <div className="mt-6 space-y-4">
+                            <div className="max-w-xs">
+                                <div className="flex items-center gap-1.5 mb-2">
+                                    <label htmlFor="pin_order_input" className="block text-sm font-semibold text-slate-700">
+                                        Pin Display Priority (1 = first, 2 = second, etc.)
+                                    </label>
+                                    <div
+                                        className="group relative cursor-help text-slate-400 hover:text-slate-600"
+                                        title="Lower numbers appear first among pinned testimonials. For example, priority #1 is placed ahead of #2."
+                                    >
+                                        <Info className="h-4 w-4" />
+                                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden w-64 rounded-lg bg-slate-900 p-2.5 text-xs text-white shadow-lg group-hover:block z-10">
+                                            Lower numbers appear first among pinned testimonials. For example, priority #1 is placed ahead of #2.
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input
+                                    id="pin_order_input"
+                                    type="number"
+                                    name="pin_order"
+                                    min="1"
+                                    step="1"
+                                    value={formData.pin_order || 1}
+                                    onChange={onChange}
+                                    className="w-full rounded-lg border border-slate-300 px-4 py-2 text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                    placeholder="1"
+                                />
+                            </div>
+
+                            <p className="text-xs text-slate-500">
+                                Pinned testimonials are highlighted with a special badge and appear at the very top of the testimonials page and relevant service pages before regular chronological reviews.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* VIDEO TESTIMONIAL & SPOKE LANDING PAGE SECTION */}
