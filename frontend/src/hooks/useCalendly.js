@@ -9,7 +9,7 @@ export const useZoom = (type = 'discovery') => {
 
   const closeBooking = () => setIsOpen(false);
 
-  const defaultZoomUrl = 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
+  const defaultZoomUrl = 'https://scheduler.zoom.us/military-disability-nexus/free-discovery-call';
   const universalUrl = process.env.NEXT_PUBLIC_ZOOM_URL || defaultZoomUrl;
   const bookingUrl = type === 'consultation'
     ? (process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || defaultZoomUrl)

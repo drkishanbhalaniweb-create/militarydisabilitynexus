@@ -25,7 +25,7 @@ const SERVICE_SLUG_MAP = {
     'aid_attendance': 'aid-and-attendance',
 };
 
-const DEFAULT_ZOOM_DISCOVERY_URL = 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
+const DEFAULT_ZOOM_DISCOVERY_URL = 'https://scheduler.zoom.us/military-disability-nexus/free-discovery-call';
 
 // Resolves the embed URL for Zoom Scheduler (requires embed=true query param)
 const getZoomEmbedUrl = (rawUrl) => {

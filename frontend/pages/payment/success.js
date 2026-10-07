@@ -145,7 +145,7 @@ const PaymentSuccess = () => {
                                 {/* Zoom Scheduler Inline Embed */}
                                 <iframe
                                     src={(() => {
-                                        const raw = process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
+                                        const raw = process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us/military-disability-nexus/free-discovery-call';
                                         try {
                                             const url = new URL(raw);
                                             if (!url.searchParams.has('embed')) url.searchParams.set('embed', 'true');
@@ -157,7 +157,7 @@ const PaymentSuccess = () => {
                                             }
                                             return url.toString();
                                         } catch {
-                                            return `https://scheduler.zoom.us/kishan-bhalani/free-discovery-call?origin=https%3A%2F%2Fwww.militarydisabilitynexus.com&embed=true`;
+                                            return `https://scheduler.zoom.us/military-disability-nexus/free-discovery-call?origin=https%3A%2F%2Fwww.militarydisabilitynexus.com&embed=true`;
                                         }
                                     })()}
                                     width="100%"
@@ -168,7 +168,7 @@ const PaymentSuccess = () => {
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
-                                Having trouble? <a href={process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call'} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
+                                Having trouble? <a href={process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || process.env.NEXT_PUBLIC_ZOOM_URL || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || 'https://scheduler.zoom.us/military-disability-nexus/free-discovery-call'} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Open in new window</a>
                             </p>
                         </div>
                     )}
