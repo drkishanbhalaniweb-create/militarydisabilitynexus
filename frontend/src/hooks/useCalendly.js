@@ -9,14 +9,13 @@ export const useZoom = (type = 'discovery') => {
 
   const closeBooking = () => setIsOpen(false);
 
-  const defaultZohoDiscoveryUrl = 'https://militarydisabilitynexus.zohobookings.com/5013772000000040065';
   const defaultZoomUrl = 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
   const universalUrl = process.env.NEXT_PUBLIC_ZOOM_URL || defaultZoomUrl;
   const bookingUrl = type === 'consultation'
     ? (process.env.NEXT_PUBLIC_ZOOM_URL_CONSULTATION || universalUrl || process.env.NEXT_PUBLIC_CAL_URL_CONSULTATION || defaultZoomUrl)
     : type === 'cp_coaching'
     ? (process.env.NEXT_PUBLIC_ZOOM_URL_CP_COACHING || universalUrl || defaultZoomUrl)
-    : (process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL || defaultZohoDiscoveryUrl);
+    : (process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || universalUrl || defaultZoomUrl);
 
   return {
     isOpen,

@@ -25,47 +25,25 @@ const SERVICE_SLUG_MAP = {
     'aid_attendance': 'aid-and-attendance',
 };
 
-const DEFAULT_ZOHO_SERVICE_ID = '5013772000000040065';
-const DEFAULT_ZOHO_EMBED_URL = `https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/${DEFAULT_ZOHO_SERVICE_ID}`;
-const DEFAULT_ZOHO_DIRECT_URL = `https://militarydisabilitynexus.zohobookings.com/${DEFAULT_ZOHO_SERVICE_ID}`;
+const DEFAULT_ZOOM_DISCOVERY_URL = 'https://scheduler.zoom.us/kishan-bhalani/free-discovery-call';
 
-// Helper to extract service identifier or fall back to discovery service ID
-const extractZohoServiceId = (url) => {
-    if (!url) return DEFAULT_ZOHO_SERVICE_ID;
-    const cleaned = url.trim().replace(/\/+$/, '');
-    
-    // Check if it's a bare portal-embed without a service ID (e.g., .../portal-embed, .../portal-embed/#/portal-embed)
-    if (/(?:portal-embed(?:\/#\/portal-embed|#\/portal-embed|\/)?)$/.test(cleaned)) {
-        return DEFAULT_ZOHO_SERVICE_ID;
+// Resolves the embed URL for Zoom Scheduler (requires embed=true query param)
+const getZoomEmbedUrl = (rawUrl) => {
+    const fallback = rawUrl || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOOM_URL || DEFAULT_ZOOM_DISCOVERY_URL;
+    try {
+        const url = new URL(fallback);
+        if (!url.searchParams.has('embed')) {
+            url.searchParams.set('embed', 'true');
+        }
+        return url.toString();
+    } catch {
+        return `${DEFAULT_ZOOM_DISCOVERY_URL}?embed=true`;
     }
-
-    const embedMatch = cleaned.match(/portal-embed#(?:\/customer)?\/([^#?/]+)/);
-    if (embedMatch && embedMatch[1] && embedMatch[1] !== 'portal-embed') {
-        return embedMatch[1];
-    }
-
-    const domainMatch = cleaned.match(/\.zohobookings\.com\/([^#?/]+)/);
-    if (domainMatch && domainMatch[1] && domainMatch[1] !== 'portal-embed') {
-        return domainMatch[1];
-    }
-
-    return DEFAULT_ZOHO_SERVICE_ID;
 };
 
-// Resolves the proper iframe embed URL for Zoho Bookings (requires portal-embed#/customer/<serviceId>)
-const getZohoEmbedUrl = (rawUrl) => {
-    if (!rawUrl) return DEFAULT_ZOHO_EMBED_URL;
-    if (!rawUrl.includes('.zohobookings.com')) return rawUrl;
-    const serviceId = extractZohoServiceId(rawUrl);
-    return `https://militarydisabilitynexus.zohobookings.com/portal-embed#/customer/${serviceId}`;
-};
-
-// Resolves the direct standalone URL for opening in a new window tab
-const getZohoDirectUrl = (rawUrl) => {
-    if (!rawUrl) return DEFAULT_ZOHO_DIRECT_URL;
-    if (!rawUrl.includes('.zohobookings.com')) return rawUrl;
-    const serviceId = extractZohoServiceId(rawUrl);
-    return `https://militarydisabilitynexus.zohobookings.com/${serviceId}`;
+// Resolves the direct URL for opening Zoom Scheduler in a new tab
+const getZoomDirectUrl = (rawUrl) => {
+    return rawUrl || process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOOM_URL || DEFAULT_ZOOM_DISCOVERY_URL;
 };
 
 const Forms = () => {
@@ -332,7 +310,7 @@ const Forms = () => {
                         </div>
                     </div>
 
-                    {/* Zoho Bookings Inline Widget */}
+                    {/* Zoom Scheduler Inline Widget */}
                     {showCal ? (
                         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/40">
                             <h2 className="text-2xl font-bold text-slate-900 mb-2">Schedule Your Free Discovery Call</h2>
@@ -340,20 +318,20 @@ const Forms = () => {
                                 Book a consultation to discuss your VA claim needs. We'll help you understand which services are right for you.
                             </p>
                             <div className="bg-white rounded-lg overflow-hidden border border-slate-200">
-                                {/* Zoho Bookings Inline Embed */}
+                                {/* Zoom Scheduler Inline Embed */}
                                 <iframe
-                                    src={getZohoEmbedUrl(process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL)}
+                                    src={getZoomEmbedUrl(process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOOM_URL)}
                                     width="100%"
                                     height="650"
                                     frameBorder="0"
-                                    style={{ border: 0, minHeight: '600px' }}
+                                    style={{ border: 0, minHeight: '560px', width: '100%' }}
                                     title="Schedule Discovery Call"
                                 />
                             </div>
                             <p className="text-sm text-slate-500 mt-4 text-center">
                                 Having trouble?{' '}
                                 <a
-                                    href={getZohoDirectUrl(process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOHO_BOOKINGS_URL)}
+                                    href={getZoomDirectUrl(process.env.NEXT_PUBLIC_ZOOM_URL_DISCOVERY || process.env.NEXT_PUBLIC_ZOOM_URL)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-indigo-600 hover:underline font-semibold"
