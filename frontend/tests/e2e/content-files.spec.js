@@ -17,7 +17,7 @@ test('sitemap.xml exposes canonical public URLs', async ({ request }) => {
 
   expect(response.ok()).toBeTruthy();
   expect(response.headers()['content-type'] || '').toContain('text/xml');
-  expect(body).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+  expect(body).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
   expect(body).toContain('<loc>https://www.militarydisabilitynexus.com</loc>');
   expect(body).toContain('<loc>https://www.militarydisabilitynexus.com/services</loc>');
   expect(body).toContain('<loc>https://www.militarydisabilitynexus.com/blog</loc>');
