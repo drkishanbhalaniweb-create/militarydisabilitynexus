@@ -108,13 +108,6 @@ SET
       "best_for": "Well-suited to many neurological causation questions once a diagnosis is documented — especially secondary and toxic-exposure claims that turn on medical reasoning across body systems rather than on specialist testing.",
       "price": "$945",
       "note": "All theories included"
-    },
-    {
-      "name": "Nurse Practitioners",
-      "role": "Often former C&P examiners",
-      "best_for": "A strong fit for more straightforward claims with clear documentation. Those who have served as C&P examiners also bring firsthand familiarity with how the VA reviews medical evidence.",
-      "price": "From $400",
-      "note": "+$250/additional"
     }
   ]'::jsonb,
   

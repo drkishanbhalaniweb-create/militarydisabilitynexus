@@ -192,7 +192,7 @@ const PricingTierForm = () => {
                                         onChange={handleInputChange}
                                         required
                                         className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-                                        placeholder='e.g. "Nurse Practitioner" or "Internist / Specialist"'
+                                        placeholder='e.g. "Internist" or "Specialist"'
                                     />
                                 </div>
 

@@ -571,7 +571,7 @@ const BodySystemForm = () => {
                                                                 value={spec.name || ''}
                                                                 onChange={(e) => updateSpecialist(index, 'name', e.target.value)}
                                                                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
-                                                                placeholder='e.g. "Nurse Practitioner"'
+                                                                placeholder='e.g. "Internist" or "Orthopedic Surgeon"'
                                                             />
                                                         </div>
                                                         <div>

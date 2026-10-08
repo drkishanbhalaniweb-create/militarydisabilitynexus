@@ -98,7 +98,7 @@ const AdminPricingTiers = () => {
                     ) : tiers.length === 0 ? (
                         <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-slate-200">
                             <h3 className="text-lg font-bold text-slate-900 mb-2">No Pricing Tiers Yet</h3>
-                            <p className="text-slate-600 mb-6">Create pricing tiers like &quot;Nurse Practitioner&quot;, &quot;Internist&quot;, or &quot;Complex Specialist&quot; to power the pricing comparison modal.</p>
+                            <p className="text-slate-600 mb-6">Create pricing tiers like &quot;Internist&quot; or &quot;Complex Specialist&quot; to power the pricing comparison modal.</p>
                             <Link
                                 href="/admin/pricing-tiers/new"
                                 className="inline-flex bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 items-center space-x-2 transition-colors"

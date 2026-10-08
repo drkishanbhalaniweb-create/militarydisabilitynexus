@@ -18,9 +18,8 @@ BEGIN
     -- 2. Seed Pricing Tiers
     INSERT INTO pricing_tiers (name, slug, provider_description, base_price, mental_health_price, note, best_for, features, is_featured, display_order)
     VALUES 
-    ('Nurse Practitioner', 'nurse-practitioner', 'Former C&P Examiner', '$400', 'N/A', '+ $250 per additional condition', 'Straightforward claims with strong service records.', '["Former VA C&P examining experience", "Full record review + clinical rationale", "\"At least as likely as not\" opinion", "7–10 business day turnaround", "One-on-one consultation", "$250 per additional condition"]'::jsonb, false, 1),
-    ('Internist / Specialist', 'internist-specialist', 'Board-Certified (Specialty-Matched)', '$945–$1,800', '$1,600–$2,400', 'All claim theories included', 'Secondary, denied, complex claims. All theories (presumptive, direct, secondary) in one letter.', '["Board-certified physician matched to condition", "All claim theories in single letter", "Detailed medical literature citations", "Addresses counterarguments & denials", "Rush 48–72hrs available", "One-on-one specialist consultation"]'::jsonb, true, 2),
-    ('Complex / High-Stakes', 'complex-high-stakes', 'Sub-Specialist or Multi-Specialist', '$2,000+', '$2,000+', 'Custom quote', '1151, oncology, multi-condition TDIU, BVA appeals.', '["Sub-specialist or multi-specialist team", "Forensic-level record analysis", "Multi-condition combined opinions", "Rebuttal of negative C&P opinions", "BVA hearing-ready documentation", "Attorney coordination"]'::jsonb, false, 3)
+    ('Internist / Specialist', 'internist-specialist', 'Board-Certified (Specialty-Matched)', '$945–$1,800', '$1,600–$2,400', 'All claim theories included', 'Secondary, denied, complex claims. All theories (presumptive, direct, secondary) in one letter.', '["Board-certified physician matched to condition", "All claim theories in single letter", "Detailed medical literature citations", "Addresses counterarguments & denials", "Rush 48–72hrs available", "One-on-one specialist consultation"]'::jsonb, true, 1),
+    ('Complex / High-Stakes', 'complex-high-stakes', 'Sub-Specialist or Multi-Specialist', '$2,000+', '$2,000+', 'Custom quote', '1151, oncology, multi-condition TDIU, BVA appeals.', '["Sub-specialist or multi-specialist team", "Forensic-level record analysis", "Multi-condition combined opinions", "Rebuttal of negative C&P opinions", "BVA hearing-ready documentation", "Attorney coordination"]'::jsonb, false, 2)
     ON CONFLICT (slug) DO NOTHING;
 
     -- 3. Seed Body Systems
@@ -28,7 +27,7 @@ BEGIN
     VALUES 
     ('Neurology', 'Brain', 'neurology', 'Headaches, TBI, movement disorders, nerve damage.', 
      'Neurology claims encompass conditions affecting the brain, spinal cord, and peripheral nerves. These are among the most complex VA claims because they often involve multiple rating criteria (DC 8045 for TBI, DC 8100 for migraines) and frequently intersect with mental health secondary claims.',
-     '[{"n": "Nurse Practitioner", "r": "Former C&P Examiner", "b": "Straightforward migraine or tinnitus-related headache claims with clear STR documentation.", "p": "From $400", "t": "+$250/additional"}, {"n": "Internal Medicine MD", "r": "Board-Certified Internist", "b": "Most neurology nexus opinions once diagnosis is documented. All claim theories included in single letter.", "p": "$945", "t": "All theories included"}, {"n": "Neurologist", "r": "Board-Certified", "b": "TBI rating-detail (DC 8045), ALS, MS, Parkinson''s, EMG/NCS interpretation.", "p": "$1,200–$1,800", "t": "Rating-detail cases"}]'::jsonb,
+     '[{"n": "Internal Medicine MD", "r": "Board-Certified Internist", "b": "Most neurology nexus opinions once diagnosis is documented. All claim theories included in single letter.", "p": "$945", "t": "All theories included"}, {"n": "Neurologist", "r": "Board-Certified", "b": "TBI rating-detail (DC 8045), ALS, MS, Parkinson''s, EMG/NCS interpretation.", "p": "$1,200–$1,800", "t": "Rating-detail cases"}]'::jsonb,
      '{"Mental Health", "Audiology", "Musculoskeletal"}', 
      'Neurology frequently pairs with mental health (PTSD secondary to TBI), audiology (tinnitus from same blast event), and musculoskeletal (cervical spine causing radiculopathy).', 
      false, 1),
@@ -40,12 +39,12 @@ BEGIN
      true, 2),
     ('GI (Gastrointestinal)', 'Activity', 'gastrointestinal', 'GERD, IBS, Crohn''s, ulcerative colitis.', 
      'GI conditions are the most commonly filed secondary claims. Once diagnosis is confirmed, the nexus question is causation analysis — core internal medicine competency.',
-     '[{"n": "Nurse Practitioner", "r": "Former C&P Examiner", "b": "Straightforward GERD or IBS with clear medication connection.", "p": "From $400", "t": "+$250/additional"}, {"n": "Internal Medicine MD", "r": "Board-Certified", "b": "Most GI nexus opinions. All theories included.", "p": "$945", "t": "All theories included"}, {"n": "Gastroenterologist", "r": "Board-Certified", "b": "Contested diagnosis or biopsy interpretation.", "p": "$1,200–$1,800", "t": "Contested"}]'::jsonb,
+     '[{"n": "Internal Medicine MD", "r": "Board-Certified", "b": "Most GI nexus opinions. All theories included.", "p": "$945", "t": "All theories included"}, {"n": "Gastroenterologist", "r": "Board-Certified", "b": "Contested diagnosis or biopsy interpretation.", "p": "$1,200–$1,800", "t": "Contested"}]'::jsonb,
      '{"Mental Health", "Respiratory", "Musculoskeletal"}', 
      'GI claims almost always pair with mental health — GERD and IBS commonly secondary to PTSD medications.', 
      false, 3),
     ('Respiratory', 'Wind', 'respiratory', 'Sleep apnea, asthma, COPD, burn pit conditions.', 'Respiratory claims surged after the PACT Act. Most handled by internist once PFTs or polysomnogram exist.', NULL, NULL, NULL, false, 4),
-    ('Musculoskeletal', 'Bone', 'musculoskeletal', 'Back, knee, shoulder, neck, joint disorders.', 'The most commonly filed VA claims. NP or internist for non-surgical; orthopedist for surgical cases.', NULL, NULL, NULL, false, 5),
+    ('Musculoskeletal', 'Bone', 'musculoskeletal', 'Back, knee, shoulder, neck, joint disorders.', 'The most commonly filed VA claims. Internist for non-surgical; orthopedist for surgical cases.', NULL, NULL, NULL, false, 5),
     ('Dermatology', 'Sparkles', 'dermatology', 'Eczema, psoriasis, chloracne, burn scars.', 'Often toxic-exposure-driven. Internist handles exposure causation effectively.', NULL, NULL, NULL, false, 6),
     ('Audiology', 'Ear', 'audiology', 'Hearing loss, tinnitus, ear conditions.', 'Tinnitus is #1 VA condition. Once audiogram exists, internist writes effective nexus.', NULL, NULL, NULL, false, 7),
     ('Cancer / Oncology', 'Ribbon', 'oncology', 'Agent Orange, burn pit, radiation cancers.', 'Presumptive cancers: internist confirms diagnosis and service. Non-presumptive: oncologist argues causation.', NULL, NULL, NULL, false, 8),

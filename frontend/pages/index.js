@@ -133,7 +133,7 @@ const Home = ({ services, blogPosts, testimonials }) => {
                                 </div>
                                 <div className="min-w-0">
                                     <div className="text-xs sm:text-sm text-white/70 mb-1">Clinician</div>
-                                    <div className="text-base sm:text-lg font-bold text-white">MD / DO / NP</div>
+                                    <div className="text-base sm:text-lg font-bold text-white">MD / DO</div>
                                 </div>
                             </div>
                         </div>

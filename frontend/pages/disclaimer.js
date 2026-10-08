@@ -68,7 +68,7 @@ const Disclaimer = () => {
 
                                     <h3 className="text-xl font-semibold text-slate-800 mt-6 mb-3">3.1. No Medical Treatment or Clinical Advice</h3>
                                     <p className="text-black leading-relaxed mb-4">
-                                        The Company and its contracted U.S.-licensed physicians, nurse practitioners, and other clinicians DO NOT provide medical diagnosis, clinical treatment, therapeutic advice, prescriptions, or emergency medical services. Any medical opinions rendered (e.g., in Nexus Letters, Independent Medical Opinions, or completed Disability Benefits Questionnaires) are prepared solely for submission to the VA in support of a benefits claim and are not intended, designed, or suitable for any clinical treatment purpose or medical decision-making.
+                                        The Company and its contracted U.S.-licensed physicians (MD/DO) and other clinicians DO NOT provide medical diagnosis, clinical treatment, therapeutic advice, prescriptions, or emergency medical services. Any medical opinions rendered (e.g., in Nexus Letters, Independent Medical Opinions, or completed Disability Benefits Questionnaires) are prepared solely for submission to the VA in support of a benefits claim and are not intended, designed, or suitable for any clinical treatment purpose or medical decision-making.
                                     </p>
 
                                     <h3 className="text-xl font-semibold text-slate-800 mt-6 mb-3">3.2. No Affiliation with Government Agencies</h3>

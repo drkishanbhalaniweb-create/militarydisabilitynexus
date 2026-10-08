@@ -98,7 +98,7 @@ const PricingModal = ({ isOpen, onClose, isMentalHealth = false }) => {
                             <p className="text-slate-500">Pricing information is currently being updated. Please contact us for details.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className={`grid grid-cols-1 ${tiers.length === 2 ? 'md:grid-cols-2 max-w-3xl mx-auto' : 'md:grid-cols-3'} gap-5`}>
                             {tiers.map((tier) => {
                                 const featured = tier.is_featured;
                                 return (

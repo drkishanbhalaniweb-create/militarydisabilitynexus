@@ -19,24 +19,11 @@ const supabaseFixtures = {
       icon: 'file-text',
       category: 'medical evidence',
       features: ['IMO preparation', 'Nexus analysis'],
-      pricing: { base_price: 400 },
+      pricing: { base_price: 945 },
       updated_at: '2026-01-01T00:00:00.000Z',
     },
   ],
   pricing_tiers: [
-    {
-      id: 'tier-np',
-      slug: 'nurse-practitioner',
-      name: 'Nurse Practitioner',
-      provider_description: 'Former C&P Examiner',
-      base_price: '$400',
-      mental_health_price: 'N/A',
-      note: '+ $250 per additional condition',
-      best_for: 'Straightforward claims with strong service records.',
-      features: ["Former VA C&P examining experience", "Full record review + clinical rationale", "\"At least as likely as not\" opinion", "7–10 business day turnaround", "One-on-one consultation", "$250 per additional condition"],
-      is_featured: false,
-      display_order: 1,
-    },
     {
       id: 'tier-internist',
       slug: 'internist-specialist',
@@ -48,7 +35,7 @@ const supabaseFixtures = {
       best_for: 'Secondary, denied, complex claims. All theories (presumptive, direct, secondary) in one letter.',
       features: ["Board-certified physician matched to condition", "All claim theories in single letter", "Detailed medical literature citations", "Addresses counterarguments & denials", "Rush 48–72hrs available", "One-on-one specialist consultation"],
       is_featured: true,
-      display_order: 2,
+      display_order: 1,
     },
     {
       id: 'tier-complex',
@@ -61,7 +48,7 @@ const supabaseFixtures = {
       best_for: '1151, oncology, multi-condition TDIU, BVA appeals.',
       features: ["Sub-specialist or multi-specialist team", "Forensic-level record analysis", "Multi-condition combined opinions", "Rebuttal of negative C&P opinions", "BVA hearing-ready documentation", "Attorney coordination"],
       is_featured: false,
-      display_order: 3,
+      display_order: 2,
     }
   ],
   blog_posts: [

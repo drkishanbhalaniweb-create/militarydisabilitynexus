@@ -160,7 +160,7 @@ const PrivacyPolicy = () => {
 
                                     <h3 className="text-xl font-semibold text-slate-800 mt-6 mb-3">6.1. Access Restrictions</h3>
                                     <p className="text-slate-700 leading-relaxed mb-4">
-                                        Access to PHI is strictly limited to U.S.-licensed physicians, nurse practitioners, and authorized support personnel who require access to perform their specific job functions. All such individuals are bound by executed Business Associate Agreements and undergo mandatory HIPAA and security training.
+                                        Access to PHI is strictly limited to U.S.-licensed physicians (MD/DO) and authorized support personnel who require access to perform their specific job functions. All such individuals are bound by executed Business Associate Agreements and undergo mandatory HIPAA and security training.
                                     </p>
 
                                     <h3 className="text-xl font-semibold text-slate-800 mt-6 mb-3">6.2. Secure Storage</h3>

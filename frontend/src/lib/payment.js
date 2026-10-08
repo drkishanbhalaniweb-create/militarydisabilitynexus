@@ -105,7 +105,7 @@ export const SERVICE_PRICING = {
   medical_opinion: {
     name: 'Medical Opinion Letter',
     basePrice: 120000, // $1,200
-    rushFee: 40000,
+    rushFee: 50000,
   },
   cp_exam_prep: {
     name: 'C&P Exam Preparation',
