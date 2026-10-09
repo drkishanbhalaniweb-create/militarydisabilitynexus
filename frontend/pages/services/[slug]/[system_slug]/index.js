@@ -266,6 +266,11 @@ const SystemConditionsPage = ({ service, system, conditions, allServices, allSys
                                 </div>
                             ))}
                         </div>
+                        {statCards.some(s => typeof s?.value === 'string' && s.value.includes('*')) && (
+                            <p className="text-center text-xs text-slate-500 mt-3">
+                                *The turnaround time begins once all required documents have been received and the consultation has been completed.
+                            </p>
+                        )}
                     </div>
                 )}
 

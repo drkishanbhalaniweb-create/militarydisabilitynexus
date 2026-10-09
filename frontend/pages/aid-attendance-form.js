@@ -584,7 +584,10 @@ const AidAttendanceForm = () => {
                                             Request Expedited / Rush Review (3-5 Business Days)
                                         </span>
                                         <p className="text-sm text-slate-600 mt-1">
-                                            Additional rush fee applies. Standard review takes 7-10 business days.
+                                            Additional rush fee applies. Standard review takes 10-14 business days*.
+                                        </p>
+                                        <p className="text-xs text-slate-500 mt-1">
+                                            *The turnaround time begins once all required documents have been received and the consultation has been completed.
                                         </p>
                                     </div>
                                 </label>

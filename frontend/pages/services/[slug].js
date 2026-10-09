@@ -622,6 +622,11 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                     <CheckCircle className="w-5 h-5 text-navy-600 flex-shrink-0" />
                                                     <span>One on One consultation with Expert</span>
                                                 </div>
+                                                {typeof service?.duration === 'string' && service.duration.includes('*') && (
+                                                    <p className="text-xs text-slate-500 pt-1">
+                                                        *The turnaround time begins once all required documents have been received and the consultation has been completed.
+                                                    </p>
+                                                )}
                                             </div>
 
                                             {service.slug === 'claim-readiness-review' ? (

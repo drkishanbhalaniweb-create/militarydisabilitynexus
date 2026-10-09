@@ -80,7 +80,7 @@ serve(async (req) => {
               name: getServiceName(serviceType),
               description: isRushService
                 ? 'Includes rush service (36-48 hours)'
-                : 'Standard service (7-10 business days)',
+                : 'Standard service (10-14 business days*)',
             },
             unit_amount: amount,
           },

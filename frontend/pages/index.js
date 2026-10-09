@@ -129,13 +129,16 @@ const Home = ({ services, blogPosts, testimonials }) => {
                             <div className="grid grid-cols-2 gap-4 sm:gap-6 pt-4 w-full">
                                 <div className="min-w-0">
                                     <div className="text-xs sm:text-sm text-white/70 mb-1">Turnaround</div>
-                                    <div className="text-base sm:text-lg font-bold text-white break-words">7-10 business days</div>
+                                    <div className="text-base sm:text-lg font-bold text-white break-words">10-14 business days*</div>
                                 </div>
                                 <div className="min-w-0">
                                     <div className="text-xs sm:text-sm text-white/70 mb-1">Clinician</div>
                                     <div className="text-base sm:text-lg font-bold text-white">MD / DO</div>
                                 </div>
                             </div>
+                            <p className="text-xs text-white/70 pt-2">
+                                *The turnaround time begins once all required documents have been received and the consultation has been completed.
+                            </p>
                         </div>
 
                         {/* Right Column - Form */}
@@ -184,7 +187,7 @@ const Home = ({ services, blogPosts, testimonials }) => {
                                     <Clock className="w-14 h-14 sm:w-16 sm:h-16 text-white" />
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">7-10 Days</div>
+                                    <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">10-14 Days*</div>
                                     <div className="text-base font-semibold text-slate-700 mb-2">Average Turnaround</div>
                                     <p className="text-sm text-slate-600 group-hover:underline">Fast professional service</p>
                                 </div>
@@ -202,6 +205,9 @@ const Home = ({ services, blogPosts, testimonials }) => {
                                 </div>
                             </Link>
                         </div>
+                        <p className="text-center text-xs text-slate-500 mt-8">
+                            *The turnaround time begins once all required documents have been received and the consultation has been completed.
+                        </p>
                     </div>
                 </div>
             </section>

@@ -16,13 +16,13 @@ INSERT INTO services (id, slug, title, short_description, full_description, feat
     'Professional nexus and rebuttal letters that establish clear connections between your military service and medical conditions, or challenge unfavorable VA decisions. Our expert medical opinions provide the crucial evidence needed for both initial claims and appeals processes.',
     '["Nexus opinion letters", "Rebuttal to VA denials", "Direct/secondary/aggravation analysis", "Clear medical rationale", "Rush service: +$500 USD (36-48 hours)"]'::jsonb,
     1499,
-    '7-10 business days',
+    '10-14 business days*',
     'nexus-letter',
     'file-text',
     '[
         {"question": "What''s the difference between nexus and rebuttal letters?", "answer": "Nexus letters establish the connection between military service and a condition for initial claims. Rebuttal letters challenge VA decisions by providing contrary medical evidence and opinions."},
         {"question": "Can you help with both initial claims and appeals?", "answer": "Yes, we provide nexus letters for initial claims and rebuttal letters to challenge unfavorable VA decisions in appeals."},
-        {"question": "How long does it take?", "answer": "Typically 7-10 business days from the time we receive all necessary medical records and VA decision documents."}
+        {"question": "How long does it take?", "answer": "Typically 10-14 business days* from the time we receive all necessary medical records and VA decision documents."}
     ]'::jsonb,
     1
 ),

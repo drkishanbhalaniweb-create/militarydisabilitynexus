@@ -47,9 +47,12 @@ const PricingDisplay = ({ basePrice, rushFee, isRushService, serviceName }) => {
         {!isRushService && (
           <p className="flex items-start mt-1">
             <span className="mr-2">•</span>
-            <span>Standard processing: 7-10 business days</span>
+            <span>Standard processing: 10-14 business days*</span>
           </p>
         )}
+        <p className="text-xs text-slate-500 mt-3 pt-2 border-t border-indigo-100">
+          *The turnaround time begins once all required documents have been received and the consultation has been completed.
+        </p>
       </div>
     </div>
   );
