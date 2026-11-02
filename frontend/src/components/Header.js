@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Menu, X, ChevronDown, FileText, ClipboardCheck, Heart, Search, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Logo from './Logo';
+import GlobalSearch from './GlobalSearch';
 
 const serviceLinks = [
     {
@@ -42,6 +43,7 @@ const Header = () => {
     const [scrolled, setScrolled] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
     const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
     const router = useRouter();
     const dropdownRef = useRef(null);
     const timeoutRef = useRef(null);
@@ -61,6 +63,7 @@ const Header = () => {
         setServicesOpen(false);
         setMobileMenuOpen(false);
         setMobileServicesOpen(false);
+        setSearchOpen(false);
     }, [router.asPath]);
 
     // Close dropdown on outside click
@@ -202,6 +205,11 @@ const Header = () => {
                         ))}
                     </nav>
 
+                    {/* Global Search (Desktop) */}
+                    <div className="hidden md:flex items-center ml-6 mr-4">
+                        <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+                    </div>
+
                     {/* CTA Button */}
                     <Link
                         href="/contact"
@@ -212,21 +220,47 @@ const Header = () => {
                         <span>Book a Call</span>
                     </Link>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                        data-testid="mobile-menu-button"
-                    >
-                        {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                    {/* Mobile Actions */}
+                    <div className="flex items-center gap-1 md:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setSearchOpen(true)}
+                            className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                            data-testid="mobile-search-trigger"
+                            aria-label="Search"
+                        >
+                            <Search className="w-6 h-6" />
+                        </button>
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                            data-testid="mobile-menu-button"
+                            aria-label="Toggle navigation menu"
+                        >
+                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Mobile Menu */}
             {mobileMenuOpen && (
                 <div className="md:hidden border-t border-slate-200 bg-white" data-testid="mobile-menu">
-                    <nav className="px-4 py-6 space-y-1">
+                    <nav className="px-4 py-6 space-y-2">
+                        {/* Mobile Search Button in Drawer */}
+                        <div className="pb-3 border-b border-slate-100">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    setSearchOpen(true);
+                                }}
+                                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200/80 transition-colors text-sm font-medium"
+                            >
+                                <Search className="w-4 h-4 text-slate-500" />
+                                <span>Search conditions, services, articles...</span>
+                            </button>
+                        </div>
                         {/* Mobile Services Accordion */}
                         <div>
                             <button
