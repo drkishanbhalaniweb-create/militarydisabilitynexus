@@ -77,6 +77,26 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
     const basePriceText = bodySystem?.cta_price || (isMH ? '$1,600+' : '$945+');
     const displayCtaPrice = basePriceText.toLowerCase().startsWith('from') ? basePriceText : `From ${basePriceText}`;
     const basePriceValue = basePriceText.toLowerCase().startsWith('from ') ? basePriceText.substring(5) : basePriceText;
+    const conditionPrice = (() => {
+        if (condition.base_price_usd) {
+            return typeof condition.base_price_usd === 'number'
+                ? `$${condition.base_price_usd.toLocaleString()}`
+                : condition.base_price_usd;
+        }
+        const startingStat = (condition.stat_cards || []).find(
+            (c) => c?.label && /starting|price/i.test(c.label) && c?.value
+        );
+        if (startingStat?.value) {
+            return String(startingStat.value).startsWith('$') ? startingStat.value : `$${startingStat.value}`;
+        }
+        if (Array.isArray(condition.specialist_guide) && condition.specialist_guide[0]?.price) {
+            const specPrice = String(condition.specialist_guide[0].price).trim();
+            if (specPrice) {
+                return specPrice.startsWith('$') ? specPrice : `$${specPrice}`;
+            }
+        }
+        return service?.base_price_usd != null ? `$${service.base_price_usd.toLocaleString()}` : 'N/A';
+    })();
 
     // Helper functions to clean and deduplicate titles (prevents double-appending "Nexus Letter" or "DBQ" to the title/subheadings)
     const getCleanConditionTitle = (heroHeading, serviceObj) => {
@@ -456,7 +476,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                         primaryCta={
                             service.slug === 'independent-medical-opinion-nexus-letter'
                                 ? { label: `View Pricing \u2014 ${displayCtaPrice}`, onClick: () => setIsPricingModalOpen(true) }
-                                : { label: `Book Now \u2014 $${service.base_price_usd?.toLocaleString() || 'N/A'}`, href:
+                                : { label: `Book Now \u2014 ${conditionPrice}`, href:
                                     service.slug === 'claim-readiness-review'
                                         ? '/claim-readiness-review'
                                         : `/forms?service=${service.slug}`
@@ -557,7 +577,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                             <div className="text-xs text-slate-500 font-medium mb-0.5">{cleanConditionTitle}</div>
                                             <div className="text-sm text-slate-500 mb-1">Starting at</div>
                                             <div className="text-4xl font-bold text-slate-900 my-1" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
-                                                ${service.base_price_usd?.toLocaleString() || 'N/A'}
+                                                {conditionPrice}
                                             </div>
                                         </div>
 
@@ -578,7 +598,7 @@ const NestedConditionDetail = ({ condition, bodySystem, service, relatedBlogs = 
                                                 className="w-full text-white px-6 py-3 rounded-xl font-semibold text-center transition-all hover:shadow-lg hover:brightness-110 block text-sm"
                                                 style={{ backgroundColor: '#B91C3C' }}
                                             >
-                                                Book Now - ${service.base_price_usd}
+                                                Book Now - {conditionPrice}
                                             </Link>
                                         ) : service.slug === 'aid-and-attendance' ? (
                                             <div className="space-y-2">
