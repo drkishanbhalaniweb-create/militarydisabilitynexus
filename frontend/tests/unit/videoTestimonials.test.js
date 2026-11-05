@@ -13,6 +13,7 @@ import {
   generateVideoStructuredData,
   validateVideoFile,
   validatePosterFile,
+  toFirstPartyMediaUrl,
 } from '../../src/lib/testimonials';
 import { testimonialApi } from '../../src/lib/api';
 
@@ -263,7 +264,7 @@ describe('Video Testimonials Utilities & SEO', () => {
         video_url: 'https://example.supabase.co/storage/v1/object/public/testimonials/review.mp4',
       };
       const schema = generateVideoStructuredData({ testimonial: directMediaTestimonial });
-      expect(schema.contentUrl).toBe('https://example.supabase.co/storage/v1/object/public/testimonials/review.mp4');
+      expect(schema.contentUrl).toBe('https://www.militarydisabilitynexus.com/media/testimonials/review.mp4');
       expect(schema.embedUrl).toBeUndefined();
     });
 
@@ -274,7 +275,7 @@ describe('Video Testimonials Utilities & SEO', () => {
         video_provider: 'html5',
       };
       const schema = generateVideoStructuredData({ testimonial: html5Testimonial });
-      expect(schema.contentUrl).toBe('https://example.supabase.co/storage/v1/object/public/testimonials/veteran.mp4');
+      expect(schema.contentUrl).toBe('https://www.militarydisabilitynexus.com/media/testimonials/veteran.mp4');
       expect(schema.embedUrl).toBeUndefined();
     });
 
@@ -436,6 +437,32 @@ describe('Video Testimonials Utilities & SEO', () => {
     it('rejects non-image formats for poster', () => {
       const invalid = { name: 'script.js', type: 'application/javascript', size: 500 };
       expect(validatePosterFile(invalid).valid).toBe(false);
+    });
+  });
+
+  describe('toFirstPartyMediaUrl', () => {
+    it('rewrites public Supabase storage video URLs to first-party proxy URLs', () => {
+      const input = 'https://ehwejkvlreyokfarjjeu.supabase.co/storage/v1/object/public/testimonials/videos/test.mp4';
+      const output = toFirstPartyMediaUrl(input);
+      expect(output).toBe('https://www.militarydisabilitynexus.com/media/testimonials/videos/test.mp4');
+    });
+
+    it('rewrites public Supabase storage poster URLs to first-party proxy URLs', () => {
+      const input = 'https://ehwejkvlreyokfarjjeu.supabase.co/storage/v1/object/public/testimonials/posters/test.jpg';
+      const output = toFirstPartyMediaUrl(input);
+      expect(output).toBe('https://www.militarydisabilitynexus.com/media/testimonials/posters/test.jpg');
+    });
+
+    it('preserves non-Supabase URLs unchanged', () => {
+      expect(toFirstPartyMediaUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+      expect(toFirstPartyMediaUrl('https://cdn.example.com/video.mp4')).toBe('https://cdn.example.com/video.mp4');
+      expect(toFirstPartyMediaUrl('/images/local.jpg')).toBe('/images/local.jpg');
+    });
+
+    it('handles null, undefined, and non-string inputs safely', () => {
+      expect(toFirstPartyMediaUrl(null)).toBeNull();
+      expect(toFirstPartyMediaUrl(undefined)).toBeUndefined();
+      expect(toFirstPartyMediaUrl('')).toBe('');
     });
   });
 });

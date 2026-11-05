@@ -21,6 +21,15 @@ const nextConfig = {
         ],
     },
 
+    async rewrites() {
+        return [
+            {
+                source: '/media/:path*',
+                destination: '/api/media/:path*',
+            },
+        ];
+    },
+
     async redirects() {
         const redirects = [
             {

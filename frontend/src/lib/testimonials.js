@@ -305,6 +305,22 @@ export const generateTestimonialSlug = (name = '', condition = '', service = '')
 };
 
 /**
+ * Transforms external Supabase Storage public URLs to first-party proxy URLs
+ * (e.g. https://<ref>.supabase.co/storage/v1/object/public/<path> -> https://www.militarydisabilitynexus.com/media/<path>)
+ * This removes 'x-robots-tag: none' and enables Google video and thumbnail indexing.
+ */
+export const toFirstPartyMediaUrl = (url, siteUrl = 'https://www.militarydisabilitynexus.com') => {
+  if (!url || typeof url !== 'string') return url;
+  const trimmed = url.trim();
+  const cleanSite = siteUrl.replace(/\/$/, '');
+  const match = trimmed.match(/^https?:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/(.+)$/i);
+  if (match && match[1]) {
+    return `${cleanSite}/media/${match[1]}`;
+  }
+  return trimmed;
+};
+
+/**
  * Generates Schema.org VideoObject structured data with Google Key Moments (hasPart: Clip)
  */
 export const generateVideoStructuredData = ({
@@ -319,8 +335,11 @@ export const generateVideoStructuredData = ({
   let resolvedThumb = testimonial.video_thumbnail_url?.trim() || (videoId ? getYouTubeThumbnail(videoId) : null);
   if (!resolvedThumb) {
     resolvedThumb = fallbackThumb;
-  } else if (!resolvedThumb.startsWith('http://') && !resolvedThumb.startsWith('https://')) {
-    resolvedThumb = `${siteUrl}${resolvedThumb.startsWith('/') ? '' : '/'}${resolvedThumb}`;
+  } else {
+    resolvedThumb = toFirstPartyMediaUrl(resolvedThumb, siteUrl);
+    if (!resolvedThumb.startsWith('http://') && !resolvedThumb.startsWith('https://')) {
+      resolvedThumb = `${siteUrl}${resolvedThumb.startsWith('/') ? '' : '/'}${resolvedThumb}`;
+    }
   }
   const thumbnailUrl = resolvedThumb;
 
@@ -370,8 +389,11 @@ export const generateVideoStructuredData = ({
   };
 
   let resolvedContentUrl = testimonial.video_url?.trim() || '';
-  if (resolvedContentUrl && !resolvedContentUrl.startsWith('http://') && !resolvedContentUrl.startsWith('https://')) {
-    resolvedContentUrl = `${siteUrl}${resolvedContentUrl.startsWith('/') ? '' : '/'}${resolvedContentUrl}`;
+  if (resolvedContentUrl) {
+    resolvedContentUrl = toFirstPartyMediaUrl(resolvedContentUrl, siteUrl);
+    if (!resolvedContentUrl.startsWith('http://') && !resolvedContentUrl.startsWith('https://')) {
+      resolvedContentUrl = `${siteUrl}${resolvedContentUrl.startsWith('/') ? '' : '/'}${resolvedContentUrl}`;
+    }
   }
 
   // Google Video Search Central gold standard:
@@ -381,7 +403,8 @@ export const generateVideoStructuredData = ({
     testimonial.video_provider === 'html5' ||
     !videoId ||
     /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(resolvedContentUrl) ||
-    resolvedContentUrl.includes('/storage/')
+    resolvedContentUrl.includes('/storage/') ||
+    resolvedContentUrl.includes('/media/')
   );
 
   if (!isDirectMedia && testimonial.video_provider !== 'html5' && videoId) {

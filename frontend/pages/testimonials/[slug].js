@@ -29,6 +29,7 @@ import {
   parseDurationInput,
   extractYouTubeId,
   getYouTubeThumbnail,
+  toFirstPartyMediaUrl,
 } from '../../src/lib/testimonials';
 
 export async function getStaticPaths() {
@@ -207,13 +208,25 @@ const VideoTestimonialSpokePage = ({ testimonial, related = [] }) => {
   const videoId = useMemo(() => extractYouTubeId(testimonial.video_url), [testimonial.video_url]);
   const ogImageUrl = useMemo(
     () => {
-      const raw = testimonial.video_thumbnail_url || (videoId ? getYouTubeThumbnail(videoId) : null);
-      if (raw && (raw.startsWith('http://') || raw.startsWith('https://'))) {
-        return raw;
+      let raw = testimonial.video_thumbnail_url || (videoId ? getYouTubeThumbnail(videoId) : null);
+      if (raw) {
+        raw = toFirstPartyMediaUrl(raw);
+        if (raw.startsWith('http://') || raw.startsWith('https://')) {
+          return raw;
+        }
       }
       return raw ? `https://www.militarydisabilitynexus.com${raw.startsWith('/') ? '' : '/'}${raw}` : 'https://www.militarydisabilitynexus.com/android-chrome-512x512.png';
     },
     [videoId, testimonial.video_thumbnail_url]
+  );
+
+  const firstPartyVideoUrl = useMemo(
+    () => toFirstPartyMediaUrl(testimonial.video_url),
+    [testimonial.video_url]
+  );
+  const firstPartyThumbnailUrl = useMemo(
+    () => toFirstPartyMediaUrl(testimonial.video_thumbnail_url),
+    [testimonial.video_thumbnail_url]
   );
 
   const structuredData = useMemo(() => {
@@ -291,9 +304,9 @@ const VideoTestimonialSpokePage = ({ testimonial, related = [] }) => {
                 <div className="overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl backdrop-blur-sm">
                   <VideoFacade
                     ref={videoFacadeRef}
-                    videoUrl={testimonial.video_url}
+                    videoUrl={firstPartyVideoUrl}
                     aspectRatio={testimonial.video_aspect_ratio || '4:5'}
-                    thumbnailUrl={testimonial.video_thumbnail_url}
+                    thumbnailUrl={firstPartyThumbnailUrl}
                     duration={testimonial.video_duration}
                     initialStart={initialSeekTime}
                     onTimeUpdate={handleVideoTimeUpdate}

@@ -1,6 +1,6 @@
 import { supabase } from '../src/lib/supabase';
 import { buildConditionPath } from '../src/lib/conditionRouting';
-import { extractYouTubeId, parseDurationInput } from '../src/lib/testimonials';
+import { extractYouTubeId, parseDurationInput, toFirstPartyMediaUrl } from '../src/lib/testimonials';
 
 const SITE_URL = "https://www.militarydisabilitynexus.com";
 
@@ -244,6 +244,7 @@ export const getServerSideProps = async ({ res }) => {
             const videoId = extractYouTubeId(vt.video_url);
             const veteranName = vt.name?.trim() || 'Veteran';
             let rawThumb = vt.video_thumbnail_url?.trim() || (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : `${SITE_URL}/android-chrome-512x512.png`);
+            rawThumb = toFirstPartyMediaUrl(rawThumb, SITE_URL);
             if (!rawThumb.startsWith('http://') && !rawThumb.startsWith('https://')) {
                 rawThumb = `${SITE_URL}${rawThumb.startsWith('/') ? '' : '/'}${rawThumb}`;
             }
@@ -260,11 +261,15 @@ export const getServerSideProps = async ({ res }) => {
                 vt.video_provider === 'html5' ||
                 !videoId ||
                 /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(vt.video_url) ||
-                vt.video_url.includes('/storage/')
+                vt.video_url.includes('/storage/') ||
+                vt.video_url.includes('/media/')
             );
             let contentLoc = isDirectMedia ? vt.video_url.trim() : null;
-            if (contentLoc && !contentLoc.startsWith('http://') && !contentLoc.startsWith('https://')) {
-                contentLoc = `${SITE_URL}${contentLoc.startsWith('/') ? '' : '/'}${contentLoc}`;
+            if (contentLoc) {
+                contentLoc = toFirstPartyMediaUrl(contentLoc, SITE_URL);
+                if (!contentLoc.startsWith('http://') && !contentLoc.startsWith('https://')) {
+                    contentLoc = `${SITE_URL}${contentLoc.startsWith('/') ? '' : '/'}${contentLoc}`;
+                }
             }
             const playerLoc = !contentLoc && videoId
                 ? `https://www.youtube-nocookie.com/embed/${videoId}`
