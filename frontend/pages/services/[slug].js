@@ -306,7 +306,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                                         </span>
                                                                     </div>
                                                                 </div>
-                                                                <p className="text-slate-600 line-clamp-2 text-sm mt-2 flex-grow">
+                                                                <p className="text-slate-600 line-clamp-2 text-sm mt-2">
                                                                     {system.description}
                                                                 </p>
                                                                 {system.conditionsPreview && system.conditionsPreview.length > 0 && (
@@ -323,7 +323,7 @@ const ServiceDetail = ({ service, slug, allServices = [], relatedBlogs = [], rel
                                                                         )}
                                                                     </div>
                                                                 )}
-                                                                <div className="flex items-center text-sm text-navy-600 font-semibold group-hover:translate-x-1 transition-transform mt-4">
+                                                                <div className="flex items-center text-sm text-navy-600 font-semibold group-hover:translate-x-1 transition-transform mt-auto pt-4">
                                                                     View Conditions <ArrowRight className="w-4 h-4 ml-1" />
                                                                 </div>
                                                             </Link>
